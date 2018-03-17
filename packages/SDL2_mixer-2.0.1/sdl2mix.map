@@ -1,0 +1,2698 @@
+Open Watcom Linker Version 2.0 beta Apr 27 2014 22:18:18 (32-bit)
+Copyright (c) 2002-2014 The Open Watcom Contributors. All Rights Reserved.
+Portions Copyright (c) 1985-2002 Sybase, Inc. All Rights Reserved.
+Created on:       16/02/23 23:14:12
+Executable Image: ..\..\dll\sdl2mix.dll
+creating an OS/2 and eComStation dynamic link library
+symbol near MPEG::MPEG( MPEG const near & ) removed
+symbol near CzCUBICSPLINE::CzCUBICSPLINE( CzCUBICSPLINE const near & ) removed
+symbol near CzWINDOWEDFIR::CzWINDOWEDFIR( CzWINDOWEDFIR const near & ) removed
+symbol near MPEGsystem::MPEGsystem( MPEGsystem const near & ) removed
+symbol void near MPEGaction::Play() removed
+symbol void near MPEGaction::Stop() removed
+symbol void near MPEGaction::Rewind() removed
+symbol void near MPEGaction::ResetSynchro( double ) removed
+symbol void near MPEGaction::Skip( float ) removed
+symbol __anonymous_enum near MPEGaction::GetStatus() removed
+symbol near MPEGaudio::MPEGaudio( MPEGaudio const near & ) removed
+symbol near MPEGvideo::MPEGvideo( MPEGvideo const near & ) removed
+symbol near MPEG_ring::MPEG_ring( MPEG_ring const near & ) removed
+symbol near MPEGerror::MPEGerror() removed
+symbol void near MPEGerror::ClearError() removed
+symbol __set_commode_ removed
+symbol void near MPEGaction::ResetPause() removed
+symbol int near Mpegbitwindow::getbit() removed
+symbol int near MPEGaudio::wgetbit() removed
+symbol int near MPEGaudio::wgetbits( int ) removed
+symbol _heapenable removed
+symbol __set_handles removed
+symbol _grow_handles removed
+
+
+                        +------------+
+                        |   Groups   |
+                        +------------+
+
+Group                           Address              Size
+=====                           =======              ====
+
+DGROUP                          0003:00000000        000f8580
+
+
+
+                        +--------------+
+                        |   Segments   |
+                        +--------------+
+
+Segment                Class          Group          Address         Size
+=======                =====          =====          =======         ====
+
+_TEXT16                CODE           AUTO           0001:00000000   00000068
+BEGTEXT                CODE           AUTO           0002:00000000   00000007
+_TEXT                  CODE           AUTO           0002:00000010   000e7a01
+_NULL                  BEGDATA        DGROUP         0003:00000000   00000004
+_AFTERNULL             BEGDATA        DGROUP         0003:00000004   00000000
+CONST                  DATA           DGROUP         0003:00000004   00006374
+CONST2                 DATA           DGROUP         0003:00006380   000230a4
+_DATA                  DATA           DGROUP         0003:00029430   0000bb10
+XIB                    DATA           DGROUP         0003:00034f40   00000000
+XI                     DATA           DGROUP         0003:00034f40   00000066
+XIE                    DATA           DGROUP         0003:00034fa6   00000000
+YIB                    DATA           DGROUP         0003:00034fa6   00000000
+YI                     DATA           DGROUP         0003:00034fa6   0000002a
+YIE                    DATA           DGROUP         0003:00034fd0   00000000
+TIB                    DATA           DGROUP         0003:00034fd0   00000000
+TI                     DATA           DGROUP         0003:00034fd0   00000000
+TIE                    DATA           DGROUP         0003:00034fd0   00000000
+DATA                   DATA           DGROUP         0003:00034fd0   00000000
+DATA32                 DATA           DGROUP         0003:00034fd0   000002b4
+CONST32                CONST          DGROUP         0003:00035284   00000000
+_BSS                   BSS            DGROUP         0003:00035290   000c32e8
+BSS32                  BSS            DGROUP         0003:000f8578   00000000
+STACK                  STACK          DGROUP         0003:000f8580   00000000
+
+
+                        +----------------+
+                        |   Memory Map   |
+                        +----------------+
+
+* = unreferenced symbol
++ = symbol only referenced locally
+
+Address        Symbol
+=======        ======
+
+Module: dynamic_flac.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\dynamic_flac.c)
+0002:00000010  Mix_InitFLAC
+0002:00000090  Mix_QuitFLAC
+0003:00029430  flac
+Module: dynamic_mod.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\dynamic_mod.c)
+0002:000000b0  Mix_InitMOD
+0002:000001d0  Mix_QuitMOD
+0003:00029460  mikmod
+Module: dynamic_modplug.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\dynamic_modplug.c)
+0002:000001f0  Mix_InitModPlug
+0002:00000260  Mix_QuitModPlug
+0003:000294d0  modplug
+Module: dynamic_mp3.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\dynamic_mp3.c)
+0002:00000280  Mix_InitMP3
+0002:00000320  Mix_QuitMP3
+0003:000294f4  smpeg
+Module: dynamic_ogg.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\dynamic_ogg.c)
+0002:00000370  Mix_InitOgg
+0002:000003d0  Mix_QuitOgg
+0003:0002956c  vorbis
+Module: effects_internal.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\effects_internal.c)
+0002:000003f0  _Mix_InitEffects
+0002:00000410  _Mix_DeinitEffects
+0002:00000420  _Eff_build_volume_table_u8
+0002:000004c0  _Eff_build_volume_table_s8
+0003:0002958c+ _Mix_effects_max_speed
+0003:00029590  _Eff_volume_table
+Module: effect_position.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\effect_position.c)
+0002:00000540  _Eff_PositionDeinit
+0002:00004400+ Mix_SetPanning
+0002:00004590+ Mix_SetDistance
+0002:00004690+ Mix_SetPosition
+Module: effect_stereoreverse.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\effect_stereoreverse.c)
+0002:000049d0+ Mix_SetReverseStereo
+Module: load_aiff.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\load_aiff.c)
+0002:00004ac0  Mix_LoadAIFF_RW
+Module: load_flac.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\load_flac.c)
+0002:000052f0  Mix_LoadFLAC_RW
+Module: load_mp3.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\load_mp3.c)
+0002:00005470  Mix_LoadMP3_RW
+Module: load_ogg.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\load_ogg.c)
+0002:00005770  Mix_LoadOGG_RW
+Module: load_voc.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\load_voc.c)
+0002:00005f90  Mix_LoadVOC_RW
+Module: mixer.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\mixer.c)
+0002:00006160+ Mix_GetNumChunkDecoders
+0002:00006170+ Mix_GetChunkDecoder
+0002:000061d0+ Mix_Linked_Version
+0002:000061f0  Mix_Init
+0002:000062c0+ Mix_Quit
+0002:00006780+ Mix_OpenAudio
+0002:00006940+ Mix_AllocateChannels
+0002:00006a30  Mix_QuerySpec
+0002:00006ad0+ Mix_LoadWAV_RW
+0002:00006e20+ Mix_QuickLoad_WAV
+0002:00006ef0+ Mix_QuickLoad_RAW
+0002:00006f40+ Mix_FreeChunk
+0002:00006fb0+ Mix_SetPostMix
+0002:00006fd0+ Mix_HookMusic
+0002:00007010+ Mix_GetMusicHookData
+0002:00007020+ Mix_ChannelFinished
+0002:00007040+ Mix_ReserveChannels
+0002:000070a0+ Mix_PlayChannelTimed
+0002:000071f0+ Mix_ExpireChannel
+0002:00007260+ Mix_FadeInChannelTimed
+0002:000073e0+ Mix_Volume
+0002:00007460+ Mix_VolumeChunk
+0002:00007490+ Mix_HaltChannel
+0002:00007530+ Mix_HaltGroup
+0002:00007570+ Mix_FadeOutChannel
+0002:00007610+ Mix_FadeOutGroup
+0002:00007650+ Mix_FadingChannel
+0002:00007670+ Mix_Playing
+0002:000076e0+ Mix_GetChunk
+0002:00007700+ Mix_CloseAudio
+0002:00007790+ Mix_Pause
+0002:00007810+ Mix_Resume
+0002:000078d0+ Mix_Paused
+0002:00007940+ Mix_GroupChannel
+0002:00007980+ Mix_GroupChannels
+0002:000079c0+ Mix_GroupAvailable
+0002:00007a20+ Mix_GroupCount
+0002:00007a70+ Mix_GroupOldest
+0002:00007ad0+ Mix_GroupNewer
+0002:00007cb0  _Mix_RegisterEffect_locked
+0002:00007d10  Mix_RegisterEffect
+0002:00007d40  _Mix_UnregisterEffect_locked
+0002:00007da0  Mix_UnregisterEffect
+0002:00007dd0+ _Mix_UnregisterAllEffects_locked
+0002:00007e10+ Mix_UnregisterAllEffects
+Module: music.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\music.c)
+0003:00029690  music_active
+0003:000296b0  soundfont_paths
+0002:00007e40+ Mix_GetSynchroValue
+0002:00007e40+ Mix_SetSynchroValue
+0002:00007e60+ Mix_GetNumMusicDecoders
+0002:00007e70+ Mix_GetMusicDecoder
+0002:00007ed0+ Mix_HookMusicFinished
+0002:00007f70  music_mixer
+0002:00008140  open_music
+0002:000082a0+ MIX_string_equals
+0002:000084a0+ Mix_LoadMUS
+0002:00008620+ Mix_LoadMUS_RW
+0002:00008660+ Mix_LoadMUSType_RW
+0002:00008930+ Mix_FreeMusic
+0002:00008a50+ Mix_GetMusicType
+0002:00008bf0+ Mix_FadeInMusicPos
+0002:00008cc0+ Mix_FadeInMusic
+0002:00008ce0+ Mix_PlayMusic
+0002:00008e30+ Mix_SetMusicPosition
+0002:00008fd0  Mix_VolumeMusic
+0002:000090f0+ Mix_HaltMusic
+0002:00009130+ Mix_FadeOutMusic
+0002:00009210+ Mix_FadingMusic
+0002:00009240+ Mix_PauseMusic
+0002:00009250+ Mix_ResumeMusic
+0002:00009260+ Mix_RewindMusic
+0002:00009270+ Mix_PausedMusic
+0002:00009390+ Mix_PlayingMusic
+0002:000093d0+ Mix_SetMusicCMD
+0002:00009450  close_music
+0002:00009490+ Mix_SetSoundFonts
+0002:000094f0+ Mix_GetSoundFonts
+0002:00009530+ Mix_EachSoundFont
+Module: music_flac.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\music_flac.c)
+0002:000095b0  FLAC_init
+0002:000095d0  FLAC_setvolume
+0002:000099e0  FLAC_new_RW
+0002:00009b50  FLAC_play
+0002:00009b60  FLAC_playing
+0002:00009d60  FLAC_playAudio
+0002:00009df0  FLAC_stop
+0002:00009e00  FLAC_delete
+0002:00009e80  FLAC_jump_to_time
+Module: music_mod.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\music_mod.c)
+0002:00009fb0  MOD_init
+0002:0000a170  MOD_exit
+0002:0000a190  MOD_setvolume
+0002:0000a1b0+ LMM_Seek
+0002:0000a210+ LMM_Tell
+0002:0000a230+ LMM_Read
+0002:0000a250+ LMM_Get
+0002:0000a280+ LMM_Eof
+0002:0000a2b0+ MikMod_LoadSongRW
+0002:0000a340  MOD_new_RW
+0002:0000a3d0  MOD_play
+0002:0000a3e0  MOD_playing
+0002:0000a3f0  MOD_playAudio
+0002:0000a560  MOD_stop
+0002:0000a570  MOD_delete
+0002:0000a580  MOD_jump_to_time
+Module: music_modplug.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\music_modplug.c)
+0002:0000a5b0  modplug_init
+0002:0000a5d0  modplug_exit
+0002:0000a700  modplug_setvolume
+0002:0000a720  modplug_new_RW
+0002:0000a830  modplug_play
+0002:0000a850  modplug_playing
+0002:0000a870  modplug_playAudio
+0002:0000aa20  modplug_stop
+0002:0000aa30  modplug_delete
+0002:0000aa50  modplug_jump_to_time
+Module: music_ogg.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\music_ogg.c)
+0002:0000aab0  OGG_init
+0002:0000aad0  OGG_setvolume
+0002:0000ab40  OGG_new_RW
+0002:0000ac40  OGG_play
+0002:0000ac50  OGG_playing
+0002:0000adb0  OGG_playAudio
+0002:0000ae40  OGG_stop
+0002:0000ae50  OGG_delete
+0002:0000aea0  OGG_jump_to_time
+Module: wavestream.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\wavestream.c)
+0002:0000aec0  WAVStream_Init
+0002:0000aee0  WAVStream_SetVolume
+0002:0000aef0  WAVStream_LoadSong_RW
+0002:0000afe0  WAVStream_Start
+0002:0000b2f0  WAVStream_PlaySome
+0002:0000b350  WAVStream_Stop
+0002:0000b360  WAVStream_FreeSong
+0002:0000b3b0  WAVStream_Active
+Module: common.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\timidity\common.c)
+0002:0000ba50  open_file
+0002:0000bca0  close_file
+0002:0000bcd0  skip
+0002:0000bd50  safe_malloc
+0002:0000bda0  add_to_pathlist
+0002:0000be00  free_pathlist
+0003:0003536c  current_filename
+Module: ctrlmode.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\timidity\ctrlmode.c)
+0003:00029710* ctl_list
+0003:00029718  ctl
+Module: filter.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\timidity\filter.c)
+0002:0000c270  antialiasing
+Module: instrum.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\timidity\instrum.c)
+0002:0000c580+ convert_envelope_rate_attack
+0002:0000c5d0+ convert_envelope_rate
+0002:0000c630* convert_envelope_offset
+0002:0000c640+ convert_tremolo_sweep
+0002:0000c670+ convert_vibrato_sweep
+0002:0000c6d0* convert_tremolo_rate
+0002:0000c700* convert_vibrato_rate
+0002:0000db70  load_missing_instruments
+0002:0000dbc0  free_instruments
+0002:0000dc00  set_default_instrument
+0003:0002971c  tonebank
+0003:00029924  drumset
+0003:00029b2c  default_instrument
+0003:00029b30  default_program
+0003:00029b34+ antialiasing_allowed
+0003:00029b38+ fast_decay
+0003:00029b3c  current_tune_number
+0003:00029b40+ last_tune_purged
+0003:00029b44+ current_patch_memory
+0003:00029b48+ max_patch_memory
+Module: mix.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\timidity\mix.c)
+0002:0000dc70  recompute_envelope
+0002:0000dd80  apply_envelope_to_amp
+0002:0000f0a0  mix_voice
+Module: output.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\timidity\output.c)
+0002:0000f250  s32tos8
+0002:0000f290  s32tou8
+0002:0000f2d0  s32tos16
+0002:0000f320  s32tou16
+0002:0000f370  s32tos16x
+0002:0000f3d0  s32tou16x
+0002:0000f440* s32toulaw
+0003:00029b54* play_mode_list
+0003:00029b5c  play_mode
+Module: playmidi.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\timidity\playmidi.c)
+0003:00038480+ master_volume
+0003:00038488  channel
+0003:00038a08  voice
+0003:00055208  drumreverberation
+0003:00055a08  drumvolume
+0003:00056208  drumpanpot
+0003:00056a08  drumchorusdepth
+0003:00029b6c+ voices
+0003:00029b70  control_ratio
+0003:00029b74+ amplification
+0003:00029b78  drumchannels
+0003:00029b7c+ adjust_panning_immediately
+0003:00029b84  GM_System_On
+0003:00029b88  XG_System_On
+0003:00029b8c  GS_System_On
+0002:00011b80  Timidity_PlaySome
+0002:00012280  Timidity_SetVolume
+0002:00012310  Timidity_LoadSong_RW
+0002:000123b0  Timidity_Start
+0002:00012410  Timidity_Active
+0002:00012420  Timidity_Stop
+0002:00012430  Timidity_FreeSong
+0002:00012460  Timidity_Close
+0003:00057228  XG_System_chorus_type
+0003:0005722c  XG_System_variation_type
+0003:00057230  XG_System_reverb_type
+Module: readmidi.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\timidity\readmidi.c)
+0002:00014060  read_midi_file
+0003:00029f90+ quietchannels
+0003:000572dc  midi_name
+Module: resample.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\timidity\resample.c)
+0002:00014ed0  resample_voice
+0002:00014fe0  pre_resample
+Module: sdl_a.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\timidity\sdl_a.c)
+0003:00029fb8  sdl_play_mode
+Module: sdl_c.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\timidity\sdl_c.c)
+0003:00029fc4  sdl_control_mode
+Module: tables.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\timidity\tables.c)
+0002:00015360  init_tables
+0003:0002a020  freq_table
+0003:0002a220  vol_table
+0003:0002a620  expr_table
+0003:0002aa20  bend_fine
+0003:0002b220  bend_coarse
+0003:0002b620+ _l2u_
+0003:0002d620  _l2u
+0003:0002d624  xmap
+Module: timidity.obj(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\timidity\timidity.c)
+0003:000314a4  free_instruments_afterwards
+0002:00015de0  Timidity_Init
+0002:00016050  Timidity_Error
+0003:000315a8  resample_buffer
+0003:000315ac  common_buffer
+0003:000315b4  timidity_error
+0003:00057404  AUDIO_BUFFER_SIZE
+0003:00057408  s32tobuf
+0003:0005740c  num_ochannels
+Module: ..\..\lib\flac.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\flac-1.2.1\src\libFLAC\stream_decoder.c)
+0003:000319b4* FLAC_API_SUPPORTS_OGG_FLAC
+0003:000063a4+ FLAC__StreamDecoderStateString
+0003:000063cc* FLAC__StreamDecoderInitStatusString
+0003:000063e4* FLAC__StreamDecoderReadStatusString
+0003:000063f0* FLAC__StreamDecoderSeekStatusString
+0003:000063fc* FLAC__StreamDecoderTellStatusString
+0002:000161a0  FLAC__stream_decoder_new
+0002:00016350  FLAC__stream_decoder_delete
+0002:00016590  FLAC__stream_decoder_init_stream
+0002:000165e0* FLAC__stream_decoder_init_ogg_stream
+0002:00016700* FLAC__stream_decoder_init_FILE
+0002:00016730* FLAC__stream_decoder_init_ogg_FILE
+0002:000167f0* FLAC__stream_decoder_init_file
+0002:00016820* FLAC__stream_decoder_init_ogg_file
+0002:00016850  FLAC__stream_decoder_finish
+0002:000169f0* FLAC__stream_decoder_set_ogg_serial_number
+0002:00016a00* FLAC__stream_decoder_set_md5_checking
+0002:00016a20* FLAC__stream_decoder_set_metadata_respond
+0002:00016a70* FLAC__stream_decoder_set_metadata_respond_application
+0002:00016b40* FLAC__stream_decoder_set_metadata_respond_all
+0002:00016b80* FLAC__stream_decoder_set_metadata_ignore
+0002:00016bd0* FLAC__stream_decoder_set_metadata_ignore_application
+0002:00016ca0* FLAC__stream_decoder_set_metadata_ignore_all
+0002:00016ce0  FLAC__stream_decoder_get_state
+0002:00016cf0* FLAC__stream_decoder_get_resolved_state_string
+0002:00016d10* FLAC__stream_decoder_get_md5_checking
+0002:00016d20* FLAC__stream_decoder_get_total_samples
+0002:00016d50* FLAC__stream_decoder_get_channels
+0002:00016d60* FLAC__stream_decoder_get_channel_assignment
+0002:00016d70* FLAC__stream_decoder_get_bits_per_sample
+0002:00016d80* FLAC__stream_decoder_get_sample_rate
+0002:00016d90* FLAC__stream_decoder_get_blocksize
+0002:00016da0+ FLAC__stream_decoder_get_decode_position
+0002:00016e10  FLAC__stream_decoder_flush
+0002:00016e70+ FLAC__stream_decoder_reset
+0002:00016fb0  FLAC__stream_decoder_process_single
+0002:00017060  FLAC__stream_decoder_process_until_end_of_metadata
+0002:000170c0  FLAC__stream_decoder_process_until_end_of_stream
+0002:00017150* FLAC__stream_decoder_skip_single_frame
+0002:000171b0  FLAC__stream_decoder_seek_absolute
+0002:000172d0* FLAC__stream_decoder_get_input_bytes_unconsumed
+0003:00006408* FLAC__StreamDecoderLengthStatusString
+0003:00006414* FLAC__StreamDecoderWriteStatusString
+0003:0000641c* FLAC__StreamDecoderErrorStatusString
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(dstrt386)
+0002:0001a7a8  __DLLstart_
+0002:0001a7a8* __DLLstartw_
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\playercode\mdriver.c)
+0003:000319bc+ md_driver
+0003:000319c0  md_device
+0003:000319c2  md_mixfreq
+0003:000319c4  md_mode
+0003:000319c6  md_pansep
+0003:000319c7  md_reverb
+0003:000319c8  md_volume
+0003:000319c9  md_musicvolume
+0003:000319ca  md_sndfxvolume
+0003:000319cc  md_bpm
+0003:000319ce+ md_numchn
+0003:000319cf  md_sngchn
+0003:000319d0  md_sfxchn
+0003:000319d1+ md_hardchn
+0003:000319d2  md_softchn
+0003:000319d4  md_player
+0003:000319d8  vc_callback
+0002:0001a9b0  MD_SampleSpace
+0002:0001a9f0  MD_SampleLength
+0002:0001aa30  MikMod_InfoDriver
+0002:0001ab00+ _mm_registerdriver
+0002:0001ab40  MikMod_RegisterDriver
+0002:0001ab90* MikMod_DriverFromAlias
+0002:0001ac00* MikMod_DriverByOrdinal
+0002:0001ac50  MD_SampleLoad
+0002:0001acb0  MD_SampleUnload
+0002:0001acd0* MikMod_RegisterPlayer
+0002:0001ad20* MikMod_Update
+0002:0001ad90  Voice_SetVolume_internal
+0002:0001ae30* Voice_SetVolume
+0002:0001ae80* Voice_GetVolume
+0002:0001aee0  Voice_SetFrequency_internal
+0002:0001af30* Voice_SetFrequency
+0002:0001af80* Voice_GetFrequency
+0002:0001afe0  Voice_SetPanning_internal
+0002:0001b060* Voice_SetPanning
+0002:0001b0b0* Voice_GetPanning
+0002:0001b110  Voice_Play_internal
+0002:0001b180* Voice_Play
+0002:0001b1e0  Voice_Stop_internal
+0002:0001b230* Voice_Stop
+0002:0001b270  Voice_Stopped_internal
+0002:0001b2a0* Voice_Stopped
+0002:0001b2f0* Voice_GetPosition
+0002:0001b370* Voice_RealVolume
+0002:0001b3e0* VC_SetCallback
+0002:0001b550  MikMod_Init
+0002:0001b5c0+ MikMod_Exit_internal
+0002:0001b630  MikMod_Exit
+0002:0001b750* MikMod_Reset
+0002:0001b7c0  MikMod_SetNumVoices_internal
+0002:0001b970* MikMod_SetNumVoices
+0002:0001b9c0+ MikMod_EnableOutput_internal
+0002:0001ba10  MikMod_EnableOutput
+0002:0001ba50  MikMod_DisableOutput_internal
+0002:0001ba80* MikMod_DisableOutput
+0002:0001bab0* MikMod_Active_internal
+0002:0001bac0  MikMod_Active
+0002:0001bca0* Sample_Play
+0002:0001bcf0* MikMod_GetVersion
+0002:0001bd00* MikMod_InitThreads
+0002:0001bd70* MikMod_Unlock
+0002:0001bdb0* MikMod_Lock
+0002:0001bdf0* MD_GetAtom
+0003:00057418  _mm_mutex_vars
+0003:0005741c  _mm_mutex_lists
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\playercode\mloader.c)
+0002:0001bec0  MikMod_InfoLoader
+0002:0001bf80  _mm_registerloader
+0002:0001bfb0* MikMod_RegisterLoader
+0002:0001c000  ReadComment
+0002:0001c090  ReadLinedComment
+0002:0001c290  AllocPositions
+0002:0001c2c0  AllocPatterns
+0002:0001c380  AllocTracks
+0002:0001c3c0  AllocInstruments
+0002:0001c450  AllocSamples
+0002:0001c500  DupStr
+0002:0001c730  Player_Free
+0002:0001c7e0* Player_LoadTitleFP
+0002:0001c850* Player_LoadTitleMem
+0002:0001c8c0* Player_LoadTitleGeneric
+0002:0001c910* Player_LoadTitle
+0002:0001cd40  Player_LoadGeneric
+0002:0001cdc0* Player_LoadMem
+0002:0001ce10+ Player_LoadFP
+0002:0001ce50* Player_Load
+0003:000319fc  finetune
+0003:00057420  of
+0003:00057560  modreader
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\playercode\mlreg.c)
+0002:0001cfc0  MikMod_RegisterAllLoaders
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\mmio\mmerror.c)
+0002:0001cff0  MikMod_strerror
+0002:0001d010* MikMod_RegisterErrorHandler
+0003:00031ba0  _mm_errorhandler
+0003:00031ba4  MikMod_errno
+0003:00031ba8  MikMod_critical
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(nfree.c)
+0002:0001d060  free
+0002:0001d070  _nfree
+0003:00057564  __MiniHeapFreeRover
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\playercode\mplayer.c)
+0003:00031bac  pf
+0002:0001d300  getlinearperiod
+0002:0001d720  getfrequency
+0002:00021000  Player_HandleTick
+0002:000214f0  Player_Init
+0002:00021590  Player_Exit_internal
+0002:000215f0* Player_Exit
+0002:00021630  Player_SetVolume
+0002:000216a0* Player_GetModule
+0002:000216e0  Player_Start
+0002:00021770+ Player_Stop_internal
+0002:000217b0  Player_Stop
+0002:000217e0  Player_Active
+0002:00021850* Player_NextPosition
+0002:00021980* Player_PrevPosition
+0002:00021ab0  Player_SetPosition
+0002:00021d60* Player_Unmute
+0002:00021f00* Player_Mute
+0002:000220b0* Player_ToggleMute
+0002:00022110* Player_Muted
+0002:00022190* Player_GetChannelVoice
+0002:00022210* Player_GetChannelPeriod
+0002:00022280* Player_Paused_internal
+0002:000222a0* Player_Paused
+0002:000222f0* Player_TogglePause
+0002:00022340* Player_SetSpeed
+0002:000223b0* Player_SetTempo
+0002:00022420* Player_QueryVoices
+0002:00022520* Player_GetOrder
+0002:00022570* Player_GetRow
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\playercode\virtch_common.c)
+0002:000225d0  VC_Init
+0002:000225e0  VC_Exit
+0002:000225f0  VC_SetNumVoices
+0002:00022600  VC_SampleSpace
+0002:00022610  VC_SampleLength
+0002:00022630  VC_PlayStart
+0002:00022640  VC_PlayStop
+0002:00022650  VC_SampleLoad
+0002:00022670  VC_SampleUnload
+0002:00022690  VC_WriteBytes
+0002:000226b0* VC_SilenceBytes
+0002:000226d0  VC_VoiceSetVolume
+0002:000226f0  VC_VoiceGetVolume
+0002:00022710  VC_VoiceSetFrequency
+0002:00022730  VC_VoiceGetFrequency
+0002:00022750  VC_VoiceSetPanning
+0002:00022770  VC_VoiceGetPanning
+0002:00022790  VC_VoicePlay
+0002:000227d0  VC_VoiceStop
+0002:000227f0  VC_VoiceStopped
+0002:00022810  VC_VoiceGetPosition
+0002:00022830  VC_VoiceRealVolume
+0002:00022850  VC_SetupPointers
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\drivers\drv_nos.c)
+0003:00032b54  drv_nos
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\modplug.cpp)
+0002:00022a90+ void near ModPlug::UpdateSettings( bool )
+0002:00022bd0  ModPlug_Load
+0002:00022c50  ModPlug_Unload
+0002:00022c80  ModPlug_Read
+0002:00022ca0* ModPlug_GetName
+0002:00022cb0* ModPlug_GetLength
+0002:00022cd0* ModPlug_InitMixerCallback
+0002:00022ce0* ModPlug_UnloadMixerCallback
+0002:00022cf0* ModPlug_GetMasterVolume
+0002:00022d00  ModPlug_SetMasterVolume
+0002:00022d20* ModPlug_GetCurrentSpeed
+0002:00022d30* ModPlug_GetCurrentTempo
+0002:00022d40* ModPlug_GetCurrentOrder
+0002:00022d50* ModPlug_GetCurrentPattern
+0002:00022d60* ModPlug_GetCurrentRow
+0002:00022d70* ModPlug_GetPlayingChannels
+0002:00022d90* ModPlug_SeekOrder
+0002:00022db0* ModPlug_GetModuleType
+0002:00022dc0* ModPlug_GetMessage
+0002:00022dd0* ModPlug_NumInstruments
+0002:00022de0* ModPlug_NumSamples
+0002:00022df0* ModPlug_NumPatterns
+0002:00022e00* ModPlug_NumChannels
+0002:00022e10* ModPlug_SampleName
+0002:00022e30* ModPlug_InstrumentName
+0002:00022e50* ModPlug_GetPattern
+0002:00022ea0  ModPlug_Seek
+0002:00022f10  ModPlug_GetSettings
+0002:00022f40  ModPlug_SetSettings
+0003:00032bd0+ _ModPlug_Settings near ModPlug::gSettings
+0003:000575b8+ int near ModPlug::gSampleSize
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\smpeg.cpp)
+0002:00022f70* SMPEG_new
+0002:00023000* SMPEG_new_descr
+0002:00023090* SMPEG_new_data
+0002:00023130  SMPEG_new_rwops
+0002:000231d0+ SMPEG_getinfo
+0002:00023320  SMPEG_enableaudio
+0002:00023350  SMPEG_enablevideo
+0002:00023380  SMPEG_delete
+0002:000233c0  SMPEG_status
+0002:00023410  SMPEG_setvolume
+0002:00023430* SMPEG_setdisplay
+0002:00023460* SMPEG_loop
+0002:00023490  SMPEG_play
+0002:000234b0* SMPEG_pause
+0002:000234d0  SMPEG_stop
+0002:000234e0  SMPEG_rewind
+0002:000234f0* SMPEG_seek
+0002:00023510  SMPEG_skip
+0002:00023530* SMPEG_renderFrame
+0002:00023550* SMPEG_renderFinal
+0002:00023560  SMPEG_playAudio
+0002:00023590* SMPEG_playAudioSDL
+0002:000235c0* SMPEG_wantedSpec
+0002:000235e0  SMPEG_actualSpec
+0002:00023600* SMPEG_error
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fread.c)
+0002:00023630  fread
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fclose.c)
+0002:00023830  __doclose
+0002:000238f0  __shutdown_stream
+0002:00023920  fclose
+0003:000575bc+ __RmTmpFileFn
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(ftell.c)
+0002:00023960  ftell
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fseek.c)
+0002:00023a30  fseek
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\vorbisfile.c)
+0002:000252c0  ov_clear
+0002:000253d0  ov_open_callbacks
+0002:00025420+ ov_open
+0002:00025470* ov_fopen
+0002:000254c0+ ov_halfrate
+0002:00025580+ ov_halfrate_p
+0002:000255a0* ov_test_callbacks
+0002:000255e0* ov_test
+0002:00025630* ov_test_open
+0002:00025650* ov_streams
+0002:00025660* ov_seekable
+0002:00025670+ ov_bitrate
+0002:00025850* ov_bitrate_instant
+0002:000258d0+ ov_serialnumber
+0002:00025920+ ov_raw_total
+0002:000259a0  ov_pcm_total
+0002:00025a20+ ov_time_total
+0002:00025ae0+ ov_raw_seek
+0002:00025f30+ ov_pcm_seek_page
+0002:000267d0+ ov_pcm_seek
+0002:00026b30  ov_time_seek
+0002:00026c40+ ov_time_seek_page
+0002:00026d50* ov_raw_tell
+0002:00026d70* ov_pcm_tell
+0002:00026d90* ov_time_tell
+0002:00026e90  ov_info
+0002:00026ec0* ov_comment
+0002:00026f00+ ov_read_filter
+0002:00027390  ov_read
+0002:000273d0* ov_read_float
+0002:00027760* ov_crosslap
+0002:00027ac0* ov_raw_seek_lap
+0002:00027ae0* ov_pcm_seek_lap
+0002:00027b00* ov_pcm_seek_page_lap
+0002:00027cb0* ov_time_seek_lap
+0002:00027cd0* ov_time_seek_page_lap
+Module: d:\dev\watcom\lib386\math387s.lib(fchop87.asm)
+0002:00027cf0  __CHP
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(_8087386.asm)
+0003:00032c08  __8087
+0003:00032c09  __real87
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(memset.c)
+0002:00027d10  memset
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(i8m386.asm)
+0002:00027d30  __I8M
+0002:00027d30  __U8M
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(strncmp.c)
+0002:00027d50  strncmp
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(toupper.c)
+0002:00027d90  toupper
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(cmp386.asm)
+0002:00027db0  strcmp
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(strrchr.c)
+0002:00027f00  strrchr
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(getenv.c)
+0002:00027f20  getenv
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(strtok.c)
+0002:00027fd0  strtok
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fltused.c)
+0003:00032c0c  _fltused_
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(7fu8386.asm)
+0002:00028090* __FSU87
+0002:0002809b  __FDU87
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(stko32.asm)
+0002:0002810d  __STK
+0002:000280fd* __CHK
+0002:00028139  __GRO
+0002:0002812c* __STKOVERFLOW
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(stack386.c)
+0002:00028160  stackavail
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fopen.c)
+0002:00028180  __open_flags
+0002:000283a0+ _fsopen
+0002:00028400  fopen
+0002:000284a0* freopen
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(strncpy.c)
+0002:00028520  strncpy
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(errno.c)
+0002:00028570  __get_errno_ptr
+0002:00028580* __get_doserrno_ptr
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(strerror.c)
+0002:000288b0  strerror
+0002:000288d0* _strerror
+0003:00032c20+ _sys_errlist
+0003:00032cc4+ _sys_nerr
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(exit.c)
+0002:00028992+ __null_int23_exit
+0002:00028993  exit
+0002:000289e3* _exit
+0003:00032cc8+ __int23_exit
+0003:00032ccc+ __FPE_handler_exit
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(nmalloc.c)
+0002:000289f0+ _use_os2_high_mem
+0002:00028a20* _os2lmalloc
+0002:00028a60* _os2hmalloc
+0002:00028aa0  malloc
+0002:00028ab0  _nmalloc
+0003:00032cd0  __nheapbeg
+0003:00032cd4  __MiniHeapRover
+0003:00032cd8  __LargestSizeB4MiniHeapRover
+0003:000576c0  _os2_use_obj_any
+Module: d:\dev\watcom\lib386\math387s.lib(pow87.asm)
+0002:00028d63* pow
+0002:00028bf8  IF@DPOW
+0002:00028bf8* IF@POW
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(rand.c)
+0002:00028d80  rand
+0002:00028db0  srand
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fgets.c)
+0002:00028dd0  fgets
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(atoi.c)
+0002:00028e60  atoi
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(calloc.c)
+0002:00028eb0  calloc
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(nrealloc.c)
+0002:00028ee0  realloc
+0002:00028f00+ _nrealloc
+Module: ..\..\lib\flac.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\flac-1.2.1\src\libFLAC\bitreader.c)
+0002:000290b0+ bitreader_read_from_client_
+0002:000291c0  FLAC__bitreader_new
+0002:000291d0  FLAC__bitreader_delete
+0002:000291f0  FLAC__bitreader_init
+0002:00029260  FLAC__bitreader_free
+0002:000292b0  FLAC__bitreader_clear
+0002:000292e0* FLAC__bitreader_dump
+0002:00029440  FLAC__bitreader_reset_read_crc16
+0002:00029460  FLAC__bitreader_get_read_crc16
+0002:000294c0  FLAC__bitreader_is_consumed_byte_aligned
+0002:000294e0  FLAC__bitreader_bits_left_for_byte_alignment
+0002:00029500  FLAC__bitreader_get_input_bits_unconsumed
+0002:00029520  FLAC__bitreader_read_raw_uint32
+0002:000296b0  FLAC__bitreader_read_raw_int32
+0002:000296f0  FLAC__bitreader_read_raw_uint64
+0002:00029790  FLAC__bitreader_read_uint32_little_endian
+0002:00029830  FLAC__bitreader_skip_bits_no_crc
+0002:000298d0  FLAC__bitreader_skip_byte_block_aligned_no_crc
+0002:00029970  FLAC__bitreader_read_byte_block_aligned_no_crc
+0002:00029a50  FLAC__bitreader_read_unary_unsigned
+0002:00029c20* FLAC__bitreader_read_rice_signed
+0002:00029ca0  FLAC__bitreader_read_rice_signed_block
+0002:0002a070  FLAC__bitreader_read_utf8_uint32
+0002:0002a1c0  FLAC__bitreader_read_utf8_uint64
+Module: ..\..\lib\flac.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\flac-1.2.1\src\libFLAC\format.c)
+0003:00006530  FLAC__STREAM_SYNC_STRING
+0003:00006534* FLAC__STREAM_SYNC
+0003:00006538* FLAC__STREAM_SYNC_LEN
+0003:0000653c  FLAC__STREAM_METADATA_STREAMINFO_MIN_BLOCK_SIZE_LEN
+0003:00006540  FLAC__STREAM_METADATA_STREAMINFO_MAX_BLOCK_SIZE_LEN
+0003:00006544  FLAC__STREAM_METADATA_STREAMINFO_MIN_FRAME_SIZE_LEN
+0003:00006548  FLAC__STREAM_METADATA_STREAMINFO_MAX_FRAME_SIZE_LEN
+0003:0000654c  FLAC__STREAM_METADATA_STREAMINFO_SAMPLE_RATE_LEN
+0003:00006550  FLAC__STREAM_METADATA_STREAMINFO_CHANNELS_LEN
+0003:00006554  FLAC__STREAM_METADATA_STREAMINFO_BITS_PER_SAMPLE_LEN
+0003:00006558  FLAC__STREAM_METADATA_STREAMINFO_TOTAL_SAMPLES_LEN
+0003:0000655c* FLAC__STREAM_METADATA_STREAMINFO_MD5SUM_LEN
+0003:00006560  FLAC__STREAM_METADATA_APPLICATION_ID_LEN
+0003:00006564  FLAC__STREAM_METADATA_SEEKPOINT_SAMPLE_NUMBER_LEN
+0003:00006568  FLAC__STREAM_METADATA_SEEKPOINT_STREAM_OFFSET_LEN
+0003:0000656c  FLAC__STREAM_METADATA_SEEKPOINT_FRAME_SAMPLES_LEN
+0003:00006570  FLAC__STREAM_METADATA_SEEKPOINT_PLACEHOLDER
+0003:00006578* FLAC__STREAM_METADATA_VORBIS_COMMENT_ENTRY_LENGTH_LEN
+0003:0000657c* FLAC__STREAM_METADATA_VORBIS_COMMENT_NUM_COMMENTS_LEN
+0003:00006580  FLAC__STREAM_METADATA_CUESHEET_INDEX_OFFSET_LEN
+0003:00006584  FLAC__STREAM_METADATA_CUESHEET_INDEX_NUMBER_LEN
+0003:00006588  FLAC__STREAM_METADATA_CUESHEET_INDEX_RESERVED_LEN
+0003:0000658c  FLAC__STREAM_METADATA_CUESHEET_TRACK_OFFSET_LEN
+0003:00006590  FLAC__STREAM_METADATA_CUESHEET_TRACK_NUMBER_LEN
+0003:00006594  FLAC__STREAM_METADATA_CUESHEET_TRACK_ISRC_LEN
+0003:00006598  FLAC__STREAM_METADATA_CUESHEET_TRACK_TYPE_LEN
+0003:0000659c  FLAC__STREAM_METADATA_CUESHEET_TRACK_PRE_EMPHASIS_LEN
+0003:000065a0  FLAC__STREAM_METADATA_CUESHEET_TRACK_RESERVED_LEN
+0003:000065a4  FLAC__STREAM_METADATA_CUESHEET_TRACK_NUM_INDICES_LEN
+0003:000065a8  FLAC__STREAM_METADATA_CUESHEET_MEDIA_CATALOG_NUMBER_LEN
+0003:000065ac  FLAC__STREAM_METADATA_CUESHEET_LEAD_IN_LEN
+0003:000065b0  FLAC__STREAM_METADATA_CUESHEET_IS_CD_LEN
+0003:000065b4  FLAC__STREAM_METADATA_CUESHEET_RESERVED_LEN
+0003:000065b8  FLAC__STREAM_METADATA_CUESHEET_NUM_TRACKS_LEN
+0003:000065bc  FLAC__STREAM_METADATA_PICTURE_TYPE_LEN
+0003:000065c0  FLAC__STREAM_METADATA_PICTURE_MIME_TYPE_LENGTH_LEN
+0003:000065c4  FLAC__STREAM_METADATA_PICTURE_DESCRIPTION_LENGTH_LEN
+0003:000065c8  FLAC__STREAM_METADATA_PICTURE_WIDTH_LEN
+0003:000065cc  FLAC__STREAM_METADATA_PICTURE_HEIGHT_LEN
+0003:000065d0  FLAC__STREAM_METADATA_PICTURE_DEPTH_LEN
+0003:000065d4  FLAC__STREAM_METADATA_PICTURE_COLORS_LEN
+0003:000065d8  FLAC__STREAM_METADATA_PICTURE_DATA_LENGTH_LEN
+0003:000065dc  FLAC__STREAM_METADATA_IS_LAST_LEN
+0003:000065e0  FLAC__STREAM_METADATA_TYPE_LEN
+0003:000065e4  FLAC__STREAM_METADATA_LENGTH_LEN
+0003:000065e8* FLAC__FRAME_HEADER_SYNC
+0003:000065ec* FLAC__FRAME_HEADER_SYNC_LEN
+0003:000065f0* FLAC__FRAME_HEADER_RESERVED_LEN
+0003:000065f4* FLAC__FRAME_HEADER_BLOCKING_STRATEGY_LEN
+0003:000065f8* FLAC__FRAME_HEADER_BLOCK_SIZE_LEN
+0003:000065fc* FLAC__FRAME_HEADER_SAMPLE_RATE_LEN
+0003:00006600* FLAC__FRAME_HEADER_CHANNEL_ASSIGNMENT_LEN
+0003:00006604* FLAC__FRAME_HEADER_BITS_PER_SAMPLE_LEN
+0003:00006608* FLAC__FRAME_HEADER_ZERO_PAD_LEN
+0003:0000660c* FLAC__FRAME_HEADER_CRC_LEN
+0003:00006610  FLAC__FRAME_FOOTER_CRC_LEN
+0003:00006614  FLAC__ENTROPY_CODING_METHOD_TYPE_LEN
+0003:00006618  FLAC__ENTROPY_CODING_METHOD_PARTITIONED_RICE_ORDER_LEN
+0003:0000661c  FLAC__ENTROPY_CODING_METHOD_PARTITIONED_RICE_PARAMETER_LEN
+0003:00006620  FLAC__ENTROPY_CODING_METHOD_PARTITIONED_RICE2_PARAMETER_LEN
+0003:00006624  FLAC__ENTROPY_CODING_METHOD_PARTITIONED_RICE_RAW_LEN
+0003:00006628  FLAC__ENTROPY_CODING_METHOD_PARTITIONED_RICE_ESCAPE_PARAMETER
+0003:0000662c  FLAC__ENTROPY_CODING_METHOD_PARTITIONED_RICE2_ESCAPE_PARAMETER
+0003:00006630* FLAC__EntropyCodingMethodTypeString
+0003:00006638  FLAC__SUBFRAME_LPC_QLP_COEFF_PRECISION_LEN
+0003:0000663c  FLAC__SUBFRAME_LPC_QLP_SHIFT_LEN
+0003:00006640* FLAC__SUBFRAME_ZERO_PAD_LEN
+0003:00006644* FLAC__SUBFRAME_TYPE_LEN
+0003:00006648* FLAC__SUBFRAME_WASTED_BITS_FLAG_LEN
+0003:0000664c* FLAC__SUBFRAME_TYPE_CONSTANT_BYTE_ALIGNED_MASK
+0003:00006650* FLAC__SUBFRAME_TYPE_VERBATIM_BYTE_ALIGNED_MASK
+0003:00006654* FLAC__SUBFRAME_TYPE_FIXED_BYTE_ALIGNED_MASK
+0003:00006658* FLAC__SUBFRAME_TYPE_LPC_BYTE_ALIGNED_MASK
+0003:0000665c* FLAC__SubframeTypeString
+0003:0000666c* FLAC__ChannelAssignmentString
+0003:0000667c* FLAC__FrameNumberTypeString
+0002:0002a380+ FLAC__format_sample_rate_is_valid
+0002:0002a3a0* FLAC__format_sample_rate_is_subset
+0002:0002a3f0* FLAC__format_seektable_is_legal
+0002:0002a4a0* FLAC__format_seektable_sort
+0002:0002a720* FLAC__format_vorbiscomment_entry_name_is_legal
+0002:0002a750* FLAC__format_vorbiscomment_entry_value_is_legal
+0002:0002a7b0* FLAC__format_vorbiscomment_entry_is_legal
+0002:0002a810* FLAC__format_cuesheet_is_legal
+0002:0002aab0* FLAC__format_picture_is_legal
+0002:0002ab20* FLAC__format_get_max_rice_partition_order
+0002:0002ab40+ FLAC__format_get_max_rice_partition_order_from_blocksize
+0002:0002ab60+ FLAC__format_get_max_rice_partition_order_from_blocksize_limited_max_and_predictor_order
+0002:0002ab90  FLAC__format_entropy_coding_method_partitioned_rice_contents_init
+0002:0002abb0  FLAC__format_entropy_coding_method_partitioned_rice_contents_clear
+0002:0002abf0  FLAC__format_entropy_coding_method_partitioned_rice_contents_ensure_size
+0003:00006684* FLAC__MetadataTypeString
+0003:000066a0* FLAC__StreamMetadata_Picture_TypeString
+0003:00032cdc* FLAC__VERSION_STRING
+0003:00032ce0* FLAC__VENDOR_STRING
+Module: ..\..\lib\flac.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\flac-1.2.1\src\libFLAC\cpu.c)
+0002:0002ac60  FLAC__cpu_info
+Module: ..\..\lib\flac.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\flac-1.2.1\src\libFLAC\lpc.c)
+0002:0002ac70* FLAC__lpc_window_data
+0002:0002acb0* FLAC__lpc_compute_autocorrelation
+0002:0002ad50* FLAC__lpc_compute_lp_coefficients
+0002:0002aec0* FLAC__lpc_quantize_coefficients
+0002:0002b170* FLAC__lpc_compute_residual_from_qlp_coefficients
+0002:0002b940* FLAC__lpc_compute_residual_from_qlp_coefficients_wide
+0002:0002ca90  FLAC__lpc_restore_signal
+0002:0002d1e0  FLAC__lpc_restore_signal_wide
+0002:0002e320* FLAC__lpc_compute_expected_bits_per_residual_sample
+0002:0002e370+ FLAC__lpc_compute_expected_bits_per_residual_sample_with_error_scale
+0002:0002e410* FLAC__lpc_compute_best_order
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(iob.c)
+0003:00032ce4  __iob
+0003:000576c4  __OpenStreams
+0003:000576c8  __ClosedStreams
+Module: ..\..\lib\flac.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\flac-1.2.1\src\libFLAC\md5.c)
+0002:0002edd0  FLAC__MD5Init
+0002:0002ee10  FLAC__MD5Final
+0002:0002f1f0  FLAC__MD5Accumulate
+Module: ..\..\lib\flac.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\flac-1.2.1\src\libFLAC\memory.c)
+0002:0002f2f0+ FLAC__memory_alloc_aligned
+0002:0002f310  FLAC__memory_alloc_aligned_int32_array
+0002:0002f370* FLAC__memory_alloc_aligned_uint32_array
+0002:0002f3d0* FLAC__memory_alloc_aligned_uint64_array
+0002:0002f430* FLAC__memory_alloc_aligned_unsigned_array
+0002:0002f490* FLAC__memory_alloc_aligned_real_array
+Module: ..\..\lib\flac.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\flac-1.2.1\src\libFLAC\crc.c)
+0002:0002f4f0* FLAC__crc8_update
+0002:0002f510* FLAC__crc8_update_block
+0002:0002f540  FLAC__crc8
+0002:0002f570* FLAC__crc16
+0003:0000671c+ FLAC__crc8_table
+0003:00032eec  FLAC__crc16_table
+Module: ..\..\lib\flac.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\flac-1.2.1\src\libFLAC\fixed.c)
+0002:0002f5a0* FLAC__fixed_compute_best_predictor
+0002:0002f970* FLAC__fixed_compute_best_predictor_wide
+0002:0002ff50* FLAC__fixed_compute_residual
+0002:00030070  FLAC__fixed_restore_signal
+Module: ..\..\lib\flac.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\flac-1.2.1\src\libFLAC\bitmath.c)
+0002:00030160  FLAC__bitmath_ilog2
+0002:00030180* FLAC__bitmath_ilog2_wide
+0002:000301b0* FLAC__bitmath_silog2
+0002:000301e0* FLAC__bitmath_silog2_wide
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(7u8f386.asm)
+0002:00030261  __U8FD7
+0002:00030248* __U8FS7
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(i8d.asm)
+0002:0003027c  __I8D
+0002:000302d1  __U8D
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fstatos2.c)
+0002:00030390  fstat
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(dmaino32.c)
+0002:00030524  __LibMain
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(segdefns)
+0002:00000003  ___begtext
+0003:00000000* __nullarea
+0003:00034f40  _Start_XI
+0003:00034fa6  _End_XI
+0003:00034fa6  _Start_YI
+0003:00034fd0  _End_YI
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\mmio\mmalloc.c)
+0002:00030770  MikMod_malloc_aligned16
+0002:00030780  MikMod_free_aligned16
+0002:000307a0  MikMod_realloc
+0002:000307d0  MikMod_malloc
+0002:000307e0  MikMod_calloc
+0002:00030820  MikMod_free
+0002:00030840  MikMod_strdup
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(sprintf.c)
+0002:00030890  sprintf
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(stricmp.c)
+0002:000308c0  stricmp
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\playercode\sloader.c)
+0002:00030900  SL_Init
+0002:00030950  SL_Exit
+0002:00031200  SL_Load
+0002:00031240  SL_RegisterSample
+0002:000314c0  SL_LoadSamples
+0002:00031530+ SL_Sample16to8
+0002:00031550  SL_Sample8to16
+0002:00031570  SL_SampleSigned
+0002:00031590* SL_SampleUnsigned
+0002:000315b0+ SL_HalveSample
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(strstr.c)
+0002:00031600  strstr
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\mmio\mmio.c)
+0002:000316b0  _mm_fopen
+0002:000316f0* _mm_FileExists
+0002:00031720  _mm_fclose
+0002:00031730  _mm_iobase_setcur
+0002:00031750  _mm_iobase_revert
+0002:00031820  _mm_new_file_reader
+0002:00031860  _mm_delete_file_reader
+0002:00031910* _mm_new_file_writer
+0002:00031950* _mm_delete_file_writer
+0002:00031970  _mm_delete_mem_reader
+0002:00031990  _mm_new_mem_reader
+0002:00031b50* _mm_write_string
+0002:00031b80+ _mm_write_M_UWORD
+0002:00031bb0+ _mm_write_I_UWORD
+0002:00031be0+ _mm_write_M_ULONG
+0002:00031c20+ _mm_write_I_ULONG
+0002:00031c60* _mm_write_M_SWORD
+0002:00031c80* _mm_write_I_SWORD
+0002:00031ca0* _mm_write_M_SLONG
+0002:00031cc0* _mm_write_I_SLONG
+0002:00031ce0* _mm_write_M_SWORDS
+0002:00031d20* _mm_write_M_UWORDS
+0002:00031d60* _mm_write_I_SWORDS
+0002:00031da0* _mm_write_I_UWORDS
+0002:00031de0* _mm_write_M_SLONGS
+0002:00031e20* _mm_write_M_ULONGS
+0002:00031e60* _mm_write_I_SLONGS
+0002:00031ea0* _mm_write_I_ULONGS
+0002:00031ee0  _mm_read_string
+0002:00031f00  _mm_read_M_UWORD
+0002:00031f30  _mm_read_I_UWORD
+0002:00031f60  _mm_read_M_ULONG
+0002:00031f90  _mm_read_I_ULONG
+0002:00031fc0  _mm_read_M_SWORD
+0002:00031fd0  _mm_read_I_SWORD
+0002:00031fe0* _mm_read_M_SLONG
+0002:00031ff0  _mm_read_I_SLONG
+0002:00032000  _mm_read_M_SWORDS
+0002:00032040  _mm_read_M_UWORDS
+0002:00032080  _mm_read_I_SWORDS
+0002:000320c0  _mm_read_I_UWORDS
+0002:00032100* _mm_read_M_SLONGS
+0002:00032140  _mm_read_M_ULONGS
+0002:00032180* _mm_read_I_SLONGS
+0002:000321c0  _mm_read_I_ULONGS
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\playercode\munitrk.c)
+0002:00032200  UniSetRow
+0002:00032230  UniGetByte
+0002:00032260  UniGetWord
+0002:000322c0  UniSkipOpcode
+0002:00032310  UniFindRow
+0002:00032350  UniReset
+0002:000323c0  UniWriteByte
+0002:000323f0  UniWriteWord
+0002:00032480  UniNewline
+0002:00032560  UniDup
+0002:000325e0  UniInit
+0002:00032610  UniCleanup
+0003:000332f8  unioperands
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_669.c)
+0003:00033384  load_669
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_amf.c)
+0003:000333c4  load_amf
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_asy.c)
+0003:000333e4+ periodtable
+0003:000334bc  load_asy
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_dsm.c)
+0003:00033508  load_dsm
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_far.c)
+0003:00033548  load_far
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_gdm.c)
+0003:00033588  load_gdm
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_gt2.c)
+0003:000335a8  load_gt2
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_it.c)
+0003:00033604  load_it
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_imf.c)
+0003:0003363c  load_imf
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_mod.c)
+0003:000336c4  load_mod
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_med.c)
+0003:0003370c  load_med
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_mtm.c)
+0003:00033738  load_mtm
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_okt.c)
+0003:0003375c  load_okt
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_s3m.c)
+0003:000337b0  load_s3m
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_stm.c)
+0003:000337e4  load_stm
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_stx.c)
+0003:00033810  load_stx
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_ult.c)
+0003:00033844  load_ult
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_umx.c)
+0003:0003387c  load_umx
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_uni.c)
+0003:000338a4  load_uni
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_xm.c)
+0003:000338d8  load_xm
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\loaders\load_m15.c)
+0003:00033914  load_m15
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(maino32.c)
+0003:00033934  __FirstThreadData
+0003:00033938  __GetThreadPtr
+0003:0003393c  _AccessFileH
+0003:00033940  _ReleaseFileH
+0003:00033944  _AccessIOB
+0003:00033948  _ReleaseIOB
+0003:0003394c  _AccessNHeap
+0003:00033950  _AccessFHeap
+0003:00033954  _ReleaseNHeap
+0003:00033958  _ReleaseFHeap
+0003:0003395c  _AccessTDList
+0002:000458a2  __threadstack
+0002:000458a9  __threadid
+0002:000458b0* __OS2MainInit
+0002:00045921  __OS2Init
+0002:00045962  __OS2Fini
+0002:0004596a  __shutdown_stack_checking
+0002:0004597f  __exit
+0003:00033960  _ReleaseTDList
+0003:00033964  __sig_init_rtn
+0003:00033968  __sig_fini_rtn
+0003:0003396c  __threadstksize
+0003:00033970  __process_fini
+0003:00057bac  __Is_DLL
+0003:00057bb0+ __saved_CS
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mem.c)
+0002:000459d0  __MemAllocator
+0002:00045a80  __MemFree
+Module: d:\dev\watcom\lib386\noemu387.lib(386stub.asm)
+0002:00045bb4  __init_387_emulator
+0002:00045bb5* __fini_387_emulator
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\playercode\virtch.c)
+0002:00047a60  VC1_SilenceBytes
+0002:00047ac0  VC1_WriteBytes
+0002:00047b10  VC1_Exit
+0002:00047b60  VC1_VoiceGetVolume
+0002:00047b80  VC1_VoiceGetPanning
+0002:00047ba0  VC1_VoiceSetFrequency
+0002:00047bd0  VC1_VoiceGetFrequency
+0002:00047bf0  VC1_VoicePlay
+0002:00047c40  VC1_VoiceStop
+0002:00047c60  VC1_VoiceStopped
+0002:00047c90  VC1_VoiceGetPosition
+0002:00047cc0  VC1_VoiceSetVolume
+0002:00047d30  VC1_VoiceSetPanning
+0002:00047d90  VC1_SampleUnload
+0002:00047dd0  VC1_SampleLoad
+0002:00048000  VC1_SampleSpace
+0002:00048010  VC1_SampleLength
+0002:00048030  VC1_VoiceRealVolume
+0002:000480e0+ VC1_WriteSamples
+0002:00048450  VC1_Init
+0002:00048510  VC1_PlayStart
+0002:000487c0  VC1_PlayStop
+0002:00048920  VC1_SetNumVoices
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\playercode\virtch2.c)
+0002:0004aa00  VC2_SilenceBytes
+0002:0004aa60  VC2_WriteBytes
+0002:0004aab0  VC2_Exit
+0002:0004ab00  VC2_VoiceGetVolume
+0002:0004ab30  VC2_VoiceGetPanning
+0002:0004ab60  VC2_VoiceSetFrequency
+0002:0004ab90  VC2_VoiceGetFrequency
+0002:0004abc0  VC2_VoicePlay
+0002:0004ac20  VC2_VoiceStop
+0002:0004ac40  VC2_VoiceStopped
+0002:0004ac70  VC2_VoiceGetPosition
+0002:0004acb0  VC2_VoiceSetVolume
+0002:0004ad20  VC2_VoiceSetPanning
+0002:0004ad90  VC2_SampleUnload
+0002:0004add0  VC2_SampleLoad
+0002:0004b000  VC2_SampleSpace
+0002:0004b010  VC2_SampleLength
+0002:0004b030  VC2_VoiceRealVolume
+0002:0004b0e0+ VC2_WriteSamples
+0002:0004b470  VC2_Init
+0002:0004b560  VC2_PlayStart
+0002:0004b820  VC2_PlayStop
+0002:0004b980  VC2_SetNumVoices
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\snd_dsp.cpp)
+0003:00033a0c+ int unsigned near CSoundFile::m_nXBassDepth
+0003:00033a10+ int unsigned near CSoundFile::m_nXBassRange
+0003:00033a14+ int unsigned near CSoundFile::m_nReverbDepth
+0003:00033a18+ int unsigned near CSoundFile::m_nReverbDelay
+0003:00033a1c+ int unsigned near CSoundFile::m_nProLogicDepth
+0002:0004ba40  void near CSoundFile::InitializeDSP( bool )
+0002:0004be40  void near CSoundFile::ProcessStereoDSP( int )
+0002:0004c280* void near CSoundFile::ProcessMonoDSP( int )
+0002:0004c590  bool near CSoundFile::SetReverbParameters( int unsigned, int unsigned )
+0002:0004c5f0  bool near CSoundFile::SetXBassParameters( int unsigned, int unsigned )
+0002:0004c660  bool near CSoundFile::SetSurroundParameters( int unsigned, int unsigned )
+0002:0004c6c0  bool near CSoundFile::SetWaveConfigEx( bool, bool, bool, bool, bool, bool, bool )
+0003:00033a20+ int unsigned near CSoundFile::m_nProLogicDelay
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\sndfile.cpp)
+0002:0004c720  near CSoundFile::CSoundFile()
+0002:0004c890  near CSoundFile::~CSoundFile()
+0002:0004ca30  bool near CSoundFile::Create( char unsigned const near *, int unsigned )
+0002:0004d380  bool near CSoundFile::Destroy()
+0002:0004d510  _MODCOMMAND near * near CSoundFile::AllocatePattern( int unsigned, int unsigned )
+0002:0004d550  void near CSoundFile::FreePattern( void near * )
+0002:0004d570  char signed near * near CSoundFile::AllocateSample( int unsigned )
+0002:0004d5b0* void near CSoundFile::FreeSample( void near * )
+0002:0004d5d0* void near CSoundFile::ResetMidiCfg()
+0002:0004d700  int unsigned near CSoundFile::GetNumChannels() const
+0002:0004d730* int unsigned near CSoundFile::GetSongComments( char near *, int unsigned, int unsigned )
+0002:0004d7f0* int unsigned near CSoundFile::GetRawSongComments( char near *, int unsigned, int unsigned )
+0002:0004d8d0  bool near CSoundFile::SetWaveConfig( int unsigned, int unsigned, int unsigned, bool )
+0002:0004d950  bool near CSoundFile::SetMixConfig( int unsigned, int unsigned )
+0002:0004d980  bool near CSoundFile::SetResamplingMode( int unsigned )
+0002:0004d9c0  bool near CSoundFile::SetMasterVolume( int unsigned, bool )
+0002:0004da40* void near CSoundFile::SetAGC( bool )
+0002:0004da80  int unsigned near CSoundFile::GetNumPatterns() const
+0002:0004daa0* int unsigned near CSoundFile::GetNumInstruments() const
+0002:0004dad0  int unsigned near CSoundFile::GetMaxPosition() const
+0002:0004db20* int unsigned near CSoundFile::GetCurrentPos() const
+0002:0004db70  void near CSoundFile::SetCurrentPos( int unsigned )
+0002:0004de80  void near CSoundFile::SetCurrentOrder( int unsigned )
+0002:0004e270* void near CSoundFile::ResetChannels()
+0002:0004e2b0* void near CSoundFile::LoopPattern( int, int )
+0002:0004e340* int unsigned near CSoundFile::GetBestSaveFormat() const
+0002:0004e3a0* int unsigned near CSoundFile::GetSaveFormats() const
+0002:0004e400  int unsigned near CSoundFile::GetSampleName( int unsigned, char near * ) const
+0002:0004e490  int unsigned near CSoundFile::GetInstrumentName( int unsigned, char near * ) const
+0002:0004e530* int unsigned near CSoundFile::PackSample( int near &, int )
+0002:0004e5a0* bool near CSoundFile::CanPackSample( char near *, int unsigned, int unsigned, char unsigned near * )
+0002:0004e770  int unsigned near CSoundFile::ReadSample( _MODINSTRUMENT near *, int unsigned, char const near *, int unsigned )
+0002:0004f340* void near CSoundFile::AdjustSampleLoop( _MODINSTRUMENT near * )
+0002:0004f600  int unsigned near CSoundFile::TransposeToFrequency( int, int )
+0002:0004f640  int near CSoundFile::FrequencyToTranspose( int unsigned )
+0002:0004f690  void near CSoundFile::FrequencyToTranspose( _MODINSTRUMENT near * )
+0002:0004f720* void near CSoundFile::CheckCPUUsage( int unsigned )
+0002:0004f7a0  bool near CSoundFile::SetPatternName( int unsigned, char const near * )
+0002:0004f8c0* bool near CSoundFile::GetPatternName( int unsigned, char near *, int unsigned ) const
+0002:0004f930  int unsigned near CSoundFile::DetectUnusedSamples( bool near * )
+0002:0004fa80* bool near CSoundFile::RemoveSelectedSamples( bool near * )
+0002:0004fb70  bool near CSoundFile::DestroySample( int unsigned )
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(opnew.cpp)
+0002:0004fc00  void near * near operator new( int unsigned )
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(opdel.cpp)
+0002:0004fc60  void near operator delete( void near * )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\sndmix.cpp)
+0003:00033aa0  int unsigned near CSoundFile::m_nStereoSeparation
+0003:00033aa4  int unsigned near CSoundFile::m_nMaxMixChannels
+0003:00033aa8* int near CSoundFile::m_nStreamVolume
+0003:00033aac  int unsigned near CSoundFile::gnChannels
+0003:00033ab0  int unsigned near CSoundFile::gdwMixingFreq
+0003:000c5e1c+ int unsigned near CSoundFile::gdwSysInfo
+0003:000c5e20  int unsigned near CSoundFile::gdwSoundSetup
+0003:000c5e24+ int unsigned near CSoundFile::gnVUMeter
+0003:000c5e28  int unsigned near CSoundFile::gnCPUUsage
+0003:000c5e2c  void (near * near CSoundFile::gpSndMixHook)( int near *, long unsigned, long unsigned )
+0003:000c5e30  bool (near * near CSoundFile::gpMixPluginCreateProc)( _SNDMIXPLUGIN near * )
+0002:0004fc80  int near _muldiv( long, long, long )
+0002:0004fcb0  int near _muldivr( long, long, long )
+0002:0004fcf0  bool near CSoundFile::InitPlayer( bool )
+0002:0004fdd0* bool near CSoundFile::FadeSong( int unsigned )
+0002:0004fea0  bool near CSoundFile::GlobalFadeSong( int unsigned )
+0002:0004ff10  int unsigned near CSoundFile::Read( void near *, int unsigned )
+0002:00051a80+ bool near CSoundFile::ProcessRow()
+0002:00051db0* bool near CSoundFile::ReadNote()
+0003:00033ab4  int unsigned near CSoundFile::gnBitsPerSample
+0003:00033ab8  int unsigned near CSoundFile::gnAGC
+0003:00033abc+ int unsigned near CSoundFile::gnVolumeRampSamples
+0003:000c5e34  int near gnDryROfsVol
+0003:000c5e38  int near gnDryLOfsVol
+0003:000c5e3c+ int near gnRvbROfsVol
+0003:000c5e40+ int near gnRvbLOfsVol
+0003:000c5e44+ int near gbInitPlugins
+0003:000c5e48  int unsigned near gnReverbSend
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\snd_fx.cpp)
+0002:00053570  int unsigned near CSoundFile::GetLength( bool, bool )
+0002:00053ff0+ void near CSoundFile::InstrumentChange( _MODCHANNEL near *, int unsigned, bool, bool, bool )
+0002:00054410+ void near CSoundFile::NoteChange( int unsigned, int, bool, bool )
+0002:00054990+ int unsigned near CSoundFile::GetNNAChannel( int unsigned ) const
+0002:00054a50+ void near CSoundFile::CheckNNA( int unsigned, int unsigned, int, bool )
+0002:00054e60  bool near CSoundFile::ProcessEffects()
+0002:00056700+ void near CSoundFile::PortamentoUp( _MODCHANNEL near *, int unsigned )
+0002:000567a0+ void near CSoundFile::PortamentoDown( _MODCHANNEL near *, int unsigned )
+0002:00056830+ void near CSoundFile::FinePortamentoUp( _MODCHANNEL near *, int unsigned )
+0002:000568e0+ void near CSoundFile::FinePortamentoDown( _MODCHANNEL near *, int unsigned )
+0002:00056990+ void near CSoundFile::ExtraFinePortamentoUp( _MODCHANNEL near *, int unsigned )
+0002:00056a40+ void near CSoundFile::ExtraFinePortamentoDown( _MODCHANNEL near *, int unsigned )
+0002:00056af0+ void near CSoundFile::TonePortamento( _MODCHANNEL near *, int unsigned )
+0002:00056c50* void near CSoundFile::Vibrato( _MODCHANNEL near *, int unsigned )
+0002:00056ca0* void near CSoundFile::FineVibrato( _MODCHANNEL near *, int unsigned )
+0002:00056cf0* void near CSoundFile::Panbrello( _MODCHANNEL near *, int unsigned )
+0002:00056d40+ void near CSoundFile::VolumeSlide( _MODCHANNEL near *, int unsigned )
+0002:00056ee0+ void near CSoundFile::PanningSlide( _MODCHANNEL near *, int unsigned )
+0002:00056fd0* void near CSoundFile::FineVolumeUp( _MODCHANNEL near *, int unsigned )
+0002:00057030* void near CSoundFile::FineVolumeDown( _MODCHANNEL near *, int unsigned )
+0002:00057090* void near CSoundFile::Tremolo( _MODCHANNEL near *, int unsigned )
+0002:000570e0* void near CSoundFile::ChannelVolSlide( _MODCHANNEL near *, int unsigned )
+0002:000571a0* void near CSoundFile::ExtendedMODCommands( int unsigned, int unsigned )
+0002:00057490+ void near CSoundFile::ExtendedS3MCommands( int unsigned, int unsigned )
+0002:000577f0+ void near CSoundFile::ExtendedChannelEffect( _MODCHANNEL near *, int unsigned )
+0002:000578b0+ void near CSoundFile::ProcessMidiMacro( int unsigned, char const near *, int unsigned )
+0002:00057bc0+ void near CSoundFile::RetrigNote( int unsigned, int unsigned )
+0002:00057e40+ void near CSoundFile::DoFreqSlide( _MODCHANNEL near *, int )
+0002:00057f20* void near CSoundFile::NoteCut( int unsigned, int unsigned )
+0002:00057f50+ void near CSoundFile::KeyOff( int unsigned )
+0002:00058050* void near CSoundFile::SetSpeed( int unsigned )
+0002:000580f0* void near CSoundFile::SetTempo( int unsigned )
+0002:00058160* int near CSoundFile::PatternLoop( _MODCHANNEL near *, int unsigned )
+0002:000581e0* void near CSoundFile::GlobalVolSlide( int unsigned )
+0002:000582a0+ int unsigned near CSoundFile::IsSongFinished( int unsigned, int unsigned ) const
+0002:00058380* bool near CSoundFile::IsValidBackwardJump( int unsigned, int unsigned, int unsigned, int unsigned ) const
+0002:00058500  int unsigned near CSoundFile::GetNoteFromPeriod( int unsigned ) const
+0002:000585a0  int unsigned near CSoundFile::GetPeriodFromNote( int unsigned, int, int unsigned ) const
+0002:000587a0  int unsigned near CSoundFile::GetFreqFromPeriod( int unsigned, int unsigned, int ) const
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(iofefg.cpp)
+0003:00034f5e  __ppfltused_
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(imthread.c)
+0003:00034f64  __imthread
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fprintf.c)
+0002:000588b0  fprintf
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\MPEG.cpp)
+0002:00059bb0  void near MPEGerror::SetError( char const near *, ... )
+0002:00059be0+ near MPEG::MPEG()
+0002:000588e0  near MPEG::MPEG( char const near *, bool )
+0002:000589b0  near MPEG::MPEG( int, bool )
+0002:00058b10  near MPEG::MPEG( void near *, int, bool )
+0002:00058c10  near MPEG::MPEG( SDL_RWops near *, int, bool )
+0002:00058c60+ void near MPEG::Init( SDL_RWops near *, int, bool )
+0002:00058e70* void near MPEG::InitErrorState()
+0002:00058f10+ near MPEG::~MPEG()
+0002:00059020* bool near MPEG::AudioEnabled()
+0002:00059030  void near MPEG::EnableAudio( bool )
+0002:000590e0* bool near MPEG::VideoEnabled()
+0002:000590f0  void near MPEG::EnableVideo( bool )
+0002:00059170  void near MPEG::Loop( bool )
+0002:00059190+ void near MPEG::Play()
+0002:000591e0  void near MPEG::Stop()
+0002:00059230  void near MPEG::Rewind()
+0002:00059240+ void near MPEG::Pause()
+0002:000592a0  __anonymous_enum near MPEG::GetStatus()
+0002:00059370  bool near MPEG::GetAudioInfo( MPEG_AudioInfo near * )
+0002:000593a0  void near MPEG::Volume( int )
+0002:000593d0  bool near MPEG::WantedSpec( SDL_AudioSpec near * )
+0002:00059400  void near MPEG::ActualSpec( SDL_AudioSpec const near * )
+0002:00059430  MPEGaudio near * near MPEG::GetAudio()
+0002:00059440  bool near MPEG::GetVideoInfo( MPEG_VideoInfo near * )
+0002:00059470  bool near MPEG::SetDisplay( void (near *)(), void near *, SDL_mutex near * )
+0002:000594b0  void near MPEG::RenderFrame( int )
+0002:000594e0  void near MPEG::RenderFinal()
+0002:00059560+ void near MPEG::Seek( int )
+0002:00059720+ bool near MPEG::seekIntoStream( int )
+0002:00059930  void near MPEG::Skip( float )
+0002:000599c0  void near MPEG::GetSystemInfo( MPEG_SystemInfo near * )
+0002:00059aa0+ void near MPEG::parse_stream_list()
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\audio\mpegtoraw.cpp)
+0002:00059c00  int near MPEGaudio::getbits( int )
+0002:00059ca0  void near MPEGaudio::initialize()
+0002:00059e80  bool near MPEGaudio::loadheader()
+0002:0005a340* bool near MPEGaudio::run( int, double near * )
+0002:0005a4b0  int near Decode_MPEGaudio( void near * )
+0002:0005a6c0  int near Play_MPEGaudio( MPEGaudio near *, char unsigned near *, int )
+0002:0005a8d0  void near Play_MPEGaudioSDL( void near *, char unsigned near *, int )
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(qread.c)
+0002:0005aaf0  __qread
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(seterrno.c)
+0002:0005ab2b  __set_errno
+0002:0005ab3c  __set_EDOM
+0002:0005ab4a  __set_ERANGE
+0002:0005ab58* __set_EINVAL
+0002:0005ab6b  __set_doserrno
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(ioalloc.c)
+0002:0005ab80  __ioalloc
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fgetc.c)
+0002:0005ac20  __fill_buffer
+0002:0005ad30  fgetc
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(__lseek.c)
+0002:0005ae00  __lseek
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(_clseos2.c)
+0002:0005ae40  __close
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(flush.c)
+0002:0005ae90  __flush
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(freefp.c)
+0002:0005afa0  __freefp
+0002:0005aff0  __purgefp
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fflush.c)
+0002:0005b030  fflush
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(tell.c)
+0002:0005b050  tell
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(lseek.c)
+0002:0005b070  lseek
+Module: ..\..\lib\libogg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libogg-1.3.1\src\framing.c)
+0002:0005b0b0* ogg_page_version
+0002:0005b0c0  ogg_page_continued
+0002:0005b0e0  ogg_page_bos
+0002:0005b100  ogg_page_eos
+0002:0005b120  ogg_page_granulepos
+0002:0005b1d0  ogg_page_serialno
+0002:0005b200* ogg_page_pageno
+0002:0005b230* ogg_page_packets
+0002:0005b260  ogg_stream_init
+0002:0005b2f0+ ogg_stream_check
+0002:0005b310  ogg_stream_clear
+0002:0005b360* ogg_stream_destroy
+0002:0005b470+ ogg_page_checksum_set
+0002:0005b520+ ogg_stream_iovecin
+0002:0005b6e0* ogg_stream_packetin
+0002:0005b9f0* ogg_stream_flush
+0002:0005ba10* ogg_stream_flush_fill
+0002:0005ba30* ogg_stream_pageout
+0002:0005ba90* ogg_stream_pageout_fill
+0002:0005baf0* ogg_stream_eos
+0002:0005bb20  ogg_sync_init
+0002:0005bb50  ogg_sync_clear
+0002:0005bb80* ogg_sync_destroy
+0002:0005bbb0+ ogg_sync_check
+0002:0005bbd0  ogg_sync_buffer
+0002:0005bc80  ogg_sync_wrote
+0002:0005bcb0  ogg_sync_pageseek
+0002:0005be70* ogg_sync_pageout
+0002:0005bec0  ogg_stream_pagein
+0002:0005c1a0  ogg_sync_reset
+0002:0005c1d0  ogg_stream_reset
+0002:0005c230  ogg_stream_reset_serialno
+0002:0005c380  ogg_stream_packetout
+0002:0005c3b0  ogg_stream_packetpeek
+0002:0005c3e0* ogg_packet_clear
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\info.c)
+0002:0005c4b0  vorbis_comment_init
+0002:0005c4d0+ vorbis_comment_add
+0002:0005c580* vorbis_comment_add_tag
+0002:0005c6f0* vorbis_comment_query
+0002:0005c7e0* vorbis_comment_query_count
+0002:0005c8b0  vorbis_comment_clear
+0002:0005c920  vorbis_info_blocksize
+0002:0005c940  vorbis_info_init
+0002:0005c970  vorbis_info_clear
+0002:0005cfe0  vorbis_synthesis_idheader
+0002:0005d070  vorbis_synthesis_headerin
+0002:0005d570* vorbis_commentheader_out
+0002:0005d640* vorbis_analysis_headerout
+0002:0005d930* vorbis_granule_time
+0002:0005d9c0* vorbis_version_string
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\synthesis.c)
+0002:0005d9d0  vorbis_synthesis
+0002:0005db80  vorbis_synthesis_trackonly
+0002:0005dc80  vorbis_packet_blocksize
+0002:0005dd00  vorbis_synthesis_halfrate
+0002:0005dd30  vorbis_synthesis_halfrate_p
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\block.c)
+0002:0005dd60  vorbis_block_init
+0002:0005ddf0  _vorbis_block_alloc
+0002:0005de60  _vorbis_block_ripcord
+0002:0005def0  vorbis_block_clear
+0002:0005e320* vorbis_analysis_init
+0002:0005e390  vorbis_dsp_clear
+0002:0005e5d0+ vorbis_analysis_buffer
+0002:0005e800* vorbis_analysis_wrote
+0002:0005e990* vorbis_analysis_blockout
+0002:0005ed10  vorbis_synthesis_restart
+0002:0005ed90  vorbis_synthesis_init
+0002:0005edd0  vorbis_synthesis_blockin
+0002:0005f530  vorbis_synthesis_pcmout
+0002:0005f590  vorbis_synthesis_read
+0002:0005f5c0  vorbis_synthesis_lapout
+0002:0005f780  vorbis_window
+Module: d:\dev\watcom\lib386\math387s.lib(rint.c)
+0002:0005f7b6  rint
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(i8rs386.asm)
+0002:0005f84c  __U8RS
+0002:0005f866  __I8RS
+0002:0005f881  __I8LS
+0002:0005f881  __U8LS
+Module: d:\dev\watcom\lib386\math387s.lib(floor.c)
+0002:0005f89b  floor
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(chk8087.c)
+0002:0005f8f0  _fpreset
+0002:0005f910* __init_8087
+0002:0005f920  __chk8087
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(crwdata)
+0003:00033b0d  _osmajor
+0003:00033b0e  _osminor
+0003:00033adc  _LpDllName
+0003:00033ae0  _LpwCmdLine
+0003:00033ae4  _LpwPgmName
+0003:00033ae8  _LpwDllName
+0003:00033ad4  _LpCmdLine
+0003:00033ad8  _LpPgmName
+0003:00033acc* _dynend
+0003:00033ad0  _curbrk
+0003:00033aec* _STACKLOW
+0003:00033af0* _STACKTOP
+0003:00033af4  __ASTACKSIZ
+0003:00033af8  __ASTACKPTR
+0003:00033afc  _cbyte
+0003:00033b00  _cbyte2
+0003:00033b04* __child
+0003:00033b09  _Envptr
+0003:00033b08  __no87
+0003:00033b0f* __FPE_handler
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(__stos.asm)
+0002:0005f970  __STOSB
+0002:0005f9a7* __STOSD
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(environ.c)
+0003:000c5e50  __env_mask
+0003:000c5e54  environ
+0003:000c5e58  _wenviron
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mbterm.c)
+0002:0005fa20  _mbterm
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mbsnextc.c)
+0002:0005fa60  _mbsnextc
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mbcupper.c)
+0002:0005faa0  _mbctoupper
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mbsinc.c)
+0002:0005fad0  _mbsinc
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(setbits.c)
+0002:0005fb00  __setbits
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(bits.c)
+0002:0005fb40  _Bits
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(setefg.c)
+0002:0005fb50  __setEFGfmt
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(xmsgo32.c)
+0002:0005fb70  __exit_with_msg
+0002:0005fbc0  __fatal_runtime_error
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(comtflag.c)
+0003:00033b14  _commode
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(textmode.c)
+0003:00033b18  _fmode
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(tolower.c)
+0002:0005fbf0  tolower
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(openos2.c)
+0002:0005fdd0* open
+0002:0005fdf0  sopen
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(chktty.c)
+0002:0005fe20  __chktty
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(allocfp.c)
+0002:0005fe60  __allocfp
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(initrtns.c)
+0002:0005ff40  __InitRtns
+0002:0005ffa0  __FiniRtns
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(grownear.c)
+0002:000601c0  __ExpandDGROUP
+0003:00033b1c  _os2_obj_any_supported
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(nmemneed.c)
+0002:00060220  __nmemneed
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(chipvar)
+0003:00033b20* ___chipbug
+0003:00033b20  __chipbug
+Module: d:\dev\watcom\lib386\math387s.lib(pow87e.c)
+0002:00060223  __pow87_err
+Module: d:\dev\watcom\lib386\math387s.lib(exp87.asm)
+0002:0006032d* exp
+0002:000602b4* __@DEXP1
+0002:000602bc* IF@EXP
+0002:000602bc* IF@DEXP
+0002:000602be  __@DEXP
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(chipd32.asm)
+0002:00060457  __fdiv_fpr
+0002:00060919* __fdiv_chk
+0002:0006092c* __fdiv_m32
+0002:00060979* __fdiv_m64
+0002:000609c6* __fdiv_m32r
+0002:00060a13* __fdiv_m64r
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(istable.c)
+0002:00060a60  _IsTable
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(nmsize.c)
+0002:00060b70  _nmsize
+0002:00060b70* _msize
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(nexpand.c)
+0002:00060b80* _expand
+0002:00060ba0+ __HeapManager_expand
+0002:00060d60  _nexpand
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(memmove.c)
+0002:00060db0  memmove
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(qsort.c)
+0002:00060e90  qsort
+Module: d:\dev\watcom\lib386\math387s.lib(frexp.c)
+0002:000615b9  frexp
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(initfile.c)
+0002:00061660  __InitFiles
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(ioexit.c)
+0002:00061760* fcloseall
+0002:00061770  __full_io_exit
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(iomode.c)
+0002:00061780  __GetIOMode
+0002:000617a0  __SetIOMode_nogrow
+0003:00033b34  __NFiles
+0003:00033b38  __init_mode
+0003:00033b88  __io_mode
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(dosret.c)
+0002:000617c0* __dosretax
+0002:000617d0* __dosret0
+0002:000617e0  __set_errno_dos
+0002:00061820* __set_errno_dos_reterr
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(d2ttime.c)
+0002:00061840  _d2ttime
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(lmaino32.c)
+0002:000618d0  LibMain
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mthread.c)
+0002:00061930+ __CloseSemaphore
+0002:00061960+ __AccessSemaphore
+0002:000619d0+ __ReleaseSemaphore
+0002:00061a30+ __AccessIOB
+0002:00061a40+ __ReleaseIOB
+0002:00061a50+ __AccessFileH
+0002:00061a70+ __ReleaseFileH
+0002:00061a90+ __AccessNHeap
+0002:00061aa0+ __ReleaseNHeap
+0002:00061ab0+ __AccessFHeap
+0002:00061ac0+ __ReleaseFHeap
+0002:00061ad0+ __AccessTDList
+0002:00061ae0+ __ReleaseTDList
+0002:00061af0+ __MultipleThread
+0002:00061b30  __AllocInitThreadData
+0002:00061b80  __FreeInitThreadData
+0002:00061ba0  __OS2AddThread
+0002:00061c20  __OS2RemoveThread
+0002:00061c70  __InitMultipleThread
+0003:00033c90  __AccessSema4
+0003:00033c94  __ReleaseSema4
+0003:00033c98  __CloseSema4
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(ddgrpo32.c)
+0002:00061ee0  __disallow_single_dgroup
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(cinit.c)
+0002:00062130  __CommonInit
+0003:000c6268  __hmodule
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(atouni.c)
+0002:00062140  _atouni
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(trdalloc.c)
+0002:00062180  __InitThreadProcessing
+0002:000621a0  __FiniThreadProcessing
+0003:000c626c  __ThreadData
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(maxthrds.c)
+0003:00033c9c  __MaxThreads
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(dosseg)
+0000:00001234  __DOSseg__
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(vsprintf.c)
+0002:00062220  vsprintf
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fwrite.c)
+0002:00062250  fwrite
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fputc.c)
+0002:00062490  fputc
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\playercode\mlutil.c)
+0003:00033ca0  STM_Signatures
+0003:00033cac* STM_Version
+0003:00033cb8  poslookup
+0003:00033cbc  origpositions
+0003:00033cc0  noteindex
+0002:00062590  AllocLinear
+0002:000625d0  FreeLinear
+0002:000625f0  speed_to_finetune
+0002:000626d0  S3MIT_CreateOrders
+0002:00062800  S3MIT_ProcessCmd
+0002:00062cd0  UniEffect
+0002:00062d30  UniPTEffect
+0002:00062d70  UniVolEffect
+0003:000c6270  filtersettings
+0003:000c6470  remap
+0003:000c64b0  filtermacros
+0003:000c64c0  filters
+0003:000c64c4  poslookupcnt
+0003:000c64c6  activemacro
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(strncat.c)
+0002:00062db0  strncat
+Module: ..\..\lib\mikmod.lib(D:\home\Digi\projects\port\LIBS\packages\libmikmod-3.3.6\playercode\npertab.c)
+0003:00033cc8  npertab
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\fastmix.cpp)
+0003:000c64c8  int near MixSoundBuffer[]
+0003:000c84c8  int near MixReverbBuffer[]
+0003:000c94c8  int near MixRearBuffer[]
+0003:000ca4c8* float near MixFloatBuffer[]
+0003:000cb4c8+ short near CzCUBICSPLINE::lut[]
+0003:000cd4c8+ CzCUBICSPLINE near sspline
+0003:000cd4ca+ short near CzWINDOWEDFIR::lut[]
+0002:00063650+ near CzCUBICSPLINE::CzCUBICSPLINE()
+0002:00063a20+ near CzCUBICSPLINE::~CzCUBICSPLINE()
+0002:00063a50+ near CzWINDOWEDFIR::CzWINDOWEDFIR()
+0002:00063d90+ near CzWINDOWEDFIR::~CzWINDOWEDFIR()
+0002:00063da0+ void near Mono8BitMix( _MODCHANNEL near *, int near *, int near * )
+0002:00063e00+ void near Mono16BitMix( _MODCHANNEL near *, int near *, int near * )
+0002:00063e60+ void near Mono8BitLinearMix( _MODCHANNEL near *, int near *, int near * )
+0002:00063ee0+ void near Mono16BitLinearMix( _MODCHANNEL near *, int near *, int near * )
+0002:00063f70+ void near Mono8BitSplineMix( _MODCHANNEL near *, int near *, int near * )
+0002:00064050+ void near Mono16BitSplineMix( _MODCHANNEL near *, int near *, int near * )
+0002:00064130+ void near Mono8BitFirFilterMix( _MODCHANNEL near *, int near *, int near * )
+0002:000642a0+ void near Mono16BitFirFilterMix( _MODCHANNEL near *, int near *, int near * )
+0002:000643f0+ void near Mono8BitRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:000644a0+ void near Mono16BitRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00064560+ void near Mono8BitLinearRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00064630+ void near Mono16BitLinearRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00064710+ void near Mono8BitSplineRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00064860+ void near Mono16BitSplineRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:000649b0+ void near Mono8BitFirFilterRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00064b70+ void near Mono16BitFirFilterRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00064d10+ void near FastMono8BitMix( _MODCHANNEL near *, int near *, int near * )
+0002:00064d70+ void near FastMono16BitMix( _MODCHANNEL near *, int near *, int near * )
+0002:00064dd0+ void near FastMono8BitLinearMix( _MODCHANNEL near *, int near *, int near * )
+0002:00064e50+ void near FastMono16BitLinearMix( _MODCHANNEL near *, int near *, int near * )
+0002:00064ed0* void near FastMono8BitSplineMix( _MODCHANNEL near *, int near *, int near * )
+0002:00064fa0* void near FastMono16BitSplineMix( _MODCHANNEL near *, int near *, int near * )
+0002:00065080* void near FastMono8BitFirFilterMix( _MODCHANNEL near *, int near *, int near * )
+0002:00065200* void near FastMono16BitFirFilterMix( _MODCHANNEL near *, int near *, int near * )
+0002:00065340+ void near FastMono8BitRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:000653c0+ void near FastMono16BitRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00065440+ void near FastMono8BitLinearRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:000654e0+ void near FastMono16BitLinearRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00065590* void near FastMono8BitSplineRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:000656b0* void near FastMono16BitSplineRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:000657e0* void near FastMono8BitFirFilterRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00065990* void near FastMono16BitFirFilterRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00065b10+ void near Stereo8BitMix( _MODCHANNEL near *, int near *, int near * )
+0002:00065b80+ void near Stereo16BitMix( _MODCHANNEL near *, int near *, int near * )
+0002:00065be0+ void near Stereo8BitLinearMix( _MODCHANNEL near *, int near *, int near * )
+0002:00065c80+ void near Stereo16BitLinearMix( _MODCHANNEL near *, int near *, int near * )
+0002:00065d20+ void near Stereo8BitSplineMix( _MODCHANNEL near *, int near *, int near * )
+0002:00065e80+ void near Stereo16BitSplineMix( _MODCHANNEL near *, int near *, int near * )
+0002:00065ff0+ void near Stereo8BitFirFilterMix( _MODCHANNEL near *, int near *, int near * )
+0002:000661f0+ void near Stereo16BitFirFilterMix( _MODCHANNEL near *, int near *, int near * )
+0002:000663c0+ void near Stereo8BitRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00066480+ void near Stereo16BitRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00066540+ void near Stereo8BitLinearRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00066650+ void near Stereo16BitLinearRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00066770+ void near Stereo8BitSplineRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00066940+ void near Stereo16BitSplineRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00066b20+ void near Stereo8BitFirFilterRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00066d70+ void near Stereo16BitFirFilterRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00066fa0+ void near FilterMono8BitMix( _MODCHANNEL near *, int near *, int near * )
+0002:00067050+ void near FilterMono16BitMix( _MODCHANNEL near *, int near *, int near * )
+0002:00067100+ void near FilterMono8BitLinearMix( _MODCHANNEL near *, int near *, int near * )
+0002:000671d0+ void near FilterMono16BitLinearMix( _MODCHANNEL near *, int near *, int near * )
+0002:000672b0+ void near FilterMono8BitSplineMix( _MODCHANNEL near *, int near *, int near * )
+0002:00067400+ void near FilterMono16BitSplineMix( _MODCHANNEL near *, int near *, int near * )
+0002:00067560+ void near FilterMono8BitFirFilterMix( _MODCHANNEL near *, int near *, int near * )
+0002:00067730+ void near FilterMono16BitFirFilterMix( _MODCHANNEL near *, int near *, int near * )
+0002:000678e0+ void near FilterMono8BitRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:000679e0+ void near FilterMono16BitRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00067ae0+ void near FilterMono8BitLinearRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00067c10+ void near FilterMono16BitLinearRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00067d40+ void near FilterMono8BitSplineRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00067ee0+ void near FilterMono16BitSplineRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00068080+ void near FilterMono8BitFirFilterRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00068290+ void near FilterMono16BitFirFilterRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00068480+ void near FilterStereo8BitMix( _MODCHANNEL near *, int near *, int near * )
+0002:000685a0+ void near FilterStereo16BitMix( _MODCHANNEL near *, int near *, int near * )
+0002:000686c0+ void near FilterStereo8BitLinearMix( _MODCHANNEL near *, int near *, int near * )
+0002:00068810+ void near FilterStereo16BitLinearMix( _MODCHANNEL near *, int near *, int near * )
+0002:00068970+ void near FilterStereo8BitSplineMix( _MODCHANNEL near *, int near *, int near * )
+0002:00068ba0+ void near FilterStereo16BitSplineMix( _MODCHANNEL near *, int near *, int near * )
+0002:00068dd0+ void near FilterStereo8BitFirFilterMix( _MODCHANNEL near *, int near *, int near * )
+0002:00069070+ void near FilterStereo16BitFirFilterMix( _MODCHANNEL near *, int near *, int near * )
+0002:00069300+ void near FilterStereo8BitRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00069470+ void near FilterStereo16BitRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:000695e0+ void near FilterStereo8BitLinearRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00069780+ void near FilterStereo16BitLinearRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00069930+ void near FilterStereo8BitSplineRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00069ba0+ void near FilterStereo16BitSplineRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:00069e20+ void near FilterStereo8BitFirFilterRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:0006a110+ void near FilterStereo16BitFirFilterRampMix( _MODCHANNEL near *, int near *, int near * )
+0002:0006a3e0  int unsigned near CSoundFile::CreateStereoMix( int )
+0002:0006aac0  int unsigned near X86_Convert32To8( void near *, int near *, int unsigned, int near *, int near * )
+0002:0006ab40  int unsigned near X86_Convert32To16( void near *, int near *, int unsigned, int near *, int near * )
+0002:0006abb0  int unsigned near X86_Convert32To24( void near *, int near *, int unsigned, int near *, int near * )
+0002:0006ac40  int unsigned near X86_Convert32To32( void near *, int near *, int unsigned, int near *, int near * )
+0002:0006acc0* void near X86_InitMixBuffer( int near *, int unsigned )
+0002:0006ace0  void near X86_InterleaveFrontRear( int near *, int near *, int unsigned )
+0002:0006acf0  void near X86_MonoFromStereo( int near *, int unsigned )
+0002:0006ad20  void near X86_StereoFill( int near *, int unsigned, int near *, int near * )
+0002:0006adb0* void near X86_EndChannelOfs( _MODCHANNEL near *, int near *, int unsigned )
+0003:000d54da+ CzWINDOWEDFIR near sfir
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(opdelarr.cpp)
+0002:0006ae20  void near operator delete []( void near * )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\mmcmp.cpp)
+0002:0006ae30* int unsigned near MMCMPBITBUFFER::GetBits( int unsigned )
+0002:0006aea0  bool near MMCMP_Unpack( char unsigned const near * near *, int unsigned near * )
+0002:0006b800* int unsigned near _PPBITBUFFER::GetBits( int unsigned )
+0002:0006b860+ void near PP20_DoUnpack( char unsigned const near *, int unsigned, char unsigned near *, int unsigned )
+0002:0006bb60* bool near PP20_Unpack( char unsigned const near * near *, int unsigned near * )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_xm.cpp)
+0002:0006bc20  bool near CSoundFile::ReadXM( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_s3m.cpp)
+0002:0006d120  void near CSoundFile::S3MConvert( _MODCOMMAND near *, bool ) const
+0002:0006d330* void near CSoundFile::S3MSaveConvert( int unsigned near *, int unsigned near *, bool ) const
+0002:0006d9d0  bool near CSoundFile::ReadS3M( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_it.cpp)
+0002:0006e520* bool near CSoundFile::ITInstrToMPT( void const near *, _INSTRUMENTHEADER near *, int unsigned )
+0002:0006ea70  bool near CSoundFile::ReadIT( char unsigned const near *, int unsigned )
+0002:00070610* int unsigned near ITReadBits( int unsigned near &, int unsigned near &, char unsigned near * near &, char signed )
+0002:00070670  void near ITUnpack8Bit( char signed near *, int unsigned, char unsigned near *, int unsigned, bool )
+0002:000708e0  void near ITUnpack16Bit( char signed near *, int unsigned, char unsigned near *, int unsigned, bool )
+0002:00070b60* int unsigned near CSoundFile::SaveMixPlugins( __iobuf near *, bool )
+0002:00070e30  int unsigned near CSoundFile::LoadMixPlugins( void const near *, int unsigned )
+0003:00033dc0+ char unsigned near autovibit2xm[]
+0003:00033dc8* char unsigned near autovibxm2it[]
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_wav.cpp)
+0002:00070fe0  bool near CSoundFile::ReadWav( char unsigned const near *, int unsigned )
+0002:00071490* bool near IMAADPCMUnpack16( short near *, int unsigned, char unsigned near *, int unsigned, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_abc.cpp)
+0002:00075030* bool near CSoundFile::TestABC( char unsigned const near *, int unsigned )
+0002:00078a30  bool near CSoundFile::ReadABC( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_mid.cpp)
+0002:00083bf0* bool near CSoundFile::TestMID( char unsigned const near *, int unsigned )
+0002:00084280* int unsigned near mid_first_noteonevent_tick( _MIDEVENT near * )
+0002:00084300  bool near CSoundFile::ReadMID( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_pat.cpp)
+0002:000869a0  pat_resetsmp
+0002:000869c0* pat_numsmp
+0002:000869e0* pat_numinstr
+0002:00086a00  pat_smptogm
+0002:00086a20  pat_gmtosmp
+0002:00086a60  pat_smplooped
+0002:00086a80  pat_gm_name
+0002:00086ac0  pat_gm_drumnr
+0002:00086ae0  pat_gm_drumnote
+0002:00086cd0* long near _mm_getfsize( __iobuf near * )
+0002:00086d00  pat_init_patnames
+0002:00087d30* bool near CSoundFile::TestPAT( char unsigned const near *, int unsigned )
+0002:00087db0  pat_modnote
+0002:00088210  PAT_Load_Instruments
+0002:00088a00  bool near CSoundFile::ReadPAT( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_stm.cpp)
+0002:000894c0  bool near CSoundFile::ReadSTM( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_med.cpp)
+0002:0008a100  bool near CSoundFile::ReadMed( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_mtm.cpp)
+0002:0008b420  bool near CSoundFile::ReadMTM( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_mdl.cpp)
+0002:0008b9a0+ void near ConvertMDLCommand( _MODCOMMAND near *, int unsigned, int unsigned )
+0002:0008bdf0* void near UnpackMDLTrack( _MODCOMMAND near *, int unsigned, int unsigned, int unsigned, char unsigned const near * )
+0002:0008c0f0  bool near CSoundFile::ReadMDL( char unsigned const near *, int unsigned )
+0002:0008d360  short unsigned near MDLReadBits( int unsigned near &, int unsigned near &, char unsigned near * near &, char signed )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_dbm.cpp)
+0002:0008d3c0  bool near CSoundFile::ReadDBM( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_669.cpp)
+0002:0008df60* int unsigned near lengthArrayToDWORD( char unsigned const near * )
+0002:0008dfb0  bool near CSoundFile::Read669( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_far.cpp)
+0002:0008e5f0  bool near CSoundFile::ReadFAR( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_ams.cpp)
+0002:0008ec50  bool near CSoundFile::ReadAMS( char unsigned const near *, int unsigned )
+0002:000901b0* bool near CSoundFile::ReadAMS2( char unsigned const near *, int unsigned )
+0002:00090c60  void near AMSUnpack( char const near *, int unsigned, char near *, int unsigned, char )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_okt.cpp)
+0002:00090df0  bool near CSoundFile::ReadOKT( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_ptm.cpp)
+0002:000915c0  bool near CSoundFile::ReadPTM( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_ult.cpp)
+0002:00091b60  bool near CSoundFile::ReadUlt( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_dmf.cpp)
+0002:00092220  bool near CSoundFile::ReadDMF( char unsigned const near *, int unsigned )
+0002:00093090* char unsigned near DMFReadBits( DMF_HTREE near *, int unsigned )
+0002:000930f0+ void near DMFNewNode( DMF_HTREE near * )
+0002:000932e0  int near DMFUnpack( char unsigned near *, char unsigned near *, char unsigned near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_dsm.cpp)
+0002:000934e0  bool near CSoundFile::ReadDSM( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_umx.cpp)
+0002:00093a30  bool near CSoundFile::ReadUMX( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_amf.cpp)
+0002:00093bb0* void near AMF_Unpack( _MODCOMMAND near *, char unsigned const near *, int unsigned, int unsigned )
+0002:00093f30  bool near CSoundFile::ReadAMF( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_psm.cpp)
+0002:00094da0* void near swap_PSMSAMPLE( _PSMSAMPLE near * )
+0002:00094da0* void near swap_PSMPATTERN( _PSMPATTERN near * )
+0002:00094da0* void near swap_PSMCHUNK( _PSMCHUNK near * )
+0002:00094db0  bool near CSoundFile::ReadPSM( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_mt2.cpp)
+0002:00095820  bool near CSoundFile::ReadMT2( char unsigned const near *, int unsigned )
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\load_mod.cpp)
+0002:000969c0  void near CSoundFile::ConvertModCommand( _MODCOMMAND near * ) const
+0002:00096c70* short unsigned near CSoundFile::ModSaveCommand( _MODCOMMAND const near *, bool ) const
+0002:00097090* bool near IsMagic( char const near *, char const near * )
+0002:00097140  bool near CSoundFile::ReadMod( char unsigned const near *, int unsigned )
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(opnewarr.cpp)
+0002:00097cd0  void near * near operator new []( int unsigned )
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(cppdata.cpp)
+0003:000dc7b8  _wint_thread_data_offset
+0003:000dc7bc* __compiled_under_OS2
+Module: ..\..\lib\libmodplug.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libmodplug-0.8.8.4\src\snd_flt.cpp)
+0002:00097ce0* int unsigned near CSoundFile::CutOffToFrequency( int unsigned, int ) const
+0002:00097da0  void near CSoundFile::SetupChannelFilter( _MODCHANNEL near *, bool, int ) const
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(iofnoefg.cpp)
+0003:00033ea4  void (near * near __EFG_cnvs2d)( char near *, double near * )
+0003:00033ea8  int (near * near __EFG_cnvd2f)( double near *, float near * )
+0003:00033eac  void (near * near __EFG_LDcvt)( __6ks9tmlong_double near *, cvt_info near *, char near * )
+0003:00033eb0  char near * (near * near __EFG_fcvt)( double, int, int near *, int near * )
+0003:00033eb4  void (near * near __EFG__FDLD)( double near *, __6ks9tmlong_double near * )
+Module: d:\dev\watcom\lib386\math387s.lib(cnvs2d.c)
+0002:00097fc0  __cnvs2d
+Module: d:\dev\watcom\lib386\math387s.lib(cnvd2f.c)
+0002:00097fec  __cnvd2f
+Module: d:\dev\watcom\lib386\math387s.lib(ldcvt.c)
+0002:0009814f  _LDScale10x
+0002:000986bb  __LDcvt
+Module: d:\dev\watcom\lib386\math387s.lib(_i_fcvt_.asm)
+0002:00098b50  _fcvt
+Module: d:\dev\watcom\lib386\math387s.lib(cnvd2ld.c)
+0002:00098b55  __cnvd2ld
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fprtf.c)
+0002:00098b90  __fprtf
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(undefed.cpp)
+0002:00098c70  __wcpp_4_undefed_cdtor_
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fdopen.c)
+0002:00098ce0  fdopen
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\MPEGstream.cpp)
+0002:00098dd0  near MPEGstream::MPEGstream( MPEGsystem near *, char unsigned )
+0002:00098e30  near MPEGstream::~MPEGstream()
+0002:00098e90  void near MPEGstream::reset_stream()
+0002:00098f40  void near MPEGstream::rewind_stream()
+0002:00098f60* bool near MPEGstream::next_system_buffer()
+0002:00099000  bool near MPEGstream::next_packet( bool, bool )
+0002:00099150  MPEGstream_marker near * near MPEGstream::new_marker( int )
+0002:000991e0  bool near MPEGstream::seek_marker( MPEGstream_marker const near * )
+0002:00099240  void near MPEGstream::delete_marker( MPEGstream_marker near * )
+0002:00099270  int unsigned near MPEGstream::copy_data( char unsigned near *, int, bool )
+0002:00099360  int near MPEGstream::copy_byte()
+0002:000993a0  bool near MPEGstream::eof() const
+0002:000993b0  void near MPEGstream::insert_packet( char unsigned near *, int unsigned, double )
+0002:000994a0  void near MPEGstream::garbage_collect()
+0002:00099520  void near MPEGstream::enable( bool )
+0002:00099530  double near MPEGstream::time()
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\MPEGsystem.cpp)
+0002:0009e530+ near MPEGsystem::MPEGsystem()
+0002:0009e550+ bool near Match4( char unsigned const near *, char unsigned const near *, char unsigned const near * )
+0002:0009e5d0+ double near read_time_code( char unsigned near * )
+0002:00099550* int unsigned near skip_zeros( char unsigned near *, int unsigned )
+0002:000996a0  near MPEGsystem::MPEGsystem( SDL_RWops near * )
+0002:00099ef0+ near MPEGsystem::~MPEGsystem()
+0002:00099fe0  MPEGstream near * near * near MPEGsystem::GetStreamList()
+0002:00099ff0+ void near MPEGsystem::Read()
+0002:0009a160+ char unsigned near MPEGsystem::FillBuffer()
+0002:0009bcc0  void near MPEGsystem::Skip( double )
+0002:0009bd10  int unsigned near MPEGsystem::Tell()
+0002:0009bd60+ int unsigned near MPEGsystem::TotalSize()
+0002:0009beb0+ double near MPEGsystem::TotalTime()
+0002:0009c890+ double near MPEGsystem::TimeElapsedAudio( int )
+0002:0009ce40  void near MPEGsystem::Rewind()
+0002:0009ce60+ bool near MPEGsystem::Seek( int )
+0002:0009cfb0  void near MPEGsystem::RequestBuffer()
+0002:0009cfd0+ void near MPEGsystem::Start()
+0002:0009d030* void near MPEGsystem::Stop()
+0002:0009d070  bool near MPEGsystem::Wait()
+0002:0009d0b0* bool near MPEGsystem::Eof() const
+0002:0009d0d0+ bool near MPEGsystem::SystemLoop( MPEGsystem near * )
+0002:0009d1f0* int near MPEGsystem::SystemThread( void near * )
+0002:0009d230* void near MPEGsystem::add_stream( MPEGstream near * )
+0002:0009d280  MPEGstream near * near MPEGsystem::get_stream( char unsigned )
+0002:0009d2c0* char unsigned near MPEGsystem::exist_stream( char unsigned, char unsigned )
+0002:0009d310* void near MPEGsystem::reset_all_streams()
+0002:0009d340* void near MPEGsystem::end_all_streams()
+0002:0009d380+ bool near MPEGsystem::seek_first_header()
+0002:0009dc30+ bool near MPEGsystem::seek_next_header()
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(dtorarst.cpp)
+0002:0009e660  __wcpp_4_dtor_array_store_
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\audio\MPEGaudio.cpp)
+0002:0009f360  void near MPEGaction::Loop( bool )
+0002:0009f370  double near MPEGaction::Time()
+0002:0009f3a0  void near MPEGaction::Pause()
+0002:0009e690  near MPEGaudio::MPEGaudio( MPEGstream near *, bool )
+0002:0009e9f0+ near MPEGaudio::~MPEGaudio()
+0002:0009eaf0  bool near MPEGaudio::WantedSpec( SDL_AudioSpec near * )
+0002:0009eb40  void near MPEGaudio::ActualSpec( SDL_AudioSpec const near * )
+0002:0009ec60* void near MPEGaudio::StartDecoding()
+0002:0009ece0* void near MPEGaudio::StopDecoding()
+0002:0009ed60+ double near MPEGaudio::Time()
+0002:0009edc0+ void near MPEGaudio::Play()
+0002:0009ee50+ void near MPEGaudio::Stop()
+0002:0009ee90+ void near MPEGaudio::Rewind()
+0002:0009ef60+ void near MPEGaudio::ResetSynchro( double )
+0002:0009efa0+ void near MPEGaudio::Skip( float )
+0002:0009f0f0+ void near MPEGaudio::Volume( int )
+0002:0009f120+ __anonymous_enum near MPEGaudio::GetStatus()
+0002:0009f170+ bool near MPEGaudio::GetAudioInfo( MPEG_AudioInfo near * )
+0002:0009f1e0  bool near MPEGaudio::fillbuffer( int )
+0002:0009f220* void near MPEGaudio::sync()
+0002:0009f240  bool near MPEGaudio::issync()
+0002:0009f250  int near MPEGaudio::getbyte()
+0002:0009f280  int near MPEGaudio::getbit()
+0002:0009f2c0  int near MPEGaudio::getbits8()
+0002:0009f310* int near MPEGaudio::getbits9( int )
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\video\MPEGvideo.cpp)
+0002:0009fe20+ void near MPEGvideoaction::SetTimeSource( MPEGaudioaction near * )
+0002:0009f400  near MPEGvideo::MPEGvideo( MPEGstream near * )
+0002:0009f6f0+ near MPEGvideo::~MPEGvideo()
+0002:0009f780+ int near Play_MPEGvideo( void near * )
+0002:0009f840+ void near MPEGvideo::Play()
+0002:0009f8a0+ void near MPEGvideo::Stop()
+0002:0009f8e0+ void near MPEGvideo::Rewind()
+0002:0009f910+ void near MPEGvideo::ResetSynchro( double )
+0002:0009f9e0+ void near MPEGvideo::Skip( float )
+0002:0009fa70+ __anonymous_enum near MPEGvideo::GetStatus()
+0002:0009faa0+ bool near MPEGvideo::GetVideoInfo( MPEG_VideoInfo near * )
+0002:0009fb30+ bool near MPEGvideo::SetDisplay( void (near *)(), void near *, SDL_mutex near * )
+0002:0009fc00+ void near MPEGvideo::RenderFrame( int )
+0002:0009fca0+ void near MPEGvideo::RenderFinal()
+0003:00033f88  int near quietFlag
+0003:00033f8c  int near framerate
+0003:000dc7c4  int near qualityFlag
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\audio\mpegtable.cpp)
+0003:000101e8  int const near MPEGaudio::frequencies[][3]
+0003:00010200  int const near MPEGaudio::bitrate[][3][15]
+0003:00010368  float const near MPEGaudio::scalefactorstable[]
+0003:00010468  float const near MPEGaudio::filter[]
+0003:000dc7c8  float near MPEGaudio::hcos_64[]
+0003:000dc808  float near MPEGaudio::hcos_32[]
+0003:000dc828  float near MPEGaudio::hcos_16[]
+0003:000dc838  float near MPEGaudio::hcos_8[]
+0003:000dc840  float near MPEGaudio::hcos_4
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\audio\mpeglayer3.cpp)
+0002:0009fe50  void near MPEGaudio::layer3initialize()
+0002:000a03a0* bool near MPEGaudio::layer3getsideinfo()
+0002:000a0630+ bool near MPEGaudio::layer3getsideinfo_2()
+0002:000a0830+ void near MPEGaudio::layer3getscalefactors( int, int )
+0002:000a2e80+ void near MPEGaudio::layer3getscalefactors_2( int )
+0002:000a32e0* void near MPEGaudio::huffmandecoder_1( __3rtjd9HUFFMANCODETABLE const near *, int near *, int near * )
+0002:000a34f0* void near MPEGaudio::huffmandecoder_2( __3rtjd9HUFFMANCODETABLE const near *, int near *, int near *, int near *, int near * )
+0002:000a3790+ void near MPEGaudio::layer3huffmandecode( int, int, int (near *)[18])
+0002:000a3eb0* float near MPEGaudio::layer3twopow2( int, int, int, int )
+0002:000a3ee0* float near MPEGaudio::layer3twopow2_1( int, int, int )
+0002:000a3f00+ void near MPEGaudio::layer3dequantizesample( int, int, int (near *)[18], float (near *)[18])
+0002:000a44a0+ void near MPEGaudio::layer3fixtostereo( int, float (near *)[32][18])
+0002:000a4ca0* void near layer3reorder_2( int, int, float (near *)[18], float (near *)[18])
+0002:000a4d50* void near MPEGaudio::layer3reorderandantialias( int, int, float (near *)[18], float (near *)[18])
+0002:000a6080+ void near MPEGaudio::layer3hybrid( int, int, float (near *)[18], float (near *)[32])
+0002:000a6250  void near MPEGaudio::extractlayer3()
+0002:000a8550* void near MPEGaudio::extractlayer3_2()
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\audio\mpeglayer2.cpp)
+0002:000a9520  void near MPEGaudio::extractlayer2()
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\audio\mpeglayer1.cpp)
+0002:000aa2e0  void near MPEGaudio::extractlayer1()
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\MPEGring.cpp)
+0002:000aa580  near MPEG_ring::MPEG_ring( int unsigned, int unsigned )
+0002:000aa690  void near MPEG_ring::ReleaseThreads()
+0002:000aa700+ near MPEG_ring::~MPEG_ring()
+0002:000aa830  char unsigned near * near MPEG_ring::NextWriteBuffer()
+0002:000aa870  void near MPEG_ring::WriteDone( int unsigned, double )
+0002:000aa8e0  int unsigned near MPEG_ring::NextReadBuffer( char unsigned near * near * )
+0002:000aa920  double near MPEG_ring::ReadTimeStamp()
+0002:000aa970  void near MPEG_ring::ReadSome( int unsigned )
+0002:000aa9c0  void near MPEG_ring::ReadDone()
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(assert99.c)
+0002:000aaa60  _assert99
+0002:000aac40* __assert99
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(flushall.c)
+0002:000aac80  __flushall
+0002:000aacd0  flushall
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(gtcheos2.c)
+0002:000aace0  getche
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fsync.c)
+0002:000aad10  fsync
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(qwrit.c)
+0002:000aad40  __qwrite
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(stiomode.c)
+0002:000aae10  __grow_iomode
+0002:000aaed0+ __shrink_iomode
+0002:000aaf50  __SetIOMode
+Module: ..\..\lib\libogg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libogg-1.3.1\src\bitwise.c)
+0002:000aafd0  oggpack_writeinit
+0002:000ab010* oggpackB_writeinit
+0002:000ab020+ oggpack_writecheck
+0002:000ab040* oggpackB_writecheck
+0002:000ab050  oggpack_writetrunc
+0002:000ab090* oggpackB_writetrunc
+0002:000ab0d0  oggpack_write
+0002:000ab210+ oggpackB_write
+0002:000ab350* oggpack_writealign
+0002:000ab370* oggpackB_writealign
+0002:000ab490* oggpack_writecopy
+0002:000ab4b0* oggpackB_writecopy
+0002:000ab4d0  oggpack_reset
+0002:000ab4f0* oggpackB_reset
+0002:000ab500  oggpack_writeclear
+0002:000ab540* oggpackB_writeclear
+0002:000ab550  oggpack_readinit
+0002:000ab580* oggpackB_readinit
+0002:000ab5a0  oggpack_look
+0002:000ab680* oggpackB_look
+0002:000ab780* oggpack_look1
+0002:000ab7b0* oggpackB_look1
+0002:000ab7e0  oggpack_adv
+0002:000ab830* oggpackB_adv
+0002:000ab850+ oggpack_adv1
+0002:000ab870* oggpackB_adv1
+0002:000ab880  oggpack_read
+0002:000ab980* oggpackB_read
+0002:000abab0* oggpack_read1
+0002:000abb10* oggpackB_read1
+0002:000abb70  oggpack_bytes
+0002:000abb90* oggpack_bits
+0002:000abba0* oggpackB_bytes
+0002:000abbc0* oggpackB_bits
+0002:000abbd0* oggpackB_get_buffer
+0002:000abbd0  oggpack_get_buffer
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\sharedbook.c)
+0002:000abbe0  _ilog
+0002:000abc00* _float32_pack
+0002:000abcd0+ _float32_unpack
+0002:000abd40+ _make_words
+0002:000abf20  _book_maptype1_quantvals
+0002:000abfa0+ _book_unquantize
+0002:000ac1c0  vorbis_staticbook_destroy
+0002:000ac210  vorbis_book_clear
+0002:000ac290  vorbis_book_init_encode
+0002:000ac410  vorbis_book_init_decode
+0002:000ac7f0* vorbis_book_codeword
+0002:000ac810* vorbis_book_codelen
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\registry.c)
+0003:00013bc0  _floor_P
+0003:00013bc8  _residue_P
+0003:00013bd4  _mapping_P
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\psy.c)
+0002:000ac850  _vp_global_look
+0002:000ac880  _vp_global_free
+0002:000ac8b0* _vi_gpsy_free
+0002:000ac8e0  _vi_psy_free
+0002:000ad310  _vp_psy_init
+0002:000ad990  _vp_psy_clear
+0002:000ae6c0  _vp_noisemask
+0002:000ae7e0  _vp_tonemask
+0002:000ae8b0  _vp_offset_and_mix
+0002:000ae9e0  _vp_ampmax_decay
+0002:000aedd0  _vp_couple_quantize_normalize
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\codebook.c)
+0002:000af670  vorbis_staticbook_pack
+0002:000af930  vorbis_staticbook_unpack
+0002:000afc70  vorbis_book_encode
+0002:000afe50  vorbis_book_decode
+0002:000afe90  vorbis_book_decodevs_add
+0002:000affd0  vorbis_book_decodev_add
+0002:000b0100  vorbis_book_decodev_set
+0002:000b0190  vorbis_book_decodevv_add
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\mdct.c)
+0002:000b0230  mdct_init
+0002:000b0d00  mdct_clear
+0002:000b0ec0  mdct_backward
+0002:000b1120  mdct_forward
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\smallft.c)
+0002:000b4130  drft_forward
+0002:000b4170* drft_backward
+0002:000b41b0  drft_init
+0002:000b4200  drft_clear
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\envelope.c)
+0002:000b4280  _ve_envelope_init
+0002:000b4470  _ve_envelope_clear
+0002:000b4930  _ve_envelope_search
+0002:000b4b80  _ve_envelope_mark
+0002:000b4c50  _ve_envelope_shift
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\bitrate.c)
+0002:000b4cc0  vorbis_bitrate_init
+0002:000b4e00  vorbis_bitrate_clear
+0002:000b4e20  vorbis_bitrate_managed
+0002:000b4e40* vorbis_bitrate_addblock
+0002:000b52e0* vorbis_bitrate_flushpacket
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\lpc.c)
+0002:000b5390  vorbis_lpc_from_data
+0002:000b55a0  vorbis_lpc_predict
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\window.c)
+0002:000b5680  _vorbis_window_get
+0002:000b5690  _vorbis_apply_window
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fenv.c)
+0002:000b57f0* __fenv_h_default_environment
+0002:000b5810* feclearexcept
+0002:000b5830+ fegetexceptflag
+0002:000b5850  feraiseexcept
+0002:000b5870* feenableexcept
+0002:000b5890* fedisableexcept
+0002:000b58b0* fesetexceptflag
+0002:000b58e0* fetestexcept
+0002:000b5900  fegetround
+0002:000b5920* fesetround
+0002:000b5970* fegetenv
+0002:000b5980* feholdexcept
+0002:000b59a0* fesetenv
+0002:000b59b0* feupdateenv
+Module: d:\dev\watcom\lib386\math387s.lib(ceil.c)
+0002:000b59d8  ceil
+Module: d:\dev\watcom\lib386\math387s.lib(round.c)
+0002:000b5a0f  round
+Module: d:\dev\watcom\lib386\math387s.lib(modf87.asm)
+0002:000b5af8  modf
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(8087cw.c)
+0003:00034a74  __8087cw
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(ini87386.asm)
+0002:000b5b18  __x87id
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(setenvp.c)
+0002:000b5b50  __setenvp
+0002:000b5c10  __freeenvp
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mbisdbcs.c)
+0003:00034a78  __IsDBCS
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mbislead.c)
+0002:000b5c60* _ismbblead
+0003:000ed850  __MBCSIsTable
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mbinit.c)
+0002:000b5ccc  __mbinit
+0003:00034a7c  __MBCodePage
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mbdtoupp.c)
+0002:000b5dd0  _mbdtoupper
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(noefgfmt.c)
+0003:00034a80  __EFG_printf
+0003:00034a84  __EFG_scanf
+Module: d:\dev\watcom\lib386\math387s.lib(efgfmt.c)
+0002:000b5e30  _EFG_Format
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(enterdb.c)
+0002:000b5fb0  __EnterWVIDEO
+0003:00034a88  __WD_Present
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(umaskval.c)
+0003:00034a8c  __umaskval
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(os2fil64.c)
+0003:00034a90  __os2_DosOpenL
+0003:00034a94+ __os2_DosSetFilePtrL
+0003:00034a98+ __os2_DosSetFileSizeL
+0003:00034a9c+ __os2_DosSetFileLocksL
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(isattos2.c)
+0002:000b60c0  isatty
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(amblksiz.c)
+0003:00034aa0  _amblksiz
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(heapen.c)
+0003:00034aa4  __heap_enabled
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(nheapmin.c)
+0002:000b60f0  _nheapshrink
+0002:000b60f0* _nheapmin
+0002:000b60f0* _heapmin
+0002:000b60f0  _heapshrink
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(chipbug.c)
+0002:000b61e0  __verify_pentium_fdiv_bug
+Module: d:\dev\watcom\lib386\math387s.lib(math2err.c)
+0002:000b6236  __math1err
+0002:000b6269  __math2err
+Module: d:\dev\watcom\lib386\math387s.lib(math87e.c)
+0002:000b63a6  __math87_err
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mktime.c)
+0002:000b6420  mktime
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(dllmno32.c)
+0002:000b64b0  DllMain
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(trdlist.c)
+0002:000b6510  __GetThreadData
+0002:000b6640  __ReallocThreadData
+0002:000b67b0  __AddThreadData
+0002:000b6830  __RemoveThreadData
+0002:000b6890  __ResizeThreadDataList
+0002:000b68e0  __FreeThreadDataList
+0002:000b6920* __ActiveThreads
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mthrdini.c)
+0002:000b6940  __InitThreadData
+0003:00034aac  __ThreadDataSize
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(register.c)
+0002:000b6970  __initthread
+0002:000b6980  _beginthread
+0002:000b69a0  _endthread
+0002:000b69b0* __RegisterThreadData
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(thrdmax.c)
+0002:000b6a00  __GETMAXTHREADS
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(prtf.c)
+0002:000b6a10  __prtf
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(stablcl.cpp)
+0002:000b77c0  __wcpp_4_lcl_register_
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(moddtorr.cpp)
+0003:00034fc4  __wcpp_4_data_module_dtor_ref_
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(_istrncc.asm)
+0002:000b77d0  strncasecmp
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(isspace.c)
+0002:000b77e0  isspace
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(_icstrdu.asm)
+0002:000b77f4  strdup
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(isdigit.c)
+0002:000b7800  isdigit
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(isupper.c)
+0002:000b7820  isupper
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(islower.c)
+0002:000b7840  islower
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(isalpha.c)
+0002:000b7860  isalpha
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(_istrcc_.asm)
+0002:000b7878  strcasecmp
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(setenv.c)
+0002:000b7880  setenv
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(time.c)
+0002:000b79f0  time
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(sleepos2.c)
+0002:000b7a30  sleep
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(sscanf.c)
+0002:000b7a80+ vsscanf
+0002:000b7ac0  sscanf
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(printf.c)
+0002:000b7af0  printf
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(feof.c)
+0002:000b7b20  feof
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(isblank.c)
+0002:000b7b30  isblank
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(thrddata.cpp)
+0002:000b7b50  __wcpp_4_multi_thread_init_
+Module: d:\dev\watcom\lib386\math387s.lib(strtod.c)
+0002:000b8081+ __Strtold
+0002:000b81f5  strtod
+Module: d:\dev\watcom\lib386\math387s.lib(ldclass.c)
+0002:000b8357  __LDClass
+0002:000b83a5* _FLClass
+Module: d:\dev\watcom\lib386\math387s.lib(efcvt.c)
+0002:000b83ed* ecvt
+0002:000b8429  fcvt
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(fatalerr.cpp)
+0002:000b8470  __wcpp_4_fatal_runtime_error_
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\MPEGlist.cpp)
+0002:000b84b0  near MPEGlist::MPEGlist()
+0002:000b84f0  near MPEGlist::~MPEGlist()
+0002:000b8540  MPEGlist near * near MPEGlist::Alloc( int unsigned )
+0002:000b85d0  void near MPEGlist::Lock()
+0002:000b85e0  void near MPEGlist::Unlock()
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(perror.c)
+0002:000b8610  perror
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(stabadt.cpp)
+0002:000b8670+ void near * near dtor_the_array( _RTARCTOR near * )
+0002:000b86ac  __wcpp_4_dtor_array_
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(pure_err.cpp)
+0002:000b86e0  __wcpp_4_pure_error_
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\video\video.cpp)
+0002:000b8710  double near ReadSysClock()
+0002:000b8740  void near InitCrop()
+0002:000b8750  vid_stream near * near NewVidStream( int unsigned )
+0002:000b89c0  void near ResetVidStream( vid_stream near * )
+0002:000b8ab0  void near DestroyVidStream( vid_stream near * )
+0002:000b8bf0* pict_image near * near NewPictImage( vid_stream near *, int, int )
+0002:000b8c80  bool near InitPictImages( vid_stream near *, int, int )
+0002:000b8d80* void near DestroyPictImage( vid_stream near *, pict_image near * )
+0002:000b8dc0  vid_stream near * near mpegVidRsrc( double, vid_stream near *, int )
+0003:000218f0* int const near scan[][8]
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\video\decoders.cpp)
+0003:000219f0  __8oippucoded_block_pattern_entry const near coded_block_pattern[]
+0003:000229f0  __62mhrgdct_dc_size_entry const near dct_dc_size_luminance[]
+0003:00022af0  __62mhrgdct_dc_size_entry const near dct_dc_size_luminance1[]
+0003:00022b70  __62mhrgdct_dc_size_entry const near dct_dc_size_chrominance[]
+0003:00022c70  __62mhrgdct_dc_size_entry const near dct_dc_size_chrominance1[]
+0003:00022d70  short unsigned const near dct_coeff_tbl_0[]
+0003:00022f70  short unsigned const near dct_coeff_tbl_1[]
+0003:00022f90  short unsigned const near dct_coeff_tbl_2[]
+0002:000c38f0  void near decodeInitTables()
+0003:00022f98  short unsigned const near dct_coeff_tbl_3[]
+0003:00022fa0  short unsigned const near dct_coeff_next[]
+0003:000231a0  short unsigned const near dct_coeff_first[]
+0003:000ed958  __33o576mb_addr_inc_entry near mb_addr_inc[]
+0003:000f1958  __3fc3jsmb_type_entry near mb_type_P[]
+0003:000f1f58  __3fc3jsmb_type_entry near mb_type_B[]
+0003:000f2558  __3js637motion_vectors_entry near motion_vectors[]
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\video\parseblock.cpp)
+0002:000c4260  void near InitIDCT()
+0002:000c4270  void near ParseReconBlock( int, vid_stream near * )
+0002:000c5460* void near ParseAwayBlock( int, vid_stream near * )
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\video\gdith.cpp)
+0002:000c5fc0  int near MPEGvideo::timeSync( vid_stream near * )
+0002:000c62e0  void near MPEGvideo::DisplayFrame( vid_stream near * )
+0002:000c6370  void near MPEGvideo::ExecuteDisplay( vid_stream near * )
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\audio\bitwindow.cpp)
+0002:000c6730  int near Mpegbitwindow::getbits( int )
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\audio\hufftable.cpp)
+0003:00028c48  __3rtjd9HUFFMANCODETABLE const near MPEGaudio::ht[]
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\audio\filter.cpp)
+0002:000c67c0+ void near MPEGaudio::computebuffer( float near *, float (near *)[512])
+0002:000c79b0* void near MPEGaudio::generatesingle()
+0002:000c9150* void near MPEGaudio::generate()
+0002:000cc370  void near MPEGaudio::subbandsynthesis( float near *, float near * )
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(_snprint.c)
+0002:000d0fe0+ _vsnprintf
+0002:000d1050  _snprintf
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(rterrmsg.c)
+0002:000d1090  __rterr_msg
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(abort.c)
+0002:000d116c  abort
+0002:000d117e+ __terminate
+0003:00034b58+ __abort
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(getchos2.c)
+0002:000d11a0  getch
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(putchos2.c)
+0002:000d1250  putch
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(hdlman.c)
+0003:00034b5c  __NHandles
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(iomodtty.c)
+0002:000d12a0  __ChkTTYIOMode
+0002:000d12f0* __IOMode
+Module: d:\dev\watcom\lib386\math387s.lib(ldexp.c)
+0002:000d130b  ldexp
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\floor0.c)
+0003:00028f78  floor0_exportbundle
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\floor1.c)
+0002:000d29c0  floor1_fit
+0002:000d3010  floor1_interpolate_fit
+0002:000d30d0  floor1_encode
+0003:00029394  floor1_exportbundle
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\res0.c)
+0002:000d3b90+ res0_free_info
+0002:000d3bc0+ res0_free_look
+0002:000d3c80+ res0_pack
+0002:000d3d80+ res0_unpack
+0002:000d3f20+ res0_look
+0002:000d4ca0+ res0_inverse
+0002:000d4d00+ res1_forward
+0002:000d4d70+ res1_class
+0002:000d4dd0+ res1_inverse
+0002:000d4e30+ res2_class
+0002:000d4e80+ res2_forward
+0002:000d4f50+ res2_inverse
+0003:000293b0  residue0_exportbundle
+0003:000293d0  residue1_exportbundle
+0003:000293f0  residue2_exportbundle
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\mapping0.c)
+0003:00029410  mapping0_exportbundle
+Module: d:\dev\watcom\lib386\math387s.lib(fdclass.c)
+0002:000d634b  _FDClass
+Module: d:\dev\watcom\lib386\math387s.lib(_matherr.c)
+0002:000d64d9* _set_matherr
+0002:000d64e3+ __rterrmsg
+0002:000d6530  __rtmathfuncname
+0002:000d653c* _matherr
+0002:000d658e+ __reporterrorsimple
+0002:000d6607  __reporterror
+0003:00034bc0+ __matherr_handler
+Module: d:\dev\watcom\lib386\math387s.lib(copysign.c)
+0002:000d666d  copysign
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(clearenv.c)
+0002:000d66d0  clearenv
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(rtcntrl.c)
+0002:000d6770* _SetLD64bit
+0002:000d6780* _SetLD80bit
+0002:000d6790  _LDisDouble
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(hugeval.c)
+0002:000d67a0  _HugeValue
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(locmktim.c)
+0002:000d67b0  __local_mktime
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(gmtime.c)
+0002:000d6910  __brktime
+0002:000d6a30+ _gmtime
+0002:000d6a60* gmtime
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(tzset.c)
+0003:00034bc8  __start_dst
+0003:00034bec  __end_dst
+0003:00034d14* tzname
+0003:00034d1c  timezone
+0003:00034d20  daylight
+0003:00034d24  __dst_adjust
+0002:000d6ad0* __DontCacheOSTZ
+0002:000d6ae0* __CacheOSTZ
+0002:000d6ff0+ __parse_tz
+0002:000d7220  tzset
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(timeutil.c)
+0002:000d73b0  __isindst
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(libmno32.c)
+0002:000d7710  __dll_initialize
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(libterm.c)
+0002:000d7720  __dll_terminate
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(thredo32.c)
+0002:000d77d0  __CBeginThread
+0002:000d7880  __CEndThread
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(wctomb.c)
+0002:000d78a0  wctomb
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(itoa.c)
+0002:000d78e0+ utoa
+0002:000d7940  itoa
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(strupr.c)
+0002:000d7980  strupr
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(lltoa.c)
+0002:000d79a0  ulltoa
+0002:000d7a10* lltoa
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(ltoa.c)
+0002:000d7a50  ultoa
+0002:000d7ab0* ltoa
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(stabmod.cpp)
+0002:000d7af0  __wcpp_4_module_dtor_
+0002:000d7b34  __wcpp_4_mod_register_
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(strnicmp.c)
+0002:000d7b60  strnicmp
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(strdup.c)
+0002:000d7bb0  __clib_strdup
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(_setenv.c)
+0002:000d7cc0  __setenv
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mbslen.c)
+0002:000d7d10  _mbslen
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mbstowcs.c)
+0002:000d7d40  mbstowcs
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(_usetenv.c)
+0002:000d7e60  __wsetenv
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(gtctmos2.c)
+0002:000d7ec0  __getctime
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(scnf.c)
+0002:000d8b10  __scnf
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(regdata.c)
+0002:000d8da0  __RegisterThreadDataSize
+Module: d:\dev\watcom\lib386\math387s.lib(bufld386.asm)
+0002:000d8dc8  __ZBuf2LD
+Module: d:\dev\watcom\lib386\math387s.lib(inf_nan.c)
+0002:000d8e6b* __f_infinity
+0002:000d8e6f* __f_posqnan
+0002:000d8e73  __d_infinity
+0002:000d8e7b  __d_posqnan
+0002:000d8e83* __ld_infinity
+0002:000d8e8b* __ld_posqnan
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(cvtbuf.c)
+0002:000d8ea0  __CVTBuffer
+Module: d:\dev\watcom\lib386\math387s.lib(cvt.c)
+0002:000d8eac  __cvt
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fputs.c)
+0002:000d8f30  fputs
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(prwdata.cpp)
+0003:000f6560  _wint_static_init_sema
+0003:000f6570  _wint_pure_error_flag
+0003:000f6572* _wint_undef_vfun_flag
+0003:000f6574  _wint_module_init
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\video\jrevdct.cpp)
+0002:000d8ff0  void near init_pre_idct()
+0002:000d9030  void near j_rev_dct_sparse( short near *, int )
+0002:000d9100  void near j_rev_dct( short near * )
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\video\util.cpp)
+0002:000daa60  void near correct_underflow( vid_stream near * )
+0002:000dab00  int near next_bits( int, int unsigned, vid_stream near * )
+0002:000dac30  char near * near get_ext_data( vid_stream near * )
+0002:000daf10  int near next_start_code( vid_stream near * )
+0002:000db580  char near * near get_extra_bit_info( vid_stream near * )
+0003:00034d2c  int unsigned near nBitMask[]
+0003:00034dac  int unsigned near bitMask[]
+0003:00034e2c  int unsigned near rBitMask[]
+0003:00034eac  int unsigned near bitTest[]
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\video\motionvec.cpp)
+0002:000db950  void near ComputeForwVector( int near *, int near *, vid_stream near * )
+0002:000dbad0  void near ComputeBackVector( int near *, int near *, vid_stream near * )
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\audio\filter_2.cpp)
+0002:000dbc50+ void near MPEGaudio::computebuffer_2( float near *, float (near *)[512])
+0002:000dcc70* void near MPEGaudio::generatesingle_2()
+0002:000de440* void near MPEGaudio::generate_2()
+0002:000e16b0  void near MPEGaudio::subbandsynthesis_2( float near *, float near * )
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(thunk)
+0002:000e6358  __TNK
+0002:000e6344* __TNC
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(far16fun)
+0002:000e63a8  __Far16Func2
+0002:000e63f1* __Far16Func
+0002:000e643f* __Far16Pascal2
+0002:000e6486* __Far16Pascal
+0002:000e64d2* __Far16Cdecl2
+0002:000e6520* __Far16Cdecl
+0002:000e6573  __FlatToFar16
+0002:000e657c* __Far16ToFlat
+Module: ..\..\lib\vorbis.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\libvorbis-1.3.3\lib\lsp.c)
+0002:000e6590  vorbis_lsp_to_curve
+0002:000e6ac0* vorbis_lpc_to_lsp
+Module: d:\dev\watcom\lib386\math387s.lib(__mtherr.asm)
+0002:000e6d44  __matherr
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(iobaddr.c)
+0002:000e6d50  __get_std_stream
+0002:000e6d70* __get_std_file
+Module: d:\dev\watcom\lib386\math387s.lib(mathint.c)
+0003:00034f2c* signgam
+0003:00034f30  __math_errhandling_flag
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(leapyear.c)
+0002:000e6d80  __leapyear
+0003:0000631c  __diyr
+0003:00006336  __dilyr
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(alphabet.c)
+0003:00006350  __Alphabet
+Module: d:\dev\watcom\lib386\os2\plibmt3s.lib(lock.cpp)
+0002:000e6dc0* near __lock::__lock()
+0002:000e6dd8+ near __lock::~__lock()
+0002:000e6e0c  void near __lock::p()
+0002:000e6e1c  void near __lock::v()
+0002:000e6e2c* near __fn_lock::__fn_lock( __lock near * )
+0002:000e6e44* near __fn_lock::~__fn_lock()
+0003:00034fca* rt_init __based("YI") __wcpp_4_data_fini_sisema_
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(_findenv.c)
+0002:000e6fe0  __findenv
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(mbtowc.c)
+0002:000e7100  mbtowc
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(ustrlen.c)
+0002:000e71c1  wcslen
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(memcpy.c)
+0002:000e71e0  memcpy
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(ustrcpy.c)
+0002:000e7203  wcscpy
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(_ufinden.c)
+0002:000e72e0  __wfindenv
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(crtwenv.c)
+0002:000e7390  __create_wide_environment
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(fdfs386.asm)
+0002:000e740c  __FDFS
+Module: ..\..\lib\smpeg.lib(D:\home\Digi\projects\port\SDL2\packages\SDL2_mixer-2.0.1\external\smpeg2-2.0.0\video\readfile.cpp)
+0002:000e7460  int near get_more_data( vid_stream near * )
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(itsto32.c)
+0002:000e7610  __init_threadstksize
+Module: d:\dev\watcom\lib386\math387s.lib(acos87.asm)
+0002:000e765b* acos
+0002:000e761c  IF@DACOS
+0002:000e761c* IF@ACOS
+Module: d:\dev\watcom\lib386\math387s.lib(matherr.c)
+0002:000e766e  matherr
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(utoupper.c)
+0002:000e7671  towupper
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(_uputenv.c)
+0002:000e7690  __wputenv
+Module: d:\dev\watcom\lib386\math387s.lib(atan87.asm)
+0002:000e7722* atan
+0002:000e7735* atan2
+0002:000e76f8* IF@ATAN
+0002:000e76f8* IF@DATAN
+0002:000e770d* IF@ATAN2
+0002:000e770d  IF@DATAN2
+Module: d:\dev\watcom\lib386\math387s.lib(sqrt87.asm)
+0002:000e774c* sqrt
+0002:000e7788* IF@SQRT
+0002:000e7788* IF@DSQRT
+0002:000e778a  __@DSQRT
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(chipw32.asm)
+0002:000e77d0  __fpatan_wrap
+Module: d:\dev\watcom\lib386\os2\clib3s.lib(chipa32.asm)
+0002:000e7810  __fpatan_chk
+
+
+                        +----------------------+
+                        |   Imported Symbols   |
+                        +----------------------+
+
+Symbol                              Module
+======                              ======
+
+SDL_getenv                          sdl2
+SDL_malloc                          sdl2
+SDL_free                            sdl2
+SDL_memset                          sdl2
+SDL_SetError                        sdl2
+SDL_realloc                         sdl2
+SDL_abs                             sdl2
+SDL_LockAudio                       sdl2
+SDL_UnlockAudio                     sdl2
+SDL_ReadLE32                        sdl2
+SDL_ReadBE32                        sdl2
+SDL_ReadBE16                        sdl2
+SDL_memcpy                          sdl2
+SDL_GetTicks                        sdl2
+SDL_MixAudio                        sdl2
+SDL_OpenAudio                       sdl2
+SDL_CloseAudio                      sdl2
+SDL_PauseAudio                      sdl2
+SDL_LoadWAV_RW                      sdl2
+SDL_BuildAudioCVT                   sdl2
+SDL_calloc                          sdl2
+SDL_ConvertAudio                    sdl2
+SDL_RWFromFile                      sdl2
+SDL_ClearError                      sdl2
+SDL_GetError                        sdl2
+SDL_Delay                           sdl2
+SDL_strdup                          sdl2
+SDL_Error                           sdl2
+SDL_vsnprintf                       sdl2
+DosRequestMutexSem                  DOSCALLS
+DosReleaseMutexSem                  DOSCALLS
+DosCreateMutexSem                   DOSCALLS
+ntohl                               TCPIP32
+DosQueryHType                       DOSCALLS
+DosQueryFileInfo                    DOSCALLS
+DosGetInfoBlocks                    DOSCALLS
+DosQueryModuleName                  DOSCALLS
+DosQuerySysInfo                     DOSCALLS
+DosExit                             DOSCALLS
+SDL_RWFromFP                        sdl2
+SDL_RWFromMem                       sdl2
+DosRead                             DOSCALLS
+DosSetFilePtr                       DOSCALLS
+DosClose                            DOSCALLS
+DosDevConfig                        DOSCALLS
+DosWrite                            DOSCALLS
+DosOpen                             DOSCALLS
+DosAllocMem                         DOSCALLS
+DosCloseMutexSem                    DOSCALLS
+DosLoadModule                       DOSCALLS
+DosQueryProcAddr                    DOSCALLS
+SDL_CreateMutex                     sdl2
+SDL_DestroyMutex                    sdl2
+SDL_LockMutex                       sdl2
+SDL_UnlockMutex                     sdl2
+SDL_CreateSemaphore                 sdl2
+SDL_SemPost                         sdl2
+SDL_SemValue                        sdl2
+SDL_DestroySemaphore                sdl2
+SDL_SemWait                         sdl2
+SDL_WaitThread                      sdl2
+SDL_CreateThread                    sdl2
+DosResetBuffer                      DOSCALLS
+DosSetRelMaxFH                      DOSCALLS
+DosQueryDBCSEnv                     NLS
+DosQueryCp                          DOSCALLS
+DosQueryModuleHandle                DOSCALLS
+DosFreeMem                          DOSCALLS
+DosSleep                            DOSCALLS
+DosFreeModule                       DOSCALLS
+KBD16CHARIN                         KBDCALLS
+VIO16WRTTTY                         VIOCALLS
+DosPostEventSem                     DOSCALLS
+DosCreateEventSem                   DOSCALLS
+DosCreateThread                     DOSCALLS
+DosCloseEventSem                    DOSCALLS
+DosWaitEventSem                     DOSCALLS
+DosGetDateTime                      DOSCALLS
+DosFlatToSel                        DOSCALLS
+DosSelToFlat                        DOSCALLS
+
+
+                        +--------------------+
+                        |   Libraries Used   |
+                        +--------------------+
+
+..\..\lib\flac.lib
+..\..\lib\libmodplug.lib
+..\..\lib\libogg.lib
+..\..\lib\mikmod.lib
+..\..\lib\smpeg.lib
+..\..\lib\vorbis.lib
+..\..\lib\sdl2.lib
+d:\dev\watcom\lib386\noemu387.lib
+d:\dev\watcom\lib386\math387s.lib
+d:\dev\watcom\lib386\os2\clib3s.lib
+d:\dev\watcom\lib386\os2\plibmt3s.lib
+d:\dev\watcom\lib386\os2\tcpip32.lib
+d:\dev\watcom\lib386\os2\os2386.lib
+
+
+                        +-----------------------+
+                        |   Linker Statistics   |
+                        +-----------------------+
+
+Stack size:  0000 (0.)
+Memory size:  001dfff9 (1966073.)
+Link time: 00:00.89

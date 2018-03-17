@@ -1,0 +1,24 @@
+misc.h(33): Error! E1055: Unable to open 'endian.h'
+misc.h(57): Error! E1019: Tag 'magic' already defined
+misc.h(65): Error! E1022: Missing or misspelled data type near 'STIN'
+misc.h(65): Error! E1022: Missing or misspelled data type near 'ogg_int32_t'
+misc.h(71): Error! E1022: Missing or misspelled data type near 'STIN'
+misc.h(71): Error! E1022: Missing or misspelled data type near 'ogg_int32_t'
+misc.h(75): Error! E1022: Missing or misspelled data type near 'STIN'
+misc.h(75): Error! E1022: Missing or misspelled data type near 'ogg_int32_t'
+misc.h(142): Warning! W132: No storage class or type specified
+misc.h(142): Error! E1009: Expecting ';' but found 'void'
+misc.h(150): Warning! W132: No storage class or type specified
+misc.h(150): Error! E1009: Expecting ';' but found 'void'
+misc.h(158): Warning! W132: No storage class or type specified
+misc.h(158): Error! E1009: Expecting ';' but found 'void'
+misc.h(173): Error! E1022: Missing or misspelled data type near 'STIN'
+misc.h(173): Error! E1022: Missing or misspelled data type near 'ogg_int32_t'
+misc.h(182): Error! E1022: Missing or misspelled data type near 'STIN'
+misc.h(182): Error! E1022: Missing or misspelled data type near 'ogg_int32_t'
+misc.h(199): Error! E1022: Missing or misspelled data type near 'STIN'
+misc.h(199): Error! E1022: Missing or misspelled data type near 'ogg_int32_t'
+misc.h(207): Error! E1022: Missing or misspelled data type near 'STIN'
+misc.h(207): Error! E1022: Missing or misspelled data type near 'ogg_int32_t'
+codebook.c(166): Warning! W132: No storage class or type specified
+codebook.c(166): Error! E1009: Expecting ';' but found 'long'

@@ -1,0 +1,29 @@
+SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
+NAME ..\..\dll\sdl2img
+FILE IMG.obj
+FILE IMG_bmp.obj
+FILE IMG_gif.obj
+FILE IMG_jpg.obj
+FILE IMG_lbm.obj
+FILE IMG_pcx.obj
+FILE IMG_png.obj
+FILE IMG_pnm.obj
+FILE IMG_tga.obj
+FILE IMG_tif.obj
+FILE IMG_xcf.obj
+FILE IMG_xpm.obj
+FILE IMG_xv.obj
+FILE IMG_webp.obj
+OPTION QUIET
+OPTION DESCRIPTION '@#libsdl org:2.0.1#@##1## 2016-02-23               DIGI-HOME::::::@@Simple DirectMedia Layer Image Library'
+LIBPATH ..\..\lib
+LIB libpng.lib
+LIB libtiff.lib
+LIB zlib.lib
+LIB jpeg.lib
+LIB sdl2.lib
+OPTION MAP=sdl2img
+OPTION ELIMINATE
+OPTION MANYAUTODATA
+OPTION OSNAME='OS/2 and eComStation'
+OPTION SHOWDEAD
