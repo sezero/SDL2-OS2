@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if SDL_TIMER_OS2
+#if defined(SDL_TIMER_DUMMY) || defined(SDL_TIMERS_DISABLED)
 
 #include "SDL_timer.h"
 
@@ -70,6 +70,6 @@ SDL_Delay(Uint32 ms)
     SDL_Unsupported();
 }
 
-#endif /* SDL_TIMER_OS2 */
+#endif /* SDL_TIMER_DUMMY || SDL_TIMERS_DISABLED */
 
 /* vi: set ts=4 sw=4 expandtab: */
