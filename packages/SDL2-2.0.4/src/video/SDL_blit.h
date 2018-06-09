@@ -70,11 +70,7 @@ typedef struct
     Uint8 r, g, b, a;
 } SDL_BlitInfo;
 
-#ifdef __OS2__
-typedef void (* SDL_BlitFunc) (SDL_BlitInfo * info);
-#else
-typedef void (SDLCALL * SDL_BlitFunc) (SDL_BlitInfo * info);
-#endif
+typedef void (*SDL_BlitFunc) (SDL_BlitInfo *info);
 
 
 typedef struct
