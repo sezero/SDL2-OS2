@@ -219,6 +219,10 @@ void Redraw() {
     }
 }
 
+static void quit (void) {
+    SDL_Quit();
+}
+
 int main(int argc, char *argv[]) {
     int i, done;
     SDL_Event event;
@@ -274,7 +278,7 @@ int main(int argc, char *argv[]) {
 #endif
 
     SDL_Log("Using font: %s\n", fontname);
-    atexit(SDL_Quit);
+    atexit(quit);
 
     InitInput();
     /* Create the windows and initialize the renderers */
