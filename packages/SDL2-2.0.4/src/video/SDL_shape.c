@@ -206,18 +206,14 @@ RecursivelyCalculateShapeTree(SDL_WindowShapeMode mode,SDL_Surface* mask,SDL_Rec
 SDL_ShapeTree*
 SDL_CalculateShapeTree(SDL_WindowShapeMode mode,SDL_Surface* shape)
 {
-#ifdef __WATCOMC__
     SDL_Rect dimensions;
-#else
-    SDL_Rect dimensions = {0,0,shape->w,shape->h};
-#endif
     SDL_ShapeTree* result = NULL;
-#ifdef __WATCOMC__
+
     dimensions.x = 0;
     dimensions.y = 0;
     dimensions.w = shape->w;
     dimensions.h = shape->h;
-#endif
+
     if(SDL_MUSTLOCK(shape))
         SDL_LockSurface(shape);
     result = RecursivelyCalculateShapeTree(mode,shape,dimensions);
