@@ -447,18 +447,11 @@ mouse_warpMouseInWindow(void *arg)
 {
     const int w = MOUSE_TESTWINDOW_WIDTH, h = MOUSE_TESTWINDOW_HEIGHT;
     int numPositions = 6;
-#if !defined(__WATCOMC__)
-    int xPositions[] = {-1, 0, 1, w-1, w, w+1 };
-    int yPositions[] = {-1, 0, 1, h-1, h, h+1 };
-#else
-    // Expression must be constant for OpenWatcom.
     int xPositions[6];
     int yPositions[6];
-#endif
     int x, y, i, j;
     SDL_Window *window;
 
-#if defined(__WATCOMC__)
     xPositions[0] = -1;
     xPositions[1] = 0;
     xPositions[2] = 1;
@@ -471,7 +464,6 @@ mouse_warpMouseInWindow(void *arg)
     yPositions[3] = h-1;
     yPositions[4] = h;
     yPositions[5] = h+1;
-#endif
     /* Create test window */
     window = _createMouseSuiteTestWindow();
     if (window == NULL) return TEST_ABORTED;

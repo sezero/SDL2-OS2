@@ -50,19 +50,13 @@ button_messagebox(void *eventNumber)
         "Custom MessageBox",
         "This is a custom messagebox",
         2,
-#if !defined(__WATCOMC__)
-        buttons,
-#else
-        NULL,
-#endif
+        NULL,/* buttons */
         NULL /* Default color scheme */
     };
 
     int button = -1;
     int success = 0;
-#if defined(__WATCOMC__)
-    data.buttons = &buttons;
-#endif
+    data.buttons = buttons;
     if (eventNumber) {
         data.message = "This is a custom messagebox from a background thread.";
     }
