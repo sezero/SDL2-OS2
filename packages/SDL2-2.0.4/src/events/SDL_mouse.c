@@ -27,9 +27,6 @@
 #include "SDL_timer.h"
 #include "SDL_events.h"
 #include "SDL_events_c.h"
-#ifndef __OS2__
-#include "default_cursor.h"
-#endif
 #include "../video/SDL_sysvideo.h"
 
 /* #define DEBUG_MOUSE */
