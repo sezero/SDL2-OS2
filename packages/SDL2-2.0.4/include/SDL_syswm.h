@@ -175,12 +175,13 @@ struct SDL_SysWMmsg
         } uikit;
 #endif
 #if defined(SDL_VIDEO_DRIVER_OS2)
-        struct {
-            BOOL fFrame;                /* TRUE - hwnd is a frame window */
-            HWND hwnd;                  /* The window receiving the message */
-            ULONG msg;                  /* The message identifier */
-            MPARAM mp1;                 /* The first first message parameter */
-            MPARAM mp2;                 /* The second first message parameter */
+        struct
+        {
+            BOOL fFrame;                /**< TRUE if hwnd is a frame window */
+            HWND hwnd;                  /**< The window receiving the message */
+            ULONG msg;                  /**< The message identifier */
+            MPARAM mp1;                 /**< The first first message parameter */
+            MPARAM mp2;                 /**< The second first message parameter */
         } os2;
 #endif
         /* Can't have an empty union */
@@ -274,11 +275,12 @@ struct SDL_SysWMinfo
             EGLSurface surface;
         } android;
 #endif
+
 #if defined(SDL_VIDEO_DRIVER_OS2)
         struct
         {
-            HWND hwnd;                /**< The window handle */
-            HWND hwndFrame;           /**< The frame window handle */
+            HWND hwnd;                  /**< The window handle */
+            HWND hwndFrame;             /**< The frame window handle */
         } os2;
 #endif
 
