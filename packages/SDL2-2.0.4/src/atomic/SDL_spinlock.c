@@ -32,20 +32,15 @@
 #include <atomic.h>
 #endif
 
-#if defined(__WATCOMC__)
-
-int flLock(volatile int *lock);
-#pragma aux flLock = \
-"      mov    eax, 1     " \
-" lock xchg   eax, [ebx] " \
-parm [ebx] value [eax];
-
-void flClear(volatile int *lock);
-#pragma aux flClear = \
-" lock and [eax], 0x00 "\
-parm [eax]; 
-
-#endif
+#if defined(__WATCOMC__) && defined(__386__)
+SDL_COMPILE_TIME_ASSERT(locksize, 4==sizeof(SDL_SpinLock));
+extern _inline int _SDL_xchg_watcom(volatile int *a, int v);
+#pragma aux _SDL_xchg_watcom = \
+  "xchg [ecx], eax" \
+  parm [ecx] [eax] \
+  value [eax] \
+  modify exact [eax];
+#endif /* __WATCOMC__ && __386__ */
 
 /* This function is where all the magic happens... */
 SDL_bool
@@ -72,6 +67,9 @@ SDL_AtomicTryLock(SDL_SpinLock *lock)
 #elif defined(_MSC_VER)
     SDL_COMPILE_TIME_ASSERT(locksize, sizeof(*lock) == sizeof(long));
     return (InterlockedExchange((long*)lock, 1) == 0);
+
+#elif defined(__WATCOMC__) && defined(__386__)
+    return _SDL_xchg_watcom(lock, 1) == 0;
 
 #elif HAVE_GCC_ATOMICS || HAVE_GCC_SYNC_LOCK_TEST_AND_SET
     return (__sync_lock_test_and_set(lock, 1) == 0);
@@ -112,9 +110,6 @@ SDL_AtomicTryLock(SDL_SpinLock *lock)
     /* Used for Solaris with non-gcc compilers. */
     return (SDL_bool) ((int) atomic_cas_32((volatile uint32_t*)lock, 0, 1) == 0);
 
-#elif defined(__WATCOMC__)
-    return flLock( lock ) == 0;
-
 #else
 #error Please implement for your platform.
     return SDL_FALSE;
@@ -137,6 +132,10 @@ SDL_AtomicUnlock(SDL_SpinLock *lock)
     _ReadWriteBarrier();
     *lock = 0;
 
+#elif defined(__WATCOMC__) && defined(__386__)
+    SDL_CompilerBarrier ();
+    *lock = 0;
+
 #elif HAVE_GCC_ATOMICS || HAVE_GCC_SYNC_LOCK_TEST_AND_SET
     __sync_lock_release(lock);
 
@@ -144,9 +143,6 @@ SDL_AtomicUnlock(SDL_SpinLock *lock)
     /* Used for Solaris when not using gcc. */
     *lock = 0;
     membar_producer();
-
-#elif defined(__WATCOMC__)
-    flClear( lock );
 
 #else
     *lock = 0;
