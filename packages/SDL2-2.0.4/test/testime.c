@@ -29,20 +29,14 @@
 static SDLTest_CommonState *state;
 static SDL_Rect textRect, markedRect;
 static SDL_Color lineColor = {0,0,0,0};
-static SDL_Color backColor = {255,255,255,0};
+static SDL_Color backColor = {255,255,255,255};
+#ifdef HAVE_SDL_TTF
 static SDL_Color textColor = {0,0,0,0};
+#endif
 static char text[MAX_TEXT_LENGTH], markedText[SDL_TEXTEDITINGEVENT_TEXT_SIZE];
 static int cursor = 0;
 #ifdef HAVE_SDL_TTF
 static TTF_Font *font;
-#endif
-
-#ifdef __WATCOMC__
-void __SDL_Quit()
-{
-  SDL_Quit();
-}
-#define SDL_Quit __SDL_Quit
 #endif
 
 size_t utf8_length(unsigned char c)
@@ -116,31 +110,25 @@ void CleanupVideo()
 #endif
 }
 
-
 void _Redraw(SDL_Renderer * renderer) {
     int w = 0, h = textRect.h;
     SDL_Rect cursorRect, underlineRect;
 
-    SDL_SetRenderDrawColor(renderer, 255,255,255,255);
+    SDL_SetRenderDrawColor(renderer, backColor.r, backColor.g, backColor.b, backColor.a);
     SDL_RenderFillRect(renderer,&textRect);
 
 #ifdef HAVE_SDL_TTF
     if (*text)
     {
         SDL_Surface *textSur = TTF_RenderUTF8_Blended(font, text, textColor);
-#if !defined(__WATCOMC__)
-        SDL_Rect dest = {textRect.x, textRect.y, textSur->w, textSur->h };
-#else
         SDL_Rect dest;
-#endif
-
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer,textSur);
-#if defined(__WATCOMC__)
+        SDL_Texture *texture;
         dest.x = textRect.x;
         dest.y = textRect.y;
         dest.w = textSur->w;
         dest.h = textSur->h;
-#endif
+
+        texture = SDL_CreateTextureFromSurface(renderer,textSur);
         SDL_FreeSurface(textSur);
 
         SDL_RenderCopy(renderer,texture,NULL,&dest);
@@ -166,12 +154,15 @@ void _Redraw(SDL_Renderer * renderer) {
     cursorRect.w = 2;
     cursorRect.h = h;
 
-    SDL_SetRenderDrawColor(renderer, 255,255,255,255);
+    SDL_SetRenderDrawColor(renderer, backColor.r, backColor.g, backColor.b, backColor.a);
     SDL_RenderFillRect(renderer,&markedRect);
 
     if (markedText[0])
     {
 #ifdef HAVE_SDL_TTF
+        SDL_Surface *textSur;
+        SDL_Rect dest;
+        SDL_Texture *texture;
         if (cursor)
         {
             char *p = utf8_advance(markedText, cursor);
@@ -185,31 +176,17 @@ void _Redraw(SDL_Renderer * renderer) {
             cursorRect.x += w;
             *p = c;
         }
-#if defined(__WATCOMC__)
-        {
-#endif
-        SDL_Surface *textSur = TTF_RenderUTF8_Blended(font, markedText, textColor);
-#if !defined(__WATCOMC__)
-        SDL_Rect dest = {markedRect.x, markedRect.y, textSur->w, textSur->h };
-#else
-        SDL_Rect dest;
+        textSur = TTF_RenderUTF8_Blended(font, markedText, textColor);
         dest.x = markedRect.x;
         dest.y = markedRect.y;
         dest.w = textSur->w;
         dest.h = textSur->h;
-#endif
         TTF_SizeUTF8(font, markedText, &w, &h);
-#if defined(__WATCOMC__)
-        {
-#endif
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer,textSur);
+        texture = SDL_CreateTextureFromSurface(renderer,textSur);
         SDL_FreeSurface(textSur);
 
         SDL_RenderCopy(renderer,texture,NULL,&dest);
         SDL_DestroyTexture(texture);
-#if defined(__WATCOMC__)
-        }}
-#endif
 #endif
 
         underlineRect = markedRect;
@@ -217,11 +194,11 @@ void _Redraw(SDL_Renderer * renderer) {
         underlineRect.h = 2;
         underlineRect.w = w;
 
-        SDL_SetRenderDrawColor(renderer, 0,0,0,0);
+        SDL_SetRenderDrawColor(renderer, lineColor.r, lineColor.g, lineColor.b, lineColor.a);
         SDL_RenderFillRect(renderer,&markedRect);
     }
 
-    SDL_SetRenderDrawColor(renderer, 0,0,0,0);
+    SDL_SetRenderDrawColor(renderer, lineColor.r, lineColor.g, lineColor.b, lineColor.a);
     SDL_RenderFillRect(renderer,&cursorRect);
 
     SDL_SetTextInputRect(&markedRect);
