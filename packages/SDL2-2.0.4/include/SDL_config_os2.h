@@ -73,6 +73,7 @@ typedef unsigned long uintptr_t;
 #define HAVE_STDINT_H 1
 #define HAVE_CTYPE_H 1
 #define HAVE_MATH_H 1
+#define HAVE_FLOAT_H 1
 #define HAVE_SIGNAL_H 1
 
 /* C library functions */
@@ -82,8 +83,8 @@ typedef unsigned long uintptr_t;
 #define HAVE_FREE 1
 #define HAVE_ALLOCA 1
 #define HAVE_GETENV 1
+#define HAVE_SETENV 1
 #define HAVE_PUTENV 1
-#define HAVE_UNSETENV 1
 #define HAVE_QSORT 1
 #define HAVE_ABS 1
 #define HAVE_BCOPY 1
@@ -127,12 +128,12 @@ typedef unsigned long uintptr_t;
 #define HAVE_ACOS 1
 #define HAVE_ASIN 1
 #define HAVE_CEIL 1
-#define HAVE_COPYSIGN 1
+/* #undef HAVE_COPYSIGN */
 #define HAVE_COS 1
 #define HAVE_FABS 1
 #define HAVE_FLOOR 1
 #define HAVE_POW 1
-#define HAVE_SCALBN 1
+/* #undef HAVE_SCALBN */
 #define HAVE_SIN 1
 #define HAVE_SQRT 1
 #define HAVE_TAN 1
