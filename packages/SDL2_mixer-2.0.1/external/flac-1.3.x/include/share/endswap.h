@@ -1,6 +1,5 @@
 /* libFLAC - Free Lossless Audio Codec library
- * Copyright (C) 2000-2009  Josh Coalson
- * Copyright (C) 2011-2013  Xiph.Org Foundation
+ * Copyright (C) 2012  Xiph.org Foundation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,57 +29,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FLAC__ORDINALS_H
-#define FLAC__ORDINALS_H
+/* It is assumed that this header will be included after "config.h". */
 
-#if defined(_MSC_VER) && _MSC_VER < 1600
+#if HAVE_BSWAP32			/* GCC and Clang */
 
-/* Microsoft Visual Studio earlier than the 2010 version did not provide
- * the 1999 ISO C Standard header file <stdint.h>.
- */
+#define	ENDSWAP_32(x)		(__builtin_bswap32 (x))
 
-typedef __int8 FLAC__int8;
-typedef unsigned __int8 FLAC__uint8;
+#elif defined _MSC_VER		/* Windows. Apparently in <stdlib.h>. */
 
-typedef __int16 FLAC__int16;
-typedef __int32 FLAC__int32;
-typedef __int64 FLAC__int64;
-typedef unsigned __int16 FLAC__uint16;
-typedef unsigned __int32 FLAC__uint32;
-typedef unsigned __int64 FLAC__uint64;
+#define	ENDSWAP_32(x)		(_byteswap_ulong (x))
+
+#elif defined HAVE_BYTESWAP_H		/* Linux */
+
+#include <byteswap.h>
+
+#define	ENDSWAP_32(x)		(bswap_32 (x))
 
 #else
 
-/* For MSVC 2010 and everything else which provides <stdint.h>. */
-
-#include <stdint.h>
-
-typedef int8_t FLAC__int8;
-typedef uint8_t FLAC__uint8;
-
-typedef int16_t FLAC__int16;
-typedef int32_t FLAC__int32;
-typedef int64_t FLAC__int64;
-typedef uint16_t FLAC__uint16;
-typedef uint32_t FLAC__uint32;
-typedef uint64_t FLAC__uint64;
+#define	ENDSWAP_32(x)		((((x) >> 24) & 0xFF) + (((x) >> 8) & 0xFF00) + (((x) & 0xFF00) << 8) + (((x) & 0xFF) << 24))
 
 #endif
 
-typedef int FLAC__bool;
-
-typedef FLAC__uint8 FLAC__byte;
-
-
-#ifdef true
-#undef true
-#endif
-#ifdef false
-#undef false
-#endif
-#ifndef __cplusplus
-#define true 1
-#define false 0
-#endif
-
-#endif

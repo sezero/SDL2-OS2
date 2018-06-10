@@ -1,0 +1,70 @@
+diff -urNp flac-1.3.x-dec/include/share/compat.h~ flac-1.3.x-dec/include/share/compat.h
+--- flac-1.3.x-dec/include/share/compat.h~
++++ flac-1.3.x-dec/include/share/compat.h
+@@ -62,6 +62,10 @@
+ #define fseeko _fseeki64
+ #define ftello _ftelli64
+ #define FLAC__off_t long long
++#elif defined(__EMX__) && !(defined(__INNOTEK_LIBC__) || defined(__KLIBC__))
++#define fseeko fseek
++#define ftello ftell
++#define FLAC__off_t off_t
+ #else
+ #define FLAC__off_t off_t
+ #endif
+@@ -101,7 +105,7 @@
+ #define FLAC__U64L(x) x##LLU
+ #endif
+ 
+-#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__ || defined __WATCOMC__
++#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__ || defined __WATCOMC__ || defined __EMX__
+ #define FLAC__STRNCASECMP strnicmp
+ #else
+ #define FLAC__STRNCASECMP strncasecmp
+diff -urNp flac-1.3.x-dec/src/libFLAC/include/private/bitmath.h~ flac-1.3.x-dec/src/libFLAC/include/private/bitmath.h
+--- flac-1.3.x-dec/src/libFLAC/include/private/bitmath.h~
++++ flac-1.3.x-dec/src/libFLAC/include/private/bitmath.h
+@@ -90,6 +90,10 @@ static inline unsigned int FLAC__clz_uin
+ /* This will translate either to (bsr ^ 31U), clz , ctlz, cntlz, lzcnt depending on
+  * -march= setting or to a software rutine in exotic machines. */
+     return __builtin_clz(v);
++#elif defined(__GNUC__) && defined(__i386__)
++    FLAC__uint32 n;
++    __asm__ __volatile__("bsrl %0,%1" : "+r" (v),"=rm" (n) : : "memory");
++    return (n ^ 31U);
+ #elif defined(_MSC_VER) && (_MSC_VER >= 1400)
+     FLAC__uint32 idx;
+     _BitScanReverse(&idx, v);
+diff -urNp flac-1.3.x-dec/src/libFLAC/lpc.c~ flac-1.3.x-dec/src/libFLAC/lpc.c
+--- flac-1.3.x-dec/src/libFLAC/lpc.c~
++++ flac-1.3.x-dec/src/libFLAC/lpc.c
+@@ -75,13 +75,24 @@ long lround(double x) {
+ #if !defined(HAVE_LROUND)
+ #if defined(_MSC_VER)
+ #include <float.h>
+-#define copysign _copysign
+-#elif defined(__GNUC__)
+-#define copysign __builtin_copysign
+-#endif
+ static inline long int lround(double x) {
+-    return (long)(x + copysign (0.5, x));
++    return (long)(x + _copysign (0.5, x));
++}
++#elif defined(__GNUC__) && defined(__i386__)
++static inline long lrint_impl(double x) {
++    long retval;
++    __asm__ __volatile__ ("fistpl %0"  : "=m" (retval) : "t" (x) : "st");
++    return retval;
++}
++static long lround(double x) {
++   x = (x >= 0)? floor(x + 0.5) : ceil(x - 0.5);
++   return lrint_impl(x);
++}
++#elif defined(__GNUC__) && (__GNUC__ >= 4 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
++static inline long int lround(double x) {
++    return (long)(x + __builtin_copysign (0.5, x));
+ }
++#endif
+ //If this fails, we are in the precence of a mid 90's compiler..move along...
+ #endif
+ 

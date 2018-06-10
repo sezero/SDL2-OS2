@@ -1,0 +1,622 @@
+diff -u /dev/null flac-1.3.x-dec/src/libFLAC/Makefile.os2
+--- /dev/null
++++ flac-1.3.x-dec/src/libFLAC/Makefile.os2
+@@ -0,0 +1,84 @@
++# Makefile for OS/2 using Open Watcom
++#
++# wmake -f Makefile.os2
++# - builds FLAC.dll and its import lib (FLAC.lib)
++#
++# wmake -f Makefile.os2 target=static
++# - builds the static library FLAC_static.lib
++
++CPPFLAGS=-DHAVE_INTTYPES_H -DHAVE_STDINT_H
++CPPFLAGS+= -DFLAC__CPU_IA32 -DFLAC__HAS_NASM -DFLAC__USE_3DNOW -DSIZEOF_VOIDP=4 -DFLAC__ALIGN_MALLOC_DATA
++CPPFLAGS+= -DNDEBUG
++CPPFLAGS+= -DENABLE_64_BIT_WORDS=0 -DFLAC__HAS_X86INTRIN=0
++CPPFLAGS+= -DFLAC__HAS_OGG=1
++
++CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -j -zp8
++# -5s  :  Pentium stack calling conventions.
++# -5r  :  Pentium register calling conventions.
++CFLAGS+= -5s
++DLLFLAGS=-bd
++
++LIBS=ogg.lib
++
++.SUFFIXES:
++.SUFFIXES: .obj .c .nasm
++
++DLLNAME=FLAC.dll
++EXPNAME=FLAC.exp
++LIBNAME=FLAC.lib
++LIBSTATIC=FLAC_static.lib
++
++!ifeq target static
++BLD_TARGET=$(LIBSTATIC)
++!else
++CPPFLAGS+= -DFLAC_API_EXPORTS
++CFLAGS+= $(DLLFLAGS)
++BLD_TARGET=$(DLLNAME)
++!endif
++
++COMPILE=wcc386 $(CFLAGS) $(CPPFLAGS) $(INCLUDES)
++
++OBJ=cpu_asm.obj fixed_asm.obj lpc_asm.obj bitmath.obj bitreader.obj cpu.obj crc.obj fixed.obj float.obj format.obj lpc.obj md5.obj memory.obj stream_decoder.obj ogg_decoder_aspect.obj ogg_helper.obj ogg_mapping.obj
++# metadata interfaces:
++#OBJ+= metadata_object.obj metadata_iterators.obj
++# encoder support:
++#OBJ+= bitwriter.obj ogg_encoder_aspect.obj stream_encoder.obj stream_encoder_framing.obj window.obj
++
++all: $(BLD_TARGET)
++
++.SUFFIXES:
++.SUFFIXES: .obj .c .asm .nasm
++
++$(DLLNAME): $(OBJ)
++	wlink NAM $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE LIBR {$(LIBS)} FIL {$(OBJ)} OPTION IMPF=$(EXPNAME)
++	wlib -q -b -n -c -inn -pa -s -t -zld -ii -io $(LIBNAME) +$(DLLNAME)
++
++$(LIBSTATIC): $(OBJ)
++	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJ)
++
++.c.obj:
++	$(COMPILE) -fo=$^@ $<
++
++.nasm: ia32
++.nasm.obj:
++	nasm -Iia32/ -f obj -d__OS2__  -o $^@ $<
++
++!ifndef __UNIX__
++INCLUDES=-I. -I.\include -I..\..\include
++CPPFLAGS+= -DPACKAGE_VERSION="1.3.0"
++distclean: clean .symbolic
++	@if exist $(DLLNAME) del $(DLLNAME)
++	@if exist $(LIBNAME) del $(LIBNAME)
++	@if exist $(EXPNAME) del $(EXPNAME)
++	@if exist $(LIBSTATIC) del $(LIBSTATIC)
++clean: .symbolic
++	@if exist *.obj del *.obj
++!else
++INCLUDES=-I. -I./include -I../../include
++CPPFLAGS+= -DPACKAGE_VERSION=\"1.3.0\"
++distclean: clean .symbolic
++	rm -f $(LIBSTATIC) $(DLLNAME) $(LIBNAME) $(EXPNAME)
++clean: .symbolic
++	rm -f *.obj
++!endif
++
+diff -u /dev/null flac-1.3.x-dec/src/libFLAC/OWMakefile.win32
+--- /dev/null
++++ flac-1.3.x-dec/src/libFLAC/OWMakefile.win32
+@@ -0,0 +1,90 @@
++# Makefile for Win32 using Open Watcom
++#
++# wmake -f OWMakefile.win32
++# - builds FLAC.dll and its import lib (FLAC.lib)
++#
++# wmake -f OWMakefile.win32 target=static
++# - builds the static library FLAC_static.lib
++
++CPPFLAGS=-DHAVE_INTTYPES_H -DHAVE_STDINT_H
++CPPFLAGS+= -DFLAC__CPU_IA32 -DFLAC__HAS_NASM -DFLAC__USE_3DNOW -DSIZEOF_VOIDP=4 -DFLAC__ALIGN_MALLOC_DATA
++CPPFLAGS+= -DNDEBUG
++CPPFLAGS+= -DENABLE_64_BIT_WORDS=0 -DFLAC__HAS_X86INTRIN=0
++CPPFLAGS+= -DFLAC__HAS_OGG=1
++
++CFLAGS = -zq -bt=nt -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -j -zp8
++# -5s  :  Pentium stack calling conventions.
++# -5r  :  Pentium register calling conventions.
++CFLAGS+= -5s
++DLLFLAGS=-bd
++
++LIBS=ogg.lib
++
++.SUFFIXES:
++.SUFFIXES: .obj .c .nasm
++
++DLLNAME=FLAC.dll
++EXPNAME=FLAC.exp
++LIBNAME=FLAC.lib
++LIBSTATIC=FLAC_static.lib
++
++!ifeq target static
++CPPFLAGS+= -DFLAC__NO_DLL
++BLD_TARGET=$(LIBSTATIC)
++!else
++CPPFLAGS+= -DFLAC_API_EXPORTS
++CFLAGS+= $(DLLFLAGS)
++BLD_TARGET=$(DLLNAME)
++!endif
++
++COMPILE=wcc386 $(CFLAGS) $(CPPFLAGS) $(INCLUDES)
++
++OBJ=cpu_asm.obj fixed_asm.obj lpc_asm.obj bitmath.obj bitreader.obj cpu.obj crc.obj fixed.obj float.obj format.obj lpc.obj md5.obj memory.obj stream_decoder.obj ogg_decoder_aspect.obj ogg_helper.obj ogg_mapping.obj
++OBJ+= win_utf8_io.obj
++# metadata interfaces:
++#OBJ+= metadata_object.obj metadata_iterators.obj
++# encoder support:
++#OBJ+= bitwriter.obj ogg_encoder_aspect.obj stream_encoder.obj stream_encoder_framing.obj window.obj
++
++all: $(BLD_TARGET)
++
++.SUFFIXES:
++.SUFFIXES: .obj .c .asm .nasm
++
++$(DLLNAME): $(OBJ)
++	wlink NAM $@ SYSTEM nt_dll INITINSTANCE TERMINSTANCE LIBR {$(LIBS)} FIL {$(OBJ)} OPTION IMPF=$(EXPNAME)
++	wlib -q -b -n -c -inn -pa -s -t -zld -ii -io $(LIBNAME) +$(DLLNAME)
++
++$(LIBSTATIC): $(OBJ)
++	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJ)
++
++.c.obj:
++	$(COMPILE) -fo=$^@ $<
++win_utf8_io.obj: $(WIN_UTF8_IO)
++	$(COMPILE) -fo=$^@ $(WIN_UTF8_IO)
++
++.nasm: ia32
++.nasm.obj:
++	nasm -Iia32/ -f win32 -dOBJ_FORMAT_win32 -dNO_UNDERSCORE  -o $^@ $<
++
++!ifndef __UNIX__
++INCLUDES=-I. -I.\include -I..\..\include
++WIN_UTF8_IO=..\share\win_utf8_io\win_utf8_io.c
++CPPFLAGS+= -DPACKAGE_VERSION="1.3.0"
++distclean: clean .symbolic
++	@if exist $(DLLNAME) del $(DLLNAME)
++	@if exist $(LIBNAME) del $(LIBNAME)
++	@if exist $(EXPNAME) del $(EXPNAME)
++	@if exist $(LIBSTATIC) del $(LIBSTATIC)
++clean: .symbolic
++	@if exist *.obj del *.obj
++!else
++INCLUDES=-I. -I./include -I../../include
++WIN_UTF8_IO=../share/win_utf8_io/win_utf8_io.c
++CPPFLAGS+= -DPACKAGE_VERSION=\"1.3.0\"
++distclean: clean .symbolic
++	rm -f $(LIBSTATIC) $(DLLNAME) $(LIBNAME) $(EXPNAME)
++clean: .symbolic
++	rm -f *.obj
++!endif
++
+diff -u flac-1.3.x-dec/include/FLAC/export.h~ flac-1.3.x-dec/include/FLAC/export.h
+--- flac-1.3.x-dec/include/FLAC/export.h~
++++ flac-1.3.x-dec/include/FLAC/export.h
+@@ -66,6 +66,9 @@
+ #define FLAC_API __declspec(dllimport)
+ #endif
+ 
++#elif defined(__WATCOMC__) && defined(__SW_BD) && defined(FLAC_API_EXPORTS)
++#define FLAC_API __declspec(dllexport)
++
+ #elif defined(FLAC__USE_VISIBILITY_ATTR)
+ #define FLAC_API __attribute__ ((visibility ("default")))
+ 
+diff -u flac-1.3.x-dec/include/share/compat.h~ flac-1.3.x-dec/include/share/compat.h
+--- flac-1.3.x-dec/include/share/compat.h~
++++ flac-1.3.x-dec/include/share/compat.h
+@@ -58,6 +58,10 @@
+ #define ftello ftello64
+ #endif
+ #endif
++#elif defined __WATCOMC__
++#define fseeko _fseeki64
++#define ftello _ftelli64
++#define FLAC__off_t long long
+ #else
+ #define FLAC__off_t off_t
+ #endif
+@@ -81,6 +85,14 @@
+ #define inline __inline
+ #endif
+ #endif
++
++#if defined(__WATCOMC__)
++# if (__WATCOMC__ >= 1250)
++#  define restrict __restrict
++# else
++#  define restrict
++# endif
++#endif
+ 
+ /* adjust for compilers that can't understand using LLU suffix for uint64_t literals */
+ #ifdef _MSC_VER
+@@ -89,13 +101,13 @@
+ #define FLAC__U64L(x) x##LLU
+ #endif
+ 
+-#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__
++#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__ || defined __WATCOMC__
+ #define FLAC__STRNCASECMP strnicmp
+ #else
+ #define FLAC__STRNCASECMP strncasecmp
+ #endif
+ 
+-#if defined _MSC_VER || defined __MINGW32__ || defined __EMX__
++#if defined _MSC_VER || defined __MINGW32__ || defined __EMX__ || defined __WATCOMC__
+ #include <io.h> /* for _setmode(), chmod() */
+ #include <fcntl.h> /* for _O_BINARY */
+ #else
+@@ -163,16 +175,20 @@
+ #define flac_utime utime
+ #define flac_unlink unlink
+ #define flac_rename rename
+-
+-#ifdef _WIN32
+-#define flac_stat _stat64
+-#else
+ #define flac_stat stat
+-#endif
+ 
+ #endif
+ 
+-#ifdef _WIN32
++#ifdef __WATCOMC__
++#define flac_stat_s _stati64 /* stat struct */
++#define flac_fstat _fstati64
++# ifdef __NT__ /* for win_utf8_io.c : */
++# define __stat64 _stati64
++# define _wstat64 _wstati64
++# define __utimbuf64 utimbuf
++# define _wutime64 _wutime
++# endif
++#elif defined(_WIN32)
+ #define flac_stat_s __stat64 /* stat struct */
+ #define flac_fstat _fstat64
+ #else
+diff -u flac-1.3.x-dec/src/libFLAC/bitreader.c~ flac-1.3.x-dec/src/libFLAC/bitreader.c
+--- flac-1.3.x-dec/src/libFLAC/bitreader.c~
++++ flac-1.3.x-dec/src/libFLAC/bitreader.c
+@@ -58,6 +58,13 @@
+ #define SWAP_BE_WORD_TO_HOST(x) ENDSWAP_32(x)
+ #endif
+ 
++#ifdef __WATCOMC__ /* see end of the file for inline issue ! */
++#define FLAC__bitreader_is_consumed_byte_aligned FLAC__bitreader_is_consumed_byte_aligned__inl_
++#define FLAC__bitreader_bits_left_for_byte_alignment FLAC__bitreader_bits_left_for_byte_alignment__inl_
++#define FLAC__bitreader_get_input_bits_unconsumed FLAC__bitreader_get_input_bits_unconsumed__inl_
++#define FLAC__bitreader_read_uint32_little_endian FLAC__bitreader_read_uint32_little_endian__inl_
++#endif
++
+ /*
+  * This should be at least twice as large as the largest number of words
+  * required to represent any 'number' (in any encoding) you are going to
+@@ -1059,7 +1066,18 @@
+  * Unfortunately, the Microsoft VS compiler doesn't pick them up externally. To
+  * fix that we add extern declarations here.
+  */
++#ifdef __WATCOMC__ /* the above trick doesn't work for Watcom */
++#undef FLAC__bitreader_is_consumed_byte_aligned
++#undef FLAC__bitreader_bits_left_for_byte_alignment
++#undef FLAC__bitreader_get_input_bits_unconsumed
++#undef FLAC__bitreader_read_uint32_little_endian
++FLAC__bool FLAC__bitreader_is_consumed_byte_aligned(const FLAC__BitReader *br) { return FLAC__bitreader_is_consumed_byte_aligned__inl_(br); }
++unsigned FLAC__bitreader_bits_left_for_byte_alignment(const FLAC__BitReader *br) { return FLAC__bitreader_bits_left_for_byte_alignment__inl_(br); }
++unsigned FLAC__bitreader_get_input_bits_unconsumed(const FLAC__BitReader *br) { return FLAC__bitreader_get_input_bits_unconsumed__inl_(br); }
++FLAC__bool FLAC__bitreader_read_uint32_little_endian(FLAC__BitReader *br, FLAC__uint32 *val) { return FLAC__bitreader_read_uint32_little_endian__inl_(br, val); }
++#else
+ extern FLAC__bool FLAC__bitreader_is_consumed_byte_aligned(const FLAC__BitReader *br);
+ extern unsigned FLAC__bitreader_bits_left_for_byte_alignment(const FLAC__BitReader *br);
+ extern unsigned FLAC__bitreader_get_input_bits_unconsumed(const FLAC__BitReader *br);
+ extern FLAC__bool FLAC__bitreader_read_uint32_little_endian(FLAC__BitReader *br, FLAC__uint32 *val);
++#endif
+diff -u flac-1.3.x-dec/src/libFLAC/bitwriter.c~ flac-1.3.x-dec/src/libFLAC/bitwriter.c
+--- flac-1.3.x-dec/src/libFLAC/bitwriter.c~
++++ flac-1.3.x-dec/src/libFLAC/bitwriter.c
+@@ -59,6 +59,15 @@
+ #define SWAP_BE_WORD_TO_HOST(x) ENDSWAP_32(x)
+ #endif
+ 
++#ifdef __WATCOMC__ /* see end of file for inline issue */
++#define FLAC__bitwriter_write_zeroes FLAC__bitwriter_write_zeroes__inl_
++#define FLAC__bitwriter_write_raw_uint32 FLAC__bitwriter_write_raw_uint32__inl_
++#define FLAC__bitwriter_write_raw_int32 FLAC__bitwriter_write_raw_int32__inl_
++#define FLAC__bitwriter_write_raw_uint64 FLAC__bitwriter_write_raw_uint64__inl_
++#define FLAC__bitwriter_write_raw_uint32_little_endian FLAC__bitwriter_write_raw_uint32_little_endian__inl_
++#define FLAC__bitwriter_write_byte_block FLAC__bitwriter_write_byte_block__inl_
++#endif
++
+ /*
+  * The default capacity here doesn't matter too much.  The buffer always grows
+  * to hold whatever is written to it.  Usually the encoder will stop adding at
+@@ -842,10 +851,25 @@
+  * Unfortunately, the Microsoft VS compiler doesn't pick them up externally. To
+  * fix that we add extern declarations here.
+  */
++#ifdef __WATCOMC__ /* adding externs doesn't help with Watcom */
++#undef FLAC__bitwriter_write_zeroes
++#undef FLAC__bitwriter_write_raw_uint32
++#undef FLAC__bitwriter_write_raw_int32
++#undef FLAC__bitwriter_write_raw_uint64
++#undef FLAC__bitwriter_write_raw_uint32_little_endian
++#undef FLAC__bitwriter_write_byte_block
++FLAC__bool FLAC__bitwriter_write_zeroes(FLAC__BitWriter *bw, unsigned bits) { return FLAC__bitwriter_write_zeroes__inl_(bw, bits); }
++FLAC__bool FLAC__bitwriter_write_raw_uint32(FLAC__BitWriter *bw, FLAC__uint32 val, unsigned bits) { return FLAC__bitwriter_write_raw_uint32__inl_(bw, val, bits); }
++FLAC__bool FLAC__bitwriter_write_raw_int32(FLAC__BitWriter *bw, FLAC__int32 val, unsigned bits) { return FLAC__bitwriter_write_raw_int32__inl_(bw, val, bits); }
++FLAC__bool FLAC__bitwriter_write_raw_uint64(FLAC__BitWriter *bw, FLAC__uint64 val, unsigned bits) { return FLAC__bitwriter_write_raw_uint64__inl_(bw, val, bits); }
++FLAC__bool FLAC__bitwriter_write_raw_uint32_little_endian(FLAC__BitWriter *bw, FLAC__uint32 val) { return FLAC__bitwriter_write_raw_uint32_little_endian__inl_(bw, val); }
++FLAC__bool FLAC__bitwriter_write_byte_block(FLAC__BitWriter *bw, const FLAC__byte vals[], unsigned nvals) { return FLAC__bitwriter_write_byte_block__inl_(bw, vals, nvals); }
++#else
+ extern FLAC__bool FLAC__bitwriter_write_zeroes(FLAC__BitWriter *bw, unsigned bits);
+ extern FLAC__bool FLAC__bitwriter_write_raw_int32(FLAC__BitWriter *bw, FLAC__int32 val, unsigned bits);
+ extern FLAC__bool FLAC__bitwriter_write_raw_uint64(FLAC__BitWriter *bw, FLAC__uint64 val, unsigned bits);
+ extern FLAC__bool FLAC__bitwriter_write_raw_uint32_little_endian(FLAC__BitWriter *bw, FLAC__uint32 val);
+ extern FLAC__bool FLAC__bitwriter_write_byte_block(FLAC__BitWriter *bw, const FLAC__byte vals[], unsigned nvals);
++#endif
+ 
+ #endif /* FLAC_INCLUDE_ENCODER */
+diff -up flac-1.3.x-dec/src/libFLAC/cpu.c~ flac-1.3.x-dec/src/libFLAC/cpu.c
+--- flac-1.3.x-dec/src/libFLAC/cpu.c~
++++ flac-1.3.x-dec/src/libFLAC/cpu.c
+@@ -53,6 +53,21 @@
+ #include <sys/sysctl.h>
+ #endif
+ 
++#if defined(__WATCOMC__) && defined(__NT__)
++#include <windows.h>
++#if (__WATCOMC__ >= 1240)
++#include <excpt.h>
++#endif
++#endif
++
++#if defined(__OS2__) || defined(__EMX__)
++#define INCL_DOS
++#include <os2.h>
++#if defined(__WATCOMC__) && (__WATCOMC__ >= 1240)
++#include <excpt.h>
++#endif
++#endif
++
+ /* these are flags in EDX of CPUID AX=00000001 */
+ static const unsigned FLAC__CPUINFO_IA32_CPUID_CMOV = 0x00008000;
+ static const unsigned FLAC__CPUINFO_IA32_CPUID_MMX = 0x00800000;
+@@ -115,6 +130,30 @@ static const unsigned FLAC__CPUINFO_IA32
+ 		return EXCEPTION_CONTINUE_SEARCH;
+ 	}
+ #  endif
++# elif defined(__WATCOMC__) && defined(__NT__)
++#  if (__WATCOMC__ >= 1240)
++#  else
++	LONG CALLBACK sigill_handler_sse_os(EXCEPTION_POINTERS *ep)
++	{
++		if(ep->ExceptionRecord->ExceptionCode == EXCEPTION_ILLEGAL_INSTRUCTION) {
++			ep->ContextRecord->Eip += 3 + 3 + 6;
++			return EXCEPTION_CONTINUE_EXECUTION;
++		}
++		return EXCEPTION_CONTINUE_SEARCH;
++	}
++#  endif
++# elif defined(__OS2__) || defined(__EMX__)
++#  if defined(__WATCOMC__) && (__WATCOMC__ >= 1240)
++#  else
++	ULONG _System os2_sig_handler_sse(PEXCEPTIONREPORTRECORD p1, PEXCEPTIONREGISTRATIONRECORD p2, PCONTEXTRECORD p3, PVOID p4)
++	{
++		if (p1->ExceptionNum == XCPT_ILLEGAL_INSTRUCTION) {
++			p3->ctx_RegEip += 3 + 3 + 6;
++			return XCPT_CONTINUE_EXECUTION;
++		}
++		return XCPT_CONTINUE_SEARCH;
++	}
++#  endif
+ # endif
+ #endif
+ 
+@@ -247,6 +286,95 @@ void FLAC__cpu_info(FLAC__CPUInfo *info)
+ 
+ 			if(!sse)
+ 				info->data.ia32.fxsr = info->data.ia32.sse = info->data.ia32.sse2 = info->data.ia32.sse3 = info->data.ia32.ssse3 = false;
++#elif defined(__OS2__) || defined(__EMX__)
++			#if defined(__WATCOMC__) && (__WATCOMC__ >= 1240)
++			_try {
++				__asm {
++					_emit 0x0F
++					_emit 0x57
++					_emit 0xC0
++				}
++			}
++			_except((GetExceptionCode() == XCPT_ILLEGAL_INSTRUCTION)? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
++				info->data.ia32.fxsr = info->data.ia32.sse = info->data.ia32.sse2 = info->data.ia32.sse3 = info->data.ia32.ssse3 = false;
++			}
++			#else
++			EXCEPTIONREGISTRATIONRECORD regrec = { NULL, &os2_sig_handler_sse };
++			int sse = 0;
++			DosSetExceptionHandler(&regrec);
++			#ifdef __GNUC__ /* see linux case above */
++			__asm__ volatile (
++				"xorl %0,%0\n\t"
++				"xorps %%xmm0,%%xmm0\n\t"
++				"incl %0\n\t"
++				"nop\n\t"
++				"nop\n\t"
++				"nop\n\t"
++				"nop\n\t"
++				"nop\n\t"
++				"nop\n\t"
++				"nop\n\t"
++				"nop\n\t"
++				"nop"
++				: "=r"(sse)
++				: "r"(sse)
++			);
++			#else /* watcom - see _MSC_VER case below */
++			__asm {
++				_emit 0x0F
++				_emit 0x57
++				_emit 0xC0
++				inc sse
++				nop
++				nop
++				nop
++				nop
++				nop
++				nop
++				nop
++				nop
++				nop
++			}
++			#endif
++			DosUnsetExceptionHandler(&regrec);
++			if (!sse)
++				info->data.ia32.fxsr = info->data.ia32.sse = info->data.ia32.sse2 = info->data.ia32.sse3 = info->data.ia32.ssse3 = false;
++			#endif
++#elif defined(__WATCOMC__) && defined(__NT__)
++			/* see _MSC_VER case below */
++			#if (__WATCOMC__ >= 1240)
++			_try {
++				__asm {
++					_emit 0x0F
++					_emit 0x57
++					_emit 0xC0
++				}
++			}
++			_except((GetExceptionCode() == EXCEPTION_ILLEGAL_INSTRUCTION)? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
++				info->data.ia32.fxsr = info->data.ia32.sse = info->data.ia32.sse2 = info->data.ia32.sse3 = info->data.ia32.ssse3 = false;
++			}
++			#else
++			int sse = 0;
++			LPTOP_LEVEL_EXCEPTION_FILTER save = SetUnhandledExceptionFilter(sigill_handler_sse_os);
++			__asm {
++				_emit 0x0F
++				_emit 0x57
++				_emit 0xC0
++				inc sse
++				nop
++				nop
++				nop
++				nop
++				nop
++				nop
++				nop
++				nop
++				nop
++			}
++			SetUnhandledExceptionFilter(save);
++			if(!sse)
++				info->data.ia32.fxsr = info->data.ia32.sse = info->data.ia32.sse2 = info->data.ia32.sse3 = info->data.ia32.ssse3 = false;
++			#endif
+ #elif defined(_MSC_VER)
+ # ifdef USE_TRY_CATCH_FLAVOR
+ 			_try {
+diff -u flac-1.3.x-dec/src/libFLAC/ia32/nasm.h~ flac-1.3.x-dec/src/libFLAC/ia32/nasm.h
+--- flac-1.3.x-dec/src/libFLAC/ia32/nasm.h~
++++ flac-1.3.x-dec/src/libFLAC/ia32/nasm.h
+@@ -32,7 +32,9 @@
+ 	bits 32
+ 
+ %ifdef OBJ_FORMAT_win32
++	%ifndef NO_UNDERSCORE ; e.g. not for Watcom builds
+ 	%define FLAC__PUBLIC_NEEDS_UNDERSCORE
++	%endif
+ 	%idefine code_section section .text align=16 class=CODE use32
+ 	%idefine data_section section .data align=32 class=DATA use32
+ 	%idefine bss_section  section .bss  align=32 class=DATA use32
+@@ -55,6 +57,10 @@
+ 	%idefine code_section section .text align=16
+ 	%idefine data_section section .data align=32
+ 	%idefine bss_section  section .bss  align=32
++%elifdef __OS2__
++	%idefine code_section SEGMENT .text ALIGN=16 CLASS=CODE USE32 FLAT
++	%idefine data_section SEGMENT .data ALIGN=16 CLASS=DATA USE32 FLAT
++	%idefine bss_section  SEGMENT .bss  ALIGN=16 CLASS=BSS  USE32 FLAT
+ %else
+ 	%error unsupported object format! ; this directive doesn't really work here
+ %endif
+@@ -62,6 +68,10 @@
+ %imacro cglobal 1
+ 	%ifdef FLAC__PUBLIC_NEEDS_UNDERSCORE
+ 		global _%1
++	%elifdef OBJ_FORMAT_win32
++		global %1
++	%elifdef __OS2__
++		global %1
+ 	%else
+ 		%if __NASM_MAJOR__ >= 2
+ 			global %1:function hidden
+diff -up flac-1.3.x-dec/src/libFLAC/include/private/bitmath.h~ flac-1.3.x-dec/src/libFLAC/include/private/bitmath.h
+--- flac-1.3.x-dec/src/libFLAC/include/private/bitmath.h~
++++ flac-1.3.x-dec/src/libFLAC/include/private/bitmath.h
+@@ -43,6 +43,16 @@
+ #include <intrin.h> /* for _BitScanReverse* */
+ #endif
+ 
++#ifdef __WATCOMC__
++static inline unsigned FLAC__clz_uint32 (FLAC__uint32);
++#pragma aux FLAC__clz_uint32 = \
++    "bsr eax, eax" \
++    "xor eax, 31" \
++    parm [eax] nomemory \
++    value [eax] \
++    modify exact [eax] nomemory;
++
++#else
+ /* Will never be emitted for MSVC, GCC, Intel compilers */
+ static inline unsigned int FLAC__clz_soft_uint32(unsigned int word)
+ {
+@@ -88,6 +98,7 @@ static inline unsigned int FLAC__clz_uin
+     return FLAC__clz_soft_uint32(v);
+ #endif
+ }
++#endif
+ 
+ /* This one works with input 0 */
+ static inline unsigned int FLAC__clz2_uint32(FLAC__uint32 v)
+diff -u flac-1.3.x-dec/src/libFLAC/include/private/macros.h~ flac-1.3.x-dec/src/libFLAC/include/private/macros.h
+--- flac-1.3.x-dec/src/libFLAC/include/private/macros.h~
++++ flac-1.3.x-dec/src/libFLAC/include/private/macros.h
+@@ -55,7 +55,7 @@
+ #define flac_min(a,b) MIN(a,b)
+ 
+ /* Windows VS has them in stdlib.h.. XXX:Untested */
+-#elif defined(_MSC_VER)
++#elif defined(_MSC_VER) || (defined(__WATCOMC__) && defined(__NT__))
+ #include <stdlib.h>
+ #define flac_max(a,b) __max(a,b)
+ #define flac_min(a,b) __min(a,b)
+diff -u flac-1.3.x-dec/src/libFLAC/lpc.c~ flac-1.3.x-dec/src/libFLAC/lpc.c
+--- flac-1.3.x-dec/src/libFLAC/lpc.c~
++++ flac-1.3.x-dec/src/libFLAC/lpc.c
+@@ -57,6 +57,21 @@
+ #define M_LN2 0.69314718055994530942
+ #endif
+ 
++#if defined __WATCOMC__
++#define HAVE_LROUND
++extern long lrint(double);
++#pragma aux lrint = \
++    "push  eax" \
++    "fistp dword ptr [esp]" \
++    "pop   eax" \
++    parm [8087] \
++    value [eax] \
++    modify exact [eax];
++long lround(double x) {
++   x = (x >= 0)? floor(x + 0.5) : ceil(x - 0.5);
++   return lrint(x);
++}
++#endif
+ #if !defined(HAVE_LROUND)
+ #if defined(_MSC_VER)
+ #include <float.h>
+diff -up flac-1.3.x-dec/src/libFLAC/metadata_iterators.c~ flac-1.3.x-dec/src/libFLAC/metadata_iterators.c
+--- flac-1.3.x-dec/src/libFLAC/metadata_iterators.c~
++++ flac-1.3.x-dec/src/libFLAC/metadata_iterators.c
+@@ -3301,7 +3301,7 @@ FLAC__bool transport_tempfile_(const cha
+ 	(void)fclose(*tempfile);
+ 	*tempfile = 0;
+ 
+-#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__ || defined __EMX__
++#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__ || defined __EMX__ || defined __OS2__ || defined __NT__
+ 	/* on some flavors of windows, flac_rename() will fail if the destination already exists */
+ 	if(flac_unlink(filename) < 0) {
+ 		cleanup_tempfile_(tempfile, tempfilename);
+@@ -3354,7 +3354,7 @@ void set_file_stats_(const char *filenam
+ 	srctime.modtime = stats->st_mtime;
+ 	(void)flac_chmod(filename, stats->st_mode);
+ 	(void)flac_utime(filename, &srctime);
+-#if !defined _MSC_VER && !defined __BORLANDC__ && !defined __MINGW32__
++#if !defined _MSC_VER && !defined __BORLANDC__ && !defined __MINGW32__ && !defined __OS2__ && !defined __NT__
+ 	FLAC_CHECK_RETURN(chown(filename, stats->st_uid, -1));
+ 	FLAC_CHECK_RETURN(chown(filename, -1, stats->st_gid));
+ #endif
+

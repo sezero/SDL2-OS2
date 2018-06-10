@@ -1,0 +1,34 @@
+use more OS-specific code in file_length_callback_(), instead of stat().
+
+diff -u flac-1.3.x-dec/src/libFLAC/stream_decoder.c~ flac-1.3.x-dec/src/libFLAC/stream_decoder.c
+--- flac-1.3.x-dec/src/libFLAC/stream_decoder.c~
++++ flac-1.3.x-dec/src/libFLAC/stream_decoder.c
+@@ -3394,15 +3394,25 @@
+ 
+ FLAC__StreamDecoderLengthStatus file_length_callback_(const FLAC__StreamDecoder *decoder, FLAC__uint64 *stream_length, void *client_data)
+ {
+-	struct flac_stat_s filestats;
+ 	(void)client_data;
+ 
+ 	if(decoder->private_->file == stdin)
+ 		return FLAC__STREAM_DECODER_LENGTH_STATUS_UNSUPPORTED;
+-	else if(flac_fstat(fileno(decoder->private_->file), &filestats) != 0)
+-		return FLAC__STREAM_DECODER_LENGTH_STATUS_ERROR;
+ 	else {
++		#if defined __EMX__ || defined __DJGPP__
++		FLAC__int64 len = filelength(fileno(decoder->private_->file));
++		if (len < 0) return FLAC__STREAM_DECODER_LENGTH_STATUS_ERROR;
++		*stream_length = (FLAC__uint64)len;
++		#elif defined _WIN32 || defined __OS2__
++		FLAC__int64 len = _filelengthi64(fileno(decoder->private_->file));
++		if (len < 0) return FLAC__STREAM_DECODER_LENGTH_STATUS_ERROR;
++		*stream_length = (FLAC__uint64)len;
++		#else
++		struct flac_stat_s filestats;
++		if (flac_fstat(fileno(decoder->private_->file), &filestats) != 0)
++			return FLAC__STREAM_DECODER_LENGTH_STATUS_ERROR;
+ 		*stream_length = (FLAC__uint64)filestats.st_size;
++		#endif
+ 		return FLAC__STREAM_DECODER_LENGTH_STATUS_OK;
+ 	}
+ }

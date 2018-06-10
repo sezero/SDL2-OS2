@@ -1,5 +1,5 @@
 /* libFLAC - Free Lossless Audio Codec library
- * Copyright (C) 2000-2009  Josh Coalson
+ * Copyright (C) 2001-2009  Josh Coalson
  * Copyright (C) 2011-2013  Xiph.Org Foundation
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,57 +30,60 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FLAC__ORDINALS_H
-#define FLAC__ORDINALS_H
+#ifndef FLAC__PRIVATE__CPU_H
+#define FLAC__PRIVATE__CPU_H
 
-#if defined(_MSC_VER) && _MSC_VER < 1600
+#include "FLAC/ordinals.h"
 
-/* Microsoft Visual Studio earlier than the 2010 version did not provide
- * the 1999 ISO C Standard header file <stdint.h>.
- */
-
-typedef __int8 FLAC__int8;
-typedef unsigned __int8 FLAC__uint8;
-
-typedef __int16 FLAC__int16;
-typedef __int32 FLAC__int32;
-typedef __int64 FLAC__int64;
-typedef unsigned __int16 FLAC__uint16;
-typedef unsigned __int32 FLAC__uint32;
-typedef unsigned __int64 FLAC__uint64;
-
-#else
-
-/* For MSVC 2010 and everything else which provides <stdint.h>. */
-
-#include <stdint.h>
-
-typedef int8_t FLAC__int8;
-typedef uint8_t FLAC__uint8;
-
-typedef int16_t FLAC__int16;
-typedef int32_t FLAC__int32;
-typedef int64_t FLAC__int64;
-typedef uint16_t FLAC__uint16;
-typedef uint32_t FLAC__uint32;
-typedef uint64_t FLAC__uint64;
-
+#ifdef HAVE_CONFIG_H
+#include <config.h>
 #endif
 
-typedef int FLAC__bool;
+typedef enum {
+	FLAC__CPUINFO_TYPE_IA32,
+	FLAC__CPUINFO_TYPE_PPC,
+	FLAC__CPUINFO_TYPE_UNKNOWN
+} FLAC__CPUInfo_Type;
 
-typedef FLAC__uint8 FLAC__byte;
+typedef struct {
+	FLAC__bool cpuid;
+	FLAC__bool bswap;
+	FLAC__bool cmov;
+	FLAC__bool mmx;
+	FLAC__bool fxsr;
+	FLAC__bool sse;
+	FLAC__bool sse2;
+	FLAC__bool sse3;
+	FLAC__bool ssse3;
+	FLAC__bool _3dnow;
+	FLAC__bool ext3dnow;
+	FLAC__bool extmmx;
+} FLAC__CPUInfo_IA32;
 
+typedef struct {
+	FLAC__bool altivec;
+	FLAC__bool ppc64;
+} FLAC__CPUInfo_PPC;
 
-#ifdef true
-#undef true
+typedef struct {
+	FLAC__bool use_asm;
+	FLAC__CPUInfo_Type type;
+	union {
+		FLAC__CPUInfo_IA32 ia32;
+		FLAC__CPUInfo_PPC ppc;
+	} data;
+} FLAC__CPUInfo;
+
+void FLAC__cpu_info(FLAC__CPUInfo *info);
+
+#ifndef FLAC__NO_ASM
+#ifdef FLAC__CPU_IA32
+#ifdef FLAC__HAS_NASM
+FLAC__uint32 FLAC__cpu_have_cpuid_asm_ia32(void);
+void         FLAC__cpu_info_asm_ia32(FLAC__uint32 *flags_edx, FLAC__uint32 *flags_ecx);
+FLAC__uint32 FLAC__cpu_info_extended_amd_asm_ia32(void);
 #endif
-#ifdef false
-#undef false
 #endif
-#ifndef __cplusplus
-#define true 1
-#define false 0
 #endif
 
 #endif
