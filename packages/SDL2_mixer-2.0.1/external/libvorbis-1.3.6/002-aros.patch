@@ -1,0 +1,62 @@
+i386-aros: remember to add -ffast-math to CFLAGS.
+
+diff -u vorbis/lib/os.h~ vorbis/lib/os.h
+--- vorbis/lib/os.h~
++++ vorbis/lib/os.h
+@@ -68,6 +68,19 @@
+ }
+ #endif
+ 
++#if defined(__AROS__)
++# ifdef __i386__
++#  define rint vorbis_rint
++static __inline double vorbis_rint (double x) {
++  double retval;
++  __asm__ __volatile__ ("frndint;": "=t" (retval) : "0" (x));
++  return retval;
++}
++# else
++#  define rint(x)   (floor((x)+0.5f))
++# endif
++#endif
++
+ #if defined(__SYMBIAN32__) && defined(__WINS__)
+ void *_alloca(size_t size);
+ #  define alloca _alloca
+--- /dev/null
++++ vorbis/lib/Makefile.aros
+@@ -0,0 +1,34 @@
++CFLAGS  = -Wall -O2 -ffast-math -fsigned-char -I../include
++CFLAGS += -DHAVE_ALLOCA_H -DHAVE_INTTYPES_H -DHAVE_STDINT_H
++LIBNAME = libvorbis.a
++LIBNAME2= libvorbisfile.a
++
++ifeq ($(CROSS),1)
++PREFIX=i386-aros-
++else
++PREFIX=
++endif
++CC      = $(PREFIX)gcc
++AR      = $(PREFIX)ar
++RANLIB  = $(PREFIX)ranlib
++
++OBJ = mdct.o smallft.o block.o envelope.o window.o lsp.o lpc.o analysis.o synthesis.o psy.o info.o floor1.o floor0.o res0.o mapping0.o registry.o codebook.o sharedbook.o bitrate.o
++# lookup.o
++OBJ2= vorbisfile.o
++
++all: $(LIBNAME) $(LIBNAME2)
++
++%.o: %.c
++	$(CC) $(CFLAGS) -c -o $@ $<
++
++$(LIBNAME): $(OBJ)
++	$(AR) cru $(LIBNAME) $(OBJ)
++	$(RANLIB) $(LIBNAME)
++$(LIBNAME2): $(OBJ2)
++	$(AR) cru $(LIBNAME2) $(OBJ2)
++	$(RANLIB) $(LIBNAME2)
++
++clean:
++	rm -f *.o
++distclean: clean
++	rm -f *.a
