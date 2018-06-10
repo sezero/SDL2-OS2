@@ -303,10 +303,7 @@ static void *Mix_DoEffects(int chan, void *snd, int len)
 
 
 /* Mixing function */
-static void
-#ifdef __WATCOMC__
-SDLCALL
-#endif
+static void SDLCALL
 mix_channels(void *udata, Uint8 *stream, int len)
 {
     Uint8 *mix_input;
