@@ -15,7 +15,7 @@ SRCS = SDL_ttf.c
 
 OBJS = $(SRCS:.c=.obj)
 
-LIBS = freetype.lib sdl2.lib
+LIBS = freetype.lib SDL2.lib
 
 CFLAGS = -i=$(INCPATH) -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
 CFLAGS+= -bd -j -DBUILD_SDL

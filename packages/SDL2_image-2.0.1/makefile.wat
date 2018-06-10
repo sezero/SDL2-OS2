@@ -15,7 +15,7 @@ LNKFILE = $(LIBNAME).lnk
 SRCS = 	IMG.c IMG_bmp.c IMG_gif.c IMG_jpg.c IMG_lbm.c IMG_pcx.c IMG_png.c &
         IMG_pnm.c IMG_tga.c IMG_tif.c IMG_xcf.c IMG_xpm.c IMG_xv.c IMG_webp.c
 
-LIBS = libpng.lib libtiff.lib zlib.lib jpeg.lib sdl2.lib
+LIBS = libpng.lib libtiff.lib zlib.lib jpeg.lib SDL2.lib
 
 CFLAGS = -i=$(INCPATH) -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm -wx
 CFLAGS+= -bd -ei -wcd=202 -wcd=136 -DBUILD_SDL &

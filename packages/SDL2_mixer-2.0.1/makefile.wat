@@ -22,7 +22,7 @@ SRCS+= common.c ctrlmode.c filter.c instrum.c mix.c output.c playmidi.c &
 
 OBJS = $(SRCS:.c=.obj)
 
-LIBS = FLAC.lib ogg.lib mikmod.lib smpeg.lib vorbis.lib sdl2.lib
+LIBS = FLAC.lib ogg.lib mikmod.lib smpeg.lib vorbis.lib vorbisfile.lib SDL2.lib
 
 CFLAGS = -i=$(INCPATH) -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
 CFLAGS+= -bd -j -DBUILD_SDL
