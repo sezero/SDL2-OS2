@@ -68,7 +68,7 @@ typedef enum {
  */
 typedef int (SDLCALL * SDL_ThreadFunction) (void *data);
 
-#if (defined(__WIN32__) && !defined(HAVE_LIBC)) || defined(__OS2__)
+#if defined(__WIN32__) && !defined(HAVE_LIBC)
 /**
  *  \file SDL_thread.h
  *
@@ -90,20 +90,12 @@ typedef int (SDLCALL * SDL_ThreadFunction) (void *data);
  *  library!
  */
 #define SDL_PASSED_BEGINTHREAD_ENDTHREAD
-#include <process.h>            /* This has _beginthread() and _endthread() defined! */
+#include <process.h> /* _beginthreadex() and _endthreadex() */
 
-#ifdef __OS2__
-typedef int (*pfnSDL_CurrentBeginThread)(void (*func)(void *), void *, unsigned, void *arg); 
-typedef void (*pfnSDL_CurrentEndThread)(void);
-#else
-typedef uintptr_t(__cdecl * pfnSDL_CurrentBeginThread) (void *, unsigned,
-                                                        unsigned (__stdcall *
-                                                                  func) (void
-                                                                         *),
-                                                        void *arg, unsigned,
-                                                        unsigned *threadID);
+typedef uintptr_t(__cdecl * pfnSDL_CurrentBeginThread)
+                   (void *, unsigned, unsigned (__stdcall *func)(void *),
+                    void * /*arg*/, unsigned, unsigned * /* threadID */);
 typedef void (__cdecl * pfnSDL_CurrentEndThread) (unsigned code);
-#endif
 
 /**
  *  Create a thread.
@@ -116,14 +108,35 @@ SDL_CreateThread(SDL_ThreadFunction fn, const char *name, void *data,
 /**
  *  Create a thread.
  */
-#ifdef __OS2__
-# undef SDL_CreateThread
-# define SDL_CreateThread(fn, name, data) SDL_CreateThread(fn, name, data, (pfnSDL_CurrentBeginThread)_beginthread, (pfnSDL_CurrentEndThread)_endthread)
-#elif defined(SDL_CreateThread) && SDL_DYNAMIC_API
+#if defined(SDL_CreateThread) && SDL_DYNAMIC_API
 #undef SDL_CreateThread
 #define SDL_CreateThread(fn, name, data) SDL_CreateThread_REAL(fn, name, data, (pfnSDL_CurrentBeginThread)_beginthreadex, (pfnSDL_CurrentEndThread)_endthreadex)
 #else
 #define SDL_CreateThread(fn, name, data) SDL_CreateThread(fn, name, data, (pfnSDL_CurrentBeginThread)_beginthreadex, (pfnSDL_CurrentEndThread)_endthreadex)
+#endif
+
+#elif defined(__OS2__)
+/*
+ * just like the windows case above:  We compile SDL2
+ * into a dll with Watcom's runtime statically linked.
+ */
+#define SDL_PASSED_BEGINTHREAD_ENDTHREAD
+#ifndef __EMX__
+#include <process.h>
+#else
+#include <stdlib.h>
+#endif
+typedef int (*pfnSDL_CurrentBeginThread)(void (*func)(void *), void *, unsigned, void * /*arg*/);
+typedef void (*pfnSDL_CurrentEndThread)(void);
+extern DECLSPEC SDL_Thread *SDLCALL
+SDL_CreateThread(SDL_ThreadFunction fn, const char *name, void *data,
+                 pfnSDL_CurrentBeginThread pfnBeginThread,
+                 pfnSDL_CurrentEndThread pfnEndThread);
+#if defined(SDL_CreateThread) && SDL_DYNAMIC_API
+#undef SDL_CreateThread
+#define SDL_CreateThread(fn, name, data) SDL_CreateThread_REAL(fn, name, data, (pfnSDL_CurrentBeginThread)_beginthread, (pfnSDL_CurrentEndThread)_endthread)
+#else
+#define SDL_CreateThread(fn, name, data) SDL_CreateThread(fn, name, data, (pfnSDL_CurrentBeginThread)_beginthread, (pfnSDL_CurrentEndThread)_endthread)
 #endif
 
 #else
@@ -281,7 +294,7 @@ extern DECLSPEC void * SDLCALL SDL_TLSGet(SDL_TLSID id);
  *  \sa SDL_TLSCreate()
  *  \sa SDL_TLSGet()
  */
-extern DECLSPEC int SDLCALL SDL_TLSSet(SDL_TLSID id, const void *value, void (*destructor)(void*));
+extern DECLSPEC int SDLCALL SDL_TLSSet(SDL_TLSID id, const void *value, void (SDLCALL *destructor)(void*));
 
 
 /* Ends C function definitions when using C++ */

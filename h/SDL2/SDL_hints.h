@@ -676,7 +676,7 @@ extern DECLSPEC const char * SDLCALL SDL_GetHint(const char *name);
  *  \param callback The function to call when the hint value changes
  *  \param userdata A pointer to pass to the callback function
  */
-typedef void (*SDL_HintCallback)(void *userdata, const char *name, const char *oldValue, const char *newValue);
+typedef void (SDLCALL *SDL_HintCallback)(void *userdata, const char *name, const char *oldValue, const char *newValue);
 extern DECLSPEC void SDLCALL SDL_AddHintCallback(const char *name,
                                                  SDL_HintCallback callback,
                                                  void *userdata);
