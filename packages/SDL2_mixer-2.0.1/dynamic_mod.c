@@ -59,7 +59,7 @@ int Mix_InitMOD()
             return -1;
         }
         mikmod.MikMod_Init =
-            (BOOL (*)(CHAR*))
+            (int (*)(MIKMOD3_CONST CHAR*))
             SDL_LoadFunction(mikmod.handle, "MikMod_Init");
         if ( mikmod.MikMod_Init == NULL ) {
             SDL_UnloadObject(mikmod.handle);
@@ -87,7 +87,7 @@ int Mix_InitMOD()
             return -1;
         }
         mikmod.MikMod_strerror =
-            (char* (*)(int))
+            (MIKMOD3_CONST char* (*)(int))
             SDL_LoadFunction(mikmod.handle, "MikMod_strerror");
         if ( mikmod.MikMod_strerror == NULL ) {
             SDL_UnloadObject(mikmod.handle);
@@ -256,7 +256,8 @@ int Mix_InitMOD()
         mikmod.MikMod_RegisterDriver = MikMod_RegisterDriver;
         mikmod.MikMod_errno = &MikMod_errno;
         mikmod.MikMod_strerror = MikMod_strerror;
-#if LIBMIKMOD_VERSION < ((3<<16)|(2<<8))
+#if (LIBMIKMOD_VERSION < 0x030200) || !defined(DMODE_NOISEREDUCTION)
+        /* libmikmod 3.2.0-beta2 or older */
         mikmod.MikMod_free = free;
 #else
         mikmod.MikMod_free = MikMod_free;
