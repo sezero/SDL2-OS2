@@ -108,11 +108,7 @@ int SDL_PrivateGameControllerButton(SDL_GameController * gamecontroller, SDL_Gam
 /*
  * Event filter to fire controller events from joystick ones
  */
-int
-#ifdef __OS2__
-SDLCALL
-#endif
-SDL_GameControllerEventWatcher(void *userdata, SDL_Event * event)
+int SDLCALL SDL_GameControllerEventWatcher(void *userdata, SDL_Event * event)
 {
     switch(event->type) {
     case SDL_JOYAXISMOTION:

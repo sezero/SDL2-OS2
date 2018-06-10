@@ -26,10 +26,7 @@ quit(int rc)
     exit(rc);
 }
 
-static int
-#ifdef __WATCOMC__
-SDLCALL
-#endif
+static int SDLCALL
 button_messagebox(void *eventNumber)
 {
     const SDL_MessageBoxButtonData buttons[] = {

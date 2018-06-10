@@ -114,11 +114,7 @@ static SDL_atomic_t threadsRunning;
 static SDL_sem *threadDone;
 
 static
-int
-#ifdef __WATCOMC__
-SDLCALL
-#endif
-adder(void* junk)
+int SDLCALL adder(void* junk)
 {
     unsigned long N=NInter;
     SDL_Log("Thread subtracting %d %lu times\n",CountInc,N);
@@ -496,11 +492,7 @@ typedef struct
     char padding[SDL_CACHELINE_SIZE-(sizeof(SDL_EventQueue*)+sizeof(int)*NUM_WRITERS+sizeof(int)+sizeof(SDL_bool))%SDL_CACHELINE_SIZE];
 } ReaderData;
 
-static int
-#ifdef __WATCOMC__
-SDLCALL
-#endif
-FIFO_Writer(void* _data)
+static int SDLCALL FIFO_Writer(void* _data)
 {
     WriterData *data = (WriterData *)_data;
     SDL_EventQueue *queue = data->queue;
@@ -535,11 +527,7 @@ FIFO_Writer(void* _data)
     return 0;
 }
 
-static int
-#ifdef __WATCOMC__
-SDLCALL
-#endif
-FIFO_Reader(void* _data)
+static int SDLCALL FIFO_Reader(void* _data)
 {
     ReaderData *data = (ReaderData *)_data;
     SDL_EventQueue *queue = data->queue;
@@ -579,11 +567,7 @@ FIFO_Reader(void* _data)
 
 #ifdef TEST_SPINLOCK_FIFO
 /* This thread periodically locks the queue for no particular reason */
-static int
-#ifdef __WATCOMC__
-SDLCALL
-#endif
-FIFO_Watcher(void* _data)
+static int SDLCALL FIFO_Watcher(void* _data)
 {
     SDL_EventQueue *queue = (SDL_EventQueue *)_data;
 

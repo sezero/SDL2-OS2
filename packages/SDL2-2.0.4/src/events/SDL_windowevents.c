@@ -28,10 +28,7 @@
 #include "../video/SDL_sysvideo.h"
 
 
-static int
-#ifdef __OS2__
-SDLCALL
-#endif
+static int SDLCALL
 RemovePendingResizedEvents(void * userdata, SDL_Event *event)
 {
     SDL_Event *new_event = (SDL_Event *)userdata;
@@ -45,10 +42,7 @@ RemovePendingResizedEvents(void * userdata, SDL_Event *event)
     return 1;
 }
 
-static int
-#ifdef __OS2__
-SDLCALL
-#endif
+static int SDLCALL
 RemovePendingSizeChangedEvents(void * userdata, SDL_Event *event)
 {
     SDL_Event *new_event = (SDL_Event *)userdata;
@@ -62,10 +56,7 @@ RemovePendingSizeChangedEvents(void * userdata, SDL_Event *event)
     return 1;
 }
 
-static int
-#ifdef __OS2__
-SDLCALL
-#endif
+static int SDLCALL
 RemovePendingMoveEvents(void * userdata, SDL_Event *event)
 {
     SDL_Event *new_event = (SDL_Event *)userdata;
@@ -80,9 +71,6 @@ RemovePendingMoveEvents(void * userdata, SDL_Event *event)
 }
 
 int
-#ifdef __OS2__
-SDLCALL
-#endif
 SDL_SendWindowEvent(SDL_Window * window, Uint8 windowevent, int data1,
                     int data2)
 {

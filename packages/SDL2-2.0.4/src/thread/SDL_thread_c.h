@@ -72,11 +72,7 @@ typedef struct {
     unsigned int limit;
     struct {
         void *data;
-#ifdef __OS2__
-        void SDLCALL (*destructor)(void*);
-#else
-        void (*destructor)(void*);
-#endif
+        void (SDLCALL *destructor)(void*);
     } array[1];
 } SDL_TLSData;
 

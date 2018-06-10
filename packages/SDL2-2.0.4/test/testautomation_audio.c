@@ -46,11 +46,7 @@ int _audio_testCallbackLength;
 
 
 /* Test callback function */
-void
-#ifdef __WATCOMC__
-SDLCALL
-#endif
-_audio_testCallback(void *userdata, Uint8 *stream, int len)
+void SDLCALL _audio_testCallback(void *userdata, Uint8 *stream, int len)
 {
    /* track that callback was called */
    _audio_testCallbackCounter++;

@@ -102,10 +102,7 @@ SDL_GetRenderDriverInfo(int index, SDL_RendererInfo * info)
 #endif
 }
 
-static int
-#ifdef __OS2__
-SDLCALL
-#endif
+static int SDLCALL
 SDL_RendererEventWatch(void *userdata, SDL_Event *event)
 {
     SDL_Renderer *renderer = (SDL_Renderer *)userdata;

@@ -317,7 +317,6 @@ SDL_QuitSubSystem(Uint32 flags)
     }
 #endif
 
-
 #if !SDL_TIMERS_DISABLED
     if ((flags & SDL_INIT_TIMER)) {
         if (SDL_PrivateShouldQuitSubsystem(SDL_INIT_TIMER)) {

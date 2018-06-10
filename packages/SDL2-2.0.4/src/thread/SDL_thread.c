@@ -49,11 +49,7 @@ SDL_TLSGet(SDL_TLSID id)
 }
 
 int
-#ifdef __OS2__
-SDL_TLSSet(SDL_TLSID id, const void *value, void SDLCALL (*destructor)(void *))
-#else
-SDL_TLSSet(SDL_TLSID id, const void *value, void (*destructor)(void *))
-#endif
+SDL_TLSSet(SDL_TLSID id, const void *value, void (SDLCALL *destructor)(void *))
 {
     SDL_TLSData *storage;
 

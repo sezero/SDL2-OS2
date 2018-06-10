@@ -36,7 +36,7 @@ static SDL_bool SDL_joystick_allows_background_events = SDL_FALSE;
 static SDL_Joystick *SDL_joysticks = NULL;
 static SDL_Joystick *SDL_updating_joystick = NULL;
 
-static void
+static void SDLCALL
 SDL_JoystickAllowBackgroundEventsChanged(void *userdata, const char *name, const char *oldValue, const char *hint)
 {
     if (hint && *hint == '1') {
