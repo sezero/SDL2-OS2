@@ -292,7 +292,7 @@ getsome(mpg_data* m)
 
     do
     {
-        code = mpg123_read(m->handle, data, sizeof(data), &len);
+        code = mpg123_read(m->handle, data, sizeof(m->buf), &len);
         switch (code)
         {
             case MPG123_NEW_FORMAT:
