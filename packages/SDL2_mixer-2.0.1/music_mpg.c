@@ -285,33 +285,29 @@ int
 getsome(mpg_data* m)
 {
     int code;
-    size_t len;
+    size_t len = 0;
     Uint8* data = m->buf;
-    size_t cbdata = sizeof(m->buf);
+    const size_t cbdata = sizeof(m->buf);
     SDL_AudioCVT* cvt = &m->cvt;
 
-    do
+    code = mpg123_read(m->handle, data, cbdata, &len);
+    switch (code)
     {
-        code = mpg123_read(m->handle, data, sizeof(m->buf), &len);
-        switch (code)
-        {
-            case MPG123_NEW_FORMAT:
-                if (!update_format(m)) {
-                    return 0;
-                }
-                break;
-
-            case MPG123_DONE:
-                mpg_stop(m);
-            case MPG123_OK:
-                break;
-
-            default:
-                SDL_SetError("mpg123_read: %s", mpg_err(m->handle, code));
-                return 0;
+    case MPG123_NEW_FORMAT:
+        if (!update_format(m)) {
+            return 0;
         }
+        break;
+
+    case MPG123_DONE:
+        mpg_stop(m);
+    case MPG123_OK:
+        break;
+
+    default:
+        SDL_SetError("mpg123_read: %s", mpg_err(m->handle, code));
+        return 0;
     }
-    while (len && code != MPG123_OK);
 
     SDL_memcpy(cvt->buf, data, cbdata);
 
