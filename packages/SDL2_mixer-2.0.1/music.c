@@ -68,7 +68,7 @@
 #include "music_flac.h"
 #endif
 
-#if defined(MP3_MPG_MUSIC) || defined(MP3_MAD_MUSIC)
+#if defined(MP3_MPG_MUSIC) || defined(MP3_MAD_MUSIC) || defined(USE_TIMIDITY_MIDI)
 static SDL_AudioSpec used_mixer;
 #endif
 
@@ -127,7 +127,6 @@ struct _Mix_Music {
 #ifdef MID_MUSIC
 #ifdef USE_TIMIDITY_MIDI
 static int timidity_ok;
-static int samplesize;
 #endif
 #ifdef USE_FLUIDSYNTH_MIDI
 static int fluidsynth_ok;
@@ -305,8 +304,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
 #endif
 #ifdef USE_TIMIDITY_MIDI
                 if ( timidity_ok ) {
-                    int samples = len / samplesize;
-                    Timidity_PlaySome(stream, samples);
+                    Timidity_PlaySome(music_playing->data.midi, stream, len);
                     goto skip;
                 }
 #endif
@@ -368,11 +366,11 @@ int open_music(SDL_AudioSpec *mixer)
 #endif
 #ifdef MID_MUSIC
 #ifdef USE_TIMIDITY_MIDI
-    samplesize = mixer->size / mixer->samples;
-    if ( Timidity_Init(mixer->freq, mixer->format,
-                        mixer->channels, mixer->samples) == 0 ) {
+    if ( Timidity_Init() == 0 ) {
         timidity_ok = 1;
         add_music_decoder("TIMIDITY");
+        /* Keep a copy of the mixer */
+        used_mixer = *mixer;
     } else {
         timidity_ok = 0;
     }
@@ -700,14 +698,17 @@ Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *src, Mix_MusicType type, int freesrc)
 #ifdef USE_TIMIDITY_MIDI
         if (timidity_ok) {
             SDL_RWseek(src, start, RW_SEEK_SET);
-            music->data.midi = Timidity_LoadSong_RW(src, freesrc);
+            music->data.midi = Timidity_LoadSong(src, &used_mixer);
             if (music->data.midi) {
                 music->error = 0;
+                if (freesrc) {
+                    SDL_RWclose(src);
+                }
             } else {
-                Mix_SetError("%s", Timidity_Error());
+                Mix_SetError("Timidity_LoadSong() failed");
             }
         } else {
-            Mix_SetError("%s", Timidity_Error());
+            Mix_SetError("Timidity not initialized");
         }
 #endif
         break;
@@ -1073,6 +1074,13 @@ int music_internal_position(double position)
         mad_seek(music_playing->data.mp3_mad, position);
         break;
 #endif
+#ifdef MID_MUSIC
+#ifdef MP3_MAD_MUSIC
+        case MUS_MID:
+        Timidity_Seek(music_playing->data.midi, (Uint32)(position * 1000));
+        break;
+#endif
+#endif
         default:
         /* TODO: Implement this for other music backends */
         retval = -1;
@@ -1149,7 +1157,7 @@ static void music_internal_volume(int volume)
 #endif
 #ifdef USE_TIMIDITY_MIDI
         if ( timidity_ok ) {
-            Timidity_SetVolume(volume);
+            Timidity_SetVolume(music_playing->data.midi, volume);
             return;
         }
 #endif
@@ -1240,7 +1248,7 @@ static void music_internal_halt(void)
 #endif
 #ifdef USE_TIMIDITY_MIDI
         if ( timidity_ok ) {
-            Timidity_Stop();
+            music_playing->data.midi->playing = 0;
             goto skip;
         }
 #endif
@@ -1420,7 +1428,7 @@ static int music_internal_playing()
 #endif
 #ifdef USE_TIMIDITY_MIDI
         if ( timidity_ok ) {
-            if ( ! Timidity_Active() )
+            if ( ! music_playing->data.midi->playing )
                 playing = 0;
             goto skip;
         }
@@ -1522,7 +1530,7 @@ void close_music(void)
 #endif
 #ifdef MID_MUSIC
 # ifdef USE_TIMIDITY_MIDI
-    Timidity_Close();
+    Timidity_Exit();
 # endif
 #endif
 

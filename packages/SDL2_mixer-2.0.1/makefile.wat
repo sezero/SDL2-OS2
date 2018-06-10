@@ -17,8 +17,8 @@ SRCS = dynamic_flac.c dynamic_fluidsynth.c dynamic_mod.c dynamic_modplug.c &
        load_ogg.c load_voc.c mixer.c music.c music_cmd.c music_flac.c &
        music_mad.c music_mod.c music_modplug.c music_ogg.c wavestream.c
 # playwave.c playmus.c
-SRCS+= common.c ctrlmode.c filter.c instrum.c mix.c output.c playmidi.c &
-       readmidi.c resample.c sdl_a.c sdl_c.c tables.c timidity.c
+SRCS+= common.c instrum.c mix.c output.c playmidi.c readmidi.c &
+       resample.c tables.c timidity.c
 
 OBJS = $(SRCS:.c=.obj)
 
