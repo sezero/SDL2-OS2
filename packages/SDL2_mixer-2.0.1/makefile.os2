@@ -25,19 +25,23 @@ USE_MOD=yes
 LIBFILE = $(LIBNAME).lib
 DLLFILE = $(LIBNAME).dll
 LNKFILE = $(LIBNAME).lnk
+LIBTIMI = timidity/timidity.lib
 
 SRCS = dynamic_flac.c dynamic_fluidsynth.c dynamic_mod.c dynamic_modplug.c &
        dynamic_mp3.c dynamic_ogg.c effects_internal.c effect_position.c &
        effect_stereoreverse.c fluidsynth.c load_aiff.c load_flac.c load_mp3.c &
        load_ogg.c load_voc.c mixer.c music.c music_cmd.c music_flac.c &
        music_mpg.c music_mad.c music_mod.c music_modplug.c music_ogg.c wavestream.c
-# timidity sources:
-SRCS+= common.c instrum.c mix.c output.c playmidi.c readmidi.c &
-       resample.c tables.c timidity.c
+
+# timidity:
+TIMI_OBJS = timidity/common.obj timidity/instrum.obj timidity/mix.obj &
+       timidity/output.obj timidity/playmidi.obj timidity/readmidi.obj &
+       timidity/resample.obj timidity/tables.obj timidity/timidity.obj
 
 # playwave.c playmus.c
 
 OBJS = $(SRCS:.c=.obj)
+DLLDEPS = $(OBJS) $(LNKFILE)
 
 !ifeq USE_TREMOR yes
 VORBIS_LIBS=vorbisidec.lib
@@ -47,12 +51,20 @@ VORBIS_LIBS=vorbisfile.lib vorbis.lib
 
 LIBS = SDL2.lib
 
-CFLAGS = -I. -Itimidity -I$(INCPATH) -I$(INCPATH)/SDL2 -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei -j
+BASE_CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei -j
+CFLAGS = $(BASE_CFLAGS)
 # to build a dll:
 CFLAGS+= -bd
 # for DECLSPEC:
 CFLAGS+= -DBUILD_SDL
+# include paths:
+CFLAGS+= -I. -I$(INCPATH) -I$(INCPATH)/SDL2
 
+!ifeq USE_MIDI yes
+CFLAGS+= -DMID_MUSIC -DUSE_TIMIDITY_MIDI
+LIBS+= $(LIBTIMI)
+DLLDEPS+= $(LIBTIMI)
+!endif
 !ifeq USE_WAV yes
 CFLAGS+= -DWAV_MUSIC
 !endif
@@ -64,7 +76,6 @@ CFLAGS+= -DOGG_USE_TREMOR
 LIBS+= $(VORBIS_LIBS)
 LIBS+= ogg.lib
 !endif
-
 !ifeq USE_FLAC yes
 CFLAGS+= -DFLAC_MUSIC
 LIBS+= FLAC.lib
@@ -77,9 +88,6 @@ LIBS+= mad.lib
 CFLAGS+= -DMP3_MPG_MUSIC
 LIBS+= mpg123.lib
 !endif
-!ifeq USE_MIDI yes
-CFLAGS+= -DMID_MUSIC -DUSE_TIMIDITY_MIDI
-!endif
 !ifeq USE_MOD yes
 CFLAGS+= -DMOD_MUSIC
 LIBS+= mikmod.lib
@@ -91,7 +99,10 @@ $(LIBFILE): $(DLLFILE)
   @echo * Create library: $@...
   wlib -b -n -q -c -pa -s -t -zld -ii -io $@ $(DLLFILE)
 
-$(DLLFILE): $(OBJS) $(LNKFILE)
+$(LIBTIMI): $(TIMI_OBJS)
+  wlib -b -n -q -c -pa -s -t -zld -ii -io $@ $(TIMI_OBJS)
+
+$(DLLFILE): $(DLLDEPS)
   @echo * Link: $@
   wlink @$(LNKFILE)
 
@@ -117,6 +128,26 @@ $(LNKFILE):
 .c.obj:
   wcc386 $(CFLAGS) -fo=$^@ $<
 
+TIMI_CFLAGS= $(BASE_CFLAGS) -Itimidity -I$(INCPATH)/SDL2
+timidity/common.obj: timidity/common.c
+  wcc386 $(TIMI_CFLAGS) -fo=$^@ $<
+timidity/instrum.obj: timidity/instrum.c
+  wcc386 $(TIMI_CFLAGS) -fo=$^@ $<
+timidity/mix.obj: timidity/mix.c
+  wcc386 $(TIMI_CFLAGS) -fo=$^@ $<
+timidity/output.obj: timidity/output.c
+  wcc386 $(TIMI_CFLAGS) -fo=$^@ $<
+timidity/playmidi.obj: timidity/playmidi.c
+  wcc386 $(TIMI_CFLAGS) -fo=$^@ $<
+timidity/readmidi.obj: timidity/readmidi.c
+  wcc386 $(TIMI_CFLAGS) -fo=$^@ $<
+timidity/resample.obj: timidity/resample.c
+  wcc386 $(TIMI_CFLAGS) -fo=$^@ $<
+timidity/tables.obj: timidity/tables.c
+  wcc386 $(TIMI_CFLAGS) -fo=$^@ $<
+timidity/timidity.obj: timidity/timidity.c
+  wcc386 $(TIMI_CFLAGS) -fo=$^@ $<
+
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
   @if exist *.obj rm *.obj
@@ -125,3 +156,5 @@ clean: .SYMBOLIC
   @if exist $(LNKFILE) rm $(LNKFILE)
   @if exist $(DLLFILE) rm $(DLLFILE)
   @if exist $(LIBFILE) rm $(LIBFILE)
+  @if exist timidity/*.obj rm timidity/*.obj
+  @if exist $(LIBTIMI) rm $(LIBTIMI)
