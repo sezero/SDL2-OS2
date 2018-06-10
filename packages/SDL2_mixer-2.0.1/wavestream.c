@@ -433,7 +433,6 @@ static SDL_bool ParseSMPL(WAVStream *wave, Uint32 chunk_length)
 
     loaded = SDL_TRUE;
 
-done:
     SDL_free(data);
     return loaded;
 }
