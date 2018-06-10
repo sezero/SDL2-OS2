@@ -23,14 +23,14 @@
 
 /* $Id$ */
 
-#if defined(MP3_MUSIC) || defined(MP3_MAD_MUSIC)
+#if defined(MP3_MPG_MUSIC) || defined(MP3_MAD_MUSIC)
 
 #include "SDL_mixer.h"
 
 #include "load_mp3.h"
 
-#if defined(MP3_MUSIC)
-#include "dynamic_mp3.h"
+#if defined(MP3_MPG_MUSIC)
+#include "music_mpg.h"
 #elif defined(MP3_MAD_MUSIC)
 #include "music_mad.h"
 #endif
@@ -39,9 +39,8 @@ SDL_AudioSpec *Mix_LoadMP3_RW(SDL_RWops *src, int freesrc, SDL_AudioSpec *spec, 
 {
 	/* note: spec is initialized to mixer spec */
 
-#if defined(MP3_MUSIC)
-	SMPEG* mp3;
-	SMPEG_Info info;
+#if defined(MP3_MPG_MUSIC)
+	mpg_data *mp3_mpg;
 #elif defined(MP3_MAD_MUSIC)
 	mad_data *mp3_mad;
 #endif
@@ -69,40 +68,28 @@ SDL_AudioSpec *Mix_LoadMP3_RW(SDL_RWops *src, int freesrc, SDL_AudioSpec *spec, 
 
 	if (!err)
 	{
-#if defined(MP3_MUSIC)
-		mp3 = smpeg.SMPEG_new_rwops(src, &info, freesrc, 0);
-		err = (mp3 == NULL);
+#if defined(MP3_MPG_MUSIC)
+		mp3_mpg = mpg_new_rw(src, spec, freesrc);
+		err = (mp3_mpg == NULL);
 #elif defined(MP3_MAD_MUSIC)
         mp3_mad = mad_openFileRW(src, spec, freesrc);
 		err = (mp3_mad == NULL);
 #endif
 	}
 
-#if defined(MP3_MUSIC)
 	if (!err)
 	{
-		err = !info.has_audio;
-	}
-#endif
+#if defined(MP3_MPG_MUSIC)
 
-	if (!err)
-	{
-#if defined(MP3_MUSIC)
-
-		smpeg.SMPEG_actualSpec(mp3, spec);
-
-		smpeg.SMPEG_enableaudio(mp3, 1);
-		smpeg.SMPEG_enablevideo(mp3, 0);
-
-		smpeg.SMPEG_play(mp3);
+		mpg_start(mp3_mpg);
 
 		/* read once for audio length */
-		while ((read_len = smpeg.SMPEG_playAudio(mp3, *audio_buf, chunk_len)) > 0)
+		while ((read_len = mpg_get_samples(mp3_mpg, *audio_buf, chunk_len)) > 0)
 		{
 			*audio_len += read_len;
 		}
 
-		smpeg.SMPEG_stop(mp3);
+		mpg_stop(mp3_mpg);
 
 #elif defined(MP3_MAD_MUSIC)
 
@@ -136,11 +123,11 @@ SDL_AudioSpec *Mix_LoadMP3_RW(SDL_RWops *src, int freesrc, SDL_AudioSpec *spec, 
 		/* read again for audio buffer, if needed */
 		if (*audio_len > chunk_len)
 		{
-#if defined(MP3_MUSIC)
-			smpeg.SMPEG_rewind(mp3);
-			smpeg.SMPEG_play(mp3);
-			err = (*audio_len != smpeg.SMPEG_playAudio(mp3, *audio_buf, *audio_len));
-			smpeg.SMPEG_stop(mp3);
+#if defined(MP3_MPG_MUSIC)
+			mpg_seek(mp3_mpg, 0);
+			mpg_start(mp3_mpg);
+			err = (*audio_len != mpg_get_samples(mp3_mpg, *audio_buf, *audio_len));
+			mpg_stop(mp3_mpg);
 #elif defined(MP3_MAD_MUSIC)
 			mad_seek(mp3_mad, 0);
 			mad_start(mp3_mad);
@@ -157,10 +144,10 @@ SDL_AudioSpec *Mix_LoadMP3_RW(SDL_RWops *src, int freesrc, SDL_AudioSpec *spec, 
 		*audio_len &= ~(samplesize-1);
 	}
 
-#if defined(MP3_MUSIC)
-	if (mp3)
+#if defined(MP3_MPG_MUSIC)
+	if (mp3_mpg)
 	{
-		smpeg.SMPEG_delete(mp3); mp3 = NULL;
+		mpg_delete(mp3_mpg); mp3_mpg = NULL;
 		/* Deleting the MP3 closed the source if desired */
 		freesrc = SDL_FALSE;
 	}

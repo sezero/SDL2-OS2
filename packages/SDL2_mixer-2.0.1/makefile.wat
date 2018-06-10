@@ -22,13 +22,13 @@ SRCS+= common.c ctrlmode.c filter.c instrum.c mix.c output.c playmidi.c &
 
 OBJS = $(SRCS:.c=.obj)
 
-LIBS = FLAC.lib ogg.lib mikmod.lib smpeg.lib vorbis.lib vorbisfile.lib SDL2.lib
+LIBS = FLAC.lib ogg.lib mikmod.lib mpg123.lib vorbis.lib vorbisfile.lib SDL2.lib
 
 CFLAGS = -i=$(INCPATH) -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
 CFLAGS+= -bd -j -DBUILD_SDL
 CFLAGS+= -dWAV_MUSIC -dMOD_MUSIC -dMID_MUSIC &
          -dUSE_TIMIDITY_MIDI &
-         -dOGG_MUSIC -dMP3_MUSIC -dFLAC_MUSIC
+         -dOGG_MUSIC -dMP3_MPG_MUSIC -dFLAC_MUSIC
 
 .c: .;.\timidity
 
@@ -49,7 +49,7 @@ $(LNKFILE):
 !ifdef %osdir
   @$(%osdir)\KLIBC\BIN\date +"OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@$#$#1$#$# %F               $(%HOSTNAME)::::::@@Simple DirectMedia Layer Mixer'" >>$^@
 !else
-  @%append $@ OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@Simple DirectMedia Layer truetype font loading library'
+  @%append $@ OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@Simple DirectMedia Layer Mixer'
 !endif
   @%append $@ LIBPATH $(LIBPATH)
   @for %i in ($(LIBS)) do @%append $@ LIB %i

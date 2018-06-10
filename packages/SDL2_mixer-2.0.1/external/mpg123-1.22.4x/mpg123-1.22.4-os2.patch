@@ -1,0 +1,213 @@
+Only in mpg123-1.22.4-edit/src/libmpg123: Makefile.emx
+Only in mpg123-1.22.4-edit/src/libmpg123: Makefile.os2
+Only in mpg123-1.22.4-edit/src/libmpg123: Makefile.w32
+Only in mpg123-1.22.4-edit/src/libmpg123: OS2
+Only in mpg123-1.22.4-edit/src/libmpg123: OS2/nasm
+--- mpg123-1.22.4/src/libmpg123/compat.c
++++ mpg123-1.22.4-edit/src/libmpg123/compat.c
+@@ -12,7 +12,7 @@
+ #include "config.h"
+ #include "compat.h"
+ 
+-#ifdef _MSC_VER
++#if defined(_MSC_VER) || defined(__WATCOMC__)
+ #include <io.h>
+ #else
+ #include <fcntl.h>
+@@ -71,8 +71,10 @@
+ fallback:
+ #endif
+ 
+-#if (defined(WIN32) && !defined (__CYGWIN__)) /* MSDN says POSIX function is deprecated beginning in Visual C++ 2005 */
++#if defined(_WIN32) && !defined(__CYGWIN__) /* MSDN says POSIX function is deprecated beginning in Visual C++ 2005 */
+ 	ret = _open(filename, flags); /* Try plain old _open(), if it fails, do nothing */
++#elif defined(__WATCOMC__)
++	ret = open(filename, flags);
+ #else
+ 	/* On UNIX, we always add a default permission mask in case flags|O_CREAT. */
+ 	ret = open(filename, flags, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+--- mpg123-1.22.4/src/libmpg123/compat.h
++++ mpg123-1.22.4-edit/src/libmpg123/compat.h
+@@ -178,6 +178,11 @@
+ typedef int socklen_t;
+ #endif
+ 
++#if defined(__EMX__) && !(defined(__INNOTEK_LIBC__)||defined(__KLIBC__))
++#define strcasecmp stricmp
++#define strncasecmp strnicmp
++#endif
++
+ /* OSX SDK defines an enum with "normal" as value. That clashes with
+    optimize.h */
+ #ifdef __APPLE__
+--- mpg123-1.22.4/src/libmpg123/mpg123lib_intern.h
++++ mpg123-1.22.4-edit/src/libmpg123/mpg123lib_intern.h
+@@ -19,7 +19,7 @@
+ #include "abi_align.h"
+ 
+ /* export DLL symbols */
+-#if defined(WIN32) && defined(DYNAMIC_BUILD)
++#if (defined(_WIN32) || defined(__OS2__)) && defined(DYNAMIC_BUILD)
+ #define BUILD_MPG123_DLL
+ #endif
+ #include "compat.h"
+@@ -317,5 +317,8 @@
+ /* Does not work with win32 */
+ #define TIMEOUT_READ
+ #endif
++#if defined(__OS2__) && !defined(__EMX__)
++#undef  TIMEOUT_READ
++#endif
+ 
+ #endif
+--- mpg123-1.22.4/src/libmpg123/readers.c	2015-08-12 08:33:47.000000000 +0300
++++ mpg123-1.22.4-edit/src/libmpg123/readers.c	2017-12-03 15:36:09.000000000 +0300
+@@ -19,7 +19,7 @@
+ #ifdef HAVE_SYS_TIME_H
+ #include <sys/time.h>
+ #endif
+-#ifdef _MSC_VER
++#if defined(_MSC_VER) || defined(__WATCOMC__)
+ #include <io.h>
+ #endif
+ 
+--- mpg123-1.22.4/src/libmpg123/dct36_sse.S
++++ mpg123-1.22.4-edit/src/libmpg123/dct36_sse.S
+@@ -19,7 +19,7 @@
+ 	void dct36_sse(real *inbuf,real *o1,real *o2,real *wintab,real *tsbuf);
+ */
+ 	
+-#ifndef __APPLE__
++#if !defined(__APPLE__) && !defined(__EMX__)
+ 	.section	.rodata
+ #else
+ 	.data
+--- mpg123-1.22.4/src/libmpg123/dct64_sse_float.S
++++ mpg123-1.22.4-edit/src/libmpg123/dct64_sse_float.S
+@@ -16,7 +16,7 @@
+ 	void dct64_real_sse(real *out0, real *out1, real *samples);
+ */
+ 
+-#ifndef __APPLE__
++#if !defined(__APPLE__) && !defined(__EMX__)
+ 	.section	.rodata
+ #else
+ 	.data
+--- mpg123-1.22.4/src/libmpg123/dct64_sse.S
++++ mpg123-1.22.4-edit/src/libmpg123/dct64_sse.S
+@@ -16,7 +16,7 @@
+ 	void dct64_sse(short *out0, short *out1, real *samples);
+ */
+ 
+-#ifndef __APPLE__
++#if !defined(__APPLE__) && !defined(__EMX__)
+ 	.section	.rodata
+ #else
+ 	.data
+--- mpg123-1.22.4/src/libmpg123/synth_3dnow.S
++++ mpg123-1.22.4-edit/src/libmpg123/synth_3dnow.S
+@@ -34,7 +34,7 @@
+ #include "mangle.h"
+ 
+ #ifdef ACCURATE_ROUNDING
+-#ifndef __APPLE__
++#if !defined(__APPLE__) && !defined(__EMX__)
+ 	.section	.rodata
+ #else
+ 	.data
+--- mpg123-1.22.4/src/libmpg123/synth_i586_dither.S
++++ mpg123-1.22.4-edit/src/libmpg123/synth_i586_dither.S
+@@ -13,9 +13,10 @@
+ 
+ #include "mangle.h"
+ 
+-.data
+-#ifndef __APPLE__
++#if !defined(__APPLE__) && !defined(__EMX__)
+ 		.section	.rodata
++#else
++.data
+ #endif
+ 	ALIGN8
+ .LC0:
+--- mpg123-1.22.4/src/libmpg123/synth_i586.S
++++ mpg123-1.22.4-edit/src/libmpg123/synth_i586.S
+@@ -32,9 +32,10 @@
+ 
+ #include "mangle.h"
+ 
+-.data
+-#ifndef __APPLE__
++#if !defined(__APPLE__) && !defined(__EMX__)
+ .section .rodata
++#else
++.data
+ #endif
+ 	ALIGN8
+ .LC0:
+--- mpg123-1.22.4/src/libmpg123/synth_sse_accurate.S
++++ mpg123-1.22.4-edit/src/libmpg123/synth_sse_accurate.S
+@@ -22,7 +22,7 @@
+ 	return value: number of clipped samples
+ */
+ 
+-#ifndef __APPLE__
++#if !defined(__APPLE__) && !defined(__EMX__)
+ 	.section	.rodata
+ #else
+ 	.data
+--- mpg123-1.22.4/src/libmpg123/synth_sse_float.S
++++ mpg123-1.22.4-edit/src/libmpg123/synth_sse_float.S
+@@ -20,7 +20,7 @@
+ 	return value: number of clipped samples (0)
+ */
+ 
+-#ifndef __APPLE__
++#if !defined(__APPLE__) && !defined(__EMX__)
+ 	.section	.rodata
+ #else
+ 	.data
+--- mpg123-1.22.4/src/libmpg123/synth_sse_s32.S
++++ mpg123-1.22.4-edit/src/libmpg123/synth_sse_s32.S
+@@ -22,7 +22,7 @@
+ 	return value: number of clipped samples
+ */
+ 
+-#ifndef __APPLE__
++#if !defined(__APPLE__) && !defined(__EMX__)
+ 	.section	.rodata
+ #else
+ 	.data
+--- mpg123-1.22.4/src/libmpg123/synth_stereo_sse_accurate.S
++++ mpg123-1.22.4-edit/src/libmpg123/synth_stereo_sse_accurate.S
+@@ -25,7 +25,7 @@
+ 	return value: number of clipped samples
+ */
+ 
+-#ifndef __APPLE__
++#if !defined(__APPLE__) && !defined(__EMX__)
+ 	.section	.rodata
+ #else
+ 	.data
+--- mpg123-1.22.4/src/libmpg123/synth_stereo_sse_float.S
++++ mpg123-1.22.4-edit/src/libmpg123/synth_stereo_sse_float.S
+@@ -24,7 +24,7 @@
+ 	return value: number of clipped samples (0)
+ */
+ 
+-#ifndef __APPLE__
++#if !defined(__APPLE__) && !defined(__EMX__)
+ 	.section	.rodata
+ #else
+ 	.data
+--- mpg123-1.22.4/src/libmpg123/synth_stereo_sse_s32.S
++++ mpg123-1.22.4-edit/src/libmpg123/synth_stereo_sse_s32.S
+@@ -25,7 +25,7 @@
+ 	return value: number of clipped samples
+ */
+ 
+-#ifndef __APPLE__
++#if !defined(__APPLE__) && !defined(__EMX__)
+ 	.section	.rodata
+ #else
+ 	.data

@@ -19,27 +19,9 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifdef MP3_MUSIC
-#include "smpeg.h"
+#if defined(MP3_MPG_MUSIC)
 
-typedef struct {
-    int loaded;
-    void *handle;
-    void (*SMPEG_actualSpec)( SMPEG *mpeg, SDL_AudioSpec *spec );
-    void (*SMPEG_delete)( SMPEG* mpeg );
-    void (*SMPEG_enableaudio)( SMPEG* mpeg, int enable );
-    void (*SMPEG_enablevideo)( SMPEG* mpeg, int enable );
-    SMPEG* (*SMPEG_new_rwops)(SDL_RWops *src, SMPEG_Info* info, int freesrc, int sdl_audio);
-    void (*SMPEG_play)( SMPEG* mpeg );
-    int (*SMPEG_playAudio)( SMPEG *mpeg, Uint8 *stream, int len );
-    void (*SMPEG_rewind)( SMPEG* mpeg );
-    void (*SMPEG_setvolume)( SMPEG* mpeg, int volume );
-    void (*SMPEG_skip)( SMPEG* mpeg, float seconds );
-    SMPEGstatus (*SMPEG_status)( SMPEG* mpeg );
-    void (*SMPEG_stop)( SMPEG* mpeg );
-} smpeg_loader;
-
-extern smpeg_loader smpeg;
+#include "mpg123.h"
 
 #endif /* MUSIC_MP3 */
 
