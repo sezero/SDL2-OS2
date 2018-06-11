@@ -1,0 +1,75 @@
+LIBNAME = SDL2img
+VERSION = 2.0.1
+INCPATH = ../../h
+LIBPATH = ../../lib
+
+TITLENAME = $(LIBNAME) $(VERSION)
+
+LIBFILE = $(LIBNAME).lib
+DLLFILE = $(LIBNAME).dll
+LNKFILE = $(LIBNAME).lnk
+
+SRCS = IMG.c IMG_bmp.c IMG_gif.c IMG_jpg.c IMG_lbm.c IMG_pcx.c IMG_png.c &
+       IMG_pnm.c IMG_tga.c IMG_tif.c IMG_xcf.c IMG_xpm.c IMG_xv.c IMG_webp.c
+
+LIBS = libpng.lib libtiff.lib zlib.lib jpeg.lib SDL2.lib
+
+CFLAGS = -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm -ei
+# warnings:
+CFLAGS+= -wx -wcd=202 -wcd=136
+# to build a dll:
+CFLAGS+= -bd
+# for DECLSPEC:
+CFLAGS+= -DBUILD_SDL
+# include paths:
+CFLAGS+= -I$(INCPATH) -I$(INCPATH)/SDL2
+
+# wanted formats:
+CFLAGS+= -DLOAD_JPG -DLOAD_PNG -DLOAD_BMP -DLOAD_GIF -DLOAD_LBM &
+         -DLOAD_PCX -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF -DLOAD_XPM &
+         -DLOAD_XV -DLOAD_XXX -DLOAD_TIF
+
+
+.extensions:
+.extensions: .lib .dll .obj .c
+
+OBJS = $(SRCS:.c=.obj)
+
+$(LIBFILE): $(DLLFILE)
+  @echo * Create library: $@...
+  wlib -b -n -q -c -pa -s -t -zld -ii -io $@ $(DLLFILE)
+
+$(DLLFILE): $(OBJS) $(LNKFILE)
+  @echo * Link: $@
+  wlink @$(LNKFILE)
+
+$(LNKFILE):
+  @%create $@
+  @%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
+  @%append $@ NAME $(LIBNAME)
+  @for %i in ($(OBJS)) do @%append $@ FILE %i
+  @%append $@ OPTION QUIET
+!ifdef %osdir
+  @$(%osdir)\KLIBC\BIN\date +"OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@$#$#1$#$# %F               $(%HOSTNAME)::::::@@Simple DirectMedia Layer Image Library'" >>$^@
+!else
+  @%append $@ OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@Simple DirectMedia Layer Image Library'
+!endif
+  @%append $@ LIBPATH $(LIBPATH)
+  @for %i in ($(LIBS)) do @%append $@ LIB %i
+  @%append $@ OPTION MAP=$*
+  @%append $@ OPTION ELIMINATE
+  @%append $@ OPTION MANYAUTODATA
+  @%append $@ OPTION OSNAME='OS/2 and eComStation'
+  @%append $@ OPTION SHOWDEAD
+
+.c.obj:
+  wcc386 $(CFLAGS) -fo=$^@ $<
+
+clean: .SYMBOLIC
+  @echo * Clean: $(TITLENAME)
+  @if exist *.obj rm *.obj
+  @if exist *.err rm *.err
+  @if exist *.map rm *.map
+  @if exist $(LNKFILE) rm $(LNKFILE)
+  @if exist $(DLLFILE) rm $(DLLFILE)
+  @if exist $(LIBFILE) rm $(LIBFILE)
