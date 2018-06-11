@@ -1,14 +1,12 @@
-LIBNAME = sdl2ttf
+LIBNAME = SDL2ttf
 VERSION = 2.0.14
-INCPATH = ..\..\h;..\..\h\SDL2
-LIBPATH = ..\..\lib
-DLLPATH = ..\..\dll
+INCPATH = ../../h
+LIBPATH = ../../lib
 
 TITLENAME = $(LIBNAME) $(VERSION)
-INCPATH = $(%WATCOM)\H\os2;$(%WATCOM)\H;$(INCPATH);
 
-LIBFILE = $(LIBPATH)\$(LIBNAME).lib
-DLLFILE = ..\..\dll\$(LIBNAME).dll
+LIBFILE = $(LIBNAME).lib
+DLLFILE = $(LIBNAME).dll
 LNKFILE = $(LIBNAME).lnk
 
 SRCS = SDL_ttf.c
@@ -17,21 +15,26 @@ OBJS = $(SRCS:.c=.obj)
 
 LIBS = freetype.lib SDL2.lib
 
-CFLAGS = -i=$(INCPATH) -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
-CFLAGS+= -bd -j -DBUILD_SDL
+CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei -j
+# to build a dll:
+CFLAGS+= -bd
+# for DECLSPEC:
+CFLAGS+= -DBUILD_SDL
+# include paths:
+CFLAGS+= -I$(INCPATH) -I$(INCPATH)/SDL2
 
 $(LIBFILE): $(DLLFILE)
   @echo * Create library: $@...
-  @wlib -b -n -q $@ $(DLLFILE)
+  wlib -b -n -q -c -pa -s -t -zld -ii -io $@ $(DLLFILE)
 
 $(DLLFILE): $(OBJS) $(LNKFILE)
   @echo * Link: $@
-  @wlink @$(LNKFILE)
+  wlink @$(LNKFILE)
 
 $(LNKFILE):
   @%create $@
   @%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
-  @%append $@ NAME $(DLLPATH)\$(LIBNAME)
+  @%append $@ NAME $(LIBNAME)
   @for %i in ($(OBJS)) do @%append $@ FILE %i
   @%append $@ OPTION QUIET
 !ifdef %osdir
@@ -48,13 +51,13 @@ $(LNKFILE):
   @%append $@ OPTION SHOWDEAD
 
 .c.obj:
-  @wcc386 $(CFLAGS) $<
+  wcc386 $(CFLAGS) -fo=$^@ $<
 
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
-  @if exist *.obj @del *.obj
-  @if exist *.err @del *.err
-  @if exist *.map @del *.map
-  @if exist $(LNKFILE) @del $(LNKFILE)
-  @if exist $(DLLFILE) @del $(DLLFILE)
-  @if exist $(LIBFILE) @del $(LIBFILE)
+  @if exist *.obj rm *.obj
+  @if exist *.err rm *.err
+  @if exist *.map rm *.map
+  @if exist $(LNKFILE) rm $(LNKFILE)
+  @if exist $(DLLFILE) rm $(DLLFILE)
+  @if exist $(LIBFILE) rm $(LIBFILE)
