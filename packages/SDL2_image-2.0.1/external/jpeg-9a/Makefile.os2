@@ -1,13 +1,9 @@
 LIBNAME = jpeg
 VERSION = 9a
-INCPATH = ..\..\h
-LIBPATH = ..\..\lib
-EXEPATH = ..\..\exe
 
 TITLENAME = $(LIBNAME) $(VERSION)
-INCPATH = $(%WATCOM)\H\os2;$(%WATCOM)\H;$(INCPATH);$(INCPATH)
 
-LIBFILE = $(LIBPATH)\$(LIBNAME).lib
+LIBFILE = $(LIBNAME).lib
 
 SRCS = jaricom.c jcapimin.c jcapistd.c jcarith.c jccoefct.c jccolor.c &
        jcdctmgr.c jchuff.c jcinit.c jcmainct.c jcmarker.c jcmaster.c &
@@ -29,30 +25,30 @@ TROBJECTS= jpegtran.obj rdswitch.obj cdjpeg.obj transupp.obj
 # Added switch -ei for compatibility with SDL: 
 # Function like jpeg_CreateDecompress() check the size of given structure that
 # must be same at compile time and at runtime.
-CFLAGS = -i=$(INCPATH) -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm -wx -wcd=136
+CFLAGS = -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm -wx -wcd=136
 
 
-all: $(LIBFILE) $(EXEPATH)\cjpeg.exe $(EXEPATH)\djpeg.exe
+all: $(LIBFILE) cjpeg.exe djpeg.exe
 
 $(LIBFILE): $(OBJS)
   @echo * Create library: $(LIBFILE)...
-  @for %f in ($(OBJS)) do @wlib -b -q $* +%f >nul
+  wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJS)
 
-$(EXEPATH)\cjpeg.exe: $(COBJECTS) $(LIBFILE_STATIC)
+cjpeg.exe: $(COBJECTS) $(LIBFILE_STATIC)
   @echo * Link: $@
-  @wlink SYS os2v2 libpath $(LIBPATH) lib {$(LIBFILE)} op q op el file {$(OBJS:.obj=) $(COBJECTS:.obj=)} name $*
+  wlink SYS os2v2 LIBR {$(LIBFILE)} op q op el F {$(COBJECTS)} N $*
 
-$(EXEPATH)\djpeg.exe: $(DOBJECTS) $(LIBFILE)
+djpeg.exe: $(DOBJECTS) $(LIBFILE)
   @echo * Link: $@
-  @wlink SYS os2v2 libpath $(LIBPATH) lib {$(LIBFILE)} op q op el file {$(OBJS:.obj=) $(DOBJECTS:.obj=)} name $*
+  wlink SYS os2v2 LIBR {$(LIBFILE)} op q op el F {$(DOBJECTS)} N $*
 
 .c.obj:
-  @wcc386 $(CFLAGS) $<
+  wcc386 $(CFLAGS) -fo=$^@ $<
 
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
-  @if exist *.obj @del *.obj
-  @if exist *.err @del *.err
-  @if exist $(LIBFILE) @del $(LIBFILE)
-  @if exist $(EXEPATH)\cjpeg.exe @del $(EXEPATH)\cjpeg.exe
-  @if exist $(EXEPATH)\djpeg.exe @del $(EXEPATH)\djpeg.exe
+  @if exist *.obj rm *.obj
+  @if exist *.err rm *.err
+  @if exist $(LIBFILE) rm $(LIBFILE)
+  @if exist cjpeg.exe rm cjpeg.exe
+  @if exist djpeg.exe rm djpeg.exe
