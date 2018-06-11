@@ -1,13 +1,9 @@
 LIBNAME = libtiff
 VERSION = 4.0.3
-INCPATH = ..\..\h
-LIBPATH = ..\..\lib
-EXEPATH = ..\..\exe
 
 TITLENAME = $(LIBNAME) $(VERSION)
-INCPATH = $(%WATCOM)\H\os2;$(%WATCOM)\H;$(INCPATH);$(INCPATH)
 
-LIBFILE = $(LIBPATH)\$(LIBNAME).lib
+LIBFILE = $(LIBNAME).lib
 
 SRCS = tif_aux.c tif_close.c tif_codec.c tif_color.c tif_compress.c tif_dir.c &
        tif_dirinfo.c tif_dirread.c tif_dirwrite.c tif_dumpmode.c tif_error.c &
@@ -20,22 +16,22 @@ SRCS = tif_aux.c tif_close.c tif_codec.c tif_color.c tif_compress.c tif_dir.c &
 
 OBJS = $(SRCS:.c=.obj)
 
-CFLAGS = -i=$(INCPATH) -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier
+CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier
 
-.c: .\libtiff
+.c: libtiff
 
 $(LIBFILE): $(OBJS)
   @echo * Create library: $@...
-  @for %f in ($(OBJS)) do @wlib -b -q $* +%f >nul
+  wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJS)
 
 tif_read.obj: tif_read.c
-  @wcc386 $(CFLAGS) -wcd=136 $<
+  wcc386 $(CFLAGS) -wcd=136 -fo=$^@ $<
 
 .c.obj:
-  @wcc386 $(CFLAGS) $<
+  wcc386 $(CFLAGS) -fo=$^@ $<
 
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
-  @if exist *.obj @del *.obj
-  @if exist *.err @del *.err
-  @if exist $(LIBFILE) @del $(LIBFILE)
+  @if exist *.obj rm *.obj
+  @if exist *.err rm *.err
+  @if exist $(LIBFILE) rm $(LIBFILE)
