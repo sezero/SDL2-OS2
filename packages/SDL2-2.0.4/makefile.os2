@@ -5,7 +5,7 @@
 #
 
 LIBNAME = SDL2
-VERSION = 2.0.4
+VERSION = 2.0.4a
 DESCRIPTION = Simple DirectMedia Layer 2
 DESCRIPTION+= (OS/2 port by Andrey Vasilkin)
 

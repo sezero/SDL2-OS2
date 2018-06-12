@@ -1,5 +1,5 @@
 LIBNAME = SDL2ttf
-VERSION = 2.0.14
+VERSION = 2.0.14a
 INCPATH = ../../h
 LIBPATH = ../../lib
 
@@ -38,9 +38,9 @@ $(LNKFILE):
   @for %i in ($(OBJS)) do @%append $@ FILE %i
   @%append $@ OPTION QUIET
 !ifdef %osdir
-  @$(%osdir)\KLIBC\BIN\date +"OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@$#$#1$#$# %F               $(%HOSTNAME)::::::@@Simple DirectMedia Layer truetype font loading library'" >>$^@
+  @$(%osdir)\KLIBC\BIN\date +"OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@$#$#1$#$# %F               $(%HOSTNAME)::::::@@Simple DirectMedia Layer truetype font library'" >>$^@
 !else
-  @%append $@ OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@Simple DirectMedia Layer truetype font loading library'
+  @%append $@ OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@Simple DirectMedia Layer truetype font library'
 !endif
   @%append $@ LIBPATH $(LIBPATH)
   @for %i in ($(LIBS)) do @%append $@ LIB %i
