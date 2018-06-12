@@ -1,0 +1,63 @@
+LIBNAME = SDL2net
+VERSION = 2.0.1a
+INCPATH = ../../h
+LIBPATH = ../../lib
+
+TITLENAME = $(LIBNAME) $(VERSION)
+
+LIBFILE = $(LIBNAME).lib
+DLLFILE = $(LIBNAME).dll
+LNKFILE = $(LIBNAME).lnk
+
+SRCS = SDLnetTCP.c SDLnetUDP.c SDLnetselect.c SDLnet.c
+
+OBJS = $(SRCS:.c=.obj)
+
+LIBS = SDL2.lib
+
+CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei -j
+# to build a dll:
+CFLAGS+= -bd
+# for DECLSPEC:
+CFLAGS+= -DBUILD_SDL
+# include paths:
+CFLAGS+= -I$(INCPATH)/SDL2
+
+$(LIBFILE): $(DLLFILE)
+  @echo * Create library: $@...
+  wlib -b -n -q -c -pa -s -t -zld -ii -io $@ $(DLLFILE)
+
+$(DLLFILE): $(OBJS) $(LNKFILE)
+  @echo * Link: $@
+  wlink @$(LNKFILE)
+
+$(LNKFILE):
+  @%create $@
+  @%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
+  @%append $@ NAME $(LIBNAME)
+  @for %i in ($(OBJS)) do @%append $@ FILE %i
+  @%append $@ OPTION QUIET
+!ifdef %osdir
+  @$(%osdir)\KLIBC\BIN\date +"OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@$#$#1$#$# %F               $(%HOSTNAME)::::::@@Simple DirectMedia Layer network library'" >>$^@
+!else
+  @%append $@ OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@Simple DirectMedia Layer network library'
+!endif
+  @%append $@ LIBPATH $(LIBPATH)
+  @for %i in ($(LIBS)) do @%append $@ LIB %i
+  @%append $@ OPTION MAP=$*
+  @%append $@ OPTION ELIMINATE
+  @%append $@ OPTION MANYAUTODATA
+  @%append $@ OPTION OSNAME='OS/2 and eComStation'
+  @%append $@ OPTION SHOWDEAD
+
+.c.obj:
+  wcc386 $(CFLAGS) -fo=$^@ $<
+
+clean: .SYMBOLIC
+  @echo * Clean: $(TITLENAME)
+  @if exist *.obj rm *.obj
+  @if exist *.err rm *.err
+  @if exist *.map rm *.map
+  @if exist $(LNKFILE) rm $(LNKFILE)
+  @if exist $(DLLFILE) rm $(DLLFILE)
+  @if exist $(LIBFILE) rm $(LIBFILE)
