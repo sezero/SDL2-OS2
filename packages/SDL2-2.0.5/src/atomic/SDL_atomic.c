@@ -27,6 +27,31 @@
 #define HAVE_MSC_ATOMICS 1
 #endif
 
+#if defined(__WATCOMC__) && defined(__386__)
+#define HAVE_WATCOM_ATOMICS
+extern _inline int _SDL_xchg_watcom(volatile int *a, int v);
+#pragma aux _SDL_xchg_watcom = \
+  "xchg [ecx], eax" \
+  parm [ecx] [eax] \
+  value [eax] \
+  modify exact [eax];
+
+extern _inline unsigned char _SDL_cmpxchg_watcom(volatile int *a, int newval, int oldval);
+#pragma aux _SDL_cmpxchg_watcom = \
+  "lock cmpxchg [edx], ecx" \
+  "setz al" \
+  parm [edx] [ecx] [eax] \
+  value [al] \
+  modify exact [eax];
+
+extern _inline int _SDL_xadd_watcom(volatile int *a, int v);
+#pragma aux _SDL_xadd_watcom = \
+  "lock xadd [ecx], eax" \
+  parm [ecx] [eax] \
+  value [eax] \
+  modify exact [eax];
+#endif /* __WATCOMC__ && __386__ */
+
 #if defined(__MACOSX__)  /* !!! FIXME: should we favor gcc atomics? */
 #include <libkern/OSAtomic.h>
 #endif
@@ -58,7 +83,7 @@
   Contributed by Bob Pendleton, bob@pendleton.com
 */
 
-#if !defined(HAVE_MSC_ATOMICS) && !defined(HAVE_GCC_ATOMICS) && !defined(__MACOSX__) && !defined(__SOLARIS__)
+#if !defined(HAVE_MSC_ATOMICS) && !defined(HAVE_GCC_ATOMICS) && !defined(__MACOSX__) && !defined(__SOLARIS__) && !defined(HAVE_WATCOM_ATOMICS)
 #define EMULATE_CAS 1
 #endif
 
@@ -90,6 +115,8 @@ SDL_AtomicCAS(SDL_atomic_t *a, int oldval, int newval)
     return (_InterlockedCompareExchange((long*)&a->value, (long)newval, (long)oldval) == (long)oldval);
 #elif defined(__MACOSX__)  /* !!! FIXME: should we favor gcc atomics? */
     return (SDL_bool) OSAtomicCompareAndSwap32Barrier(oldval, newval, &a->value);
+#elif defined(HAVE_WATCOM_ATOMICS)
+    return (SDL_bool) _SDL_cmpxchg_watcom(&a->value, newval, oldval);
 #elif defined(HAVE_GCC_ATOMICS)
     return (SDL_bool) __sync_bool_compare_and_swap(&a->value, oldval, newval);
 #elif defined(__SOLARIS__) && defined(_LP64)
@@ -123,6 +150,8 @@ SDL_AtomicCASPtr(void **a, void *oldval, void *newval)
     return (SDL_bool) OSAtomicCompareAndSwap64Barrier((int64_t)oldval, (int64_t)newval, (int64_t*) a);
 #elif defined(__MACOSX__) && !defined(__LP64__)  /* !!! FIXME: should we favor gcc atomics? */
     return (SDL_bool) OSAtomicCompareAndSwap32Barrier((int32_t)oldval, (int32_t)newval, (int32_t*) a);
+#elif defined(HAVE_WATCOM_ATOMICS)
+    return (SDL_bool) _SDL_cmpxchg_watcom((int *)a, (long)newval, (long)oldval);
 #elif defined(HAVE_GCC_ATOMICS)
     return __sync_bool_compare_and_swap(a, oldval, newval);
 #elif defined(__SOLARIS__)
@@ -148,6 +177,8 @@ SDL_AtomicSet(SDL_atomic_t *a, int v)
 {
 #ifdef HAVE_MSC_ATOMICS
     return _InterlockedExchange((long*)&a->value, v);
+#elif defined(HAVE_WATCOM_ATOMICS)
+    return _SDL_xchg_watcom(&a->value, v);
 #elif defined(HAVE_GCC_ATOMICS)
     return __sync_lock_test_and_set(&a->value, v);
 #elif defined(__SOLARIS__) && defined(_LP64)
@@ -170,6 +201,8 @@ SDL_AtomicSetPtr(void **a, void *v)
     return (void *) _InterlockedExchange((long *)a, (long) v);
 #elif defined(HAVE_MSC_ATOMICS) && (!_M_IX86)
     return _InterlockedExchangePointer(a, v);
+#elif defined(HAVE_WATCOM_ATOMICS)
+    return (void *) _SDL_xchg_watcom((int *)a, (long)v);
 #elif defined(HAVE_GCC_ATOMICS)
     return __sync_lock_test_and_set(a, v);
 #elif defined(__SOLARIS__)
@@ -188,6 +221,8 @@ SDL_AtomicAdd(SDL_atomic_t *a, int v)
 {
 #ifdef HAVE_MSC_ATOMICS
     return _InterlockedExchangeAdd((long*)&a->value, v);
+#elif defined(HAVE_WATCOM_ATOMICS)
+    return _SDL_xadd_watcom(&a->value, v);
 #elif defined(HAVE_GCC_ATOMICS)
     return __sync_fetch_and_add(&a->value, v);
 #elif defined(__SOLARIS__)

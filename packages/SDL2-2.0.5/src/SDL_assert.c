@@ -44,7 +44,7 @@
 #endif
 #endif
 
-static SDL_assert_state
+static SDL_assert_state SDLCALL
 SDL_PromptAssertion(const SDL_assert_data *data, void *userdata);
 
 /*
@@ -111,6 +111,9 @@ static void SDL_GenerateAssertionReport(void)
     }
 }
 
+#if defined(__WATCOMC__)
+#pragma aux SDL_ExitProcess aborts;
+#endif
 static void SDL_ExitProcess(int exitcode)
 {
 #ifdef __WIN32__
@@ -120,6 +123,9 @@ static void SDL_ExitProcess(int exitcode)
 #endif
 }
 
+#if defined(__WATCOMC__)
+#pragma aux SDL_AbortAssertion aborts;
+#endif
 static void SDL_AbortAssertion(void)
 {
     SDL_Quit();
@@ -127,7 +133,7 @@ static void SDL_AbortAssertion(void)
 }
 
 
-static SDL_assert_state
+static SDL_assert_state SDLCALL
 SDL_PromptAssertion(const SDL_assert_data *data, void *userdata)
 {
 #ifdef __WIN32__

@@ -260,7 +260,7 @@ FcitxClientICCallMethod(FcitxClient *client,
     dbus->message_unref(msg);
 }
 
-static void
+static void SDLCALL
 Fcitx_SetCapabilities(void *data,
         const char *name,
         const char *old_val,
@@ -350,7 +350,7 @@ FcitxClientCreateIC(FcitxClient *client)
                 NULL);
         dbus->connection_flush(dbus->session_conn);
 
-        SDL_AddHintCallback(SDL_HINT_IME_INTERNAL_EDITING, &Fcitx_SetCapabilities, client);
+        SDL_AddHintCallback(SDL_HINT_IME_INTERNAL_EDITING, Fcitx_SetCapabilities, client);
     }
     while (0);
 
