@@ -23,6 +23,12 @@
 #if defined(__WIN32__)
 #include "core/windows/SDL_windows.h"
 #endif
+#if defined(__OS2__)
+#include "core/os2/SDL_os2.h"
+#endif
+#if SDL_THREAD_OS2
+#include "thread/os2/SDL_systls_c.h"
+#endif
 
 /* Initialization code for SDL */
 
@@ -124,6 +130,10 @@ SDL_InitSubSystem(Uint32 flags)
         /* video or joystick implies events */
         flags |= SDL_INIT_EVENTS;
     }
+
+#if SDL_THREAD_OS2
+    SDL_OS2TLSAlloc(); /* thread/os2/SDL_systls.c */
+#endif
 
 #if SDL_VIDEO_DRIVER_WINDOWS
 	if ((flags & (SDL_INIT_HAPTIC|SDL_INIT_JOYSTICK))) {
@@ -248,6 +258,13 @@ void
 SDL_QuitSubSystem(Uint32 flags)
 {
     /* Shut down requested initialized subsystems */
+#if SDL_THREAD_OS2
+    SDL_OS2TLSFree(); /* thread/os2/SDL_systls.c */
+#endif
+#ifdef __OS2__
+    SDL_OS2Quit();
+#endif
+
 #if !SDL_JOYSTICK_DISABLED
     if ((flags & SDL_INIT_GAMECONTROLLER)) {
         /* game controller implies joystick */

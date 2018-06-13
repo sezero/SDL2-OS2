@@ -40,6 +40,7 @@ SDL_bool SDL_GetPowerInfo_Android(SDL_PowerState *, int *, int *);
 SDL_bool SDL_GetPowerInfo_PSP(SDL_PowerState *, int *, int *);
 SDL_bool SDL_GetPowerInfo_WinRT(SDL_PowerState *, int *, int *);
 SDL_bool SDL_GetPowerInfo_Emscripten(SDL_PowerState *, int *, int *);
+SDL_bool SDL_GetPowerInfo_OS2(SDL_PowerState *, int *, int *);
 
 #ifndef SDL_POWER_DISABLED
 #ifdef SDL_POWER_HARDWIRED
@@ -86,6 +87,9 @@ static SDL_GetPowerInfo_Impl implementations[] = {
 #endif
 #ifdef SDL_POWER_EMSCRIPTEN     /* handles Emscripten */
     SDL_GetPowerInfo_Emscripten,
+#endif
+#ifdef SDL_POWER_OS2     /* handles OS/2 */
+    SDL_GetPowerInfo_OS2,
 #endif
 
 #ifdef SDL_POWER_HARDWIRED
