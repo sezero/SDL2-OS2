@@ -33,25 +33,18 @@ SRCS = dynamic_flac.c dynamic_fluidsynth.c dynamic_mod.c dynamic_modplug.c &
        load_ogg.c load_voc.c mixer.c music.c music_cmd.c music_flac.c &
        music_mpg.c music_mad.c music_mod.c music_modplug.c music_ogg.c wavestream.c
 
-# playwave.c playmus.c
-
 OBJS = $(SRCS:.c=.obj)
-
-!ifeq USE_TREMOR yes
-VORBIS_LIBS=vorbisidec.lib
-!else
-VORBIS_LIBS=vorbisfile.lib vorbis.lib
-!endif
 
 LIBS = SDL2.lib
 
-CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei -j
+CFLAGS_BASE = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei -j
+# include paths:
+CFLAGS_BASE+= -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h -I. -I$(INCPATH) -I$(INCPATH)/SDL2
+CFLAGS = $(CFLAGS_BASE)
 # to build a dll:
 CFLAGS+= -bd
 # for DECLSPEC:
 CFLAGS+= -DBUILD_SDL
-# include paths:
-CFLAGS+= -I. -I$(INCPATH) -I$(INCPATH)/SDL2
 
 !ifeq USE_MIDI yes
 CFLAGS+= -DMID_MUSIC -DUSE_TIMIDITY_MIDI
@@ -59,6 +52,11 @@ LIBS+= $(LIBTIMI)
 !endif
 !ifeq USE_WAV yes
 CFLAGS+= -DWAV_MUSIC
+!endif
+!ifeq USE_TREMOR yes
+VORBIS_LIBS=vorbisidec.lib
+!else
+VORBIS_LIBS=vorbisfile.lib vorbis.lib
 !endif
 !ifeq USE_OGG yes
 CFLAGS+= -DOGG_MUSIC
@@ -84,6 +82,8 @@ LIBS+= mpg123.lib
 CFLAGS+= -DMOD_MUSIC
 LIBS+= mikmod.lib
 !endif
+
+all: $(DLLFILE) playwave.exe playmus.exe
 
 $(LIBFILE): $(DLLFILE)
   @echo * Create library: $@...
@@ -118,11 +118,24 @@ $(LNKFILE):
 .c.obj:
   wcc386 $(CFLAGS) -fo=$^@ $<
 
+playmus.obj: playmus.c
+  wcc386 $(CFLAGS_BASE) -fo=$^@ $<
+
+playwave.obj: playwave.c
+  wcc386 $(CFLAGS_BASE) -fo=$^@ $<
+
+playmus.exe: $(LIBFILE) playmus.obj
+  wlink SYS os2v2 LIBPATH $(LIBPATH) LIBR {SDL2mix.lib SDL2.lib} F {playmus.obj}  N playmus.exe
+
+playwave.exe: $(LIBFILE) playwave.obj
+  wlink SYS os2v2 LIBPATH $(LIBPATH) LIBR {SDL2mix.lib SDL2.lib} F {playwave.obj} N playwave.exe
+
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
   @if exist *.obj rm *.obj
   @if exist *.err rm *.err
   @if exist *.map rm *.map
+  @if exist *.exe rm *.exe
   @if exist $(LNKFILE) rm $(LNKFILE)
   @if exist $(DLLFILE) rm $(DLLFILE)
   @if exist $(LIBFILE) rm $(LIBFILE)

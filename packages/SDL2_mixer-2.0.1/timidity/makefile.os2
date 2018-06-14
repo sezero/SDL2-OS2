@@ -10,7 +10,7 @@ CFLAGS+= -5s
 # for SDL DECLSPEC:
 CFLAGS+= -DBUILD_SDL
 # include paths:
-CFLAGS+= -I. -I$(INCPATH)/SDL2
+CFLAGS+= -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h -I. -I$(INCPATH)/SDL2
 
 all: timidity.lib
 

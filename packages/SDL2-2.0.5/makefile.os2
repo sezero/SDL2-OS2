@@ -59,8 +59,14 @@ PMGRE_EXP = $(LIBPATH)/pmgre.exp
 LIBS = mmpm2.lib libuls.lib libconv.lib
 # $(PMGRE_LIB)
 
-CFLAGS = -bt=os2 $(INCPATH) -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier
-CFLAGS+= -bd -wx -ei
+CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
+# max warnings:
+CFLAGS+= -wx
+# buildirg dll:
+CFLAGS+= -bd
+# include paths:
+CFLAGS+= $(INCPATH)
+# building SDL itself:
 CFLAGS+= -DBUILD_SDL
 
 # Debug options:

@@ -21,7 +21,7 @@ CFLAGS+= -bd
 # for DECLSPEC:
 CFLAGS+= -DBUILD_SDL
 # include paths:
-CFLAGS+= -I$(INCPATH)/SDL2
+CFLAGS+= -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h -I$(INCPATH)/SDL2
 
 $(LIBFILE): $(DLLFILE)
   @echo * Create library: $@...
