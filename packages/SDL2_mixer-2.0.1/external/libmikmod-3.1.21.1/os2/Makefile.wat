@@ -1,7 +1,7 @@
 # Makefile for OS/2 using Watcom compiler.
 #
 # wmake -f Makefile.wat
-# - builds mikmod2.dll and its import lib (mikmod2.lib)
+# - builds mikmod2.dll and its import lib mikmod2.lib
 #
 # wmake -f Makefile.wat target=static
 # - builds the static library mikmod_static.lib
@@ -73,10 +73,10 @@ all: $(BLD_TARGET)
 # rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
 $(DLLNAME): $(OBJ)
 	wlink NAM $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE OPTION MANYAUTODATA LIBR {$(LIBS)} FIL {$(OBJ)} OPTION IMPF=$(EXPNAME)
-	wlib -q -b -n -inn -pa -s -t -zld -ii -io $(LIBNAME) +$(DLLNAME)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
 
 $(LIBSTATIC): $(OBJ)
-	wlib -q -b -n $@ $(OBJ)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJ)
 
 .c.obj:
 	$(COMPILE) -fo=$^@ $<
