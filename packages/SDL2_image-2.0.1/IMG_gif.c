@@ -320,7 +320,7 @@ DoExtension(SDL_RWops *src, int label)
     break;
     case 0xfe:          /* Comment Extension */
     str = "Comment Extension";
-    while (GetDataBlock(src, (unsigned char *) buf) != 0)
+    while (GetDataBlock(src, (unsigned char *) buf) > 0)
         ;
     return FALSE;
     case 0xf9:          /* Graphic Control Extension */
@@ -332,7 +332,7 @@ DoExtension(SDL_RWops *src, int label)
     if ((buf[0] & 0x1) != 0)
         Gif89.transparent = buf[3];
 
-    while (GetDataBlock(src, (unsigned char *) buf) != 0)
+    while (GetDataBlock(src, (unsigned char *) buf) > 0)
         ;
     return FALSE;
     default:
@@ -341,7 +341,7 @@ DoExtension(SDL_RWops *src, int label)
     break;
     }
 
-    while (GetDataBlock(src, (unsigned char *) buf) != 0)
+    while (GetDataBlock(src, (unsigned char *) buf) > 0)
     ;
 
     return FALSE;
@@ -390,7 +390,7 @@ GetCode(SDL_RWops *src, int code_size, int flag)
     buf[0] = buf[last_byte - 2];
     buf[1] = buf[last_byte - 1];
 
-    if ((count = GetDataBlock(src, &buf[2])) == 0)
+    if ((count = GetDataBlock(src, &buf[2])) <= 0)
         done = TRUE;
 
     last_byte = 2 + count;
