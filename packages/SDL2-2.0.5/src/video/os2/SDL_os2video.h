@@ -34,8 +34,6 @@
 #define INCL_OS2MM
 #define INCL_DOSMEMMGR
 #include <os2.h>
-//#include <gradd.h>               // Defines FOURCC_xxxx
-
 
 #include "SDL_os2mouse.h"
 #include "SDL_os2output.h"

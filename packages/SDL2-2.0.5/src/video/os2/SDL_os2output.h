@@ -51,4 +51,4 @@ typedef struct _OS2VIDEOOUTPUT {
 extern OS2VIDEOOUTPUT voDive;
 extern OS2VIDEOOUTPUT voVMan;
 
-#endif // _SDL_os2output_
+#endif /* _SDL_os2output_ */
