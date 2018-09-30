@@ -57,6 +57,14 @@ LIBS    = SDL2.lib $(TESTLIB)
 $(TESTLIB): $(COBJS)
   wlib -q -b -n $@ $(COBJS)
 
+.obj.exe:
+  @%make $(TESTLIB)
+  wlink SYS os2v2 libpath $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
+
+.c.obj:
+  wcc386 $(CFLAGS) -wcd=107 -fo=$^@ $<
+
+# specials
 testautomation.exe: $(TAOBJS)
   @%make $(TESTLIB)
   wlink SYS os2v2 libpath $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
@@ -72,13 +80,6 @@ testoverlay2.exe: testoverlay2.obj
 testime.exe: testime.obj
   @%make $(TESTLIB)
   wlink SYS os2v2 libpath $(LIBPATH) lib {$(LIBS) $(LIBS_TTF)} op q op el file {$<} name $@
-
-.obj.exe:
-  @%make $(TESTLIB)
-  wlink SYS os2v2 libpath $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
-
-.c.obj:
-  wcc386 $(CFLAGS) -wcd=107 -fo=$^@ $<
 
 clean: .SYMBOLIC
   @echo * Clean tests in $(BINPATH)
