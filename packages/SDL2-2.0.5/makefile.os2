@@ -60,11 +60,12 @@ LIBS = mmpm2.lib libuls.lib libconv.lib
 # $(PMGRE_LIB)
 
 CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
+
 # max warnings:
 CFLAGS+= -wx
-# buildirg dll:
+# building dll:
 CFLAGS+= -bd
-# include paths:
+# the include paths :
 CFLAGS+= $(INCPATH)
 # building SDL itself:
 CFLAGS+= -DBUILD_SDL
