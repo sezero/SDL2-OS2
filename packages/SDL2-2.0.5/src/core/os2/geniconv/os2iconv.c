@@ -9,6 +9,7 @@
 
 #include "iconv.h"
 #include <uconv.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #ifdef ICONV_THREAD_SAFE
