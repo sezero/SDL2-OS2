@@ -144,6 +144,8 @@
 /* #undef HAVE_COPYSIGNF */
 #define HAVE_COS 1
 /* #undef HAVE_COSF */
+#define HAVE_EXP 1
+/* #undef HAVE_EXPF */
 #define HAVE_FABS 1
 /* #undef HAVE_FABSF */
 #define HAVE_FLOOR 1
