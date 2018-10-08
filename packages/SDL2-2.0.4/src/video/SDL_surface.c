@@ -26,6 +26,14 @@
 #include "SDL_RLEaccel_c.h"
 #include "SDL_pixels_c.h"
 
+#ifndef SDL_MAX_SINT32
+#define SDL_MAX_SINT32  ((Sint32)0x7FFFFFFF)    /* 2147483647 */
+#endif
+
+/* Check to make sure we can safely check multiplication of surface w and pitch and it won't overflow size_t */
+SDL_COMPILE_TIME_ASSERT(surface_size_assumptions,
+    sizeof(int) == sizeof(Sint32) && sizeof(size_t) >= sizeof(Sint32));
+
 /* Public routines */
 /*
  * Create an empty RGB surface of the appropriate depth
@@ -87,7 +95,16 @@ SDL_CreateRGBSurface(Uint32 flags,
 
     /* Get the pixels */
     if (surface->w && surface->h) {
-        surface->pixels = SDL_malloc(surface->h * surface->pitch);
+        /* Assumptions checked in surface_size_assumptions assert above */
+        Sint64 size = ((Sint64)surface->h * surface->pitch);
+        if (size < 0 || size > SDL_MAX_SINT32) {
+            /* Overflow... */
+            SDL_FreeSurface(surface);
+            SDL_OutOfMemory();
+            return NULL;
+        }
+
+        surface->pixels = SDL_malloc((size_t)size);
         if (!surface->pixels) {
             SDL_FreeSurface(surface);
             SDL_OutOfMemory();
