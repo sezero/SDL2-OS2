@@ -1384,7 +1384,7 @@ open_audio_device(const char *devname, int iscapture,
         /* pool a few packets to start. Enough for two callbacks. */
         const int packetlen = SDL_AUDIOBUFFERQUEUE_PACKETLEN;
         const int wantbytes = ((device->convert.needed) ? device->convert.len : device->spec.size) * 2;
-        const int wantpackets = (wantbytes / packetlen) + ((wantbytes % packetlen) ? packetlen : 0);
+        const int wantpackets = (wantbytes / packetlen) + ((wantbytes % packetlen) ? 1 : 0);
         for (i = 0; i < wantpackets; i++) {
             SDL_AudioBufferQueue *packet = (SDL_AudioBufferQueue *) SDL_malloc(sizeof (SDL_AudioBufferQueue));
             if (packet) { /* don't care if this fails, we'll deal later. */
