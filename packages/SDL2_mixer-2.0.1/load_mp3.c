@@ -72,7 +72,7 @@ SDL_AudioSpec *Mix_LoadMP3_RW(SDL_RWops *src, int freesrc, SDL_AudioSpec *spec, 
 		mp3_mpg = mpg_new_rw(src, spec, freesrc);
 		err = (mp3_mpg == NULL);
 #elif defined(MP3_MAD_MUSIC)
-        mp3_mad = mad_openFileRW(src, spec, freesrc);
+		mp3_mad = mad_openFileRW(src, spec, freesrc);
 		err = (mp3_mad == NULL);
 #endif
 	}
@@ -80,7 +80,6 @@ SDL_AudioSpec *Mix_LoadMP3_RW(SDL_RWops *src, int freesrc, SDL_AudioSpec *spec, 
 	if (!err)
 	{
 #if defined(MP3_MPG_MUSIC)
-
 		mpg_start(mp3_mpg);
 
 		/* read once for audio length */
@@ -92,8 +91,7 @@ SDL_AudioSpec *Mix_LoadMP3_RW(SDL_RWops *src, int freesrc, SDL_AudioSpec *spec, 
 		mpg_stop(mp3_mpg);
 
 #elif defined(MP3_MAD_MUSIC)
-
-        mad_start(mp3_mad);
+		mad_start(mp3_mad);
 
 		/* read once for audio length */
 		while ((read_len = mad_getSamples(mp3_mad, *audio_buf, chunk_len)) > 0)
@@ -102,7 +100,6 @@ SDL_AudioSpec *Mix_LoadMP3_RW(SDL_RWops *src, int freesrc, SDL_AudioSpec *spec, 
 		}
 
 		mad_stop(mp3_mad);
-
 #endif
 
 		err = (read_len < 0);

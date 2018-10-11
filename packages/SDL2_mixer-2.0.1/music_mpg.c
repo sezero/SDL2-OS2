@@ -123,7 +123,6 @@ mpg_new_rw(SDL_RWops *src, SDL_AudioSpec* mixer, int freesrc)
     SDL_memset(m, 0, sizeof(mpg_data));
 
     m->src = src;
-    m->freesrc = freesrc;
 
     m->handle = mpg123.mpg123_new(0, &result);
     if (result != MPG123_OK) {
@@ -172,13 +171,13 @@ mpg_new_rw(SDL_RWops *src, SDL_AudioSpec* mixer, int freesrc)
     /* rewind */
     mpg123.mpg123_seek(m->handle, 0, SEEK_SET);
 
+    m->freesrc = freesrc;
     m->len_available = 0;
     m->snd_available = m->cvt.buf;
 
     return m;
 
     fail:
-    m->freesrc = 0;  /* src freed elsewhere. */
     mpg_delete(m);
     return NULL;
 }
