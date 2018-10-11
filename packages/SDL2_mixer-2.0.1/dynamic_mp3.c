@@ -20,18 +20,69 @@
 */
 
 #if defined(MP3_MPG_MUSIC)
-#include "mpg123.h"
 
-int Mix_InitMP3()
+#include "SDL_loadso.h"
+
+#include "dynamic_mp3.h"
+
+mpg123_loader mpg123 = {
+	0, NULL
+};
+
+#ifdef MPG123_DYNAMIC
+#define FUNCTION_LOADER(FUNC, SIG) \
+	mpg123.FUNC = (SIG) SDL_LoadFunction(mpg123.handle, #FUNC); \
+	if (mpg123.FUNC == NULL) { SDL_UnloadObject(mpg123.handle); return -1; }
+#else
+#define FUNCTION_LOADER(FUNC, SIG) \
+	mpg123.FUNC = FUNC;
+#endif
+
+int Mix_InitMP3(void)
 {
-    if (mpg123_init() != MPG123_OK) {
-        return 1;
-    }
-    return 0;
+	if (mpg123.loaded == 0) {
+#ifdef MPG123_DYNAMIC
+		mpg123.handle = SDL_LoadObject(MPG123_DYNAMIC);
+		if (mpg123.handle == NULL) {
+			return -1;
+		}
+#endif
+		FUNCTION_LOADER(mpg123_close, int (*)(mpg123_handle *mh))
+		FUNCTION_LOADER(mpg123_delete, void (*)(mpg123_handle *mh))
+		FUNCTION_LOADER(mpg123_exit, void (*)(void))
+		FUNCTION_LOADER(mpg123_format, int (*)( mpg123_handle *mh, long rate, int channels, int encodings ))
+		FUNCTION_LOADER(mpg123_format_none, int (*)(mpg123_handle *mh))
+		FUNCTION_LOADER(mpg123_getformat, int (*)( mpg123_handle *mh, long *rate, int *channels, int *encoding ))
+		FUNCTION_LOADER(mpg123_init, int (*)(void))
+		FUNCTION_LOADER(mpg123_new, mpg123_handle *(*)(const char* decoder, int *error))
+		FUNCTION_LOADER(mpg123_open_handle, int (*)(mpg123_handle *mh, void *iohandle))
+		FUNCTION_LOADER(mpg123_plain_strerror, const char* (*)(int errcode))
+		FUNCTION_LOADER(mpg123_rates, void (*)(const long **list, size_t *number));
+		FUNCTION_LOADER(mpg123_read, int (*)(mpg123_handle *mh, unsigned char *outmemory, size_t outmemsize, size_t *done ))
+		FUNCTION_LOADER(mpg123_replace_reader_handle, int (*)( mpg123_handle *mh, ssize_t (*r_read) (void *, void *, size_t), off_t (*r_lseek)(void *, off_t, int), void (*cleanup)(void*) ))
+		FUNCTION_LOADER(mpg123_seek, off_t (*)( mpg123_handle *mh, off_t sampleoff, int whence ))
+		FUNCTION_LOADER(mpg123_strerror, const char* (*)(mpg123_handle *mh))
+		if (mpg123.mpg123_init() != MPG123_OK) {
+			return -1;
+		}
+	}
+	++mpg123.loaded;
+
+	return 0;
 }
 
-void Mix_QuitMP3() {
-    mpg123_exit();
+void Mix_QuitMP3(void)
+{
+	if (mpg123.loaded == 0) {
+		return;
+	}
+	if (mpg123.loaded == 1) {
+		mpg123.mpg123_exit();
+#ifdef MPG123_DYNAMIC
+		SDL_UnloadObject(mpg123.handle);
+#endif
+	}
+	--mpg123.loaded;
 }
 
-#endif /* MP3_MUSIC */
+#endif /* MP3_MPG_MUSIC */
