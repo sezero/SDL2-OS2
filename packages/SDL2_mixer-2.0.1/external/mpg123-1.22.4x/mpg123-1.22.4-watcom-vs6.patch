@@ -1,6 +1,7 @@
 Only in mpg123-1.22.4-edit/src/libmpg123: Makefile.emx
 Only in mpg123-1.22.4-edit/src/libmpg123: Makefile.os2
 Only in mpg123-1.22.4-edit/src/libmpg123: Makefile.w32
+Only in mpg123-1.22.4-edit/src/libmpg123: Makefile.vs6
 Only in mpg123-1.22.4-edit/src/libmpg123: OS2
 Only in mpg123-1.22.4-edit/src/libmpg123: OS2/nasm
 --- mpg123-1.22.4/src/libmpg123/compat.c

@@ -1,4 +1,4 @@
-/* hand-edited libmpg123 config for OS/2 (EMX or Watcom), and Win32/Watcom */
+/* hand-edited libmpg123 config for OS/2 (EMX or Watcom), Win32/Watcom, and Visual Studio 6 */
 
 /* Define if your architecture wants/needs/can use attribute_align_arg and
    alignment checks. It is for 32bit x86... */
@@ -182,3 +182,12 @@
 /* Define this to the size of native offset type in bits, used for LFS alias
    functions. */
 #define LFS_ALIAS_BITS 32
+
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+typedef int ssize_t;
+#ifndef __cplusplus
+#define inline __inline
+#endif
+#endif
