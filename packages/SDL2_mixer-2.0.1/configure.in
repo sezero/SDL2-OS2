@@ -258,7 +258,7 @@ if test x$enable_music_mod = xyes -a x$enable_music_mod_modplug = xyes; then
             have_libmodplug_lib=yes
         ], [dnl
             AC_CHECK_HEADER([libmodplug/modplug.h], [have_libmodplug_hdr=yes])
-            AC_CHECK_LIB([modplug], [have_libmodplug_lib=yes])
+            AC_CHECK_LIB([modplug], [ModPlug_Load], [have_libmodplug_lib=yes])
         ])
 
     if test x$have_libmodplug_hdr = xyes -a x$have_libmodplug_lib = xyes; then
@@ -604,10 +604,7 @@ if test x$enable_music_mp3 = xyes; then
                 mpg123_lib=[`find_lib "libmpg123*.dll"`]
                 ;;
             *)
-                mpg123_lib=[`find_lib "libmpg123[0-9]*.so.*"`]
-                if test x$mpg123_lib = x; then
-                    mpg123_lib=[`find_lib "libmpg123.so.*"`]
-                fi
+                mpg123_lib=[`find_lib "libmpg123.so.*"`]
                 ;;
         esac
         EXTRA_CFLAGS="$EXTRA_CFLAGS -DMP3_MPG_MUSIC"
