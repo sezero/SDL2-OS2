@@ -14,7 +14,7 @@ SRCS = IMG.c IMG_bmp.c IMG_gif.c IMG_jpg.c IMG_lbm.c IMG_pcx.c IMG_png.c &
 
 LIBS = libpng.lib libtiff.lib zlib.lib jpeg.lib SDL2.lib
 
-CFLAGS = -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm -ei
+CFLAGS = -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm
 # warnings:
 CFLAGS+= -wx -wcd=202 -wcd=136
 # to build a dll:
