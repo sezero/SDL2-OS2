@@ -29,6 +29,7 @@
 #define SDL_AUDIO_DRIVER_DISK 1
 #define SDL_AUDIO_DRIVER_OS2 1
 
+#define SDL_POWER_DISABLED  1
 #define SDL_JOYSTICK_DISABLED 1
 #define SDL_HAPTIC_DISABLED 1
 
@@ -45,7 +46,6 @@
 #define SDL_LOADSO_OS2 1
 #define SDL_TIMER_OS2 1
 #define SDL_FILESYSTEM_OS2 1
-#define SDL_POWER_OS2 1
 
 /* Enable assembly routines */
 #define SDL_ASSEMBLY_ROUTINES 1

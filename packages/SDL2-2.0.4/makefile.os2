@@ -1,8 +1,4 @@
-#
-#  This is an OpenWatcom makefile to build SDL2 for OS/2
-#
-#  Andrey Vasilkin (Digi), 2016.
-#
+# Open Watcom makefile to build SDL2 for OS/2
 
 LIBNAME = SDL2
 VERSION = 2.0.4a
@@ -15,9 +11,28 @@ DLLFILE = $(LIBHOME)/$(LIBNAME).dll
 LIBFILE = $(LIBHOME)/$(LIBNAME).lib
 LNKFILE = $(LIBNAME).lnk
 
-INCPATH = -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h
-INCPATH+= -I$(LIBHOME)/h
-INCPATH+= -Iinclude -Isrc/core/os2 -Isrc/core/os2/geniconv
+INCPATH = -I"$(%WATCOM)/h/os2" -I"$(%WATCOM)/h"
+INCPATH+= -I"$(LIBHOME)/h"
+INCPATH+= -Iinclude -I"src/core/os2" -I"src/core/os2/geniconv"
+
+LIBS = mmpm2.lib libuls.lib libconv.lib
+# $(PMGRE_LIB)
+
+CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
+# max warnings:
+CFLAGS+= -wx
+# building dll:
+CFLAGS+= -bd
+# the include paths :
+CFLAGS+= $(INCPATH)
+# building SDL itself:
+CFLAGS+= -DBUILD_SDL
+
+# Debug options:
+# - debug messages from OS/2 related code to stdout:
+#CFLAGS+= -DOS2DEBUG
+# - debug messages from OS/2 code via SDL_LogDebug():
+#CFLAGS+= -DOS2DEBUG=2
 
 SRCS = SDL.c SDL_assert.c SDL_error.c SDL_log.c SDL_hints.c
 SRCS+= SDL_getenv.c SDL_iconv.c SDL_malloc.c SDL_qsort.c SDL_stdlib.c SDL_string.c
@@ -35,20 +50,20 @@ SRCS+= SDL_blit.c SDL_blit_0.c SDL_blit_1.c SDL_blit_A.c SDL_blit_auto.c &
        SDL_pixels.c SDL_rect.c SDL_RLEaccel.c SDL_shape.c SDL_stretch.c &
        SDL_surface.c SDL_video.c SDL_clipboard.c SDL_egl.c
 
-SRCS+= SDL_os2.c geniconv.c os2cp.c os2iconv.c sys2utf8.c
-SRCS+= SDL_syscond.c SDL_sysmutex.c SDL_syssem.c SDL_systhread.c &
-       SDL_systimer.c SDL_systls.c SDL_sysloadso.c SDL_syspower.c &
-       SDL_sysfilesystem.c
-SRCS+= SDL_os2audio.c
+SRCS+= SDL_syscond.c SDL_sysmutex.c SDL_syssem.c SDL_systhread.c SDL_systls.c
+SRCS+= SDL_systimer.c
+SRCS+= SDL_sysloadso.c
+SRCS+= SDL_sysfilesystem.c
 SRCS+= SDL_syshaptic.c SDL_sysjoystick.c
-SRCS+= SDL_os2video.c SDL_os2util.c SDL_os2dive.c SDL_os2vman.c &
-       SDL_os2mouse.c SDL_os2messagebox.c
-
 SRCS+= SDL_dummyaudio.c SDL_diskaudio.c
 SRCS+= SDL_nullvideo.c SDL_nullframebuffer.c SDL_nullevents.c
 
-SRCS+= SDL_dynapi.c
+SRCS+= SDL_os2.c geniconv.c os2cp.c os2iconv.c sys2utf8.c
+SRCS+= SDL_os2audio.c
+SRCS+= SDL_os2video.c SDL_os2util.c SDL_os2dive.c SDL_os2vman.c &
+       SDL_os2mouse.c SDL_os2messagebox.c
 
+SRCS+= SDL_dynapi.c
 
 OBJS = $(SRCS:.c=.obj)
 
@@ -56,31 +71,10 @@ PMGRE_LIB = $(LIBPATH)/pmgre.lib
 PMGRE_DEF = $(LIBPATH)/pmgre.def
 PMGRE_EXP = $(LIBPATH)/pmgre.exp
 
-LIBS = mmpm2.lib libuls.lib libconv.lib
-# $(PMGRE_LIB)
-
-CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
-
-# max warnings:
-CFLAGS+= -wx
-# building dll:
-CFLAGS+= -bd
-# the include paths :
-CFLAGS+= $(INCPATH)
-# building SDL itself:
-CFLAGS+= -DBUILD_SDL
-
-# Debug options:
-# - debug messages from OS/2 related code to stdout:
-#CFLAGS+= -DOS2DEBUG
-# - debug messages from OS/2 code via SDL_LogDebug():
-#CFLAGS+= -DOS2DEBUG=2
-
-
 .extensions:
 .extensions: .lib .dll .obj .c .asm
 
-.c: ./src;./src/core/os2;./src/core/os2/geniconv;./src/dynapi;./src/audio;./src/cpuinfo;./src/events;./src/file;./src/haptic;./src/joystick;./src/power;./src/render;./src/render/software;./src/stdlib;./src/thread;./src/timer;./src/video;./src/video/yuv2rgb;./src/audio/os2;./src/haptic/dummy;./src/joystick/dummy;./src/loadso/os2;./src/filesystem/os2;./src/thread/os2;./src/thread/generic;./src/timer/os2;./src/video/os2;./src/power;./src/power/os2;./src/atomic;./src/audio/dummy;./src/audio/disk;./src/video/dummy;./src/test;
+.c: ./src;./src/core/os2;./src/core/os2/geniconv;./src/dynapi;./src/audio;./src/cpuinfo;./src/events;./src/file;./src/haptic;./src/joystick;./src/power;./src/render;./src/render/software;./src/stdlib;./src/thread;./src/timer;./src/video;./src/video/yuv2rgb;./src/audio/os2;./src/haptic/dummy;./src/joystick/dummy;./src/loadso/os2;./src/filesystem/os2;./src/thread/os2;./src/thread/generic;./src/timer/os2;./src/video/os2;./src/atomic;./src/audio/dummy;./src/audio/disk;./src/video/dummy;./src/test;
 
 all: $(DLLFILE) $(LIBFILE) .symbolic
 
