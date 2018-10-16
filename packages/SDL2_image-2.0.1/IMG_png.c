@@ -72,7 +72,6 @@
 #if (PNG_LIBPNG_VER_MINOR < 5)
 #define LIBPNG_VERSION_12
 typedef png_bytep png_const_bytep;
-typedef png_color *png_const_colorp;
 #endif
 #if (PNG_LIBPNG_VER_MINOR < 4)
 typedef png_structp png_const_structp;
