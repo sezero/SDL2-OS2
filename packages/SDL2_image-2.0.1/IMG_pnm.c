@@ -27,6 +27,7 @@
  * Does not support: maximum component value > 255
  */
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -91,7 +92,14 @@ static int ReadNumber(SDL_RWops *src)
     } while ( SDL_isspace(ch) );
 
     /* Add up the number */
+    if (!SDL_isdigit(ch)) {
+        return -1;
+    }
     do {
+        /* Protect from possible overflow */
+        if (number >= INT_MAX / 10) {
+            return -1;
+        }
         number *= 10;
         number += ch-'0';
 

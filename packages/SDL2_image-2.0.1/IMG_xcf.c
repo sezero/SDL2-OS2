@@ -226,13 +226,18 @@ int IMG_isXCF(SDL_RWops *src)
 }
 
 static char * read_string (SDL_RWops * src) {
+  Sint64 remaining;
   Uint32 tmp;
   char * data;
 
-  tmp = SDL_ReadBE32 (src);
-  if (tmp > 0) {
+  tmp = SDL_ReadBE32(src);
+  remaining = SDL_RWsize(src) - SDL_RWtell(src);
+  if (tmp > 0 && (Sint32)tmp <= remaining) {
     data = (char *) SDL_malloc (sizeof (char) * tmp);
-    SDL_RWread (src, data, tmp, 1);
+    if (data) {
+      SDL_RWread(src, data, tmp, 1);
+      data[tmp - 1] = '\0';
+    }
   }
   else {
     data = NULL;
@@ -865,6 +870,7 @@ SDL_Surface *IMG_LoadXCF_RW(SDL_RWops *src)
       }
       free_xcf_channel (channel [i]);
     }
+    SDL_free(channel);
 
     SDL_FreeSurface (chs);
   }
