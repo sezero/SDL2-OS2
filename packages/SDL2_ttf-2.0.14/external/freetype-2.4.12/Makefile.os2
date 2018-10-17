@@ -15,7 +15,7 @@ SRCS = autofit.c ftapi.c ftbase.c ftbbox.c ftbdf.c ftdebug.c &
 
 OBJS = $(SRCS:.c=.obj)
 
-CFLAGS = -I$(INCPATH) -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier
+CFLAGS = -I$(INCPATH) -bt=os2 -ei -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier
 CFLAGS+= -wcd=124 -DFT2_BUILD_LIBRARY
 
 $(LIBFILE): $(OBJS)

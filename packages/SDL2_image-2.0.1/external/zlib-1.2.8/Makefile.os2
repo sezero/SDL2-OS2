@@ -16,7 +16,7 @@ OBJS = $(SRCS:.c=.obj)
 
 .c: .\test
 
-CFLAGS = -bt=os2 -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm -wx
+CFLAGS = -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm -wx
 
 all: $(LIBFILE) minigzip.exe
 
