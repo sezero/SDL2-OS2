@@ -1,6 +1,5 @@
 LIBNAME = freetype
 VERSION = 2.4.11.el7
-INCPATH = include
 
 TITLENAME = $(LIBNAME) $(VERSION)
 
@@ -15,8 +14,12 @@ SRCS = autofit.c ftapi.c ftbase.c ftbbox.c ftbdf.c ftdebug.c &
 
 OBJS = $(SRCS:.c=.obj)
 
-CFLAGS = -I$(INCPATH) -bt=os2 -ei -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier
+INCPATH =-Iinclude
+CFLAGS = -bt=os2 -ei -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier
 CFLAGS+= -wcd=124 -DFT2_BUILD_LIBRARY
+CFLAGS+= -DFT_CONFIG_OPTION_SYSTEM_ZLIB
+INCPATH+= -I"../zlib-1.2.8"
+CFLAGS+= $(INCPATH)
 
 $(LIBFILE): $(OBJS)
   @echo * Create library: $@...
