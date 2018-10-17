@@ -1,11 +1,12 @@
 LIBNAME = libpng
 VERSION = 1.6.35
-INCPATH = ../../../../h
-LIBPATH = ../../../../lib
 
 TITLENAME = $(LIBNAME) $(VERSION)
 
 LIBFILE = $(LIBNAME).lib
+
+# for zlib.lib :
+LIBPATH = ../../../lib
 
 SRCS = png.c pngerror.c pngget.c pngmem.c pngpread.c pngread.c pngrio.c &
        pngrtran.c pngrutil.c pngset.c pngtrans.c pngwio.c pngwrite.c &
@@ -13,8 +14,8 @@ SRCS = png.c pngerror.c pngget.c pngmem.c pngpread.c pngread.c pngrio.c &
 
 OBJS = $(SRCS:.c=.obj)
 
-CFLAGS = -I$(INCPATH) -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm -wx -wcd=124
-
+CFLAGS = -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm -wx -wcd=124
+CFLAGS+= -I"../zlib-1.2.8"
 
 all: $(LIBFILE) pngtest.exe
 
