@@ -542,8 +542,12 @@ TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone, uint64* pdiroff)
 			{
 				if (!isTiled(tif))
 				{
-					if (!TIFFWriteDirectoryTagLongLong8Array(tif,&ndir,dir,TIFFTAG_STRIPOFFSETS,tif->tif_dir.td_nstrips,tif->tif_dir.td_stripoffset))
-						goto bad;
+					/* td_stripoffset can be NULL even if td_nstrips == 1 due to OJPEG hack */
+					if (tif->tif_dir.td_stripoffset)
+					{
+						if (!TIFFWriteDirectoryTagLongLong8Array(tif,&ndir,dir,TIFFTAG_STRIPOFFSETS,tif->tif_dir.td_nstrips,tif->tif_dir.td_stripoffset))
+							goto bad;
+					}
 				}
 				else
 				{

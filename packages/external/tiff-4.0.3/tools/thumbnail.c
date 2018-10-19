@@ -253,11 +253,13 @@ static struct cpTag {
     { TIFFTAG_WHITEPOINT,		2, TIFF_RATIONAL },
     { TIFFTAG_PRIMARYCHROMATICITIES,	(uint16) -1,TIFF_RATIONAL },
     { TIFFTAG_HALFTONEHINTS,		2, TIFF_SHORT },
-    { TIFFTAG_BADFAXLINES,		1, TIFF_LONG },
+    // disable BADFAXLINES, CVE-2016-3632
+    //{ TIFFTAG_BADFAXLINES,		1, TIFF_LONG },
     { TIFFTAG_CLEANFAXDATA,		1, TIFF_SHORT },
     { TIFFTAG_CONSECUTIVEBADFAXLINES,	1, TIFF_LONG },
     { TIFFTAG_INKSET,			1, TIFF_SHORT },
-    { TIFFTAG_INKNAMES,			1, TIFF_ASCII },
+    // disable INKNAMES tag, http://bugzilla.maptools.org/show_bug.cgi?id=2484 (CVE-2014-8127)
+    //{ TIFFTAG_INKNAMES,			1, TIFF_ASCII },
     { TIFFTAG_DOTRANGE,			2, TIFF_SHORT },
     { TIFFTAG_TARGETPRINTER,		1, TIFF_ASCII },
     { TIFFTAG_SAMPLEFORMAT,		1, TIFF_SHORT },
@@ -585,12 +587,17 @@ generateThumbnail(TIFF* in, TIFF* out)
     rowsize = TIFFScanlineSize(in);
     rastersize = sh * rowsize;
     fprintf(stderr, "rastersize=%u\n", (unsigned int)rastersize);
-    raster = (unsigned char*)_TIFFmalloc(rastersize);
+	/* +3 : add a few guard bytes since setrow() can read a bit */
+	/* outside buffer */
+    raster = (unsigned char*)_TIFFmalloc(rastersize+3);
     if (!raster) {
 	    TIFFError(TIFFFileName(in),
 		      "Can't allocate space for raster buffer.");
 	    return 0;
     }
+    raster[rastersize] = 0;
+    raster[rastersize+1] = 0;
+    raster[rastersize+2] = 0;
     rp = raster;
     for (s = 0; s < ns; s++) {
 	(void) TIFFReadEncodedStrip(in, s, rp, -1);

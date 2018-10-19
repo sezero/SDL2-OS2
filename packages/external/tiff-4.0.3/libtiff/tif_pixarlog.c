@@ -462,6 +462,7 @@ typedef	struct {
 	int			state;
 	int			user_datafmt;
 	int			quality;
+	tmsize_t	tbuf_size;
 #define PLSTATE_INIT 1
 
 	TIFFVSetMethod		vgetparent;	/* super-class method */
@@ -644,6 +645,20 @@ multiply_ms(tmsize_t m1, tmsize_t m2)
 	return bytes;
 }
 
+static tmsize_t
+add_ms(tmsize_t m1, tmsize_t m2)
+{
+	tmsize_t bytes = m1 + m2;
+
+	/* if either input is zero, assume overflow already occurred */
+	if (m1 == 0 || m2 == 0)
+		bytes = 0;
+	else if (bytes <= m1 || bytes <= m2)
+		bytes = 0;
+
+	return bytes;
+}
+
 static int
 PixarLogFixupTags(TIFF* tif)
 {
@@ -671,9 +686,12 @@ PixarLogSetupDecode(TIFF* tif)
 	    td->td_samplesperpixel : 1);
 	tbuf_size = multiply_ms(multiply_ms(multiply_ms(sp->stride, td->td_imagewidth),
 				      td->td_rowsperstrip), sizeof(uint16));
+	/* add one more stride in case input ends mid-stride */
+	tbuf_size = add_ms(tbuf_size, sizeof(uint16) * sp->stride);
 	if (tbuf_size == 0)
 		return (0);   /* TODO: this is an error return without error report through TIFFErrorExt */
-	sp->tbuf = (uint16 *) _TIFFmalloc(tbuf_size+sizeof(uint16)*sp->stride);
+	sp->tbuf = (uint16 *) _TIFFmalloc(tbuf_size);
+	sp->tbuf_size = tbuf_size;
 	if (sp->tbuf == NULL)
 		return (0);
 	if (sp->user_datafmt == PIXARLOGDATAFMT_UNKNOWN)
@@ -763,6 +781,11 @@ PixarLogDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 	if (sp->stream.avail_out != nsamples * sizeof(uint16))
 	{
 		TIFFErrorExt(tif->tif_clientdata, module, "ZLib cannot deal with buffers this size");
+		return (0);
+	}
+	if (sp->stream.avail_out > sp->tbuf_size)
+	{
+		TIFFErrorExt(tif->tif_clientdata, module, "Error within the calculation of ZLib buffer size");
 		return (0);
 	}
 	do {
@@ -869,6 +892,7 @@ PixarLogSetupEncode(TIFF* tif)
 	    td->td_samplesperpixel : 1);
 	tbuf_size = multiply_ms(multiply_ms(multiply_ms(sp->stride, td->td_imagewidth),
 				      td->td_rowsperstrip), sizeof(uint16));
+	sp->tbuf_size = tbuf_size;
 	if (tbuf_size == 0)
 		return (0);  /* TODO: this is an error return without error report through TIFFErrorExt */
 	sp->tbuf = (uint16 *) _TIFFmalloc(tbuf_size);
@@ -957,17 +981,14 @@ horizontalDifferenceF(float *ip, int n, int stride, uint16 *wp, uint16 *FromLT2)
 		a1 = (int32) CLAMP(ip[3]); wp[3] = (a1-a2) & mask; a2 = a1;
 	    }
 	} else {
-	    ip += n - 1;	/* point to last one */
-	    wp += n - 1;	/* point to last one */
-	    n -= stride;
-	    while (n > 0) {
-		REPEAT(stride, wp[0] = (uint16) CLAMP(ip[0]);
-				wp[stride] -= wp[0];
-				wp[stride] &= mask;
-				wp--; ip--)
-		n -= stride;
-	    }
-	    REPEAT(stride, wp[0] = (uint16) CLAMP(ip[0]); wp--; ip--)
+        REPEAT(stride, wp[0] = (uint16) CLAMP(ip[0]); wp++; ip++)
+        n -= stride;
+        while (n > 0) {
+            REPEAT(stride,
+                wp[0] = (uint16)(((int32)CLAMP(ip[0])-(int32)CLAMP(ip[-stride])) & mask);
+                wp++; ip++)
+            n -= stride;
+        }
 	}
     }
 }
@@ -1010,17 +1031,14 @@ horizontalDifference16(unsigned short *ip, int n, int stride,
 		a1 = CLAMP(ip[3]); wp[3] = (a1-a2) & mask; a2 = a1;
 	    }
 	} else {
-	    ip += n - 1;	/* point to last one */
-	    wp += n - 1;	/* point to last one */
+        REPEAT(stride, wp[0] = CLAMP(ip[0]); wp++; ip++)
 	    n -= stride;
 	    while (n > 0) {
-		REPEAT(stride, wp[0] = CLAMP(ip[0]);
-				wp[stride] -= wp[0];
-				wp[stride] &= mask;
-				wp--; ip--)
-		n -= stride;
-	    }
-	    REPEAT(stride, wp[0] = CLAMP(ip[0]); wp--; ip--)
+            REPEAT(stride,
+                wp[0] = (uint16)((CLAMP(ip[0])-CLAMP(ip[-stride])) & mask);
+                wp++; ip++)
+            n -= stride;
+        }
 	}
     }
 }
@@ -1063,18 +1081,15 @@ horizontalDifference8(unsigned char *ip, int n, int stride,
 		ip += 4;
 	    }
 	} else {
-	    wp += n + stride - 1;	/* point to last one */
-	    ip += n + stride - 1;	/* point to last one */
-	    n -= stride;
-	    while (n > 0) {
-		REPEAT(stride, wp[0] = CLAMP(ip[0]);
-				wp[stride] -= wp[0];
-				wp[stride] &= mask;
-				wp--; ip--)
-		n -= stride;
-	    }
-	    REPEAT(stride, wp[0] = CLAMP(ip[0]); wp--; ip--)
-	}
+        REPEAT(stride, wp[0] = CLAMP(ip[0]); wp++; ip++)
+        n -= stride;
+        while (n > 0) {
+            REPEAT(stride,
+                wp[0] = (uint16)((CLAMP(ip[0])-CLAMP(ip[-stride])) & mask);
+                wp++; ip++)
+            n -= stride;
+        }
+    }
     }
 }
 
@@ -1115,8 +1130,17 @@ PixarLogEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	}
 
 	llen = sp->stride * td->td_imagewidth;
-
+	if (llen > sp->tbuf_size)	
+	{
+		TIFFErrorExt(tif->tif_clientdata, module, "%s: Encoder error: Buffer limit reached.", tif->tif_name);
+		exit (0);
+	}
 	for (i = 0, up = sp->tbuf; i < n; i += llen, up += llen) {
+		if (up > sp->tbuf+sp->tbuf_size)
+		{
+			TIFFErrorExt(tif->tif_clientdata, module, "%s: Encoder error: Buffer limit reached.", tif->tif_name);
+			exit (0);
+		}
 		switch (sp->user_datafmt)  {
 		case PIXARLOGDATAFMT_FLOAT:
 			horizontalDifferenceF((float *)bp, llen, 
@@ -1151,6 +1175,11 @@ PixarLogEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	{
 		TIFFErrorExt(tif->tif_clientdata, module,
 			     "ZLib cannot deal with buffers this size");
+		return (0);
+	}
+	if (sp->stream.avail_in > sp->tbuf_size)
+	{
+		TIFFErrorExt(tif->tif_clientdata, module, "%s: Encoder error: Error within the calculation on ZLib buffer size.", tif->tif_name);
 		return (0);
 	}
 

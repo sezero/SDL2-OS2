@@ -401,8 +401,34 @@ main(int argc, char* argv[])
 		    return 0;
 		}
 
+        if (info_hdr.iCompression == BMPC_RLE4 && info_hdr.iBitCount != 4)
+        {
+            TIFFError(infilename,
+              "Cannot process BMP file with bit count %d and RLE 4-bit/pixel compression",
+              info_hdr.iBitCount);
+            close(fd);
+            return 0;
+        }
+ 
+        if (info_hdr.iCompression == BMPC_RLE8 && info_hdr.iBitCount != 8)
+        {
+            TIFFError(infilename,
+              "Cannot process BMP file with bit count %d and RLE 8-bit/pixel compression",
+              info_hdr.iBitCount);
+            close(fd);
+            return 0;
+        }
+
 		width = info_hdr.iWidth;
 		length = (info_hdr.iHeight > 0) ? info_hdr.iHeight : -info_hdr.iHeight;
+        if( width <= 0 || length <= 0 )
+        {
+            TIFFError(infilename,
+                  "Invalid dimensions of BMP file" );
+            close(fd);
+            return -1;
+        }
+ 
 
 		switch (info_hdr.iBitCount)
 		{
@@ -588,11 +614,36 @@ main(int argc, char* argv[])
 			    || info_hdr.iCompression == BMPC_RLE4 ) {
 			uint32		i, j, k, runlength;
 			uint32		compr_size, uncompr_size;
+			uint32      bits = 0;
 			unsigned char   *comprbuf;
 			unsigned char   *uncomprbuf;
 
 			compr_size = file_hdr.iSize - file_hdr.iOffBits;
-			uncompr_size = width * length;
+
+			bits = info_hdr.iBitCount;
+
+			if (bits > 8) // bit depth is > 8bit, adjust size
+			{
+				uncompr_size = width * length * (bits / 8);
+				/* Detect int overflow */
+				if (uncompr_size / width / (bits / 8) != length) {
+					TIFFError(infilename,
+							   "Invalid dimensions of BMP file");
+					close(fd);
+					return -1;
+				}
+			}
+			else
+			{
+				uncompr_size = width * length;
+				/* Detect int overflow */
+				if (uncompr_size / width != length) {
+					TIFFError(infilename,
+							   "Invalid dimensions of BMP file");
+					close(fd);
+					return -1;
+				}
+			}
 			comprbuf = (unsigned char *) _TIFFmalloc( compr_size );
 			if (!comprbuf) {
 				TIFFError(infilename,

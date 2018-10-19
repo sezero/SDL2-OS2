@@ -280,6 +280,10 @@ readgifimage(char* mode)
         fprintf(stderr, "no colormap present for image\n");
         return (0);
     }
+    if (width == 0 || height == 0) {
+        fprintf(stderr, "Invalid value of width or height\n");
+        return(0);
+    }
     if ((raster = (unsigned char*) _TIFFmalloc(width*height+EXTRAFUDGE)) == NULL) {
         fprintf(stderr, "not enough memory for image\n");
         return (0);
@@ -333,6 +337,10 @@ readraster(void)
     int status = 1;
 
     datasize = getc(infile);
+
+    if (datasize > 12)
+        return 0;
+
     clear = 1 << datasize;
     eoi = clear + 1;
     avail = clear + 2;
@@ -398,6 +406,14 @@ process(register int code, unsigned char** fill)
     }
 
     if (oldcode == -1) {
+        if (code >= clear) {
+            fprintf(stderr, "bad input: code=%d is larger than clear=%d\n",code, clear);
+            return 0;
+        }
+        if (*fill >= raster + width*height) {
+            fprintf(stderr, "raster full before eoi code\n");
+            return 0;
+        }
 	*(*fill)++ = suffix[code];
 	firstchar = oldcode = code;
 	return 1;
@@ -428,6 +444,10 @@ process(register int code, unsigned char** fill)
     }
     oldcode = incode;
     do {
+        if (*fill >= raster + width*height) {
+            fprintf(stderr, "raster full before eoi code\n");
+            return 0;
+        }
 	*(*fill)++ = *--stackp;
     } while (stackp > stack);
     return 1;

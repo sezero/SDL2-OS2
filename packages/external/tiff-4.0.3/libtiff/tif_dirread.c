@@ -3881,6 +3881,32 @@ TIFFReadDirectory(TIFF* tif)
 				if (!TIFFSetField(tif,TIFFTAG_SAMPLESPERPIXEL,1))
 					goto bad;
 			}
+			/*
+			 * SamplesPerPixel value has changed, adjust SMinSampleValue
+			 * and SMaxSampleValue arrays if necessary
+			 */
+			{
+				uint32 saved_flags;
+				saved_flags = tif->tif_flags;
+				tif->tif_flags &= ~TIFF_PERSAMPLE;
+				if (TIFFFieldSet(tif,FIELD_SMINSAMPLEVALUE))
+				{
+					if (!TIFFSetField(tif,TIFFTAG_SMINSAMPLEVALUE,tif->tif_dir.td_sminsamplevalue[0]))
+					{
+						tif->tif_flags = saved_flags;
+						goto bad;
+					}
+				}
+				if (TIFFFieldSet(tif,FIELD_SMAXSAMPLEVALUE))
+				{
+					if (!TIFFSetField(tif,TIFFTAG_SMAXSAMPLEVALUE,tif->tif_dir.td_smaxsamplevalue[0]))
+					{
+						tif->tif_flags = saved_flags;
+						goto bad;
+					}
+				}
+				tif->tif_flags = saved_flags;
+			}
 		}
 	}
 	/*

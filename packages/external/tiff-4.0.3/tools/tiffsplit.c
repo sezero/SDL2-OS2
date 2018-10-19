@@ -179,8 +179,9 @@ tiffcp(TIFF* in, TIFF* out)
 		    TIFFSetField(out, TIFFTAG_JPEGTABLES, count, table);
 		}
 	}
+	uint32 count = 0;
         CopyField(TIFFTAG_PHOTOMETRIC, shortv);
-	CopyField(TIFFTAG_PREDICTOR, shortv);
+	CopyField2(TIFFTAG_PREDICTOR, count, shortv);
 	CopyField(TIFFTAG_THRESHHOLDING, shortv);
 	CopyField(TIFFTAG_FILLORDER, shortv);
 	CopyField(TIFFTAG_ORIENTATION, shortv);
@@ -188,7 +189,7 @@ tiffcp(TIFF* in, TIFF* out)
 	CopyField(TIFFTAG_MAXSAMPLEVALUE, shortv);
 	CopyField(TIFFTAG_XRESOLUTION, floatv);
 	CopyField(TIFFTAG_YRESOLUTION, floatv);
-	CopyField(TIFFTAG_GROUP3OPTIONS, longv);
+	CopyField2(TIFFTAG_GROUP3OPTIONS, count, longv);
 	CopyField(TIFFTAG_GROUP4OPTIONS, longv);
 	CopyField(TIFFTAG_RESOLUTIONUNIT, shortv);
 	CopyField(TIFFTAG_PLANARCONFIG, shortv);
