@@ -1,3 +1,5 @@
+### remember to run make under timidity first ###
+
 LIBNAME = SDL2mix
 VERSION = 2.0.1a
 INCPATH = ../../h
@@ -88,9 +90,6 @@ all: $(DLLFILE) playwave.exe playmus.exe
 $(LIBFILE): $(DLLFILE)
   @echo * Create library: $@...
   wlib -b -n -q -c -pa -s -t -zld -ii -io $@ $(DLLFILE)
-
-$(LIBTIMI): $(TIMI_OBJS)
-  wlib -b -n -q -c -pa -s -t -zld -ii -io $@ $(TIMI_OBJS)
 
 $(DLLFILE): $(OBJS) $(LNKFILE)
   @echo * Link: $@
