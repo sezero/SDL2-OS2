@@ -124,10 +124,10 @@ playwave.obj: playwave.c
   wcc386 $(CFLAGS_BASE) -fo=$^@ $<
 
 playmus.exe: $(LIBFILE) playmus.obj
-  wlink SYS os2v2 LIBPATH $(LIBPATH) LIBR {SDL2mix.lib SDL2.lib} F {playmus.obj}  N playmus.exe
+  wlink SYS os2v2 LIBPATH $(LIBPATH) LIBR {$(LIBFILE) SDL2.lib} F {playmus.obj}  N playmus.exe
 
 playwave.exe: $(LIBFILE) playwave.obj
-  wlink SYS os2v2 LIBPATH $(LIBPATH) LIBR {SDL2mix.lib SDL2.lib} F {playwave.obj} N playwave.exe
+  wlink SYS os2v2 LIBPATH $(LIBPATH) LIBR {$(LIBFILE) SDL2.lib} F {playwave.obj} N playwave.exe
 
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)

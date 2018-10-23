@@ -60,7 +60,7 @@ showrtf.obj: showrtf.c
   wcc386 $(CFLAGS_BASE) -fo=$^@ $<
 
 showrtf.exe: $(LIBFILE) showrtf.obj
-  wlink SYS os2v2 LIBPATH $(LIBPATH) LIBR {SDL2rtf.lib SDL2ttf.lib SDL2.lib} F {showrtf.obj} N showrtf.exe
+  wlink SYS os2v2 LIBPATH $(LIBPATH) LIBR {$(LIBFILE) SDL2ttf.lib SDL2.lib} F {showrtf.obj} N showrtf.exe
 
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
