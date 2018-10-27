@@ -12,28 +12,31 @@ LNKFILE = $(LIBNAME).lnk
 SRCS = IMG.c IMG_bmp.c IMG_gif.c IMG_jpg.c IMG_lbm.c IMG_pcx.c IMG_png.c &
        IMG_pnm.c IMG_tga.c IMG_tif.c IMG_xcf.c IMG_xpm.c IMG_xv.c IMG_webp.c
 
-LIBS = libpng.lib libtiff.lib zlib.lib jpeg.lib SDL2.lib
+LIBS = libpng.lib libtiff.lib zlib.lib jpeg.lib webpdec.lib SDL2.lib
 
-CFLAGS = -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm
+CFLAGS_BASE = -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm
 # warnings:
-CFLAGS+= -wx -wcd=202 -wcd=136
+CFLAGS_BASE+= -wx -wcd=202 -wcd=136
+# include paths:
+CFLAGS_BASE+= -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h -I$(INCPATH) -I$(INCPATH)/SDL2
+CFLAGS =$(CFLAGS_BASE)
 # to build a dll:
 CFLAGS+= -bd
 # for DECLSPEC:
 CFLAGS+= -DBUILD_SDL
-# include paths:
-CFLAGS+= -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h -I$(INCPATH) -I$(INCPATH)/SDL2
 
 # wanted formats:
 CFLAGS+= -DLOAD_JPG -DLOAD_PNG -DLOAD_BMP -DLOAD_GIF -DLOAD_LBM &
          -DLOAD_PCX -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF -DLOAD_XPM &
-         -DLOAD_XV -DLOAD_XXX -DLOAD_TIF
+         -DLOAD_XV -DLOAD_XXX -DLOAD_TIF -DLOAD_WEBP
 
 
 .extensions:
 .extensions: .lib .dll .obj .c
 
 OBJS = $(SRCS:.c=.obj)
+
+all: $(LIBFILE) showimage.exe
 
 $(LIBFILE): $(DLLFILE)
   @echo * Create library: $@...
@@ -65,11 +68,18 @@ $(LNKFILE):
 .c.obj:
   wcc386 $(CFLAGS) -fo=$^@ $<
 
+showimage.obj: showimage.c
+  wcc386 $(CFLAGS_BASE) -fo=$^@ $<
+
+showimage.exe: $(LIBFILE) showimage.obj
+  wlink SYS os2v2 LIBPATH $(LIBPATH) LIBR {$(LIBFILE) SDL2.lib} F {showimage.obj}  N showimage.exe
+
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
   @if exist *.obj rm *.obj
   @if exist *.err rm *.err
   @if exist *.map rm *.map
+  @if exist *.exe rm *.exe
   @if exist $(LNKFILE) rm $(LNKFILE)
   @if exist $(DLLFILE) rm $(DLLFILE)
   @if exist $(LIBFILE) rm $(LIBFILE)
