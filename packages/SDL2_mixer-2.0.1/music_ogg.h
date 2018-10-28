@@ -19,12 +19,13 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-/* $Id$ */
-
 #ifdef OGG_MUSIC
 
 /* This file supports Ogg Vorbis music streams */
 
+#ifndef OV_EXCLUDE_STATIC_CALLBACKS
+#define OV_EXCLUDE_STATIC_CALLBACKS
+#endif
 #if defined(OGG_HEADER)
 #include OGG_HEADER
 #elif defined(OGG_USE_TREMOR)

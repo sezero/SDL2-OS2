@@ -20,6 +20,10 @@
 */
 
 #ifdef OGG_MUSIC
+
+#ifndef OV_EXCLUDE_STATIC_CALLBACKS
+#define OV_EXCLUDE_STATIC_CALLBACKS
+#endif
 #if defined(OGG_HEADER)
 #include OGG_HEADER
 #elif defined(OGG_USE_TREMOR)
