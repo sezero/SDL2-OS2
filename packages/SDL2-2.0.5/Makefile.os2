@@ -1,9 +1,10 @@
-# Open Watcom makefile to build SDL2 for OS/2
+# Open Watcom makefile to build SDL2.dll for OS/2:
+# wmake -f Makefile.os2
 
 LIBNAME = SDL2
-VERSION = 2.0.4a
+VERSION = 2.0.5a
 DESCRIPTION = Simple DirectMedia Layer 2
-DESCRIPTION+= (OS/2 port by Andrey Vasilkin)
+DESCRIPTION+= (OS/2 port: Andrey Vasilkin)
 
 LIBHOME = os2
 LIBPATH = $(LIBHOME)/lib
@@ -13,7 +14,12 @@ LNKFILE = $(LIBNAME).lnk
 
 INCPATH = -I"$(%WATCOM)/h/os2" -I"$(%WATCOM)/h"
 INCPATH+= -I"$(LIBHOME)/h"
-INCPATH+= -Iinclude -I"src/core/os2" -I"src/core/os2/geniconv"
+INCPATH+= -Iinclude
+INCPATH+= -I"src/core/os2" -I"src/core/os2/geniconv"
+
+PMGRE_LIB = $(LIBPATH)/pmgre.lib
+PMGRE_DEF = $(LIBPATH)/pmgre.def
+PMGRE_EXP = $(LIBPATH)/pmgre.exp
 
 LIBS = mmpm2.lib libuls.lib libconv.lib
 # $(PMGRE_LIB)
@@ -67,18 +73,16 @@ SRCS+= SDL_dynapi.c
 
 OBJS = $(SRCS:.c=.obj)
 
-PMGRE_LIB = $(LIBPATH)/pmgre.lib
-PMGRE_DEF = $(LIBPATH)/pmgre.def
-PMGRE_EXP = $(LIBPATH)/pmgre.exp
-
 .extensions:
 .extensions: .lib .dll .obj .c .asm
 
-.c: ./src;./src/core/os2;./src/core/os2/geniconv;./src/dynapi;./src/audio;./src/cpuinfo;./src/events;./src/file;./src/haptic;./src/joystick;./src/power;./src/render;./src/render/software;./src/stdlib;./src/thread;./src/timer;./src/video;./src/video/yuv2rgb;./src/audio/os2;./src/haptic/dummy;./src/joystick/dummy;./src/loadso/os2;./src/filesystem/os2;./src/thread/os2;./src/thread/generic;./src/timer/os2;./src/video/os2;./src/atomic;./src/audio/dummy;./src/audio/disk;./src/video/dummy;./src/test;
+.c: ./src;./src/dynapi;./src/audio;./src/cpuinfo;./src/events;./src/file;./src/haptic;./src/joystick;./src/power;./src/render;./src/render/software;./src/stdlib;./src/thread;./src/timer;./src/video;./src/video/yuv2rgb;./src/atomic;./src/audio/disk;
+.c: ./src/haptic/dummy;./src/joystick/dummy;./src/audio/dummy;./src/video/dummy;
+.c: ./src/core/os2;./src/core/os2/geniconv;./src/audio/os2;./src/loadso/os2;./src/filesystem/os2;./src/thread/os2;./src/timer/os2;./src/video/os2;
 
 all: $(DLLFILE) $(LIBFILE) .symbolic
 
-$(DLLFILE): info_compiling $(OBJS) $(LNKFILE)
+$(DLLFILE): $(OBJS) $(LNKFILE)
 # $(PMGRE_LIB)
     @echo * Linking: $@
     wlink @$(LNKFILE)
@@ -88,6 +92,9 @@ $(LIBFILE): $(DLLFILE)
     wlib -q -b -n -c -pa -s -t -zld -ii -io $* $(DLLFILE)
 
 .c.obj:
+    wcc386 $(CFLAGS) -fo=$^@ $<
+
+SDL_syscond.obj: "src/thread/generic/SDL_syscond.c"
     wcc386 $(CFLAGS) -fo=$^@ $<
 
 SDL_cpuinfo.obj: SDL_cpuinfo.c
@@ -109,11 +116,11 @@ SDL_RLEaccel.obj: SDL_RLEaccel.c
     wcc386 $(CFLAGS) -wcd=201 -fo=$^@ $<
 
 $(PMGRE_LIB): $(PMGRE_EXP)
-	wlib -q -b -n -c -pa -s -t -zld -ii -io $(PMGRE_LIB) @$(PMGRE_EXP)
+    wlib -q -b -n -c -pa -s -t -zld -ii -io $(PMGRE_LIB) @$(PMGRE_EXP)
 
 $(PMGRE_EXP): $(PMGRE_DEF) $(LIBPATH)/def2lbc.sed
-	@echo * Creating PMGRE import library
-	sed -f $(LIBPATH)/def2lbc.sed $(PMGRE_DEF) > $(PMGRE_EXP)
+    @echo * Creating PMGRE import library
+    sed -f $(LIBPATH)/def2lbc.sed $(PMGRE_DEF) > $(PMGRE_EXP)
 
 $(LNKFILE):
 #   About LIBPATH: OpenWatcom's library os2386.lib does not contain entries
@@ -123,18 +130,14 @@ $(LNKFILE):
     @echo * Creating linker file: $@
     @%create $@
     @%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
-    @%append $@ NAME $(LIBHOME)/$(LIBNAME)
+    @%append $@ NAME $(DLLFILE)
     @for %i in ($(OBJS)) do @%append $@ FILE %i
     @%append $@ LIBPATH $(%LIB);$(LIBPATH)
     @for %i in ($(LIBS)) do @%append $@ LIB %i
     @%append $@ OPTION QUIET
     @%append $@ OPTION IMPF=$(LIBHOME)/$^&.exp
     @%append $@ OPTION MAP=$(LIBHOME)/$^&.map
-!ifdef %osdir
-    @$(%osdir)/KLIBC/BIN/date +"OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@$#$#1$#$# %F               $(%HOSTNAME)::::::@@$(DESCRIPTION)'" >>$^@
-!else
     @%append $@ OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@$(DESCRIPTION)'
-!endif
     @%append $@ OPTION QUIET
     @%append $@ OPTION ELIMINATE
     @%append $@ OPTION MANYAUTODATA
@@ -144,17 +147,13 @@ $(LNKFILE):
 clean: .SYMBOLIC
     @ echo * Clean: $(LIBNAME)
     @if exist *.obj rm *.obj
-    @if exist ./obj/*.obj rm ./obj/*.obj
     @if exist *.err rm *.err
-    @if exist $(LIBHOME)/*.map rm $(LIBHOME)/*.map
     @if exist $(LNKFILE) rm $(LNKFILE)
-    @if exist $(LIBPATH)/pmgre.exp rm $(PMGRE_EXP)
-    @if exist $(LIBPATH)/pmgre.lib rm $(PMGRE_LIB)
 
 distclean: .SYMBOLIC clean
     @if exist $(LIBHOME)/*.exp rm $(LIBHOME)/*.exp
-    @if exist $(DLLFILE) rm $(DLLFILE)
+    @if exist $(LIBHOME)/*.map rm $(LIBHOME)/*.map
     @if exist $(LIBFILE) rm $(LIBFILE)
-
-info_compiling: .symbolic
-    @echo * Compiling...
+    @if exist $(DLLFILE) rm $(DLLFILE)
+    @if exist $(PMGRE_EXP) rm $(PMGRE_EXP)
+    @if exist $(PMGRE_LIB) rm $(PMGRE_LIB)
