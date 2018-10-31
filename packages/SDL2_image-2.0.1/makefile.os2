@@ -72,7 +72,7 @@ showimage.obj: showimage.c
   wcc386 $(CFLAGS_BASE) -fo=$^@ $<
 
 showimage.exe: $(LIBFILE) showimage.obj
-  wlink SYS os2v2 LIBPATH $(LIBPATH) LIBR {$(LIBFILE) SDL2.lib} F {showimage.obj}  N showimage.exe
+  wlink SYS os2v2 OP q LIBPATH $(LIBPATH) LIBR {$(LIBFILE) SDL2.lib} F {showimage.obj}  N showimage.exe
 
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)

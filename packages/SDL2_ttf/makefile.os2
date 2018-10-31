@@ -15,13 +15,18 @@ OBJS = $(SRCS:.c=.obj)
 
 LIBS = freetype.lib  zlib.lib  SDL2.lib
 
-CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei -j
+CFLAGS_BASE = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei -j
+# warnings:
+CFLAGS_BASE+= -wx
+# include paths:
+CFLAGS_BASE+= -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h -I$(INCPATH) -I$(INCPATH)/SDL2
+CFLAGS =$(CFLAGS_BASE)
 # to build a dll:
 CFLAGS+= -bd
 # for DECLSPEC:
 CFLAGS+= -DBUILD_SDL
-# include paths:
-CFLAGS+= -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h -I$(INCPATH) -I$(INCPATH)/SDL2
+
+all: $(LIBFILE) showfont.exe
 
 $(LIBFILE): $(DLLFILE)
   @echo * Create library: $@...
@@ -53,11 +58,18 @@ $(LNKFILE):
 .c.obj:
   wcc386 $(CFLAGS) -fo=$^@ $<
 
+showfont.obj: showfont.c
+  wcc386 $(CFLAGS_BASE) -fo=$^@ $<
+
+showfont.exe: $(LIBFILE) showfont.obj
+  wlink SYS os2v2 OP q LIBPATH $(LIBPATH) LIBR {$(LIBFILE) SDL2.lib} F {showfont.obj}  N showfont.exe
+
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
   @if exist *.obj rm *.obj
   @if exist *.err rm *.err
   @if exist *.map rm *.map
+  @if exist *.exe rm *.exe
   @if exist $(LNKFILE) rm $(LNKFILE)
   @if exist $(DLLFILE) rm $(DLLFILE)
   @if exist $(LIBFILE) rm $(LIBFILE)
