@@ -183,11 +183,6 @@
    functions. */
 #define LFS_ALIAS_BITS 32
 
-#ifdef _MSC_VER
-#define strcasecmp _stricmp
-#define strncasecmp _strnicmp
-typedef int ssize_t;
-#ifndef __cplusplus
+#if defined(_MSC_VER) && !defined(__cplusplus)
 #define inline __inline
-#endif
 #endif

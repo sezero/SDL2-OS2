@@ -4,8 +4,8 @@ CPPFLAGS = -DREAL_IS_FLOAT -DNEWOLD_WRITE_SAMPLE -DOPT_MULTI -DOPT_GENERIC -DOPT
 CPPFLAGS+= -DNDEBUG -DWIN32
 CPPFLAGS+= -DHAVE_CONFIG_H
 CPPFLAGS+= -DDYNAMIC_BUILD
-INCLUDES = -Imsinttypes -IOS2 -I.
-ASFLAGS  = -fwin32 -IOS2/nasm/
+INCLUDES = -IOS2_MSVC -IOS2_MSVC/msinttypes -I.
+ASFLAGS  = -fwin32 -Iasm_nasm/
 ASFLAGS += -DUNDERSCORE
 
 CC = cl
@@ -50,7 +50,7 @@ $(DLLNAME): $(OBJ)
 %.obj: %.c
 	$(COMPILE) -Fo$@ -c $<
 
-%.obj: OS2/nasm/%.asm
+%.obj: asm_nasm/%.asm
 	$(AS) $(ASFLAGS) -o $@ $<
 
 clean:

@@ -88,6 +88,12 @@
 
 typedef unsigned char byte;
 
+#if defined(_MSC_VER) && !defined(MPG123_DEF_SSIZE_T)
+#define MPG123_DEF_SSIZE_T
+#include <stddef.h>
+typedef ptrdiff_t ssize_t;
+#endif
+
 /* A safe realloc also for very old systems where realloc(NULL, size) returns NULL. */
 void *safe_realloc(void *ptr, size_t size);
 #ifndef HAVE_STRERROR
@@ -178,7 +184,7 @@ int win32_utf8_wide(const char *const mbptr, wchar_t **wptr, size_t *buflen);
 typedef int socklen_t;
 #endif
 
-#if defined(__EMX__) && !(defined(__INNOTEK_LIBC__)||defined(__KLIBC__))
+#if defined(_MSC_VER) || (defined(__EMX__) && !(defined(__INNOTEK_LIBC__)||defined(__KLIBC__)))
 #define strcasecmp stricmp
 #define strncasecmp strnicmp
 #endif
