@@ -33,12 +33,6 @@
 #include "SDL_video.h"
 #include "SDL_version.h"
 
-#include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  *  \file SDL_syswm.h
  *
@@ -47,9 +41,9 @@ extern "C" {
  *  an unhandled window event occurs.  This event is ignored by default, but
  *  you can enable it with SDL_EventState().
  */
-#ifdef SDL_PROTOTYPES_ONLY
 struct SDL_SysWMinfo;
-#else
+
+#if !defined(SDL_PROTOTYPES_ONLY)
 
 #if defined(SDL_VIDEO_DRIVER_WINDOWS)
 #ifndef WIN32_LEAN_AND_MEAN
@@ -110,7 +104,16 @@ typedef void *EGLSurface;
 #define INCL_WIN
 #include <os2.h>
 #endif
+#endif /* SDL_PROTOTYPES_ONLY */
 
+
+#include "begin_code.h"
+/* Set up for C function definitions, even when using C++ */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#if !defined(SDL_PROTOTYPES_ONLY)
 /**
  *  These are the various supported windowing subsystems
  */
@@ -233,9 +236,9 @@ struct SDL_SysWMinfo
         struct
         {
 #if defined(__OBJC__) && defined(__has_feature) && __has_feature(objc_arc)
-            NSWindow __unsafe_unretained *window; /* The Cocoa window */
+            NSWindow __unsafe_unretained *window; /**< The Cocoa window */
 #else
-            NSWindow *window;                     /* The Cocoa window */
+            NSWindow *window;                     /**< The Cocoa window */
 #endif
         } cocoa;
 #endif
@@ -243,13 +246,13 @@ struct SDL_SysWMinfo
         struct
         {
 #if defined(__OBJC__) && defined(__has_feature) && __has_feature(objc_arc)
-            UIWindow __unsafe_unretained *window; /* The UIKit window */
+            UIWindow __unsafe_unretained *window; /**< The UIKit window */
 #else
-            UIWindow *window;                     /* The UIKit window */
+            UIWindow *window;                     /**< The UIKit window */
 #endif
-            GLuint framebuffer; /* The GL view's Framebuffer Object. It must be bound when rendering to the screen using GL. */
-            GLuint colorbuffer; /* The GL view's color Renderbuffer Object. It must be bound when SDL_GL_SwapWindow is called. */
-            GLuint resolveFramebuffer; /* The Framebuffer Object which holds the resolve color Renderbuffer, when MSAA is used. */
+            GLuint framebuffer; /**< The GL view's Framebuffer Object. It must be bound when rendering to the screen using GL. */
+            GLuint colorbuffer; /**< The GL view's color Renderbuffer Object. It must be bound when SDL_GL_SwapWindow is called. */
+            GLuint resolveFramebuffer; /**< The Framebuffer Object which holds the resolve color Renderbuffer, when MSAA is used. */
         } uikit;
 #endif
 #if defined(SDL_VIDEO_DRIVER_WAYLAND)
