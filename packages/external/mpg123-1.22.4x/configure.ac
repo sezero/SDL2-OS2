@@ -81,6 +81,7 @@ fi
 cflags_save="$CFLAGS"
 AM_PROG_AS
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_PROG_CPP
 CFLAGS="$cflags_save"
 AC_PROG_INSTALL
@@ -386,10 +387,22 @@ AC_ARG_ENABLE(messages,
                 fi
               ], [])
 
-if test "x$messages" = "xdisabled"; then
+allquiet=disabled
+AC_ARG_ENABLE(allquiet,
+              [  --enable-allquiet=[no/yes] no messages on the console from library (implies --disable-messages) ],
+              [
+                if test "x$enableval" = xyes; then
+                  allquiet="enabled"
+                fi
+              ], [])
+
+if test "x$messages" = "xdisabled" -o "x$allquiet" = "xenabled"; then
   AC_DEFINE(NO_WARNING, 1, [ Define to disable warning messages. ])
   AC_DEFINE(NO_ERRORMSG,   1, [ Define to disable error messages. ])
   AC_DEFINE(NO_ERETURN, 1, [ Define to disable error messages in combination with a return value (the return is left intact). ])
+  if test "x$messages" = "xenabled"; then
+    AC_DEFINE(LIBMPG123_QUIET, 1, [ Define to disable all messages from library. ])
+  fi
 fi
 
 newhuff=enabled
@@ -1276,7 +1289,7 @@ dnl Not disabling buffer for float mode... check that this is OK now!
     ccalign=no
   ;;
   ppc_nofpu)
-    ADD_CPPFLAGS="$ADD_CPPFLAGS -DOPT_PPC -DREAL_IS_FIXED"
+    ADD_CPPFLAGS="$ADD_CPPFLAGS -DOPT_GENERIC -DOPT_PPC -DREAL_IS_FIXED"
     more_sources=
     ccalign=no
   ;;
@@ -2499,6 +2512,14 @@ if test x"$with_optimization" = x0; then
 	echo "No optimization flags chosen, make sure you have something basic in your CFLAGS at least...
 "
 fi
+if test x"$cpu_type" = xi486; then
+  echo "WARNING: You selected the i486 decoder. This is not recommened for regular use."
+  echo "It was designed for actual i486 CPUs a long time ago. Generic C code is likely"
+  echo "to perform better nowadays. Also, the decoder misses features like volume"
+  echo "scaling and has clipping issues. Continue if you are into software archeology"
+  echo "only."
+fi
+
 if test x"$debugging" = xenabled; then
 	echo "CFLAGS='$CFLAGS'"
 	echo "LIBS='$LIBS'"

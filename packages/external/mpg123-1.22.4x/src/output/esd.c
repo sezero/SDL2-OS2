@@ -160,7 +160,7 @@ mpg123_module_t mpg123_output_module_info = {
 	/* api_version */	MPG123_MODULE_API_VERSION,
 	/* name */			"esd",						
 	/* description */	"Output audio using ESounD (The Enlightened Sound Daemon).",
-	/* revision */		"$Rev: 1698 $",						
+	/* revision */		"$Rev$",						
 	/* handle */		NULL,
 	
 	/* init_output */	init_esound,						

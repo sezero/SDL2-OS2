@@ -11,18 +11,17 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-typedef long ssize_t;
-
 // Needed for Visual Studio versions before VS 2010.
 #if (_MSC_VER < 1600)
 typedef __int32 int32_t;
 typedef unsigned __int32 uint32_t;
-#else
-#include <stdint.h>
-#endif
-
 #define PRIiMAX "I64i"
 typedef __int64 intmax_t;
+#else
+#include <stdint.h>
+#include <inttypes.h>
+#endif
+
 // ftell returns long, _ftelli64 returns __int64
 // off_t is long, not __int64, use ftell
 #define ftello ftell

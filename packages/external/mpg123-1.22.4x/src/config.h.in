@@ -263,6 +263,9 @@
    functions. */
 #undef LFS_ALIAS_BITS
 
+/* Define to disable all messages from library. */
+#undef LIBMPG123_QUIET
+
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 

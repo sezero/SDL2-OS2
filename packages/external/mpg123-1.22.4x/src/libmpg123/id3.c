@@ -346,7 +346,7 @@ static unsigned char *next_text(unsigned char* prev, unsigned char encoding, siz
 	return text;
 }
 
-#if 0 /* unused after the verbosity-kill patch */
+#if !defined(LIBMPG123_QUIET) || defined(DEBUG)
 static const char *enc_name(unsigned char enc)
 {
 	switch(enc)

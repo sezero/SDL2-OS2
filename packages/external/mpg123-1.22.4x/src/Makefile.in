@@ -155,10 +155,13 @@ out123_OBJECTS = $(am_out123_OBJECTS)
 out123_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(out123_LDFLAGS) $(LDFLAGS) -o $@
-am_tests_noise_OBJECTS = noise.$(OBJEXT) compat.$(OBJEXT) \
-	dither.$(OBJEXT)
+am_tests_noise_OBJECTS = tests_noise-noise.$(OBJEXT) \
+	tests_noise-compat.$(OBJEXT) tests_noise-dither.$(OBJEXT)
 tests_noise_OBJECTS = $(am_tests_noise_OBJECTS)
 tests_noise_LDADD = $(LDADD)
+tests_noise_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(tests_noise_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am__dirstamp = $(am__leading_dot)dirstamp
 am_tests_plain_id3_OBJECTS = plain_id3.$(OBJEXT) compat.$(OBJEXT)
 tests_plain_id3_OBJECTS = $(am_tests_plain_id3_OBJECTS)
@@ -546,6 +549,7 @@ libmpg123/compat.c \
 libmpg123/dither.h \
 libmpg123/dither.c
 
+tests_noise_CFLAGS = -DMPG123_NOISE
 tests_text_SOURCES = \
 tests/text.c \
 tests/testtext.h \
@@ -682,7 +686,7 @@ tests/$(am__dirstamp):
 
 tests/noise$(EXEEXT): $(tests_noise_OBJECTS) $(tests_noise_DEPENDENCIES) $(EXTRA_tests_noise_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/noise$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(tests_noise_OBJECTS) $(tests_noise_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(tests_noise_LINK) $(tests_noise_OBJECTS) $(tests_noise_LDADD) $(LIBS)
 
 tests/plain_id3$(EXEEXT): $(tests_plain_id3_OBJECTS) $(tests_plain_id3_DEPENDENCIES) $(EXTRA_tests_plain_id3_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/plain_id3$(EXEEXT)
@@ -707,7 +711,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/control_generic.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dither.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/equalizer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/genre.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getlopt.Po@am__quote@
@@ -717,7 +720,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpg123-id3dump.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpg123-strip.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpg123.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/noise.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/out123.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plain_id3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/playlist.Po@am__quote@
@@ -726,6 +728,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/streamdump.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sysutil.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/term.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests_noise-compat.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests_noise-dither.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests_noise-noise.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/text.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wav.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/win32_net.Po@am__quote@
@@ -767,33 +772,47 @@ compat.obj: libmpg123/compat.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o compat.obj `if test -f 'libmpg123/compat.c'; then $(CYGPATH_W) 'libmpg123/compat.c'; else $(CYGPATH_W) '$(srcdir)/libmpg123/compat.c'; fi`
 
-noise.o: tests/noise.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT noise.o -MD -MP -MF $(DEPDIR)/noise.Tpo -c -o noise.o `test -f 'tests/noise.c' || echo '$(srcdir)/'`tests/noise.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/noise.Tpo $(DEPDIR)/noise.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/noise.c' object='noise.o' libtool=no @AMDEPBACKSLASH@
+tests_noise-noise.o: tests/noise.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_noise_CFLAGS) $(CFLAGS) -MT tests_noise-noise.o -MD -MP -MF $(DEPDIR)/tests_noise-noise.Tpo -c -o tests_noise-noise.o `test -f 'tests/noise.c' || echo '$(srcdir)/'`tests/noise.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tests_noise-noise.Tpo $(DEPDIR)/tests_noise-noise.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/noise.c' object='tests_noise-noise.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o noise.o `test -f 'tests/noise.c' || echo '$(srcdir)/'`tests/noise.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_noise_CFLAGS) $(CFLAGS) -c -o tests_noise-noise.o `test -f 'tests/noise.c' || echo '$(srcdir)/'`tests/noise.c
 
-noise.obj: tests/noise.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT noise.obj -MD -MP -MF $(DEPDIR)/noise.Tpo -c -o noise.obj `if test -f 'tests/noise.c'; then $(CYGPATH_W) 'tests/noise.c'; else $(CYGPATH_W) '$(srcdir)/tests/noise.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/noise.Tpo $(DEPDIR)/noise.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/noise.c' object='noise.obj' libtool=no @AMDEPBACKSLASH@
+tests_noise-noise.obj: tests/noise.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_noise_CFLAGS) $(CFLAGS) -MT tests_noise-noise.obj -MD -MP -MF $(DEPDIR)/tests_noise-noise.Tpo -c -o tests_noise-noise.obj `if test -f 'tests/noise.c'; then $(CYGPATH_W) 'tests/noise.c'; else $(CYGPATH_W) '$(srcdir)/tests/noise.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tests_noise-noise.Tpo $(DEPDIR)/tests_noise-noise.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/noise.c' object='tests_noise-noise.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o noise.obj `if test -f 'tests/noise.c'; then $(CYGPATH_W) 'tests/noise.c'; else $(CYGPATH_W) '$(srcdir)/tests/noise.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_noise_CFLAGS) $(CFLAGS) -c -o tests_noise-noise.obj `if test -f 'tests/noise.c'; then $(CYGPATH_W) 'tests/noise.c'; else $(CYGPATH_W) '$(srcdir)/tests/noise.c'; fi`
 
-dither.o: libmpg123/dither.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dither.o -MD -MP -MF $(DEPDIR)/dither.Tpo -c -o dither.o `test -f 'libmpg123/dither.c' || echo '$(srcdir)/'`libmpg123/dither.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/dither.Tpo $(DEPDIR)/dither.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmpg123/dither.c' object='dither.o' libtool=no @AMDEPBACKSLASH@
+tests_noise-compat.o: libmpg123/compat.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_noise_CFLAGS) $(CFLAGS) -MT tests_noise-compat.o -MD -MP -MF $(DEPDIR)/tests_noise-compat.Tpo -c -o tests_noise-compat.o `test -f 'libmpg123/compat.c' || echo '$(srcdir)/'`libmpg123/compat.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tests_noise-compat.Tpo $(DEPDIR)/tests_noise-compat.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmpg123/compat.c' object='tests_noise-compat.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dither.o `test -f 'libmpg123/dither.c' || echo '$(srcdir)/'`libmpg123/dither.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_noise_CFLAGS) $(CFLAGS) -c -o tests_noise-compat.o `test -f 'libmpg123/compat.c' || echo '$(srcdir)/'`libmpg123/compat.c
 
-dither.obj: libmpg123/dither.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dither.obj -MD -MP -MF $(DEPDIR)/dither.Tpo -c -o dither.obj `if test -f 'libmpg123/dither.c'; then $(CYGPATH_W) 'libmpg123/dither.c'; else $(CYGPATH_W) '$(srcdir)/libmpg123/dither.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/dither.Tpo $(DEPDIR)/dither.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmpg123/dither.c' object='dither.obj' libtool=no @AMDEPBACKSLASH@
+tests_noise-compat.obj: libmpg123/compat.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_noise_CFLAGS) $(CFLAGS) -MT tests_noise-compat.obj -MD -MP -MF $(DEPDIR)/tests_noise-compat.Tpo -c -o tests_noise-compat.obj `if test -f 'libmpg123/compat.c'; then $(CYGPATH_W) 'libmpg123/compat.c'; else $(CYGPATH_W) '$(srcdir)/libmpg123/compat.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tests_noise-compat.Tpo $(DEPDIR)/tests_noise-compat.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmpg123/compat.c' object='tests_noise-compat.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dither.obj `if test -f 'libmpg123/dither.c'; then $(CYGPATH_W) 'libmpg123/dither.c'; else $(CYGPATH_W) '$(srcdir)/libmpg123/dither.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_noise_CFLAGS) $(CFLAGS) -c -o tests_noise-compat.obj `if test -f 'libmpg123/compat.c'; then $(CYGPATH_W) 'libmpg123/compat.c'; else $(CYGPATH_W) '$(srcdir)/libmpg123/compat.c'; fi`
+
+tests_noise-dither.o: libmpg123/dither.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_noise_CFLAGS) $(CFLAGS) -MT tests_noise-dither.o -MD -MP -MF $(DEPDIR)/tests_noise-dither.Tpo -c -o tests_noise-dither.o `test -f 'libmpg123/dither.c' || echo '$(srcdir)/'`libmpg123/dither.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tests_noise-dither.Tpo $(DEPDIR)/tests_noise-dither.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmpg123/dither.c' object='tests_noise-dither.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_noise_CFLAGS) $(CFLAGS) -c -o tests_noise-dither.o `test -f 'libmpg123/dither.c' || echo '$(srcdir)/'`libmpg123/dither.c
+
+tests_noise-dither.obj: libmpg123/dither.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_noise_CFLAGS) $(CFLAGS) -MT tests_noise-dither.obj -MD -MP -MF $(DEPDIR)/tests_noise-dither.Tpo -c -o tests_noise-dither.obj `if test -f 'libmpg123/dither.c'; then $(CYGPATH_W) 'libmpg123/dither.c'; else $(CYGPATH_W) '$(srcdir)/libmpg123/dither.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tests_noise-dither.Tpo $(DEPDIR)/tests_noise-dither.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmpg123/dither.c' object='tests_noise-dither.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_noise_CFLAGS) $(CFLAGS) -c -o tests_noise-dither.obj `if test -f 'libmpg123/dither.c'; then $(CYGPATH_W) 'libmpg123/dither.c'; else $(CYGPATH_W) '$(srcdir)/libmpg123/dither.c'; fi`
 
 plain_id3.o: tests/plain_id3.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT plain_id3.o -MD -MP -MF $(DEPDIR)/plain_id3.Tpo -c -o plain_id3.o `test -f 'tests/plain_id3.c' || echo '$(srcdir)/'`tests/plain_id3.c

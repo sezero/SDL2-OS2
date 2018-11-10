@@ -272,7 +272,7 @@ mpg123_module_t mpg123_output_module_info = {
 	/* api_version */	MPG123_MODULE_API_VERSION,
 	/* name */			"sun",						
 	/* description */	"Audio output for Sun Audio.",
-	/* revision */		"$Rev: 1872 $",						
+	/* revision */		"$Rev$",						
 	/* handle */		NULL,
 	
 	/* init_output */	init_sun,						

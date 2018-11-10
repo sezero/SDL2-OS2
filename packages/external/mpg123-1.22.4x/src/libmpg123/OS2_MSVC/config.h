@@ -59,12 +59,12 @@
 #define HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have the <sys/select.h> header file. */
-#ifdef __EMX__
+#ifdef __EMX__ /* !! */
 #define HAVE_SYS_SELECT_H 1
 #endif
 
 /* Define to 1 if you have the <sys/time.h> header file. */
-#ifdef __EMX__
+#ifdef __EMX__ /* !! */
 #define HAVE_SYS_TIME_H 1
 #endif
 
@@ -72,7 +72,7 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#ifdef __EMX__
+#ifdef __EMX__ /* !! */
 #define HAVE_UNISTD_H 1
 #endif
 
@@ -97,6 +97,9 @@
 
 /* Define to disable warning messages. */
 #define NO_WARNING 1
+
+/* Define to disable all messages from library. */
+#define LIBMPG123_QUIET 1
 
 /* Define if network support is enabled. */
 /* #undef NETWORK */

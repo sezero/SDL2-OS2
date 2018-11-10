@@ -219,6 +219,8 @@ libmpg123/compat.c \
 libmpg123/dither.h \
 libmpg123/dither.c
 
+tests_noise_CFLAGS = -DMPG123_NOISE
+
 tests_text_SOURCES = \
 tests/text.c \
 tests/testtext.h \

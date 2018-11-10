@@ -310,7 +310,7 @@ mpg123_module_t mpg123_output_module_info = {
 	/* api_version */	MPG123_MODULE_API_VERSION,
 	/* name */			"oss",
 	/* description */	"Output audio using OSS",
-	/* revision */		"$Rev: 2927 $",
+	/* revision */		"$Rev$",
 	/* handle */		NULL,
 	
 	/* init_output */	init_oss,
