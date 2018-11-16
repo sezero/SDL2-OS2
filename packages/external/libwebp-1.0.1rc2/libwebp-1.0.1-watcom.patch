@@ -1,0 +1,22 @@
+--- libwebp-1.0.1/src/dsp/dec.c~
++++ libwebp-1.0.1/src/dsp/dec.c
+@@ -252,13 +252,12 @@ static void DC16NoTopLeft(uint8_t *dst) 
+ 
+ static void VE4(uint8_t *dst) {    // vertical
+   const uint8_t* top = dst - BPS;
+-  const uint8_t vals[4] = {
+-    AVG3(top[-1], top[0], top[1]),
+-    AVG3(top[ 0], top[1], top[2]),
+-    AVG3(top[ 1], top[2], top[3]),
+-    AVG3(top[ 2], top[3], top[4])
+-  };
++  uint8_t vals[4];
+   int i;
++  vals[0] = AVG3(top[-1], top[0], top[1]);
++  vals[1] = AVG3(top[ 0], top[1], top[2]);
++  vals[2] = AVG3(top[ 1], top[2], top[3]);
++  vals[3] = AVG3(top[ 2], top[3], top[4]);
+   for (i = 0; i < 4; ++i) {
+     memcpy(dst + i * BPS, vals, sizeof(vals));
+   }
+
