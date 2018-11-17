@@ -159,7 +159,7 @@ void set_intflag()
 	skip_tracks = 0;
 }
 
-#if !defined(WIN32) && !defined(GENERIC)
+#if !defined(_WIN32) && !defined(GENERIC)
 static void catch_interrupt(void)
 {
 	intflag = TRUE;
@@ -298,7 +298,7 @@ void set_out_au(char *arg)
 static void set_out_file(char *arg)
 {
 	param.outmode=DECODE_FILE;
-	#ifdef WIN32
+	#ifdef _WIN32
 	#ifdef WANT_WIN32_UNICODE
 	wchar_t *argw = NULL;
 	OutputDescriptor = win32_utf8_wide(arg, &argw, NULL);
@@ -310,9 +310,9 @@ static void set_out_file(char *arg)
 	#else
 	OutputDescriptor=_open(arg,_O_CREAT|_O_WRONLY|_O_BINARY|_O_TRUNC,0666);
 	#endif /*WANT_WIN32_UNICODE*/
-	#else /*WIN32*/
+	#else /*_WIN32*/
 	OutputDescriptor=open(arg,O_CREAT|O_WRONLY|O_TRUNC,0666);
-	#endif /*WIN32*/
+	#endif /*_WIN32*/
 	if(OutputDescriptor==-1)
 	{
 		error2("Can't open %s for writing (%s).\n",arg,strerror(errno));
@@ -326,7 +326,7 @@ static void set_out_stdout(char *arg)
 	param.remote_err=TRUE;
 	aux_out = stderr;
 	OutputDescriptor=STDOUT_FILENO;
-	#ifdef WIN32
+	#ifdef _WIN32
 	_setmode(STDOUT_FILENO, _O_BINARY);
 	#endif
 }
@@ -337,7 +337,7 @@ static void set_out_stdout1(char *arg)
 	param.remote_err=TRUE;
 	aux_out = stderr;
 	OutputDescriptor=STDOUT_FILENO;
-	#ifdef WIN32
+	#ifdef _WIN32
 	_setmode(STDOUT_FILENO, _O_BINARY);
 	#endif
 }
@@ -576,7 +576,7 @@ int open_track(char *fname)
 	if(!strcmp(fname, "-"))
 	{
 		filept = STDIN_FILENO;
-#ifdef WIN32
+#ifdef _WIN32
 		_setmode(STDIN_FILENO, _O_BINARY);
 #endif
 		return open_track_fd();
@@ -739,7 +739,7 @@ void buffer_drain(void)
 }
 
 /* Return TRUE if we should continue (second interrupt happens quickly), skipping tracks, or FALSE if we should die. */
-#if !defined(WIN32) && !defined(GENERIC)
+#if !defined(_WIN32) && !defined(GENERIC)
 int skip_or_die(struct timeval *start_time)
 {
 /* 
@@ -794,7 +794,7 @@ int main(int sys_argc, char ** sys_argv)
 	char *fname;
 	int libpar = 0;
 	mpg123_pars *mp;
-#if !defined(WIN32) && !defined(GENERIC)
+#if !defined(_WIN32) && !defined(GENERIC)
 	struct timeval start_time;
 #endif
 	aux_out = stdout; /* Need to initialize here because stdout is not a constant?! */
@@ -923,7 +923,7 @@ int main(int sys_argc, char ** sys_argv)
 
 	httpdata_init(&htd);
 
-#if !defined(WIN32) && !defined(GENERIC)
+#if !defined(_WIN32) && !defined(GENERIC)
 	if (param.remote)
 	{
 		param.verbose = 0;
@@ -1022,14 +1022,14 @@ int main(int sys_argc, char ** sys_argv)
 #endif
 
 /* make sure not Cygwin, it doesn't need it */
-#if defined(WIN32) && defined(HAVE_WINDOWS_H)
+#if defined(_WIN32) && defined(HAVE_WINDOWS_H)
 	/* argument "3" is equivalent to realtime priority class */
 	win32_set_priority( param.realtime ? 3 : param.w32_priority);
 #endif
 
 	if(!param.remote) prepare_playlist(argc, argv);
 
-#if !defined(WIN32) && !defined(GENERIC)
+#if !defined(_WIN32) && !defined(GENERIC)
 	/* Remote mode is special... but normal console and terminal-controlled operation needs to catch the SIGINT.
 	   For one it serves for track skip when not in terminal control mode.
 	   The more important use being a graceful exit, including telling the buffer process what's going on. */
@@ -1064,7 +1064,7 @@ int main(int sys_argc, char ** sys_argv)
 			/* One should enable terminal control during that sleeping phase! */
 			if(param.verbose > 2) fprintf(stderr, "Note: pausing %i seconds before next track.\n", param.delay);
 			output_pause(ao);
-#ifdef WIN32
+#ifdef _WIN32
 			Sleep(param.delay*1000);
 #else
 			sleep(param.delay);
@@ -1156,7 +1156,7 @@ int main(int sys_argc, char ** sys_argv)
 #endif
 
 /* Rethink that SIGINT logic... */
-#if !defined(WIN32) && !defined(GENERIC)
+#if !defined(_WIN32) && !defined(GENERIC)
 #ifdef HAVE_TERMIOS
 		if(!param.term_ctrl)
 #endif

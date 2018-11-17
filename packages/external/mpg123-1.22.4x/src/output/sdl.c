@@ -12,7 +12,7 @@
 
 #include "audio.h"
 #include "mpg123app.h"
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -129,7 +129,7 @@ static int write_sdl(audio_output_t *ao, unsigned char *buf, int len)
 
 	/* Sleep for half the length of the FIFO */
 	while (sfifo_space( fifo ) < len )
-#ifdef WIN32
+#ifdef _WIN32
 		Sleep( (FIFO_DURATION/2) * 1000);
 #else
 		usleep( (FIFO_DURATION/2) * 1000000 );
@@ -161,7 +161,7 @@ static int close_sdl(audio_output_t *ao)
 	{
 		int msecs = stuff*1000/ao->rate;
 		debug1("still stuff for about %i ms there", msecs);
-#ifdef WIN32
+#ifdef _WIN32
 		Sleep(msecs/2);
 #else
 		usleep(msecs*1000/2);

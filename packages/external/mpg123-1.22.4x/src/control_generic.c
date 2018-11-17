@@ -10,7 +10,7 @@
 #include "mpg123app.h"
 #include <stdarg.h>
 #include <ctype.h>
-#if !defined (WIN32) || defined (__CYGWIN__)
+#if !defined (_WIN32) || defined (__CYGWIN__)
 #include <sys/wait.h>
 #include <sys/socket.h>
 #endif
@@ -299,7 +299,7 @@ int control_generic (mpg123_handle *fr)
  	else
  		outstream = stdout;
  		
-#ifndef WIN32
+#ifndef _WIN32
  	setlinebuf(outstream);
 #else /* perhaps just use setvbuf as it's C89 */
 	/*

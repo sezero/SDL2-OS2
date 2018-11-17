@@ -365,7 +365,7 @@ int main(int argc, char **argv)
 			usage(1);
 	}
 
-#ifdef WIN32
+#ifdef _WIN32
 	fprintf(stderr, "WARNING: This tool is not yet adapted to run on Windows (file I/O, unicode arguments)!\n");
 #endif
 	if(loptind >= argc) usage(1);

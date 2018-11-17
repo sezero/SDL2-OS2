@@ -385,7 +385,7 @@ int add_next_file (int argc, char *argv[])
 					}
 					firstline = 0;
 				}
-				#if !defined(WIN32)
+				#if !defined(_WIN32)
 				{
 				size_t i;
 				/* convert \ to / (from MS-like directory format) */

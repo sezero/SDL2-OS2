@@ -19,11 +19,11 @@
 
 #include "xfermem.h"
 #include "httpget.h"
-#if WIN32
+#ifdef _WIN32
 #include "win32_support.h"
 #endif
 
-#if defined(WIN32) && defined(DYNAMIC_BUILD)
+#if defined(_WIN32) && defined(DYNAMIC_BUILD)
 #define LINK_MPG123_DLL
 #endif
 #include "mpg123.h"

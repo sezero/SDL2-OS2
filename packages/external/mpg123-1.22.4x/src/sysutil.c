@@ -12,7 +12,7 @@
 
 #include "debug.h"
 
-#if (!defined(WIN32) || defined (__CYGWIN__)) && defined(HAVE_SIGNAL_H)
+#if (!defined(_WIN32) || defined (__CYGWIN__)) && defined(HAVE_SIGNAL_H)
 void (*catchsignal(int signum, void(*handler)()))()
 {
   struct sigaction new_sa;

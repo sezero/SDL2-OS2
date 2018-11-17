@@ -260,7 +260,7 @@ void set_out_au(char *arg)
 static void set_out_file(char *arg)
 {
 	param.outmode=DECODE_FILE;
-	#ifdef WIN32
+	#ifdef _WIN32
 	#ifdef WANT_WIN32_UNICODE
 	wchar_t *argw = NULL;
 	OutputDescriptor = win32_utf8_wide(arg, &argw, NULL);
@@ -272,9 +272,9 @@ static void set_out_file(char *arg)
 	#else
 	OutputDescriptor=_open(arg,_O_CREAT|_O_WRONLY|_O_BINARY|_O_TRUNC,0666);
 	#endif /*WANT_WIN32_UNICODE*/
-	#else /*WIN32*/
+	#else /*_WIN32*/
 	OutputDescriptor=open(arg,O_CREAT|O_WRONLY|O_TRUNC,0666);
-	#endif /*WIN32*/
+	#endif /*_WIN32*/
 	if(OutputDescriptor==-1)
 	{
 		error2("Can't open %s for writing (%s).\n",arg,strerror(errno));
@@ -287,7 +287,7 @@ static void set_out_stdout(char *arg)
 	param.outmode=DECODE_FILE;
 	param.remote_err=TRUE;
 	OutputDescriptor=STDOUT_FILENO;
-	#ifdef WIN32
+	#ifdef _WIN32
 	_setmode(STDOUT_FILENO, _O_BINARY);
 	#endif
 }
@@ -297,7 +297,7 @@ static void set_out_stdout1(char *arg)
 	param.outmode=DECODE_AUDIOFILE;
 	param.remote_err=TRUE;
 	OutputDescriptor=STDOUT_FILENO;
-	#ifdef WIN32
+	#ifdef _WIN32
 	_setmode(STDOUT_FILENO, _O_BINARY);
 	#endif
 }
@@ -472,7 +472,7 @@ int main(int sys_argc, char ** sys_argv)
 	int result;
 	int encoding;
 	size_t channels;
-#if defined(WIN32)
+#if defined(_WIN32)
 	_setmode(STDIN_FILENO,  _O_BINARY);
 #endif
 
@@ -547,7 +547,7 @@ int main(int sys_argc, char ** sys_argv)
 #endif
 
 /* make sure not Cygwin, it doesn't need it */
-#if defined(WIN32) && defined(HAVE_WINDOWS_H)
+#if defined(_WIN32) && defined(HAVE_WINDOWS_H)
 	/* argument "3" is equivalent to realtime priority class */
 	win32_set_priority( param.realtime ? 3 : param.w32_priority);
 #endif

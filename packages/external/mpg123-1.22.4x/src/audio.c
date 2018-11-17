@@ -453,7 +453,7 @@ void audio_capabilities(audio_output_t *ao, mpg123_handle *mh)
 	if(param.verbose > 1) print_capabilities(ao, mh);
 }
 
-#if !defined(WIN32) && !defined(GENERIC)
+#if !defined(_WIN32) && !defined(GENERIC)
 #ifndef NOXFERMEM
 static void catch_child(void)
 {
@@ -490,7 +490,7 @@ int init_output(audio_output_t **ao)
 		/* ThOr: I'm not quite sure why we need to block that signal here. */
 		sigaddset (&newsigset, SIGUSR1);
 		sigprocmask (SIG_BLOCK, &newsigset, &oldsigset);
-#if !defined(WIN32) && !defined(GENERIC)
+#if !defined(_WIN32) && !defined(GENERIC)
 		catchsignal (SIGCHLD, catch_child);
 #endif
 		switch ((buffer_pid = fork()))

@@ -122,7 +122,7 @@ static int open_file(char *filename)
 #endif
    if(!strcmp("-",filename))  {
       wavfp = stdout;
-#ifdef WIN32
+#ifdef _WIN32
      _setmode(STDOUT_FILENO, _O_BINARY);
 #endif
       /* If stdout is redirected to a file, seeks suddenly can work.

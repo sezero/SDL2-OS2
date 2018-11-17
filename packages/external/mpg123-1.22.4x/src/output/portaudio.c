@@ -13,7 +13,7 @@
 #include "audio.h"
 #include "mpg123app.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -116,7 +116,7 @@ static int write_portaudio(audio_output_t *ao, unsigned char *buf, int len)
 	
 	/* Sleep for half the length of the FIFO */
 	while (sfifo_space( &pa->fifo ) < len ) {
-#ifdef WIN32
+#ifdef _WIN32
 		Sleep( (FIFO_DURATION/2) * 1000);
 #else
 		usleep( (FIFO_DURATION/2) * 1000000 );

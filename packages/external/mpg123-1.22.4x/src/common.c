@@ -26,7 +26,7 @@ static const int samples_per_frame[4][4] =
 };
 
 
-#if (!defined(WIN32) || defined (__CYGWIN__)) && defined(HAVE_SIGNAL_H)
+#if (!defined(_WIN32) || defined (__CYGWIN__)) && defined(HAVE_SIGNAL_H)
 void (*catchsignal(int signum, void(*handler)()))()
 {
   struct sigaction new_sa;
@@ -222,7 +222,7 @@ void print_stat(mpg123_handle *fr, long offset, long buffsize)
 	off_t rno, no;
 	double basevol, realvol;
 	char *icy;
-#ifndef WIN32
+#ifndef _WIN32
 #ifndef GENERIC
 /* Only generate new stat line when stderr is ready... don't overfill... */
 	{
