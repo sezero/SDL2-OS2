@@ -21,7 +21,8 @@ PMGRE_LIB = $(LIBPATH)/pmgre.lib
 PMGRE_DEF = $(LIBPATH)/pmgre.def
 PMGRE_EXP = $(LIBPATH)/pmgre.exp
 
-LIBS = mmpm2.lib libuls.lib libconv.lib
+LIBM = libm.lib
+LIBS = mmpm2.lib libuls.lib libconv.lib $(LIBM)
 # $(PMGRE_LIB)
 
 CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
@@ -39,6 +40,10 @@ CFLAGS+= -DBUILD_SDL
 #CFLAGS+= -DOS2DEBUG
 # - debug messages from OS/2 code via SDL_LogDebug():
 #CFLAGS+= -DOS2DEBUG=2
+
+MSRCS= e_atan2.c e_log.c e_pow.c e_rem_pio2.c e_sqrt.c &
+       k_cos.c k_rem_pio2.c k_sin.c k_tan.c  &
+       s_atan.c s_copysign.c s_cos.c s_fabs.c s_floor.c s_scalbn.c s_sin.c s_tan.c
 
 SRCS = SDL.c SDL_assert.c SDL_error.c SDL_log.c SDL_hints.c
 SRCS+= SDL_getenv.c SDL_iconv.c SDL_malloc.c SDL_qsort.c SDL_stdlib.c SDL_string.c
@@ -72,6 +77,7 @@ SRCS+= SDL_os2video.c SDL_os2util.c SDL_os2dive.c SDL_os2vman.c &
 SRCS+= SDL_dynapi.c
 
 OBJS = $(SRCS:.c=.obj)
+MOBJS= $(MSRCS:.c=.obj)
 
 .extensions:
 .extensions: .lib .dll .obj .c .asm
@@ -82,7 +88,7 @@ OBJS = $(SRCS:.c=.obj)
 
 all: $(DLLFILE) $(LIBFILE) .symbolic
 
-$(DLLFILE): $(OBJS) $(LNKFILE)
+$(DLLFILE): $(OBJS) $(LIBM) $(LNKFILE)
 # $(PMGRE_LIB)
     @echo * Linking: $@
     wlink @$(LNKFILE)
@@ -122,6 +128,10 @@ $(PMGRE_EXP): $(PMGRE_DEF) $(LIBPATH)/def2lbc.sed
     @echo * Creating PMGRE import library
     sed -f $(LIBPATH)/def2lbc.sed $(PMGRE_DEF) > $(PMGRE_EXP)
 
+.c: ./src/libm;
+$(LIBM): $(MOBJS)
+    wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(MOBJS)
+
 $(LNKFILE):
 #   About LIBPATH: OpenWatcom's library os2386.lib does not contain entries
 #   Gre32Entry1..Gre32Entry10. We need os2386.lib from IBM OS/2 developer's
@@ -149,6 +159,7 @@ clean: .SYMBOLIC
     @if exist *.obj rm *.obj
     @if exist *.err rm *.err
     @if exist $(LNKFILE) rm $(LNKFILE)
+    @if exist $(LIBM) rm $(LIBM)
 
 distclean: .SYMBOLIC clean
     @if exist $(LIBHOME)/*.exp rm $(LIBHOME)/*.exp
