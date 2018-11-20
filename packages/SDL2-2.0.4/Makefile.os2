@@ -32,7 +32,7 @@ CFLAGS+= -wx
 CFLAGS+= -bd
 # the include paths :
 CFLAGS+= $(INCPATH)
-# building SDL itself:
+# building SDL itself (for DECLSPEC):
 CFLAGS+= -DBUILD_SDL
 
 # Debug options:
