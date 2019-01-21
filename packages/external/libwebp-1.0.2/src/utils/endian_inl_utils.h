@@ -39,6 +39,13 @@
 #endif
 #endif  // !HAVE_CONFIG_H
 
+#if defined(__WATCOMC__) && defined(__386__)
+extern __inline uint16_t BSwap16(uint16_t);
+#pragma aux BSwap16 = \
+  "xchg al, ah" \
+  parm   [ax]   \
+  modify [ax];
+#else /* not watcom: */
 static WEBP_INLINE uint16_t BSwap16(uint16_t x) {
 #if defined(HAVE_BUILTIN_BSWAP16)
   return __builtin_bswap16(x);
@@ -49,7 +56,24 @@ static WEBP_INLINE uint16_t BSwap16(uint16_t x) {
   return (x >> 8) | ((x & 0xff) << 8);
 #endif  // HAVE_BUILTIN_BSWAP16
 }
+#endif
 
+#if defined(__WATCOMC__) && defined(__386__)
+extern __inline uint32_t BSwap32(uint32_t);
+#ifndef __SW_3 /* 486+ */
+#pragma aux BSwap32 = \
+  "bswap eax"  \
+  parm   [eax] \
+  modify [eax];
+#else  /* 386-only */
+#pragma aux BSwap32 = \
+  "xchg al, ah"  \
+  "ror  eax, 16" \
+  "xchg al, ah"  \
+  parm   [eax]   \
+  modify [eax];
+#endif
+#else /* not watcom: */
 static WEBP_INLINE uint32_t BSwap32(uint32_t x) {
 #if defined(WEBP_USE_MIPS32_R2)
   uint32_t ret;
@@ -72,6 +96,7 @@ static WEBP_INLINE uint32_t BSwap32(uint32_t x) {
   return (x >> 24) | ((x >> 8) & 0xff00) | ((x << 8) & 0xff0000) | (x << 24);
 #endif  // HAVE_BUILTIN_BSWAP32
 }
+#endif
 
 static WEBP_INLINE uint64_t BSwap64(uint64_t x) {
 #if defined(HAVE_BUILTIN_BSWAP64)
