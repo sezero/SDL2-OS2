@@ -663,13 +663,13 @@ int IMG_SavePNG_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst)
             }
             SDL_free(png);
         } else {
-            SDL_SetError("Failed to convert and save image");
+            IMG_SetError("Failed to convert and save image");
         }
         if (freedst) {
             SDL_RWclose(dst);
         }
     } else {
-        SDL_SetError("Passed NULL dst");
+        IMG_SetError("Passed NULL dst");
     }
     return result;
 }
