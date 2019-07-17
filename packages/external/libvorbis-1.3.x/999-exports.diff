@@ -15,7 +15,7 @@ apply this only when needed to control the exported functions.
    int hs=ci->halfrate_flag;
 --- libvorbis/lib/vorbisfile.c.orig
 +++ libvorbis/lib/vorbisfile.c
-@@ -2137,7 +2137,7 @@
+@@ -2141,7 +2141,7 @@
    }
  }
  

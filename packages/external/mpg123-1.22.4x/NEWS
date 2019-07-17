@@ -8,6 +8,13 @@
 
 1.22.x-sezero (backports)
 ---
+- Fix out-of-bounds reads in ID3 parser for unsynced frames.
+  (oss-fuzz-bug 15852)
+- Fix out-of-bounds read for RVA2 frames with non-delimited identifier.
+  (oss-fuzz-bug 15852)
+- Fix implementation-defined parsing of RVA2 values (oss-fuzz-bug 15862)
+- Correct preprocessor syntax in mangle.h, no #error in a #define line.
+  (bug 273, thanks to nmlgc).
 - Fix compute_bpf() for free format streams (needed to estimate track
   length and working fuzzy seeking in absence of an Info tag).
 - Accept changing mode extension bits when looking for next header for
