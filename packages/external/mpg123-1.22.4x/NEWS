@@ -10,12 +10,13 @@
 ---
 - Fix an out-of-bounds read of maximal two bytes for truncated RVA2 frames.
   (oss-fuzz-bug 15975). The earlier fix around the same location needed
-  one thought more.
+  one thought more. Actually, another though was needed, oss-fuzz-bug 16009
+  documents the incomplete fix.
 - Fix out-of-bounds reads in ID3 parser for unsynced frames.
   (oss-fuzz-bug 15852)
 - Fix out-of-bounds read for RVA2 frames with non-delimited identifier.
   (oss-fuzz-bug 15852)
-- Fix implementation-defined parsing of RVA2 values (oss-fuzz-bug 15862)
+- Fix implementation-defined parsing of RVA2 values. (oss-fuzz-bug 15862)
 - Correct preprocessor syntax in mangle.h, no #error in a #define line.
   (bug 273, thanks to nmlgc).
 - Fix compute_bpf() for free format streams (needed to estimate track
