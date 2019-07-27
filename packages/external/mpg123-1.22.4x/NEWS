@@ -8,10 +8,12 @@
 
 1.22.x-sezero (backports)
 ---
-- Fix an out-of-bounds read of maximal two bytes for truncated RVA2 frames.
+- Fix an out-of-bounds read of maximal two bytes for truncated RVA2 frames
   (oss-fuzz-bug 15975). The earlier fix around the same location needed
   one thought more. Actually, another though was needed, oss-fuzz-bug 16009
   documents the incomplete fix.
+- Fix an invalid write of one zero byte for empty ID3v2 frames that demand
+  de-unsyncing (oss-fuzz-bug 16050).
 - Fix out-of-bounds reads in ID3 parser for unsynced frames.
   (oss-fuzz-bug 15852)
 - Fix out-of-bounds read for RVA2 frames with non-delimited identifier.

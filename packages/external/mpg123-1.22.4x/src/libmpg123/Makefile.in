@@ -126,8 +126,8 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am_libmpg123_la_OBJECTS = compat.lo parse.lo frame.lo format.lo \
-	dct64.lo equalizer.lo id3.lo optimize.lo readers.lo tabinit.lo \
-	libmpg123.lo index.lo
+	dct64.lo id3.lo optimize.lo readers.lo tabinit.lo libmpg123.lo \
+	index.lo
 libmpg123_la_OBJECTS = $(am_libmpg123_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -465,7 +465,6 @@ libmpg123_la_SOURCES = \
 	synth_ntom.h \
 	synth_8bit.h \
 	synths.h \
-	equalizer.c \
 	huffman.h \
 	newhuffman.h \
 	icy.h \
@@ -492,6 +491,7 @@ EXTRA_libmpg123_la_SOURCES = \
 	lfs_wrap.c \
 	icy.c \
 	icy2utf8.c \
+	equalizer.c \
 	l2tables.h \
 	layer1.c \
 	layer2.c \
