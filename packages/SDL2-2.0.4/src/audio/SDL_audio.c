@@ -711,6 +711,7 @@ SDL_GetAudioDriver(int index)
     return NULL;
 }
 
+#define SDL_zeroa(x) SDL_memset((x), 0, sizeof((x)))
 int
 SDL_AudioInit(const char *driver_name)
 {
@@ -723,7 +724,7 @@ SDL_AudioInit(const char *driver_name)
     }
 
     SDL_zero(current_audio);
-    SDL_zero(open_devices);
+    SDL_zeroa(open_devices);
 
     /* Select the proper audio driver */
     if (driver_name == NULL) {
@@ -1369,7 +1370,7 @@ SDL_AudioQuit(void)
     SDL_DestroyMutex(current_audio.detectionLock);
 
     SDL_zero(current_audio);
-    SDL_zero(open_devices);
+    SDL_zeroa(open_devices);
 }
 
 #define NUM_FORMATS 10

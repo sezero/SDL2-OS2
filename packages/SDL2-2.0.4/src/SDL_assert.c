@@ -112,6 +112,7 @@ static void SDL_GenerateAssertionReport(void)
 }
 
 #if defined(__WATCOMC__)
+static void SDL_ExitProcess (int);
 #pragma aux SDL_ExitProcess aborts;
 #endif
 static void SDL_ExitProcess(int exitcode)
@@ -124,6 +125,7 @@ static void SDL_ExitProcess(int exitcode)
 }
 
 #if defined(__WATCOMC__)
+static void SDL_AbortAssertion (void);
 #pragma aux SDL_AbortAssertion aborts;
 #endif
 static void SDL_AbortAssertion(void)
