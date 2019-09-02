@@ -304,8 +304,8 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
 #endif
 #ifdef USE_TIMIDITY_MIDI
                 if ( timidity_ok ) {
-                    Timidity_PlaySome(music_playing->data.midi, stream, len);
-                    goto skip;
+                    left = Timidity_PlaySome(music_playing->data.midi, stream, len);
+                    break;
                 }
 #endif
                 break;
