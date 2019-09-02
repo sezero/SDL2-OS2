@@ -1075,11 +1075,14 @@ int music_internal_position(double position)
         break;
 #endif
 #ifdef MID_MUSIC
-#ifdef MP3_MAD_MUSIC
         case MUS_MID:
-        Timidity_Seek(music_playing->data.midi, (Uint32)(position * 1000));
-        break;
+#ifdef USE_TIMIDITY_MIDI
+        if (timidity_ok) {
+            Timidity_Seek(music_playing->data.midi, (Uint32)(position * 1000));
+            break;
+        }
 #endif
+        /* fallthru */
 #endif
         default:
         /* TODO: Implement this for other music backends */
