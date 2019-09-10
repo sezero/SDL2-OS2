@@ -247,7 +247,6 @@ WatchJoystick(SDL_Joystick * joystick)
                             next=SDL_TRUE;
                         }
                     }
-                    
                     break;
                 case SDL_JOYHATMOTION:
                         if (event.jhat.value == SDL_HAT_CENTERED) {
@@ -434,7 +433,7 @@ int
 main(int argc, char *argv[])
 {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL compiled without Joystick support.\n");
-    exit(1);
+    return 1;
 }
 
 #endif
