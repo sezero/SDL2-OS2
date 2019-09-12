@@ -16,6 +16,8 @@ OBJS = $(SRCS:.c=.obj)
 LIBS = SDL2.lib
 
 CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei -j
+# warnings:
+CFLAGS+= -wx
 # to build a dll:
 CFLAGS+= -bd
 # for DECLSPEC:

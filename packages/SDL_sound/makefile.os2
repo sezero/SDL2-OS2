@@ -20,6 +20,8 @@ OBJS = $(SRCS:.c=.obj)
 
 CFLAGS_BASE = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei -j
 CFLAGS_BASE+= -DNDEBUG
+# warnings:
+CFLAGS_BASE+= -wx
 # include paths:
 CFLAGS_BASE+= -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h -I. -I"$(INCPATH)" -I"$(INCPATH)/SDL2"
 CFLAGS = $(CFLAGS_BASE) -I"decoders/timidity"
@@ -82,12 +84,12 @@ $(LNKFILE):
 
 # silence pointer signedness warnings (E1181) for these ones:
 ogg.obj: decoders/ogg.c
-  wcc386 $(CFLAGS) -wcd=1181 -fo=$^@ decoders/ogg.c
+  wcc386 $(CFLAGS) -fo=$^@ decoders/ogg.c
 wav.obj: decoders/wav.c
-  wcc386 $(CFLAGS) -wcd=1181 -fo=$^@ decoders/wav.c
+  wcc386 $(CFLAGS) -fo=$^@ decoders/wav.c
 
 playsound.obj: playsound/playsound.c
-  wcc386 $(CFLAGS_BASE) -wcd=136 -DHAVE_SIGNAL_H=1 -DHAVE_SETBUF=1 -DHAVE_ASSERT_H=1 -fo=$^@ $<
+  wcc386 $(CFLAGS_BASE) -DHAVE_SIGNAL_H=1 -DHAVE_SETBUF=1 -DHAVE_ASSERT_H=1 -fo=$^@ $<
 playsound_simple.obj: playsound/playsound_simple.c
   wcc386 $(CFLAGS_BASE) -fo=$^@ $<
 
