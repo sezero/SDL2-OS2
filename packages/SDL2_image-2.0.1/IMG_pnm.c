@@ -37,6 +37,10 @@
 
 #ifdef LOAD_PNM
 
+#ifndef SDL_MAX_SINT32  /* in SDL >= 2.0.7 */
+#define SDL_MAX_SINT32  ((Sint32)0x7FFFFFFF)    /* 2147483647 */
+#endif
+
 /* See if an image is contained in a data source */
 int IMG_isPNM(SDL_RWops *src)
 {
@@ -97,7 +101,7 @@ static int ReadNumber(SDL_RWops *src)
     }
     do {
         /* Protect from possible overflow */
-        if (number >= INT_MAX / 10) {
+        if (number >= (SDL_MAX_SINT32 / 10)) {
             return -1;
         }
         number *= 10;
