@@ -88,7 +88,7 @@ FILE *fopen_utf8(const char *filename, const char *mode)
 	return f;
 }
 
-#ifdef FLAC_METADATA_ITERATORS
+#ifdef FLAC_METADATA_INTERFACES
 int _stat64_utf8(const char *path, struct __stat64 *buffer)
 {
 	wchar_t *wpath;

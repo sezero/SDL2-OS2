@@ -8,6 +8,45 @@ stuff, flac apps, etc are removed, configury updated & customized.
 --------------------------------------------------------------------------------
 
 From: Erik de Castro Lopo <erikd@mega-nerd.com>
+Date: Sun, 25 Aug 2019 07:59:02 +0000 (+1000)
+Subject: libFLAC/lpc.c: Fix signed integer overflow
+X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=5598543a9663a846a0b7e42f395207bc44381e41
+
+libFLAC/lpc.c: Fix signed integer overflow
+
+Do the addition as 64 bits before truncating to 32 bits.
+
+Credit: Oss-Fuzz
+Issue: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=16459
+Testcase: fuzzer_decoder-5728784602365952
+
+--------------------------------------------------------------------------------
+
+From: Erik de Castro Lopo <erikd@mega-nerd.com>
+Date: Sun, 25 Aug 2019 07:24:47 +0000 (+1000)
+Subject: libFLAC/bitreader.c: Fix shift invoking undefined behaviour
+X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=09f47c00e18a77390acfc2e725564542756effaf
+
+libFLAC/bitreader.c: Fix shift invoking undefined behaviour
+
+Credit: Oss-Fuzz
+Issue: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=16458
+Testcase: fuzzer_decoder-5649174900506624
+
+--------------------------------------------------------------------------------
+
+From: sezero <sezero@users.sourceforge.net>
+Date: Sun, 4 Aug 2019 23:00:40 +0000 (+0300)
+Subject: Do not assume that sys/param.h defines MIN and MAX
+X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=4a43f2bd4d7e12b5d994f48e18cf014008d204ce
+
+Do not assume that sys/param.h defines MIN and MAX
+
+One such example is sys/param.h from MinGW.
+
+--------------------------------------------------------------------------------
+
+From: Erik de Castro Lopo <erikd@mega-nerd.com>
 Date: Wed, 19 Apr 2017 08:14:26 +0000 (+1000)
 Subject: libFLAC: Fix default flac_max/min
 X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=64f47c2d71ffba5aa8cd1d2a447339fd95f362f9
@@ -1010,4 +1049,3 @@ Signed-off-by: Erik de Castro Lopo <erikd@mega-nerd.com>
  1 files changed, 1 insertions(+), 1 deletions(-)
 
 --------------------------------------------------------------------------------
-
