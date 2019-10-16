@@ -943,7 +943,7 @@ SDLTest_CommonInit(SDLTest_CommonState * state)
                     SDL_GetError());
             return SDL_FALSE;
         }
-        if (state->verbose & VERBOSE_VIDEO) {
+        if (state->verbose & VERBOSE_AUDIO) {
             fprintf(stderr, "Audio driver: %s\n",
                     SDL_GetCurrentAudioDriver());
         }

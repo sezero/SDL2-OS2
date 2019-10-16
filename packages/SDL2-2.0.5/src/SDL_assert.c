@@ -111,18 +111,14 @@ static void SDL_GenerateAssertionReport(void)
     }
 }
 
+/* This is not declared in any header, although it is shared between some
+    parts of SDL, because we don't want anything calling it without an
+    extremely good reason. */
 #if defined(__WATCOMC__)
-static void SDL_ExitProcess (int);
+void SDL_ExitProcess(const int exitcode);
 #pragma aux SDL_ExitProcess aborts;
 #endif
-static void SDL_ExitProcess(int exitcode)
-{
-#ifdef __WIN32__
-    ExitProcess(exitcode);
-#else
-    _exit(exitcode);
-#endif
-}
+void SDL_ExitProcess(const int exitcode);
 
 #if defined(__WATCOMC__)
 static void SDL_AbortAssertion (void);

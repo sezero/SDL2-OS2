@@ -53,6 +53,25 @@ extern int SDL_HelperWindowDestroy(void);
 #endif
 
 
+/* This is not declared in any header, although it is shared between some
+    parts of SDL, because we don't want anything calling it without an
+    extremely good reason. */
+void SDL_ExitProcess(const int exitcode)
+{
+#ifdef __WIN32__
+    /* "if you do not know the state of all threads in your process, it is
+       better to call TerminateProcess than ExitProcess"
+       https://msdn.microsoft.com/en-us/library/windows/desktop/ms682658(v=vs.85).aspx */
+    TerminateProcess(GetCurrentProcess(), exitcode);
+    /* MingW doesn't have TerminateProcess marked as noreturn, so add an
+       ExitProcess here that will never be reached but make MingW happy. */
+    ExitProcess(exitcode);
+#else
+    _exit(exitcode);
+#endif
+}
+
+
 /* The initialized subsystems */
 #ifdef SDL_MAIN_NEEDED
 static SDL_bool SDL_MainIsReady = SDL_FALSE;
