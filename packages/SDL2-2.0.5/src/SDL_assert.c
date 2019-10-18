@@ -39,9 +39,6 @@
 #else  /* fprintf, _exit(), etc. */
 #include <stdio.h>
 #include <stdlib.h>
-#if ! defined(__WINRT__)
-#include <unistd.h>
-#endif
 #endif
 
 static SDL_assert_state SDLCALL

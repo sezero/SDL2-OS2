@@ -22,6 +22,10 @@
 
 #if defined(__WIN32__)
 #include "core/windows/SDL_windows.h"
+#elif defined(__OS2__)
+#include <stdlib.h> /* For _exit() */
+#elif !defined(__WINRT__)
+#include <unistd.h> /* For _exit(), etc. */
 #endif
 #if defined(__OS2__)
 #include "core/os2/SDL_os2.h"
