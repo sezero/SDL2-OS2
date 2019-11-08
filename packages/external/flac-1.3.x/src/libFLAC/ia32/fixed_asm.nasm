@@ -33,6 +33,7 @@
 
 %include "nasm.h"
 
+%ifdef FLAC_INCLUDE_ENCODER
 	data_section
 
 cglobal FLAC__fixed_compute_best_predictor_asm_ia32_mmx_cmov
@@ -305,5 +306,7 @@ cident FLAC__fixed_compute_best_predictor_asm_ia32_mmx_cmov
 	pop	ebx
 	pop	ebp
 	ret
+
+%endif ; FLAC_INCLUDE_ENCODER
 
 ; end

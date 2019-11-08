@@ -34,13 +34,14 @@
 #  include <config.h>
 #endif
 
+#ifdef FLAC_INCLUDE_ENCODER
+
 #include <stdlib.h> /* for malloc() */
 #include <string.h> /* for memcmp(), memcpy() */
 #include "FLAC/assert.h"
 #include "share/alloc.h"
 #include "private/ogg_helper.h"
 
-#ifdef FLAC_INCLUDE_ENCODER
 #include "protected/stream_encoder.h"
 
 
@@ -76,7 +77,6 @@ static FLAC__bool full_read_(FLAC__StreamEncoder *encoder, FLAC__byte *buffer, s
 
 	return true;
 }
-#endif
 
 void simple_ogg_page__init(ogg_page *page)
 {
@@ -95,7 +95,6 @@ void simple_ogg_page__clear(ogg_page *page)
 	simple_ogg_page__init(page);
 }
 
-#ifdef FLAC_INCLUDE_ENCODER
 FLAC__bool simple_ogg_page__get_at(FLAC__StreamEncoder *encoder, FLAC__uint64 position, ogg_page *page, FLAC__StreamEncoderSeekCallback seek_callback, FLAC__StreamEncoderReadCallback read_callback, void *client_data)
 {
 	static const unsigned OGG_HEADER_FIXED_PORTION_LEN = 27;

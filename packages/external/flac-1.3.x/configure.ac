@@ -290,13 +290,9 @@ if test x$ac_cv_c_compiler_gnu = xyes ; then
 		fi
 
 	case "$host" in
-		*-*-cygwin|*mingw*) CFLAGS="$CFLAGS -DFLAC_API_EXPORTS" ;;
-		*-*-darwin*) CFLAGS="$CFLAGS -fno-common -force_cpusubtype_ALL" ;;
-	  esac
-	case "$host" in
 		x86_64-*-darwin*) CFLAGS="$CFLAGS -mmacosx-version-min=10.5"
 				 LDFLAGS="$LDFLAGS -mmacosx-version-min=10.5" ;;
-	  esac
+	 esac
 
 	fi
 
@@ -305,6 +301,22 @@ XIPH_ADD_CFLAGS([-Wdeclaration-after-statement])
 
 if test x$enable_stack_smash_protection = "xyes" ; then
 	XIPH_GCC_STACK_PROTECTOR
+	fi
+
+AH_VERBATIM([FLAC_API_EXPORTS],
+[/* libtool defines DLL_EXPORT for windows dll builds,
+   but flac code relies on FLAC_API_EXPORTS instead. */
+#ifdef DLL_EXPORT
+#ifdef __cplusplus
+# define FLACPP_API_EXPORTS
+#else
+# define FLAC_API_EXPORTS
+#endif
+#endif])
+
+if test x$enable_shared != "xyes" ; then
+dnl for correct FLAC_API
+	CPPFLAGS="-DFLAC__NO_DLL $CPPFLAGS"
 	fi
 
 AC_CONFIG_FILES([ \
@@ -340,4 +352,3 @@ if test x$ac_cv_c_compiler_gnu = xyes ; then
 	echo "    GCC version : ......................... ${GCC_VERSION}"
 fi
 echo
-

@@ -7,6 +7,30 @@ stuff, flac apps, etc are removed, configury updated & customized.
 
 --------------------------------------------------------------------------------
 
+From: Hakan Kvist <hakan.kvist@sony.com>
+Date: Tue, 22 Oct 2019 18:44:58 +0000 (+0200)
+Subject: libFLAC/stream_decoder.c: fix integer overflow on corrupt file
+X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=b84ff55b032def9e38277f5efd249f4930a3dae1
+
+libFLAC/stream_decoder.c: fix integer overflow on corrupt file
+
+Corrupt metadata could make the length calculation overflow.
+
+--------------------------------------------------------------------------------
+
+From: Erik de Castro Lopo <erikd@mega-nerd.com>
+Date: Mon, 7 Oct 2019 01:55:58 +0000 (+1100)
+Subject: libFLAC/bitreader.c: Fix out-of-bounds read
+X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=2e7931c27eb15e387da440a37f12437e35b22dd4
+
+libFLAC/bitreader.c: Fix out-of-bounds read
+
+Credit: Oss-Fuzz
+Issue: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=17069
+Testcase: fuzzer_decoder-5670265022840832
+
+--------------------------------------------------------------------------------
+
 From: Erik de Castro Lopo <erikd@mega-nerd.com>
 Date: Sun, 25 Aug 2019 07:59:02 +0000 (+1000)
 Subject: libFLAC/lpc.c: Fix signed integer overflow

@@ -8,6 +8,10 @@
 
 1.22.x-sezero (backports)
 ---
+- Reset the flag for having a frame to decode before trying to
+  parse a new one. This prevents very unkind behaviour (crashes)
+  when combinging mpg123_scan() with decoding later on for damaged
+  streams that have a mixture of different MPEG versions.
 - Fix an out-of-bounds read of maximal two bytes for truncated RVA2 frames
   (oss-fuzz-bug 15975). The earlier fix around the same location needed
   one thought more. Actually, another though was needed, oss-fuzz-bug 16009

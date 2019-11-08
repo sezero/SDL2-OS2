@@ -9,6 +9,16 @@
 /* Target processor is little endian. */
 #undef CPU_IS_LITTLE_ENDIAN
 
+/* libtool defines DLL_EXPORT for windows dll builds,
+   but flac code relies on FLAC_API_EXPORTS instead. */
+#ifdef DLL_EXPORT
+#ifdef __cplusplus
+# define FLACPP_API_EXPORTS
+#else
+# define FLAC_API_EXPORTS
+#endif
+#endif
+
 /* define if the FLAC encoder is compiled */
 #undef FLAC_INCLUDE_ENCODER
 
