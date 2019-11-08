@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <math.h>
 
 #ifdef HAVE_UNISTD_H
@@ -266,13 +267,15 @@ readgifimage(char* mode)
     unsigned char localmap[256][3];
     int localbits;
     int status;
+    size_t raster_size;
 
-    if (fread(buf, 1, 9, infile) == 0) {
-        perror(filename);
+    if (fread(buf, 1, 9, infile) != 9) {
+        fprintf(stderr, "short read from file %s (%s)\n",
+                filename, strerror(errno));
 	return (0);
     }
-    width = buf[4] + (buf[5] << 8);
-    height = buf[6] + (buf[7] << 8);
+    width = (buf[4] + (buf[5] << 8)) & 0xffff; /* 16 bit */
+    height = (buf[6] + (buf[7] << 8)) & 0xffff;  /* 16 bit */
     local = buf[8] & 0x80;
     interleaved = buf[8] & 0x40;
 
@@ -280,11 +283,17 @@ readgifimage(char* mode)
         fprintf(stderr, "no colormap present for image\n");
         return (0);
     }
-    if (width == 0 || height == 0) {
+    if (width == 0UL || height == 0UL || (width > 2000000000UL / height)) {
         fprintf(stderr, "Invalid value of width or height\n");
         return(0);
     }
-    if ((raster = (unsigned char*) _TIFFmalloc(width*height+EXTRAFUDGE)) == NULL) {
+    raster_size=width*height;
+    if ((raster_size/width) == height) {
+        raster_size += EXTRAFUDGE;  /* Add elbow room */
+    } else {
+        raster_size=0;
+    }
+    if ((raster = (unsigned char*) _TIFFmalloc(raster_size)) == NULL) {
         fprintf(stderr, "not enough memory for image\n");
         return (0);
     }
@@ -316,7 +325,7 @@ readextension(void)
     char buf[255];
 
     (void) getc(infile);
-    while ((count = getc(infile)))
+    while ((count = getc(infile)) && count >= 0 && count <= 255)
         fread(buf, 1, count, infile);
 }
 

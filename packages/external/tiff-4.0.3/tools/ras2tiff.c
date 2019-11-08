@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
@@ -122,6 +123,25 @@ main(int argc, char* argv[])
 		fclose(in);
 		return (-3);
 	}
+        if ((h.ras_width <= 0) || (h.ras_width >= INT_MAX) ||
+            (h.ras_height <= 0) || (h.ras_height >= INT_MAX) ||
+            (h.ras_depth <= 0) || (h.ras_depth >= INT_MAX) ||
+            (h.ras_length <= 0) || (h.ras_length >= INT_MAX) ||
+            (h.ras_type < 0) ||
+            (h.ras_maptype < 0) ||
+            (h.ras_maplength < 0) || (h.ras_maplength >= INT_MAX)) {
+                fprintf(stderr, "%s: Improper image header.\n", argv[optind]);
+                fclose(in);
+		return (-2);
+        }
+        if ((h.ras_depth != 1) &&
+            (h.ras_depth != 8) &&
+            (h.ras_depth != 24)) {
+                fprintf(stderr, "%s: Improper image depth (%d).\n",
+                        argv[optind], h.ras_depth);
+                fclose(in);
+		return (-2);
+        }
 	out = TIFFOpen(argv[optind+1], "w");
 	if (out == NULL)
 	{
@@ -153,7 +173,7 @@ main(int argc, char* argv[])
 		mapsize = 1<<h.ras_depth; 
 		if (h.ras_maplength > mapsize*3) {
 			fprintf(stderr,
-			    "%s: Huh, %ld colormap entries, should be %d?\n",
+			    "%s: Huh, %d colormap entries, should be %d?\n",
 			    argv[optind], h.ras_maplength, mapsize*3);
 			return (-7);
 		}

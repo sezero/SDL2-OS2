@@ -120,7 +120,8 @@ int main( int argc, char ** argv )
     while( nOverviewCount < argc - 2 && nOverviewCount < 100 )
     {
         anOverviews[nOverviewCount] = atoi(argv[nOverviewCount+2]);
-        if( anOverviews[nOverviewCount] <= 0)
+        if( (anOverviews[nOverviewCount] <= 0) ||
+            ((anOverviews[nOverviewCount] > 1024)))
         {
             fprintf( stderr, "Incorrect parameters\n" );
             return(1);

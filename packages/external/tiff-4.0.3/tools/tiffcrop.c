@@ -148,11 +148,6 @@ extern int getopt(int, char**, char*);
 #define PATH_MAX 1024
 #endif
 
-#ifndef streq
-#define	streq(a,b)	(strcmp((a),(b)) == 0)
-#endif
-#define	strneq(a,b,n)	(strncmp((a),(b),(n)) == 0)
-
 #define	TRUE	1
 #define	FALSE	0
 
@@ -2034,6 +2029,10 @@ void  process_command_opts (int argc, char *argv[], char *mp, char *mode, uint32
                     {
 		    crop_data->zones++;
 		    opt_offset = strchr(opt_ptr, ':');
+		    if (!opt_offset) {
+			TIFFError("Wrong parameter syntax for -Z", "tiffcrop -h");
+			exit(-1);
+		    }
                     *opt_offset = '\0';
                     crop_data->zonelist[i].position = atoi(opt_ptr);
                     crop_data->zonelist[i].total    = atoi(opt_offset + 1);

@@ -40,9 +40,7 @@
 #endif
 
 #include "tiffio.h"
-
-#define	streq(a,b)	(strcmp((a),(b)) == 0)
-#define	strneq(a,b,n)	(strncmp(a,b,n) == 0)
+#include "tiffiop.h"
 
 /* x% weighting -> fraction of full color */
 #define	PCT(x)	(((x)*255+127)/100)
@@ -130,6 +128,11 @@ main(int argc, char* argv[])
 	extern int optind;
 	extern char *optarg;
 
+	in = (TIFF *) NULL;
+	out = (TIFF *) NULL;
+	inbuf = (unsigned char *) NULL;
+	outbuf = (unsigned char *) NULL;
+        
 	while ((c = getopt(argc, argv, "c:r:R:G:B:")) != -1)
 		switch (c) {
 		case 'c':		/* compression scheme */
@@ -163,24 +166,24 @@ main(int argc, char* argv[])
 		fprintf(stderr,
 	    "%s: Bad photometric; can only handle RGB and Palette images.\n",
 		    argv[optind]);
-		return (-1);
+		goto tiff2bw_error;
 	}
 	TIFFGetField(in, TIFFTAG_SAMPLESPERPIXEL, &samplesperpixel);
 	if (samplesperpixel != 1 && samplesperpixel != 3) {
 		fprintf(stderr, "%s: Bad samples/pixel %u.\n",
 		    argv[optind], samplesperpixel);
-		return (-1);
+		goto tiff2bw_error;
 	}
 	if( photometric == PHOTOMETRIC_RGB && samplesperpixel != 3) {
 		fprintf(stderr, "%s: Bad samples/pixel %u for PHOTOMETRIC_RGB.\n",
 		    argv[optind], samplesperpixel);
-		return (-1);
+		goto tiff2bw_error;
 	}
 	TIFFGetField(in, TIFFTAG_BITSPERSAMPLE, &bitspersample);
 	if (bitspersample != 8) {
 		fprintf(stderr,
 		    " %s: Sorry, only handle 8-bit samples.\n", argv[optind]);
-		return (-1);
+		goto tiff2bw_error;
 	}
 	TIFFGetField(in, TIFFTAG_IMAGEWIDTH, &w);
 	TIFFGetField(in, TIFFTAG_IMAGELENGTH, &h);
@@ -188,7 +191,7 @@ main(int argc, char* argv[])
 
 	out = TIFFOpen(argv[optind+1], "w");
 	if (out == NULL)
-		return (-1);
+		goto tiff2bw_error;
 	TIFFSetField(out, TIFFTAG_IMAGEWIDTH, w);
 	TIFFSetField(out, TIFFTAG_IMAGELENGTH, h);
 	TIFFSetField(out, TIFFTAG_BITSPERSAMPLE, 8);
@@ -214,6 +217,11 @@ main(int argc, char* argv[])
 	TIFFSetField(out, TIFFTAG_IMAGEDESCRIPTION, thing);
 	TIFFSetField(out, TIFFTAG_SOFTWARE, "tiff2bw");
 	outbuf = (unsigned char *)_TIFFmalloc(TIFFScanlineSize(out));
+        if( !outbuf )
+        {
+            fprintf(stderr, "Out of memory\n");
+            goto tiff2bw_error;
+        }
 	TIFFSetField(out, TIFFTAG_ROWSPERSTRIP,
 	    TIFFDefaultStripSize(out, rowsperstrip));
 
@@ -237,6 +245,11 @@ main(int argc, char* argv[])
 #undef CVT
 		}
 		inbuf = (unsigned char *)_TIFFmalloc(TIFFScanlineSize(in));
+                if( !inbuf )
+                {
+                    fprintf(stderr, "Out of memory\n");
+                    goto tiff2bw_error;
+                }
 		for (row = 0; row < h; row++) {
 			if (TIFFReadScanline(in, inbuf, row, 0) < 0)
 				break;
@@ -247,6 +260,11 @@ main(int argc, char* argv[])
 		break;
 	case pack(PHOTOMETRIC_RGB, PLANARCONFIG_CONTIG):
 		inbuf = (unsigned char *)_TIFFmalloc(TIFFScanlineSize(in));
+                if( !inbuf )
+                {
+                    fprintf(stderr, "Out of memory\n");
+                    goto tiff2bw_error;
+                }
 		for (row = 0; row < h; row++) {
 			if (TIFFReadScanline(in, inbuf, row, 0) < 0)
 				break;
@@ -256,23 +274,48 @@ main(int argc, char* argv[])
 		}
 		break;
 	case pack(PHOTOMETRIC_RGB, PLANARCONFIG_SEPARATE):
+        {
+                tmsize_t inbufsize;
 		rowsize = TIFFScanlineSize(in);
-		inbuf = (unsigned char *)_TIFFmalloc(3*rowsize);
+                inbufsize = TIFFSafeMultiply(tmsize_t, 3, rowsize);
+		inbuf = (unsigned char *)_TIFFmalloc(inbufsize);
+                if( !inbuf )
+                {
+                    fprintf(stderr, "Out of memory\n");
+                    goto tiff2bw_error;
+                }
 		for (row = 0; row < h; row++) {
 			for (s = 0; s < 3; s++)
 				if (TIFFReadScanline(in,
 				    inbuf+s*rowsize, row, s) < 0)
-					 return (-1);
+                                        goto tiff2bw_error;
 			compresssep(outbuf,
 			    inbuf, inbuf+rowsize, inbuf+2*rowsize, w);
 			if (TIFFWriteScanline(out, outbuf, row, 0) < 0)
 				break;
 		}
 		break;
+        }
 	}
 #undef pack
+        if (inbuf)
+                _TIFFfree(inbuf);
+        if (outbuf)
+                _TIFFfree(outbuf);
+        TIFFClose(in);
 	TIFFClose(out);
 	return (0);
+
+ tiff2bw_error:
+        if (inbuf)
+                _TIFFfree(inbuf);
+        if (outbuf)
+                _TIFFfree(outbuf);
+        if (out)
+                TIFFClose(out);
+        if (in)
+                TIFFClose(in);
+        return (-1);
 }
 
 static int
@@ -427,7 +470,23 @@ cpTags(TIFF* in, TIFF* out)
 {
     struct cpTag *p;
     for (p = tags; p < &tags[NTAGS]; p++)
-	cpTag(in, out, p->tag, p->count, p->type);
+    {
+        if( p->tag == TIFFTAG_GROUP3OPTIONS )
+        {
+            uint16 compression;
+            if( !TIFFGetField(in, TIFFTAG_COMPRESSION, &compression) ||
+                    compression != COMPRESSION_CCITTFAX3 )
+                continue;
+        }
+        if( p->tag == TIFFTAG_GROUP4OPTIONS )
+        {
+            uint16 compression;
+            if( !TIFFGetField(in, TIFFTAG_COMPRESSION, &compression) ||
+                    compression != COMPRESSION_CCITTFAX4 )
+                continue;
+        }
+        cpTag(in, out, p->tag, p->count, p->type);
+    }
 }
 #undef NTAGS
 

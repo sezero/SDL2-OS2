@@ -1398,6 +1398,12 @@ DECLAREreadFunc(readSeparateTilesIntoBuffer)
 					status = 0;
 					goto done;
 				}
+				if (0xFFFFFFFF / tilew < spp)
+				{
+					TIFFError(TIFFFileName(in), "Error, either TileWidth (%u) or BitsPerSample (%u) is too large", tilew, bps);
+					status = 0;
+					goto done;
+				}
 				/*
 				 * Tile is clipped horizontally.  Calculate
 				 * visible portion and skewing factors.

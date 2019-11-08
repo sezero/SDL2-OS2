@@ -541,7 +541,7 @@ TIFFPrintDirectory(TIFF* tif, FILE* fd, long flags)
 			for (l = 0; l < n; l++) {
 				fprintf(fd, "    %2lu: %5u",
 				    l, td->td_transferfunction[0][l]);
-				for (i = 1; i < td->td_samplesperpixel; i++)
+				for (i = 1; i < td->td_samplesperpixel - td->td_extrasamples && i < 3; i++)
 					fprintf(fd, " %5u",
 					    td->td_transferfunction[i][l]);
 				fputc('\n', fd);

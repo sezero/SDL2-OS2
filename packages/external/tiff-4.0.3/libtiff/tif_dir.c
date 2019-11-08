@@ -706,7 +706,7 @@ badvaluedouble:
         TIFFErrorExt(tif->tif_clientdata, module,
              "%s: Bad value %f for \"%s\" tag",
              tif->tif_name, dblval,
-		     fip->field_name);
+		     fip ? fip->field_name : "Unknown");
         va_end(ap);
         }
     return (0);

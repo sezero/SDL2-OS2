@@ -66,6 +66,7 @@ extern void *lfind(const void *, const void *, size_t *, size_t,
 #endif
 
 #define    streq(a,b)      (strcmp(a,b) == 0)
+#define    strneq(a,b,n)   (strncmp(a,b,n) == 0)
 
 #ifndef TRUE
 #define	TRUE	1
