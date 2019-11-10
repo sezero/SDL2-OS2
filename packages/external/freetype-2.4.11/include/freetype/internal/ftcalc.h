@@ -156,6 +156,13 @@ FT_BEGIN_HEADER
                      FT_Pos  out_y );
 
 
+  /*
+   *  Return the most significant bit index.
+   */
+  FT_BASE( FT_Int )
+  FT_MSB( FT_UInt32 z );
+
+
 #define INT_TO_F26DOT6( x )    ( (FT_Long)(x) << 6  )
 #define INT_TO_F2DOT14( x )    ( (FT_Long)(x) << 14 )
 #define INT_TO_FIXED( x )      ( (FT_Long)(x) << 16 )
