@@ -7,6 +7,19 @@ stuff, flac apps, etc are removed, configury updated & customized.
 
 --------------------------------------------------------------------------------
 
+From: Erik de Castro Lopo <erikd@mega-nerd.com>
+Date: Sun, 10 Nov 2019 19:42:11 +0000 (+1100)
+Subject: libFLAC/bitreader.c: Fix shift invoking undefined behaviour
+X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=b3f55c40cc6e00ee4ae1560b5449e54d3f7012b4
+
+libFLAC/bitreader.c: Fix shift invoking undefined behaviour
+
+Credit: Oss-Fuzz
+Issue: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=18589
+Testcase: fuzzer_decoder-5668806471188480
+
+--------------------------------------------------------------------------------
+
 From: Hakan Kvist <hakan.kvist@sony.com>
 Date: Tue, 22 Oct 2019 18:44:58 +0000 (+0200)
 Subject: libFLAC/stream_decoder.c: fix integer overflow on corrupt file
