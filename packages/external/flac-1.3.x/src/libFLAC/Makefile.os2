@@ -38,7 +38,7 @@ BLD_TARGET=$(DLLNAME)
 
 COMPILE=wcc386 $(CFLAGS) $(CPPFLAGS) $(INCLUDES)
 
-OBJ=cpu_asm.obj lpc_asm.obj bitmath.obj bitreader.obj cpu.obj crc.obj fixed.obj float.obj format.obj lpc.obj md5.obj memory.obj stream_decoder.obj ogg_decoder_aspect.obj ogg_mapping.obj
+OBJ=cpu_asm.obj lpc_asm.obj bitmath.obj bitreader.obj cpu.obj crc.obj fixed.obj format.obj lpc.obj md5.obj memory.obj stream_decoder.obj ogg_decoder_aspect.obj ogg_mapping.obj
 # metadata interfaces:
 #OBJ+= metadata_object.obj metadata_iterators.obj
 # encoder support:

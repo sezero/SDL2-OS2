@@ -7,19 +7,6 @@ stuff, flac apps, etc are removed, configury updated & customized.
 
 --------------------------------------------------------------------------------
 
-From: Erik de Castro Lopo <erikd@mega-nerd.com>
-Date: Sun, 10 Nov 2019 19:42:11 +0000 (+1100)
-Subject: libFLAC/bitreader.c: Fix shift invoking undefined behaviour
-X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=b3f55c40cc6e00ee4ae1560b5449e54d3f7012b4
-
-libFLAC/bitreader.c: Fix shift invoking undefined behaviour
-
-Credit: Oss-Fuzz
-Issue: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=18589
-Testcase: fuzzer_decoder-5668806471188480
-
---------------------------------------------------------------------------------
-
 From: Hakan Kvist <hakan.kvist@sony.com>
 Date: Tue, 22 Oct 2019 18:44:58 +0000 (+0200)
 Subject: libFLAC/stream_decoder.c: fix integer overflow on corrupt file
@@ -914,20 +901,6 @@ Patch-from : Ozkan Sezer <sezeroz@gmail.com>
 ---
  configure.ac |    7 ++++++-
  1 files changed, 6 insertions(+), 1 deletions(-)
-
---------------------------------------------------------------------------------
-
-From b1b6caf8e1520eb9a95757e50c7672e6a69ebede Mon Sep 17 00:00:00 2001
-From: Erik de Castro Lopo <erikd@mega-nerd.com>
-Date: Sun, 11 May 2014 03:24:27 -0700
-Subject: [PATCH] replaygain_synthesis.h : Fix FLAC_SHARE__MAX_SUPPORTED_CHANNELS.
-
-Was previously hard coded as 2 when it should be FLAC__MAX_CHANNELS.
-
-Patch-from: lvqcl <lvqcl.mail@gmail.com>
----
- include/share/replaygain_synthesis.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
 
 --------------------------------------------------------------------------------
 

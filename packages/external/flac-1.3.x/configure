@@ -1486,9 +1486,8 @@ Optional Features:
                           SSE instructions
   --disable-3dnow         Disable 3DNOW! optimizations
   --disable-altivec       Disable Altivec optimizations
-  --enable-encoder        Include the FLAC encoder [default=no]
-  --enable-metadata       Include metadata manipulation interfaces
-                          [default=no]
+  --disable-encoder       Do not include the FLAC encoder
+  --disable-metadata      Do not include metadata manipulation interfaces
   --enable-gcc-werror     Enable -Werror in all Makefiles
   --enable-stack-smash-protection
                           Enable GNU GCC stack smash protection
@@ -14575,7 +14574,7 @@ fi
 if test "${enable_encoder+set}" = set; then :
   enableval=$enable_encoder; want_encoder=$enableval
 else
-  want_encoder=no
+  want_encoder=yes
 fi
 
 if test "x$want_encoder" = xyes ; then
@@ -14591,7 +14590,7 @@ fi
 if test "${enable_metadata+set}" = set; then :
   enableval=$enable_metadata; want_metadata=$enableval
 else
-  want_metadata=no
+  want_metadata=yes
 fi
 
 if test "x$want_metadata" = xyes ; then

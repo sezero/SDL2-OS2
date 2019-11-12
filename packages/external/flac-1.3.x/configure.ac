@@ -203,8 +203,8 @@ AH_TEMPLATE(FLAC__USE_ALTIVEC, [define to enable use of Altivec instructions])
 fi
 
 AC_ARG_ENABLE(encoder,
-	AC_HELP_STRING([--enable-encoder], [Include the FLAC encoder [default=no]]),
-	[want_encoder=$enableval], [want_encoder=no])
+	AC_HELP_STRING([--disable-encoder], [Do not include the FLAC encoder]),
+	[want_encoder=$enableval], [want_encoder=yes])
 if test "x$want_encoder" = xyes ; then
 	AC_DEFINE([FLAC_INCLUDE_ENCODER],1,[define if the FLAC encoder is compiled])
 	NASM_ENCODER_FLAGS="-d FLAC_INCLUDE_ENCODER"
@@ -213,8 +213,8 @@ else
 fi
 AC_SUBST(NASM_ENCODER_FLAGS)
 AC_ARG_ENABLE(metadata,
-	AC_HELP_STRING([--enable-metadata], [Include metadata manipulation interfaces [default=no]]),
-	[want_metadata=$enableval], [want_metadata=no])
+	AC_HELP_STRING([--disable-metadata], [Do not include metadata manipulation interfaces]),
+	[want_metadata=$enableval], [want_metadata=yes])
 if test "x$want_metadata" = xyes ; then
 	AC_DEFINE([FLAC_METADATA_INTERFACES],1,[define if FLAC metadata manipulation interfaces are compiled])
 fi
