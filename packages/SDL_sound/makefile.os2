@@ -82,12 +82,6 @@ $(LNKFILE):
 .c.obj:
   wcc386 $(CFLAGS) -fo=$^@ $<
 
-# silence pointer signedness warnings (E1181) for these ones:
-ogg.obj: decoders/ogg.c
-  wcc386 $(CFLAGS) -fo=$^@ decoders/ogg.c
-wav.obj: decoders/wav.c
-  wcc386 $(CFLAGS) -fo=$^@ decoders/wav.c
-
 playsound.obj: playsound/playsound.c
   wcc386 $(CFLAGS_BASE) -DHAVE_SIGNAL_H=1 -DHAVE_SETBUF=1 -DHAVE_ASSERT_H=1 -fo=$^@ $<
 playsound_simple.obj: playsound/playsound_simple.c
