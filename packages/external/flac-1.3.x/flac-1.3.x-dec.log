@@ -166,6 +166,20 @@ Leak reported by Secunia Research.
 --------------------------------------------------------------------------------
 
 From: Erik de Castro Lopo <erikd@mega-nerd.com>
+Date: Mon, 30 Jan 2017 19:39:22 +0000 (+1100)
+Subject: FLAC__stream_encoder_finish: Sanity improvement
+X-Git-Tag: 1.3.3~103
+X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=006dcfbe23d56dc822574f9999b16adb1d32ec64
+
+FLAC__stream_encoder_finish: Sanity improvement
+
+Previously this function would abort or crash if passed `NULL` for
+the encoder. Now it just returns without crashing or aborting which
+is far more sane behaviour (ie much like FLAC__stream_encoder_delete).
+
+--------------------------------------------------------------------------------
+
+From: Erik de Castro Lopo <erikd@mega-nerd.com>
 Date: Tue, 6 Dec 2016 08:44:37 +0000 (+1100)
 Subject: libFLAC/metadata_object.c: Fix typo in number
 X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=582f111a83fea2b77be6839d3b9275012683710f
@@ -320,6 +334,81 @@ This bug can be triggered remotely with the Music Player Daemon
 
 Signed-off-by: Erik de Castro Lopo <erikd@mega-nerd.com>
 Closes: https://github.com/xiph/flac/pull/12
+
+--------------------------------------------------------------------------------
+
+From: Erik de Castro Lopo <erikd@mega-nerd.com>
+Date: Sun, 22 May 2016 01:06:29 +0000 (+1000)
+Subject: libFLAC: More metadata_iterators fixes
+X-Git-Tag: 1.3.2~61
+X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=fdc1ccf2bd2ea52b3fab2c71a0d106a81e2c72e9
+
+libFLAC: More metadata_iterators fixes
+
+The previous fixes for metadata_iterators didn't completely fix the problem.
+
+The behavior of chain_prepare_for_write_() must always be the same as the
+behavior of FLAC__metadata_chain_check_if_tempfile_needed(). Before this
+fix, one check was missing in FLAC__metadata_chain_check_if_tempfile_needed(),
+and also chain_prepare_for_write_() checked the sizes of the metadata blocks
+*after* making the changes to the chain, while
+FLAC__metadata_chain_check_if_tempfile_needed() does it *before* the changes.
+
+This patch changes FLAC__metadata_chain_check_if_tempfile_needed() so that it
+keeps some info (lbs_state, lbs_size) about estimated changes and then uses
+it to check the block sizes.
+
+It also simplifies FLAC__metadata_chain_check_if_tempfile_needed() a little.
+
+Patch-from: lvqcl <lvqcl.mail@gmail.com>
+
+--------------------------------------------------------------------------------
+
+From: Erik de Castro Lopo <erikd@mega-nerd.com>
+Date: Sun, 1 May 2016 10:57:15 +0000 (+1000)
+Subject: metadata_iterators.c: Limit padding size
+X-Git-Tag: 1.3.2~68
+X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=387992bd6411411739014e633a80cfe639e4db36
+
+metadata_iterators.c: Limit padding size
+
+Without this fix, its possible for libFLAC to create an oversized
+padding metadata block when:
+
+a) it merges existing padding blocks
+
+or
+b) it expands padding block during metadata changes
+
+resulting in a corrupt FLAC file.
+
+Patch-from: lvqcl <lvqcl.mail@gmail.com>
+
+--------------------------------------------------------------------------------
+
+From: Erik de Castro Lopo <erikd@mega-nerd.com>
+Date: Sun, 1 May 2016 10:34:26 +0000 (+1000)
+Subject: libFLAC: Add metadata size checks to FLAC library
+X-Git-Tag: 1.3.2~71
+X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=94386fdea50da72f167c32ecf375e45fab79cdec
+
+libFLAC: Add metadata size checks to FLAC library
+
+This follows on from the previous patch.
+
+Patch-from: lvqcl <lvqcl.mail@gmail.com>
+
+--------------------------------------------------------------------------------
+
+From: Erik de Castro Lopo <erikd@mega-nerd.com>
+Date: Fri, 15 Jan 2016 20:57:26 +0000 (+1100)
+Subject: metadata_iterators.c: Add missing check for is_writable
+X-Git-Tag: 1.3.2~119
+X-Git-Url: http://git.xiph.org/?p=flac.git;a=commitdiff_plain;h=4684608fb19cab1ebf9e6ce443e0771378d52e58
+
+metadata_iterators.c: Add missing check for is_writable
+
+Patch-from: lvqcl <lvqcl.mail@gmail.com>
 
 --------------------------------------------------------------------------------
 

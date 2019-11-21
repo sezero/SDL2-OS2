@@ -193,6 +193,8 @@
 
 #ifdef __WATCOMC__
 #define flac_stat_s _stati64 /* stat struct */
+#undef flac_stat
+#define flac_stat   _stati64
 #define flac_fstat _fstati64
 # ifdef __NT__ /* for win_utf8_io.c : */
 # define __stat64 _stati64

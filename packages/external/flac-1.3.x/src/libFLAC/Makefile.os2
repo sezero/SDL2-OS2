@@ -18,6 +18,8 @@ CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -j -zp8
 CFLAGS+= -5s
 DLLFLAGS=-bd
 
+NASMFLAGS=-Iia32/ -f obj -D__OS2__
+
 LIBS=ogg.lib
 
 .SUFFIXES:
@@ -40,8 +42,11 @@ COMPILE=wcc386 $(CFLAGS) $(CPPFLAGS) $(INCLUDES)
 
 OBJ=cpu_asm.obj lpc_asm.obj bitmath.obj bitreader.obj cpu.obj crc.obj fixed.obj format.obj lpc.obj md5.obj memory.obj stream_decoder.obj ogg_decoder_aspect.obj ogg_mapping.obj
 # metadata interfaces:
+#CPPFLAGS+= -DFLAC_METADATA_INTERFACES
 #OBJ+= metadata_object.obj metadata_iterators.obj
 # encoder support:
+#NASMFLAGS+= -DFLAC_INCLUDE_ENCODER
+#CPPFLAGS+= -DFLAC_INCLUDE_ENCODER
 #OBJ+= fixed_asm.obj bitwriter.obj ogg_helper.obj ogg_encoder_aspect.obj stream_encoder.obj stream_encoder_framing.obj window.obj
 
 all: $(BLD_TARGET)
@@ -61,7 +66,7 @@ $(LIBSTATIC): $(OBJ)
 
 .nasm: ia32
 .nasm.obj:
-	nasm -Iia32/ -f obj -d__OS2__  -o $^@ $<
+	nasm $(NASMFLAGS) -o $^@ $<
 
 !ifndef __UNIX__
 INCLUDES=-I. -I.\include -I..\..\include
