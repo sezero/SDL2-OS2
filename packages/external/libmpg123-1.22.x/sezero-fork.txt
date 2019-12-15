@@ -1,0 +1,1 @@
+https://github.com/sezero/mpg123.git - sezero-1.22.x branch

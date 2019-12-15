@@ -98,7 +98,7 @@ void modplug_exit()
 /* Set the volume for a modplug stream */
 void modplug_setvolume(modplug_data *music, int volume)
 {
-    modplug.ModPlug_SetMasterVolume(music->file, volume*4);
+    modplug.ModPlug_SetMasterVolume(music->file, volume * 2); /* 0-512, reduced to 0-256 to prevent clipping */
 }
 
 /* Load a modplug stream from an SDL_RWops object */

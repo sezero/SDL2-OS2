@@ -25,6 +25,7 @@
 #include "SDL_rwops.h"
 #include "SDL_audio.h"
 #include "SDL_mixer.h"
+#include "mp3utils.h"
 
 #define MAD_INPUT_BUFFER_SIZE   (5*8192)
 #define MAD_OUTPUT_BUFFER_SIZE  8192
@@ -41,8 +42,7 @@ enum {
 };
 
 typedef struct {
-  SDL_RWops *src;
-  Sint64 start, length, pos;
+  struct mp3file_t mp3file;
   int freesrc;
   struct mad_stream stream;
   struct mad_frame frame;
@@ -56,7 +56,7 @@ typedef struct {
   SDL_AudioCVT cvt;
 
   unsigned char input_buffer[MAD_INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD];
-  unsigned char output_buffer[MAD_OUTPUT_BUFFER_SIZE];
+  unsigned char *output_buffer;
 } mad_data;
 
 mad_data *mad_openFileRW(SDL_RWops *src, SDL_AudioSpec *mixer, int freesrc);

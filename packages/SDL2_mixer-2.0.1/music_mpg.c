@@ -87,12 +87,12 @@ mpg_err(mpg123_handle* mpg, int code)
 /* we're gonna override mpg123's I/O with these wrappers for RWops */
 static
 ssize_t rwops_read(void* p, void* dst, size_t n) {
-    return (ssize_t)SDL_RWread((SDL_RWops*)p, dst, 1, n);
+    return (ssize_t)MP3_RWread((struct mp3file_t *)p, dst, 1, n);
 }
 
 static
 off_t rwops_seek(void* p, off_t offset, int whence) {
-    return (off_t)SDL_RWseek((SDL_RWops*)p, (Sint64)offset, whence);
+    return (off_t)MP3_RWseek((struct mp3file_t *)p, (Sint64)offset, whence);
 }
 
 static
@@ -106,9 +106,8 @@ static int getsome(mpg_data* m);
 mpg_data*
 mpg_new_rw(SDL_RWops *src, SDL_AudioSpec* mixer, int freesrc)
 {
+    int fmt, result;
     mpg_data* m;
-    int result;
-    int fmt;
 
     if (!Mix_Init(MIX_INIT_MP3)) {
         return NULL;
@@ -122,7 +121,12 @@ mpg_new_rw(SDL_RWops *src, SDL_AudioSpec* mixer, int freesrc)
 
     SDL_memset(m, 0, sizeof(mpg_data));
 
-    m->src = src;
+    m->mp3file.src = src;
+    m->mp3file.length = SDL_RWsize(src);
+    if (mp3_skiptags(&m->mp3file) < 0) {
+        Mix_SetError("music_mpg: corrupt mp3 file (bad tags.)");
+        goto fail;
+    }
 
     m->handle = mpg123.mpg123_new(0, &result);
     if (result != MPG123_OK) {
@@ -152,7 +156,7 @@ mpg_new_rw(SDL_RWops *src, SDL_AudioSpec* mixer, int freesrc)
         goto fail;
     }
 
-    result = mpg123.mpg123_open_handle(m->handle, m->src);
+    result = mpg123.mpg123_open_handle(m->handle, &m->mp3file);
     if (result != MPG123_OK) {
         goto fail;
     }
@@ -190,7 +194,7 @@ mpg_delete(mpg_data* m)
     }
 
     if (m->freesrc) {
-        SDL_RWclose(m->src);
+        SDL_RWclose(m->mp3file.src);
     }
 
     if (m->cvt.buf) {
@@ -307,6 +311,12 @@ getsome(mpg_data* m)
         return 0;
     }
 
+    if (!cvt->buf) {
+        /* not received MPG123_NEW_FORMAT... */
+        Mix_SetError("music_mpg: No format.");
+        return 0;
+    }
+
     SDL_memcpy(cvt->buf, data, cbdata);
 
     if (cvt->needed) {
@@ -383,4 +393,4 @@ mpg_volume(mpg_data* m, int volume) {
     m->volume = volume;
 }
 
-#endif    /* MP3_MPG_MUSIC */
+#endif /* MP3_MPG_MUSIC */

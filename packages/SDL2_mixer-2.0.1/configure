@@ -910,6 +910,7 @@ enable_music_ogg_shared
 enable_music_flac
 enable_music_flac_shared
 enable_music_mp3
+enable_music_mp3_mpg123
 enable_music_mp3_mpg123_shared
 enable_music_mp3_mad_gpl
 '
@@ -1574,7 +1575,9 @@ Optional Features:
   --enable-music-flac     enable FLAC music [[default=yes]]
   --enable-music-flac-shared
                           dynamically load FLAC library [[default=yes]]
-  --enable-music-mp3      enable MP3 music via libmpg123 [[default=yes]]
+  --enable-music-mp3      enable MP3 music [[default=yes]]
+  --enable-music-mp3-mpg123
+                          enable MP3 music via libmpg123 [[default=yes]]
   --enable-music-mp3-mpg123-shared
                           dynamically load libmpg123 library [[default=yes]]
   --enable-music-mp3-mad-gpl
@@ -3908,13 +3911,13 @@ if ${lt_cv_nm_interface+:} false; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:3911: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:3914: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:3914: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:3917: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:3917: output\"" >&5)
+  (eval echo "\"\$as_me:3920: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -5125,7 +5128,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5128 "configure"' > conftest.$ac_ext
+  echo '#line 5131 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -6952,11 +6955,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6955: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6958: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6959: \$? = $ac_status" >&5
+   echo "$as_me:6962: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7291,11 +7294,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7294: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7297: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7298: \$? = $ac_status" >&5
+   echo "$as_me:7301: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7396,11 +7399,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7399: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7402: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7403: \$? = $ac_status" >&5
+   echo "$as_me:7406: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -7451,11 +7454,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7454: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7457: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7458: \$? = $ac_status" >&5
+   echo "$as_me:7461: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -9820,7 +9823,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 9823 "configure"
+#line 9826 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -9916,7 +9919,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 9919 "configure"
+#line 9922 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12555,6 +12558,14 @@ else
   enable_music_mp3=yes
 fi
 
+
+# Check whether --enable-music-mp3-mpg123 was given.
+if test "${enable_music_mp3_mpg123+set}" = set; then :
+  enableval=$enable_music_mp3_mpg123;
+else
+  enable_music_mp3_mpg123=yes
+fi
+
 # Check whether --enable-music-mp3-mpg123-shared was given.
 if test "${enable_music_mp3_mpg123_shared+set}" = set; then :
   enableval=$enable_music_mp3_mpg123_shared;
@@ -12562,7 +12573,8 @@ else
   enable_music_mp3_mpg123_shared=yes
 fi
 
-if test x$enable_music_mp3 = xyes; then
+have_libmpg123=no
+if test x$enable_music_mp3_mpg123 = xyes; then
     ac_fn_c_check_header_mongrel "$LINENO" "mpg123.h" "ac_cv_header_mpg123_h" "$ac_includes_default"
 if test "x$ac_cv_header_mpg123_h" = xyes; then :
   have_mpg123_hdr=yes
@@ -12645,10 +12657,10 @@ else
   enable_music_mp3_mad_gpl=no
 fi
 
+have_libmad=no
 if test x$enable_music_mp3 = xyes -a x$enable_music_mp3_mad_gpl = xyes; then
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libmad headers" >&5
 $as_echo_n "checking for libmad headers... " >&6; }
-    have_libmad=no
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -12682,7 +12694,7 @@ $as_echo "$as_me: WARNING: *** Unable to find MAD library (http://www.underbit.c
 fi
 
 if test x$have_libmad = xyes -o x$have_libmpg123 = xyes; then
-	SOURCES="$SOURCES $srcdir/*_mp3.c"
+    SOURCES="$SOURCES $srcdir/*_mp3.c $srcdir/mp3utils.c"
 else
     { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: MP3 support disabled" >&5
 $as_echo "$as_me: WARNING: MP3 support disabled" >&2;}
