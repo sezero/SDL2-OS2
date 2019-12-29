@@ -83,9 +83,9 @@ DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
 	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
 	$(srcdir)/libmpg123.pc.in COPYING TODO build/compile \
-	build/config.guess build/config.sub build/install-sh \
-	build/missing build/ltmain.sh $(top_srcdir)/build/compile \
-	$(top_srcdir)/build/config.guess \
+	build/config.guess build/config.sub build/depcomp \
+	build/install-sh build/missing build/ltmain.sh \
+	$(top_srcdir)/build/compile $(top_srcdir)/build/config.guess \
 	$(top_srcdir)/build/config.sub $(top_srcdir)/build/install-sh \
 	$(top_srcdir)/build/ltmain.sh $(top_srcdir)/build/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
