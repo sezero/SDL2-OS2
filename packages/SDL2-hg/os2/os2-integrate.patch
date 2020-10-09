@@ -1,0 +1,373 @@
+diff --git a/Makefile.os2 b/Makefile.os2
+--- a/Makefile.os2
++++ b/Makefile.os2
+@@ -4,8 +4,9 @@
+ LIBNAME = SDL2
+ VERSION = 2.0.5a
+ DESCRIPTION = Simple DirectMedia Layer 2
++DESCRIPTION+= (OS/2 port: Andrey Vasilkin)
+ 
+-LIBHOME = .
++LIBHOME = os2
+ LIBPATH = $(LIBHOME)/lib
+ DLLFILE = $(LIBHOME)/$(LIBNAME).dll
+ LIBFILE = $(LIBHOME)/$(LIBNAME).lib
+@@ -14,9 +15,15 @@
+ INCPATH = -I"$(%WATCOM)/h/os2" -I"$(%WATCOM)/h"
+ INCPATH+= -I"$(LIBHOME)/h"
+ INCPATH+= -Iinclude
++INCPATH+= -I"src/core/os2" -I"src/core/os2/geniconv"
++
++PMGRE_LIB = $(LIBPATH)/pmgre.lib
++PMGRE_DEF = $(LIBPATH)/pmgre.def
++PMGRE_EXP = $(LIBPATH)/pmgre.exp
+ 
+ LIBM = libm.lib
+ LIBS = mmpm2.lib libuls.lib libconv.lib $(LIBM)
++# $(PMGRE_LIB)
+ 
+ CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
+ # max warnings:
+@@ -28,6 +35,12 @@
+ # building SDL itself (for DECLSPEC):
+ CFLAGS+= -DBUILD_SDL
+ 
++# Debug options:
++# - debug messages from OS/2 related code to stdout:
++#CFLAGS+= -DOS2DEBUG
++# - debug messages from OS/2 code via SDL_LogDebug():
++#CFLAGS+= -DOS2DEBUG=2
++
+ MSRCS= e_atan2.c e_log.c e_pow.c e_rem_pio2.c e_sqrt.c &
+        k_cos.c k_rem_pio2.c k_sin.c k_tan.c &
+        s_atan.c s_copysign.c s_cos.c s_fabs.c s_floor.c s_scalbn.c s_sin.c s_tan.c
+@@ -56,6 +69,11 @@
+ SRCS+= SDL_dummyaudio.c SDL_diskaudio.c
+ SRCS+= SDL_nullvideo.c SDL_nullframebuffer.c SDL_nullevents.c
+ 
++SRCS+= SDL_os2.c geniconv.c os2cp.c os2iconv.c sys2utf8.c
++SRCS+= SDL_os2audio.c
++SRCS+= SDL_os2video.c SDL_os2util.c SDL_os2dive.c SDL_os2vman.c &
++       SDL_os2mouse.c SDL_os2messagebox.c
++
+ SRCS+= SDL_dynapi.c
+ 
+ OBJS = $(SRCS:.c=.obj)
+@@ -66,11 +84,12 @@
+ 
+ .c: ./src;./src/dynapi;./src/audio;./src/cpuinfo;./src/events;./src/file;./src/haptic;./src/joystick;./src/power;./src/render;./src/render/software;./src/stdlib;./src/thread;./src/timer;./src/video;./src/video/yuv2rgb;./src/atomic;./src/audio/disk;
+ .c: ./src/haptic/dummy;./src/joystick/dummy;./src/audio/dummy;./src/video/dummy;
+-.c: ./src/loadso/dummy;./src/filesystem/dummy;./src/timer/dummy;./src/thread/generic;
++.c: ./src/core/os2;./src/core/os2/geniconv;./src/audio/os2;./src/loadso/os2;./src/filesystem/os2;./src/thread/os2;./src/timer/os2;./src/video/os2;
+ 
+ all: $(DLLFILE) $(LIBFILE) .symbolic
+ 
+ $(DLLFILE): $(OBJS) $(LIBM) $(LNKFILE)
++# $(PMGRE_LIB)
+     @echo * Linking: $@
+     wlink @$(LNKFILE)
+ 
+@@ -81,6 +100,9 @@
+ .c.obj:
+     wcc386 $(CFLAGS) -fo=$^@ $<
+ 
++SDL_syscond.obj: "src/thread/generic/SDL_syscond.c"
++    wcc386 $(CFLAGS) -fo=$^@ $<
++
+ SDL_cpuinfo.obj: SDL_cpuinfo.c
+     wcc386 $(CFLAGS) -wcd=200 -fo=$^@ $<
+ 
+@@ -99,11 +121,22 @@
+ SDL_RLEaccel.obj: SDL_RLEaccel.c
+     wcc386 $(CFLAGS) -wcd=201 -fo=$^@ $<
+ 
++$(PMGRE_LIB): $(PMGRE_EXP)
++    wlib -q -b -n -c -pa -s -t -zld -ii -io $(PMGRE_LIB) @$(PMGRE_EXP)
++
++$(PMGRE_EXP): $(PMGRE_DEF) $(LIBPATH)/def2lbc.sed
++    @echo * Creating PMGRE import library
++    sed -f $(LIBPATH)/def2lbc.sed $(PMGRE_DEF) > $(PMGRE_EXP)
++
+ .c: ./src/libm;
+ $(LIBM): $(MOBJS)
+     wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(MOBJS)
+ 
+ $(LNKFILE):
++#   About LIBPATH: OpenWatcom's library os2386.lib does not contain entries
++#   Gre32Entry1..Gre32Entry10. We need os2386.lib from IBM OS/2 developer's
++#   toolkit. %LIB% should contain path item like  xxxx/OS2TK45/lib  if you
++#   have the toolkit installed.
+     @echo * Creating linker file: $@
+     @%create $@
+     @%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
+@@ -133,3 +166,5 @@
+     @if exist $(LIBHOME)/*.map rm $(LIBHOME)/*.map
+     @if exist $(LIBFILE) rm $(LIBFILE)
+     @if exist $(DLLFILE) rm $(DLLFILE)
++    @if exist $(PMGRE_EXP) rm $(PMGRE_EXP)
++    @if exist $(PMGRE_LIB) rm $(PMGRE_LIB)
+diff --git a/include/SDL_config_os2.h b/include/SDL_config_os2.h
+--- a/include/SDL_config_os2.h
++++ b/include/SDL_config_os2.h
+@@ -27,12 +27,14 @@
+ 
+ #define SDL_AUDIO_DRIVER_DUMMY 1
+ #define SDL_AUDIO_DRIVER_DISK 1
++#define SDL_AUDIO_DRIVER_OS2 1
+ 
+ #define SDL_POWER_DISABLED  1
+ #define SDL_JOYSTICK_DISABLED 1
+ #define SDL_HAPTIC_DISABLED 1
+ 
+ #define SDL_VIDEO_DRIVER_DUMMY 1
++#define SDL_VIDEO_DRIVER_OS2 1
+ 
+ /* Enable OpenGL support */
+ /* #undef SDL_VIDEO_OPENGL */
+@@ -40,10 +42,10 @@
+ /* Enable Vulkan support */
+ /* #undef SDL_VIDEO_VULKAN */
+ 
+-#define SDL_LOADSO_DISABLED 1
+-#define SDL_THREADS_DISABLED 1
+-#define SDL_TIMERS_DISABLED 1
+-#define SDL_FILESYSTEM_DUMMY 1
++#define SDL_THREAD_OS2 1
++#define SDL_LOADSO_OS2 1
++#define SDL_TIMER_OS2 1
++#define SDL_FILESYSTEM_OS2 1
+ 
+ /* Enable assembly routines */
+ #define SDL_ASSEMBLY_ROUTINES 1
+diff --git a/include/SDL_syswm.h b/include/SDL_syswm.h
+--- a/include/SDL_syswm.h
++++ b/include/SDL_syswm.h
+@@ -103,6 +103,11 @@
+ #if defined(SDL_VIDEO_DRIVER_VIVANTE)
+ #include "SDL_egl.h"
+ #endif
++
++#if defined(SDL_VIDEO_DRIVER_OS2)
++#define INCL_WIN
++#include <os2.h>
++#endif
+ #endif /* SDL_PROTOTYPES_ONLY */
+ 
+ 
+@@ -183,6 +188,16 @@
+             /* No Vivante window events yet */
+         } vivante;
+ #endif
++#if defined(SDL_VIDEO_DRIVER_OS2)
++        struct
++        {
++            BOOL fFrame;                /**< TRUE if hwnd is a frame window */
++            HWND hwnd;                  /**< The window receiving the message */
++            ULONG msg;                  /**< The message identifier */
++            MPARAM mp1;                 /**< The first first message parameter */
++            MPARAM mp2;                 /**< The second first message parameter */
++        } os2;
++#endif
+         /* Can't have an empty union */
+         int dummy;
+     } msg;
+@@ -275,6 +290,14 @@
+         } android;
+ #endif
+ 
++#if defined(SDL_VIDEO_DRIVER_OS2)
++        struct
++        {
++            HWND hwnd;                  /**< The window handle */
++            HWND hwndFrame;             /**< The frame window handle */
++        } os2;
++#endif
++
+ #if defined(SDL_VIDEO_DRIVER_VIVANTE)
+         struct
+         {
+diff --git a/src/SDL.c b/src/SDL.c
+--- a/src/SDL.c
++++ b/src/SDL.c
+@@ -27,6 +27,12 @@
+ #elif !defined(__WINRT__)
+ #include <unistd.h> /* For _exit(), etc. */
+ #endif
++#if defined(__OS2__)
++#include "core/os2/SDL_os2.h"
++#endif
++#if SDL_THREAD_OS2
++#include "thread/os2/SDL_systls_c.h"
++#endif
+ 
+ /* Initialization code for SDL */
+ 
+@@ -148,6 +154,10 @@ SDL_InitSubSystem(Uint32 flags)
+         flags |= SDL_INIT_EVENTS;
+     }
+ 
++#if SDL_THREAD_OS2
++    SDL_OS2TLSAlloc(); /* thread/os2/SDL_systls.c */
++#endif
++
+ #if SDL_VIDEO_DRIVER_WINDOWS
+ 	if ((flags & (SDL_INIT_HAPTIC|SDL_INIT_JOYSTICK))) {
+ 		if (SDL_HelperWindowCreate() < 0) {
+@@ -271,6 +281,13 @@ void
+ SDL_QuitSubSystem(Uint32 flags)
+ {
+     /* Shut down requested initialized subsystems */
++#if SDL_THREAD_OS2
++    SDL_OS2TLSFree(); /* thread/os2/SDL_systls.c */
++#endif
++#ifdef __OS2__
++    SDL_OS2Quit();
++#endif
++
+ #if !SDL_JOYSTICK_DISABLED
+     if ((flags & SDL_INIT_GAMECONTROLLER)) {
+         /* game controller implies joystick */
+diff --git a/src/audio/SDL_audio.c b/src/audio/SDL_audio.c
+--- a/src/audio/SDL_audio.c
++++ b/src/audio/SDL_audio.c
+@@ -62,6 +62,7 @@
+ extern AudioBootStrap PSPAUDIO_bootstrap;
+ extern AudioBootStrap SNDIO_bootstrap;
+ extern AudioBootStrap EMSCRIPTENAUDIO_bootstrap;
++extern AudioBootStrap OS2AUDIO_bootstrap;
+ 
+ /* Available audio drivers */
+ static const AudioBootStrap *const bootstrap[] = {
+@@ -116,6 +117,9 @@
+ #if SDL_AUDIO_DRIVER_COREAUDIO
+     &COREAUDIO_bootstrap,
+ #endif
++#if SDL_AUDIO_DRIVER_OS2
++    &OS2AUDIO_bootstrap,
++#endif
+ #if SDL_AUDIO_DRIVER_DISK
+     &DISKAUDIO_bootstrap,
+ #endif
+diff --git a/src/thread/SDL_thread_c.h b/src/thread/SDL_thread_c.h
+--- a/src/thread/SDL_thread_c.h
++++ b/src/thread/SDL_thread_c.h
+@@ -36,6 +36,8 @@
+ #include "psp/SDL_systhread_c.h"
+ #elif SDL_THREAD_STDCPP
+ #include "stdcpp/SDL_systhread_c.h"
++#elif SDL_THREAD_OS2
++#include "os2/SDL_systhread_c.h"
+ #else
+ #error Need thread implementation for this platform
+ #include "generic/SDL_systhread_c.h"
+diff --git a/src/video/SDL_sysvideo.h b/src/video/SDL_sysvideo.h
+--- a/src/video/SDL_sysvideo.h
++++ b/src/video/SDL_sysvideo.h
+@@ -417,6 +417,10 @@
+ #if SDL_VIDEO_DRIVER_EMSCRIPTEN
+ extern VideoBootStrap Emscripten_bootstrap;
+ #endif
++#if SDL_VIDEO_DRIVER_OS2
++extern VideoBootStrap OS2DIVE_bootstrap;
++extern VideoBootStrap OS2VMAN_bootstrap;
++#endif
+ 
+ extern SDL_VideoDevice *SDL_GetVideoDevice(void);
+ extern int SDL_AddBasicVideoDisplay(const SDL_DisplayMode * desktop_mode);
+diff --git a/src/video/SDL_video.c b/src/video/SDL_video.c
+--- a/src/video/SDL_video.c
++++ b/src/video/SDL_video.c
+@@ -109,6 +109,10 @@ static VideoBootStrap *bootstrap[] = {
+ #if SDL_VIDEO_DRIVER_EMSCRIPTEN
+     &Emscripten_bootstrap,
+ #endif
++#if SDL_VIDEO_DRIVER_OS2
++    &OS2DIVE_bootstrap,
++    &OS2VMAN_bootstrap,
++#endif
+ #if SDL_VIDEO_DRIVER_DUMMY
+     &DUMMY_bootstrap,
+ #endif
+@@ -3616,6 +3620,9 @@
+ #if SDL_VIDEO_DRIVER_X11
+ #include "x11/SDL_x11messagebox.h"
+ #endif
++#if SDL_VIDEO_DRIVER_OS2
++#include "os2/SDL_os2messagebox.h"
++#endif
+ 
+ // This function will be unused if none of the above video drivers are present.
+ SDL_UNUSED static SDL_bool SDL_MessageboxValidForDriver(const SDL_MessageBoxData *messageboxdata, SDL_SYSWM_TYPE drivertype)
+@@ -3707,6 +3714,13 @@ SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
+         retval = 0;
+     }
+ #endif
++#if SDL_VIDEO_DRIVER_OS2
++    if (retval == -1 &&
++        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_OS2) &&
++        OS2_ShowMessageBox(messageboxdata, buttonid) == 0) {
++        retval = 0;
++    }
++#endif
+     if (retval == -1) {
+         SDL_SetError("No message system available");
+     }
+
+diff --git a/test/Makefile.os2 b/test/Makefile.os2
+--- a/test/Makefile.os2
++++ b/test/Makefile.os2
+@@ -13,7 +13,7 @@
+           testviewport.exe testwm2.exe torturethread.exe checkkeys.exe &
+           controllermap.exe testhaptic.exe testqsort.exe testresample.exe &
+           testaudioinfo.exe testaudiocapture.exe loopwave.exe loopwavequeue.exe &
+-          testgl2.exe testautomation.exe
++          testgl2.exe testnative.exe testautomation.exe
+ 
+ # SDL2test.lib sources (../src/test)
+ 
+@@ -46,7 +46,7 @@
+ 
+ CFLAGS = $(INCPATH) -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
+ 
+-LIBPATH = ..
++LIBPATH = ../os2
+ LIBS    = SDL2.lib $(TESTLIB)
+ 
+ #CFLAGS+= -DHAVE_SDL_TTF
+@@ -69,6 +69,10 @@
+   @%make $(TESTLIB)
+   wlink SYS os2v2 libpath $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
+ 
++testnative.exe: testnative.obj testnativeos2.obj
++  @%make $(TESTLIB)
++  wlink SYS os2v2 libpath $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
++
+ testoverlay2.exe: testoverlay2.obj
+   @%make $(TESTLIB)
+   wlink SYS os2v2 libpath $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
+diff --git a/test/testnative.c b/test/testnative.c
+--- a/test/testnative.c
++++ b/test/testnative.c
+@@ -32,6 +32,9 @@
+ #ifdef TEST_NATIVE_COCOA
+     &CocoaWindowFactory,
+ #endif
++#ifdef TEST_NATIVE_OS2
++    &OS2WindowFactory,
++#endif
+     NULL
+ };
+ static NativeWindowFactory *factory = NULL;
+diff --git a/test/testnative.h b/test/testnative.h
+--- a/test/testnative.h
++++ b/test/testnative.h
+@@ -44,3 +44,8 @@
+ #define TEST_NATIVE_COCOA
+ extern NativeWindowFactory CocoaWindowFactory;
+ #endif
++
++#ifdef SDL_VIDEO_DRIVER_OS2
++#define TEST_NATIVE_OS2
++extern NativeWindowFactory OS2WindowFactory;
++#endif
+
