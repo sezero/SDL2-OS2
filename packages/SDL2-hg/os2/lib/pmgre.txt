@@ -1,0 +1,2 @@
+-- pmgre.def generated using info from:
+http://www.edm2.com/index.php/PMGRE.DLL
