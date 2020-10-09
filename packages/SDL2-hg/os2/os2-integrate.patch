@@ -3,7 +3,7 @@ diff --git a/Makefile.os2 b/Makefile.os2
 +++ b/Makefile.os2
 @@ -4,8 +4,9 @@
  LIBNAME = SDL2
- VERSION = 2.0.5a
+ VERSION = 2.0.12
  DESCRIPTION = Simple DirectMedia Layer 2
 +DESCRIPTION+= (OS/2 port: Andrey Vasilkin)
  
@@ -38,12 +38,12 @@ diff --git a/Makefile.os2 b/Makefile.os2
 +# - debug messages from OS/2 code via SDL_LogDebug():
 +#CFLAGS+= -DOS2DEBUG=2
 +
- MSRCS= e_atan2.c e_log.c e_pow.c e_rem_pio2.c e_sqrt.c &
+ MSRCS= e_atan2.c e_exp.c e_fmod.c e_log10.c e_log.c e_pow.c e_rem_pio2.c e_sqrt.c &
         k_cos.c k_rem_pio2.c k_sin.c k_tan.c &
         s_atan.c s_copysign.c s_cos.c s_fabs.c s_floor.c s_scalbn.c s_sin.c s_tan.c
-@@ -56,6 +69,11 @@
- SRCS+= SDL_dummyaudio.c SDL_diskaudio.c
+@@ -58,6 +71,11 @@
  SRCS+= SDL_nullvideo.c SDL_nullframebuffer.c SDL_nullevents.c
+ SRCS+= SDL_dummysensor.c
  
 +SRCS+= SDL_os2.c geniconv.c os2cp.c os2iconv.c sys2utf8.c
 +SRCS+= SDL_os2audio.c
@@ -53,10 +53,10 @@ diff --git a/Makefile.os2 b/Makefile.os2
  SRCS+= SDL_dynapi.c
  
  OBJS = $(SRCS:.c=.obj)
-@@ -66,11 +84,12 @@
+@@ -68,11 +86,12 @@
  
- .c: ./src;./src/dynapi;./src/audio;./src/cpuinfo;./src/events;./src/file;./src/haptic;./src/joystick;./src/power;./src/render;./src/render/software;./src/stdlib;./src/thread;./src/timer;./src/video;./src/video/yuv2rgb;./src/atomic;./src/audio/disk;
- .c: ./src/haptic/dummy;./src/joystick/dummy;./src/audio/dummy;./src/video/dummy;
+ .c: ./src;./src/dynapi;./src/audio;./src/cpuinfo;./src/events;./src/file;./src/haptic;./src/joystick;./src/power;./src/render;./src/render/software;./src/sensor;./src/stdlib;./src/thread;./src/timer;./src/video;./src/video/yuv2rgb;./src/atomic;./src/audio/disk;
+ .c: ./src/haptic/dummy;./src/joystick/dummy;./src/audio/dummy;./src/video/dummy;./src/sensor/dummy;
 -.c: ./src/loadso/dummy;./src/filesystem/dummy;./src/timer/dummy;./src/thread/generic;
 +.c: ./src/core/os2;./src/core/os2/geniconv;./src/audio/os2;./src/loadso/os2;./src/filesystem/os2;./src/thread/os2;./src/timer/os2;./src/video/os2;
  
@@ -67,7 +67,7 @@ diff --git a/Makefile.os2 b/Makefile.os2
      @echo * Linking: $@
      wlink @$(LNKFILE)
  
-@@ -81,6 +100,9 @@
+@@ -83,6 +102,9 @@
  .c.obj:
      wcc386 $(CFLAGS) -fo=$^@ $<
  
@@ -77,7 +77,7 @@ diff --git a/Makefile.os2 b/Makefile.os2
  SDL_cpuinfo.obj: SDL_cpuinfo.c
      wcc386 $(CFLAGS) -wcd=200 -fo=$^@ $<
  
-@@ -99,11 +121,22 @@
+@@ -104,11 +126,22 @@
  SDL_RLEaccel.obj: SDL_RLEaccel.c
      wcc386 $(CFLAGS) -wcd=201 -fo=$^@ $<
  
@@ -100,16 +100,17 @@ diff --git a/Makefile.os2 b/Makefile.os2
      @echo * Creating linker file: $@
      @%create $@
      @%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
-@@ -133,3 +166,5 @@
+@@ -138,3 +171,5 @@
      @if exist $(LIBHOME)/*.map rm $(LIBHOME)/*.map
      @if exist $(LIBFILE) rm $(LIBFILE)
      @if exist $(DLLFILE) rm $(DLLFILE)
 +    @if exist $(PMGRE_EXP) rm $(PMGRE_EXP)
 +    @if exist $(PMGRE_LIB) rm $(PMGRE_LIB)
+
 diff --git a/include/SDL_config_os2.h b/include/SDL_config_os2.h
 --- a/include/SDL_config_os2.h
 +++ b/include/SDL_config_os2.h
-@@ -27,12 +27,14 @@
+@@ -27,6 +27,7 @@
  
  #define SDL_AUDIO_DRIVER_DUMMY 1
  #define SDL_AUDIO_DRIVER_DISK 1
@@ -117,14 +118,15 @@ diff --git a/include/SDL_config_os2.h b/include/SDL_config_os2.h
  
  #define SDL_POWER_DISABLED  1
  #define SDL_JOYSTICK_DISABLED 1
- #define SDL_HAPTIC_DISABLED 1
+@@ -35,6 +36,7 @@
  
+ #define SDL_SENSOR_DUMMY 1
  #define SDL_VIDEO_DRIVER_DUMMY 1
 +#define SDL_VIDEO_DRIVER_OS2 1
  
  /* Enable OpenGL support */
  /* #undef SDL_VIDEO_OPENGL */
-@@ -40,10 +42,10 @@
+@@ -42,10 +44,10 @@
  /* Enable Vulkan support */
  /* #undef SDL_VIDEO_VULKAN */
  
@@ -142,7 +144,9 @@ diff --git a/include/SDL_config_os2.h b/include/SDL_config_os2.h
 diff --git a/include/SDL_syswm.h b/include/SDL_syswm.h
 --- a/include/SDL_syswm.h
 +++ b/include/SDL_syswm.h
-@@ -103,6 +103,11 @@
+@@ -104,10 +104,15 @@
+ #endif
+ 
  #if defined(SDL_VIDEO_DRIVER_VIVANTE)
  #include "SDL_egl.h"
  #endif
@@ -154,7 +158,11 @@ diff --git a/include/SDL_syswm.h b/include/SDL_syswm.h
  #endif /* SDL_PROTOTYPES_ONLY */
  
  
-@@ -183,6 +188,16 @@
+ #include "begin_code.h"
+ /* Set up for C function definitions, even when using C++ */
+@@ -185,10 +190,20 @@
+         {
+             int dummy;
              /* No Vivante window events yet */
          } vivante;
  #endif
@@ -171,7 +179,11 @@ diff --git a/include/SDL_syswm.h b/include/SDL_syswm.h
          /* Can't have an empty union */
          int dummy;
      } msg;
-@@ -275,6 +290,14 @@
+ };
+ 
+@@ -278,10 +293,18 @@
+             ANativeWindow *window;
+             EGLSurface surface;
          } android;
  #endif
  
@@ -186,6 +198,8 @@ diff --git a/include/SDL_syswm.h b/include/SDL_syswm.h
  #if defined(SDL_VIDEO_DRIVER_VIVANTE)
          struct
          {
+             EGLNativeDisplayType display;
+             EGLNativeWindowType window;
 diff --git a/src/SDL.c b/src/SDL.c
 --- a/src/SDL.c
 +++ b/src/SDL.c
@@ -200,9 +214,9 @@ diff --git a/src/SDL.c b/src/SDL.c
 +#include "thread/os2/SDL_systls_c.h"
 +#endif
  
- /* Initialization code for SDL */
- 
-@@ -148,6 +154,10 @@ SDL_InitSubSystem(Uint32 flags)
+ #if defined(__EMSCRIPTEN__)
+ #include <emscripten.h>
+@@ -159,6 +165,10 @@ SDL_InitSubSystem(Uint32 flags)
          flags |= SDL_INIT_EVENTS;
      }
  
@@ -211,42 +225,68 @@ diff --git a/src/SDL.c b/src/SDL.c
 +#endif
 +
  #if SDL_VIDEO_DRIVER_WINDOWS
- 	if ((flags & (SDL_INIT_HAPTIC|SDL_INIT_JOYSTICK))) {
- 		if (SDL_HelperWindowCreate() < 0) {
-@@ -271,6 +281,13 @@ void
+     if ((flags & (SDL_INIT_HAPTIC|SDL_INIT_JOYSTICK))) {
+         if (SDL_HelperWindowCreate() < 0) {
+@@ -294,6 +304,13 @@ SDL_Init(Uint32 flags)
+ void
  SDL_QuitSubSystem(Uint32 flags)
  {
-     /* Shut down requested initialized subsystems */
 +#if SDL_THREAD_OS2
 +    SDL_OS2TLSFree(); /* thread/os2/SDL_systls.c */
 +#endif
-+#ifdef __OS2__
++#if defined(__OS2__)
 +    SDL_OS2Quit();
 +#endif
 +
- #if !SDL_JOYSTICK_DISABLED
-     if ((flags & SDL_INIT_GAMECONTROLLER)) {
-         /* game controller implies joystick */
+     /* Shut down requested initialized subsystems */
+ #if !SDL_SENSOR_DISABLED
+     if ((flags & SDL_INIT_SENSOR)) {
 diff --git a/src/audio/SDL_audio.c b/src/audio/SDL_audio.c
 --- a/src/audio/SDL_audio.c
 +++ b/src/audio/SDL_audio.c
-@@ -62,6 +62,7 @@
- extern AudioBootStrap PSPAUDIO_bootstrap;
- extern AudioBootStrap SNDIO_bootstrap;
- extern AudioBootStrap EMSCRIPTENAUDIO_bootstrap;
-+extern AudioBootStrap OS2AUDIO_bootstrap;
- 
- /* Available audio drivers */
- static const AudioBootStrap *const bootstrap[] = {
-@@ -116,6 +117,9 @@
- #if SDL_AUDIO_DRIVER_COREAUDIO
-     &COREAUDIO_bootstrap,
+@@ -104,6 +104,9 @@
+ #if SDL_AUDIO_DRIVER_JACK
+     &JACK_bootstrap,
  #endif
 +#if SDL_AUDIO_DRIVER_OS2
 +    &OS2AUDIO_bootstrap,
 +#endif
  #if SDL_AUDIO_DRIVER_DISK
      &DISKAUDIO_bootstrap,
+ #endif
+diff --git a/src/audio/SDL_sysaudio.h b/src/audio/SDL_sysaudio.h
+--- a/src/audio/SDL_sysaudio.h
++++ b/src/audio/SDL_sysaudio.h
+@@ -207,6 +207,7 @@
+ extern AudioBootStrap ANDROIDAUDIO_bootstrap;
+ extern AudioBootStrap PSPAUDIO_bootstrap;
+ extern AudioBootStrap EMSCRIPTENAUDIO_bootstrap;
++extern AudioBootStrap OS2AUDIO_bootstrap;
+ 
+ #endif /* SDL_sysaudio_h_ */
+ 
+diff --git a/src/events/SDL_mouse.c b/src/events/SDL_mouse.c
+--- a/src/events/SDL_mouse.c
++++ b/src/events/SDL_mouse.c
+@@ -32,6 +32,10 @@
+ #ifdef __WIN32__
+ #include "../core/windows/SDL_windows.h"    // For GetDoubleClickTime()
+ #endif
++#if defined(__OS2__)
++#define INCL_WIN
++#include <os2.h>
++#endif
+ 
+ /* #define DEBUG_MOUSE */
+ 
+@@ -54,6 +58,8 @@ SDL_MouseDoubleClickTimeChanged(void *us
+     } else {
+ #ifdef __WIN32__
+         mouse->double_click_time = GetDoubleClickTime();
++#elif defined(__OS2__)
++        mouse->double_click_time = WinQuerySysValue(HWND_DESKTOP, SV_DBLCLKTIME);
+ #else
+         mouse->double_click_time = 500;
  #endif
 diff --git a/src/thread/SDL_thread_c.h b/src/thread/SDL_thread_c.h
 --- a/src/thread/SDL_thread_c.h
@@ -263,23 +303,21 @@ diff --git a/src/thread/SDL_thread_c.h b/src/thread/SDL_thread_c.h
 diff --git a/src/video/SDL_sysvideo.h b/src/video/SDL_sysvideo.h
 --- a/src/video/SDL_sysvideo.h
 +++ b/src/video/SDL_sysvideo.h
-@@ -417,6 +417,10 @@
- #if SDL_VIDEO_DRIVER_EMSCRIPTEN
+@@ -430,6 +430,8 @@
  extern VideoBootStrap Emscripten_bootstrap;
- #endif
-+#if SDL_VIDEO_DRIVER_OS2
+ extern VideoBootStrap QNX_bootstrap;
+ extern VideoBootStrap OFFSCREEN_bootstrap;
 +extern VideoBootStrap OS2DIVE_bootstrap;
 +extern VideoBootStrap OS2VMAN_bootstrap;
-+#endif
  
  extern SDL_VideoDevice *SDL_GetVideoDevice(void);
  extern int SDL_AddBasicVideoDisplay(const SDL_DisplayMode * desktop_mode);
 diff --git a/src/video/SDL_video.c b/src/video/SDL_video.c
 --- a/src/video/SDL_video.c
 +++ b/src/video/SDL_video.c
-@@ -109,6 +109,10 @@ static VideoBootStrap *bootstrap[] = {
- #if SDL_VIDEO_DRIVER_EMSCRIPTEN
-     &Emscripten_bootstrap,
+@@ -112,6 +112,10 @@ static VideoBootStrap *bootstrap[] = {
+ #if SDL_VIDEO_DRIVER_OFFSCREEN
+     &OFFSCREEN_bootstrap,
  #endif
 +#if SDL_VIDEO_DRIVER_OS2
 +    &OS2DIVE_bootstrap,
@@ -288,17 +326,21 @@ diff --git a/src/video/SDL_video.c b/src/video/SDL_video.c
  #if SDL_VIDEO_DRIVER_DUMMY
      &DUMMY_bootstrap,
  #endif
-@@ -3616,6 +3620,9 @@
- #if SDL_VIDEO_DRIVER_X11
- #include "x11/SDL_x11messagebox.h"
+@@ -3867,9 +3871,11 @@
+ #if SDL_VIDEO_DRIVER_HAIKU
+ #include "haiku/SDL_bmessagebox.h"
  #endif
 +#if SDL_VIDEO_DRIVER_OS2
 +#include "os2/SDL_os2messagebox.h"
 +#endif
  
- // This function will be unused if none of the above video drivers are present.
- SDL_UNUSED static SDL_bool SDL_MessageboxValidForDriver(const SDL_MessageBoxData *messageboxdata, SDL_SYSWM_TYPE drivertype)
-@@ -3707,6 +3714,13 @@ SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
+-
+-#if SDL_VIDEO_DRIVER_WINDOWS || SDL_VIDEO_DRIVER_WINRT || SDL_VIDEO_DRIVER_COCOA || SDL_VIDEO_DRIVER_UIKIT || SDL_VIDEO_DRIVER_X11 || SDL_VIDEO_DRIVER_HAIKU
++#if SDL_VIDEO_DRIVER_WINDOWS || SDL_VIDEO_DRIVER_WINRT || SDL_VIDEO_DRIVER_COCOA || SDL_VIDEO_DRIVER_UIKIT || SDL_VIDEO_DRIVER_X11 || SDL_VIDEO_DRIVER_HAIKU || SDL_VIDEO_DRIVER_OS2
+ static SDL_bool SDL_MessageboxValidForDriver(const SDL_MessageBoxData *messageboxdata, SDL_SYSWM_TYPE drivertype)
+ {
+     SDL_SysWMinfo info;
+@@ -3969,6 +3975,13 @@ SDL_ShowMessageBox(const SDL_MessageBoxD
          retval = 0;
      }
  #endif
@@ -320,8 +362,8 @@ diff --git a/test/Makefile.os2 b/test/Makefile.os2
            testviewport.exe testwm2.exe torturethread.exe checkkeys.exe &
            controllermap.exe testhaptic.exe testqsort.exe testresample.exe &
            testaudioinfo.exe testaudiocapture.exe loopwave.exe loopwavequeue.exe &
--          testgl2.exe testautomation.exe
-+          testgl2.exe testnative.exe testautomation.exe
+-          testyuv.exe testgl2.exe testvulkan.exe testautomation.exe
++          testyuv.exe testgl2.exe testvulkan.exe testnative.exe testautomation.exe
  
  # SDL2test.lib sources (../src/test)
  
@@ -342,7 +384,7 @@ diff --git a/test/Makefile.os2 b/test/Makefile.os2
 +  @%make $(TESTLIB)
 +  wlink SYS os2v2 libpath $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
 +
- testoverlay2.exe: testoverlay2.obj
+ testoverlay2.exe: testoverlay2.obj testyuv_cvt.obj
    @%make $(TESTLIB)
    wlink SYS os2v2 libpath $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
 diff --git a/test/testnative.c b/test/testnative.c
@@ -370,4 +412,3 @@ diff --git a/test/testnative.h b/test/testnative.h
 +#define TEST_NATIVE_OS2
 +extern NativeWindowFactory OS2WindowFactory;
 +#endif
-
