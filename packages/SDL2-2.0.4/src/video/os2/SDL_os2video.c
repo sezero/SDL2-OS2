@@ -1553,6 +1553,8 @@ static int OS2_VideoInit(_THIS)
       return SDL_SetError( "Video mode query failed." );
     }
 
+    SDL_zero(stSDLDisplay); SDL_zero(stSDLDisplayMode);
+
     stSDLDisplayMode.format = _getSDLPixelFormat( stVOInfo.ulBPP,
                                                   stVOInfo.fccColorEncoding );
     stSDLDisplayMode.w = stVOInfo.ulHorizResolution;
