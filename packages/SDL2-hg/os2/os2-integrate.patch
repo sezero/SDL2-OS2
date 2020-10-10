@@ -3,7 +3,7 @@ diff --git a/Makefile.os2 b/Makefile.os2
 +++ b/Makefile.os2
 @@ -4,8 +4,9 @@
  LIBNAME = SDL2
- VERSION = 2.0.12
+ VERSION = 2.0.13
  DESCRIPTION = Simple DirectMedia Layer 2
 +DESCRIPTION+= (OS/2 port: Andrey Vasilkin)
  
@@ -41,9 +41,9 @@ diff --git a/Makefile.os2 b/Makefile.os2
  MSRCS= e_atan2.c e_exp.c e_fmod.c e_log10.c e_log.c e_pow.c e_rem_pio2.c e_sqrt.c &
         k_cos.c k_rem_pio2.c k_sin.c k_tan.c &
         s_atan.c s_copysign.c s_cos.c s_fabs.c s_floor.c s_scalbn.c s_sin.c s_tan.c
-@@ -58,6 +71,11 @@
- SRCS+= SDL_nullvideo.c SDL_nullframebuffer.c SDL_nullevents.c
- SRCS+= SDL_dummysensor.c
+@@ -60,6 +73,11 @@
+ SRCS+= SDL_locale.c SDL_syslocale.c
+ SRCS+= SDL_url.c SDL_sysurl.c
  
 +SRCS+= SDL_os2.c geniconv.c os2cp.c os2iconv.c sys2utf8.c
 +SRCS+= SDL_os2audio.c
@@ -53,12 +53,13 @@ diff --git a/Makefile.os2 b/Makefile.os2
  SRCS+= SDL_dynapi.c
  
  OBJS = $(SRCS:.c=.obj)
-@@ -68,11 +86,12 @@
+@@ -70,12 +88,13 @@
  
  .c: ./src;./src/dynapi;./src/audio;./src/cpuinfo;./src/events;./src/file;./src/haptic;./src/joystick;./src/power;./src/render;./src/render/software;./src/sensor;./src/stdlib;./src/thread;./src/timer;./src/video;./src/video/yuv2rgb;./src/atomic;./src/audio/disk;
  .c: ./src/haptic/dummy;./src/joystick/dummy;./src/audio/dummy;./src/video/dummy;./src/sensor/dummy;
 -.c: ./src/loadso/dummy;./src/filesystem/dummy;./src/timer/dummy;./src/thread/generic;
 +.c: ./src/core/os2;./src/core/os2/geniconv;./src/audio/os2;./src/loadso/os2;./src/filesystem/os2;./src/thread/os2;./src/timer/os2;./src/video/os2;
+ .c: ./src/locale/;./src/locale/unix;./src/misc;./src/misc/dummy;
  
  all: $(DLLFILE) $(LIBFILE) .symbolic
  
@@ -67,7 +68,7 @@ diff --git a/Makefile.os2 b/Makefile.os2
      @echo * Linking: $@
      wlink @$(LNKFILE)
  
-@@ -83,6 +102,9 @@
+@@ -86,6 +105,9 @@
  .c.obj:
      wcc386 $(CFLAGS) -fo=$^@ $<
  
@@ -77,7 +78,7 @@ diff --git a/Makefile.os2 b/Makefile.os2
  SDL_cpuinfo.obj: SDL_cpuinfo.c
      wcc386 $(CFLAGS) -wcd=200 -fo=$^@ $<
  
-@@ -104,11 +126,22 @@
+@@ -107,11 +129,22 @@
  SDL_RLEaccel.obj: SDL_RLEaccel.c
      wcc386 $(CFLAGS) -wcd=201 -fo=$^@ $<
  
@@ -100,7 +101,7 @@ diff --git a/Makefile.os2 b/Makefile.os2
      @echo * Creating linker file: $@
      @%create $@
      @%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
-@@ -138,3 +171,5 @@
+@@ -141,3 +174,5 @@
      @if exist $(LIBHOME)/*.map rm $(LIBHOME)/*.map
      @if exist $(LIBFILE) rm $(LIBFILE)
      @if exist $(DLLFILE) rm $(DLLFILE)
@@ -118,7 +119,7 @@ diff --git a/include/SDL_config_os2.h b/include/SDL_config_os2.h
  
  #define SDL_POWER_DISABLED  1
  #define SDL_JOYSTICK_DISABLED 1
-@@ -35,6 +36,7 @@
+@@ -34,6 +35,7 @@
  
  #define SDL_SENSOR_DUMMY 1
  #define SDL_VIDEO_DRIVER_DUMMY 1
@@ -126,7 +127,7 @@ diff --git a/include/SDL_config_os2.h b/include/SDL_config_os2.h
  
  /* Enable OpenGL support */
  /* #undef SDL_VIDEO_OPENGL */
-@@ -42,10 +44,10 @@
+@@ -41,10 +43,10 @@
  /* Enable Vulkan support */
  /* #undef SDL_VIDEO_VULKAN */
  
@@ -303,7 +304,7 @@ diff --git a/src/thread/SDL_thread_c.h b/src/thread/SDL_thread_c.h
 diff --git a/src/video/SDL_sysvideo.h b/src/video/SDL_sysvideo.h
 --- a/src/video/SDL_sysvideo.h
 +++ b/src/video/SDL_sysvideo.h
-@@ -430,6 +430,8 @@
+@@ -436,6 +436,8 @@
  extern VideoBootStrap Emscripten_bootstrap;
  extern VideoBootStrap QNX_bootstrap;
  extern VideoBootStrap OFFSCREEN_bootstrap;
@@ -326,7 +327,7 @@ diff --git a/src/video/SDL_video.c b/src/video/SDL_video.c
  #if SDL_VIDEO_DRIVER_DUMMY
      &DUMMY_bootstrap,
  #endif
-@@ -3867,9 +3871,11 @@
+@@ -3926,9 +3930,11 @@
  #if SDL_VIDEO_DRIVER_HAIKU
  #include "haiku/SDL_bmessagebox.h"
  #endif
@@ -340,7 +341,7 @@ diff --git a/src/video/SDL_video.c b/src/video/SDL_video.c
  static SDL_bool SDL_MessageboxValidForDriver(const SDL_MessageBoxData *messageboxdata, SDL_SYSWM_TYPE drivertype)
  {
      SDL_SysWMinfo info;
-@@ -3969,6 +3975,13 @@ SDL_ShowMessageBox(const SDL_MessageBoxD
+@@ -4028,6 +4034,13 @@ SDL_ShowMessageBox(const SDL_MessageBoxD
          retval = 0;
      }
  #endif
@@ -412,3 +413,4 @@ diff --git a/test/testnative.h b/test/testnative.h
 +#define TEST_NATIVE_OS2
 +extern NativeWindowFactory OS2WindowFactory;
 +#endif
+
