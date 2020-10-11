@@ -325,11 +325,12 @@ static int OS2_OpenDevice(_THIS, void *handle, const char *devname,
 
   if ( iscapture != 0 )
   {
-    MCI_CONNECTOR_PARMS  stMCIConnector = { 0 };
-    MCI_AMP_SET_PARMS    stMCIAmpSet = { 0 };
+    MCI_CONNECTOR_PARMS  stMCIConnector;
+    MCI_AMP_SET_PARMS    stMCIAmpSet;
     BOOL                 fLineIn = _getEnvULong( "SDL_AUDIO_LINEIN", 1, 0 );
 
     // Set particular connector.
+    SDL_zero(stMCIConnector);
     stMCIConnector.ulConnectorType = fLineIn ? MCI_LINE_IN_CONNECTOR
                                              : MCI_MICROPHONE_CONNECTOR;
     mciSendCommand( stMCIAmpOpen.usDeviceID, MCI_CONNECTOR,
@@ -337,6 +338,7 @@ static int OS2_OpenDevice(_THIS, void *handle, const char *devname,
                     MCI_CONNECTOR_TYPE, &stMCIConnector, 0 );
 
     // Disable monitor.
+    SDL_zero(stMCIAmpSet);
     stMCIAmpSet.ulItem = MCI_AMP_SET_MONITOR;
     mciSendCommand( stMCIAmpOpen.usDeviceID, MCI_SET,
                     MCI_WAIT | MCI_SET_OFF | MCI_SET_ITEM,
@@ -362,7 +364,7 @@ static int OS2_OpenDevice(_THIS, void *handle, const char *devname,
     this->spec.freq = 8000;
     new_freq = TRUE;
   }
-  if ( this->spec.freq > 48000 )
+  else if ( this->spec.freq > 48000 )
   {
     this->spec.freq = 48000;
     new_freq = TRUE;
