@@ -264,10 +264,13 @@ static int OS2_OpenDevice(_THIS, void *handle, const char *devname,
 {
   PSDL_PrivateAudioData pAData;
   SDL_AudioFormat       SDLAudioFmt;
-  MCI_AMP_OPEN_PARMS    stMCIAmpOpen = { 0 };
-  MCI_BUFFER_PARMS      stMCIBuffer = { 0 };
+  MCI_AMP_OPEN_PARMS    stMCIAmpOpen;
+  MCI_BUFFER_PARMS      stMCIBuffer;
   ULONG                 ulRC;
   ULONG                 ulIdx;
+
+  SDL_zero(stMCIAmpOpen);
+  SDL_zero(stMCIBuffer);
 
   for( SDLAudioFmt = SDL_FirstAudioFormat( this->spec.format );
        SDLAudioFmt != 0; SDLAudioFmt = SDL_NextAudioFormat() )
