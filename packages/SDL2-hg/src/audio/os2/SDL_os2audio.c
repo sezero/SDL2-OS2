@@ -268,7 +268,9 @@ static int OS2_OpenDevice(_THIS, void *handle, const char *devname,
   MCI_BUFFER_PARMS      stMCIBuffer;
   ULONG                 ulRC;
   ULONG                 ulIdx;
+  BOOL                  new_freq;
 
+  new_freq = FALSE;
   SDL_zero(stMCIAmpOpen);
   SDL_zero(stMCIBuffer);
 
@@ -346,9 +348,15 @@ static int OS2_OpenDevice(_THIS, void *handle, const char *devname,
   this->spec.format = SDLAudioFmt;
   this->spec.channels = this->spec.channels > 1 ? 2 : 1;
   if ( this->spec.freq < 8000 )
+  {
     this->spec.freq = 8000;
+    new_freq = TRUE;
+  }
   if ( this->spec.freq > 48000 )
+  {
     this->spec.freq = 48000;
+    new_freq = TRUE;
+  }
 
   // Setup mixer.
   pAData->stMCIMixSetup.ulFormatTag     = MCI_WAVE_FORMAT_PCM;
@@ -371,6 +379,7 @@ static int OS2_OpenDevice(_THIS, void *handle, const char *devname,
                      MCI_WAIT | MCI_MIXSETUP_INIT, &pAData->stMCIMixSetup, 0 );
   if ( ( ulRC != MCIERR_SUCCESS ) && ( this->spec.freq > 44100 ) )
   {
+    new_freq = TRUE;
     pAData->stMCIMixSetup.ulSamplesPerSec = 44100;
     this->spec.freq = 44100;
     ulRC = mciSendCommand( pAData->usDeviceId, MCI_MIXSETUP,
@@ -389,13 +398,22 @@ static int OS2_OpenDevice(_THIS, void *handle, const char *devname,
     return _MCIError( "MCI_MIXSETUP", ulRC );
   }
 
-  this->spec.samples = pAData->stMCIMixSetup.ulSamplesPerSec;
+  if (this->spec.samples == 0 || new_freq == TRUE) {
+  /* also see SDL_audio.c:prepare_audiospec() */
+  /* Pick a default of ~46 ms at desired frequency */
+    Uint32 samples = (this->spec.freq / 1000) * 46;
+    Uint32 power2 = 1;
+    while (power2 < samples) {
+      power2 <<= 1;
+    }
+    this->spec.samples = power2;
+  }
   /* Update the fragment size as size in bytes */
   SDL_CalculateAudioSpec( &this->spec );
 
   // Allocate memory buffers
 
-  stMCIBuffer.ulBufferSize = (this->spec.freq / 1000) * 100;// this->spec.size;
+  stMCIBuffer.ulBufferSize = this->spec.size;// (this->spec.freq / 1000) * 100;
   stMCIBuffer.ulNumBuffers = NUM_BUFFERS;
   stMCIBuffer.pBufList     = &pAData->aMixBuffers;
 
