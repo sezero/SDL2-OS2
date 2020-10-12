@@ -1,34 +1,15 @@
 diff --git a/Makefile.os2 b/Makefile.os2
 --- a/Makefile.os2
 +++ b/Makefile.os2
-@@ -4,8 +4,9 @@
- LIBNAME = SDL2
- VERSION = 2.0.13
- DESCRIPTION = Simple DirectMedia Layer 2
-+DESCRIPTION+= (OS/2 port: Andrey Vasilkin)
+@@ -12,6 +12,7 @@
  
--LIBHOME = .
-+LIBHOME = os2
- LIBPATH = $(LIBHOME)/lib
- DLLFILE = $(LIBHOME)/$(LIBNAME).dll
- LIBFILE = $(LIBHOME)/$(LIBNAME).lib
-@@ -14,9 +15,15 @@
  INCPATH = -I"$(%WATCOM)/h/os2" -I"$(%WATCOM)/h"
- INCPATH+= -I"$(LIBHOME)/h"
  INCPATH+= -Iinclude
 +INCPATH+= -I"src/core/os2" -I"src/core/os2/geniconv"
-+
-+PMGRE_LIB = $(LIBPATH)/pmgre.lib
-+PMGRE_DEF = $(LIBPATH)/pmgre.def
-+PMGRE_EXP = $(LIBPATH)/pmgre.exp
  
  LIBM = libm.lib
  LIBS = mmpm2.lib libuls.lib libconv.lib $(LIBM)
-+# $(PMGRE_LIB)
- 
- CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
- # max warnings:
-@@ -28,6 +35,12 @@
+@@ -26,6 +27,12 @@
  # building SDL itself (for DECLSPEC):
  CFLAGS+= -DBUILD_SDL
  
@@ -41,7 +22,7 @@ diff --git a/Makefile.os2 b/Makefile.os2
  MSRCS= e_atan2.c e_exp.c e_fmod.c e_log10.c e_log.c e_pow.c e_rem_pio2.c e_sqrt.c &
         k_cos.c k_rem_pio2.c k_sin.c k_tan.c &
         s_atan.c s_copysign.c s_cos.c s_fabs.c s_floor.c s_scalbn.c s_sin.c s_tan.c
-@@ -60,6 +73,11 @@
+@@ -58,6 +65,11 @@
  SRCS+= SDL_locale.c SDL_syslocale.c
  SRCS+= SDL_url.c SDL_sysurl.c
  
@@ -53,7 +34,7 @@ diff --git a/Makefile.os2 b/Makefile.os2
  SRCS+= SDL_dynapi.c
  
  OBJS = $(SRCS:.c=.obj)
-@@ -70,12 +88,13 @@
+@@ -68,7 +80,7 @@
  
  .c: ./src;./src/dynapi;./src/audio;./src/cpuinfo;./src/events;./src/file;./src/haptic;./src/joystick;./src/power;./src/render;./src/render/software;./src/sensor;./src/stdlib;./src/thread;./src/timer;./src/video;./src/video/yuv2rgb;./src/atomic;./src/audio/disk;
  .c: ./src/haptic/dummy;./src/joystick/dummy;./src/audio/dummy;./src/video/dummy;./src/sensor/dummy;
@@ -62,13 +43,7 @@ diff --git a/Makefile.os2 b/Makefile.os2
  .c: ./src/locale/;./src/locale/unix;./src/misc;./src/misc/dummy;
  
  all: $(DLLFILE) $(LIBFILE) .symbolic
- 
- $(DLLFILE): $(OBJS) $(LIBM) $(LNKFILE)
-+# $(PMGRE_LIB)
-     @echo * Linking: $@
-     wlink @$(LNKFILE)
- 
-@@ -86,6 +105,9 @@
+@@ -84,6 +96,9 @@
  .c.obj:
      wcc386 $(CFLAGS) -fo=$^@ $<
  
@@ -78,35 +53,6 @@ diff --git a/Makefile.os2 b/Makefile.os2
  SDL_cpuinfo.obj: SDL_cpuinfo.c
      wcc386 $(CFLAGS) -wcd=200 -fo=$^@ $<
  
-@@ -107,11 +129,22 @@
- SDL_RLEaccel.obj: SDL_RLEaccel.c
-     wcc386 $(CFLAGS) -wcd=201 -fo=$^@ $<
- 
-+$(PMGRE_LIB): $(PMGRE_EXP)
-+    wlib -q -b -n -c -pa -s -t -zld -ii -io $(PMGRE_LIB) @$(PMGRE_EXP)
-+
-+$(PMGRE_EXP): $(PMGRE_DEF) $(LIBPATH)/def2lbc.sed
-+    @echo * Creating PMGRE import library
-+    sed -f $(LIBPATH)/def2lbc.sed $(PMGRE_DEF) > $(PMGRE_EXP)
-+
- .c: ./src/libm;
- $(LIBM): $(MOBJS)
-     wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(MOBJS)
- 
- $(LNKFILE):
-+#   About LIBPATH: OpenWatcom's library os2386.lib does not contain entries
-+#   Gre32Entry1..Gre32Entry10. We need os2386.lib from IBM OS/2 developer's
-+#   toolkit. %LIB% should contain path item like  xxxx/OS2TK45/lib  if you
-+#   have the toolkit installed.
-     @echo * Creating linker file: $@
-     @%create $@
-     @%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
-@@ -141,3 +174,5 @@
-     @if exist $(LIBHOME)/*.map rm $(LIBHOME)/*.map
-     @if exist $(LIBFILE) rm $(LIBFILE)
-     @if exist $(DLLFILE) rm $(DLLFILE)
-+    @if exist $(PMGRE_EXP) rm $(PMGRE_EXP)
-+    @if exist $(PMGRE_LIB) rm $(PMGRE_LIB)
 
 diff --git a/include/SDL_config_os2.h b/include/SDL_config_os2.h
 --- a/include/SDL_config_os2.h
@@ -368,15 +314,6 @@ diff --git a/test/Makefile.os2 b/test/Makefile.os2
  
  # SDL2test.lib sources (../src/test)
  
-@@ -46,7 +46,7 @@
- 
- CFLAGS = $(INCPATH) -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
- 
--LIBPATH = ..
-+LIBPATH = ../os2
- LIBS    = SDL2.lib $(TESTLIB)
- 
- #CFLAGS+= -DHAVE_SDL_TTF
 @@ -69,6 +69,10 @@
    @%make $(TESTLIB)
    wlink SYS os2v2 libpath $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
@@ -413,4 +350,3 @@ diff --git a/test/testnative.h b/test/testnative.h
 +#define TEST_NATIVE_OS2
 +extern NativeWindowFactory OS2WindowFactory;
 +#endif
-
