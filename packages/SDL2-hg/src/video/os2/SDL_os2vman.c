@@ -27,7 +27,7 @@
 #define INCL_GPI
 #define INCL_GPIBITMAPS /* GPI bit map functions */
 #include <os2.h>
-#include "gradd.h"
+#include <gradd.h>
 #if 0 /* not used */
 #define INCL_GRE_DEVICE
 #define INCL_GRE_DEVMISC
