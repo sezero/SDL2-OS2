@@ -6,8 +6,7 @@ VERSION = 2.0.5a
 DESCRIPTION = Simple DirectMedia Layer 2
 DESCRIPTION+= (OS/2 port: Andrey Vasilkin)
 
-LIBHOME = os2
-LIBPATH = $(LIBHOME)/lib
+LIBHOME = .
 DLLFILE = $(LIBHOME)/$(LIBNAME).dll
 LIBFILE = $(LIBHOME)/$(LIBNAME).lib
 LNKFILE = $(LIBNAME).lnk
@@ -17,13 +16,8 @@ INCPATH+= -I"$(LIBHOME)/h"
 INCPATH+= -Iinclude
 INCPATH+= -I"src/core/os2" -I"src/core/os2/geniconv"
 
-PMGRE_LIB = $(LIBPATH)/pmgre.lib
-PMGRE_DEF = $(LIBPATH)/pmgre.def
-PMGRE_EXP = $(LIBPATH)/pmgre.exp
-
 LIBM = libm.lib
 LIBS = mmpm2.lib libuls.lib libconv.lib $(LIBM)
-# $(PMGRE_LIB)
 
 CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
 # max warnings:
@@ -89,7 +83,6 @@ MOBJS= $(MSRCS:.c=.obj)
 all: $(DLLFILE) $(LIBFILE) .symbolic
 
 $(DLLFILE): $(OBJS) $(LIBM) $(LNKFILE)
-# $(PMGRE_LIB)
     @echo * Linking: $@
     wlink @$(LNKFILE)
 
@@ -121,28 +114,16 @@ SDL_blendpoint.obj: SDL_blendpoint.c
 SDL_RLEaccel.obj: SDL_RLEaccel.c
     wcc386 $(CFLAGS) -wcd=201 -fo=$^@ $<
 
-$(PMGRE_LIB): $(PMGRE_EXP)
-    wlib -q -b -n -c -pa -s -t -zld -ii -io $(PMGRE_LIB) @$(PMGRE_EXP)
-
-$(PMGRE_EXP): $(PMGRE_DEF) $(LIBPATH)/def2lbc.sed
-    @echo * Creating PMGRE import library
-    sed -f $(LIBPATH)/def2lbc.sed $(PMGRE_DEF) > $(PMGRE_EXP)
-
 .c: ./src/libm;
 $(LIBM): $(MOBJS)
     wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(MOBJS)
 
 $(LNKFILE):
-#   About LIBPATH: OpenWatcom's library os2386.lib does not contain entries
-#   Gre32Entry1..Gre32Entry10. We need os2386.lib from IBM OS/2 developer's
-#   toolkit. %LIB% should contain path item like  xxxx/OS2TK45/lib  if you
-#   have the toolkit installed.
     @echo * Creating linker file: $@
     @%create $@
     @%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
     @%append $@ NAME $(DLLFILE)
     @for %i in ($(OBJS)) do @%append $@ FILE %i
-    @%append $@ LIBPATH $(%LIB);$(LIBPATH)
     @for %i in ($(LIBS)) do @%append $@ LIB %i
     @%append $@ OPTION QUIET
     @%append $@ OPTION IMPF=$(LIBHOME)/$^&.exp
@@ -166,5 +147,3 @@ distclean: .SYMBOLIC clean
     @if exist $(LIBHOME)/*.map rm $(LIBHOME)/*.map
     @if exist $(LIBFILE) rm $(LIBFILE)
     @if exist $(DLLFILE) rm $(DLLFILE)
-    @if exist $(PMGRE_EXP) rm $(PMGRE_EXP)
-    @if exist $(PMGRE_LIB) rm $(PMGRE_LIB)
