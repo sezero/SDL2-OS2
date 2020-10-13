@@ -39,7 +39,7 @@ int main(void)
   if ( ic == (iconv_t)(-1) )
   {
     puts( "iconv_open() fail" );
-    return;
+    return 1;
   }
 
   iconv( ic, &inbuf, &inbytesleft, &outbuf, &outbytesleft );
@@ -64,4 +64,5 @@ int main(void)
   iconv_clean();
 
   puts( "Done." );
+  return 0;
 }
