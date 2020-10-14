@@ -85,8 +85,10 @@ SDL_GetPrefPath(const char *org, const char *app)
   pszPath = SDL_getenv( "HOME" );
   if (!pszPath) {
     pszPath = SDL_getenv( "ETC" );
-    if (!pszPath)
+    if (!pszPath) {
+      SDL_SetError("HOME or ETC environment not set");
       return NULL;
+    }
   }
 
   if (!org) {
