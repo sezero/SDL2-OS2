@@ -1,5 +1,3 @@
-### remember to run make under timidity first ###
-
 LIBNAME = SDL2mix
 VERSION = 2.0.1a
 INCPATH = ../../h
@@ -20,22 +18,29 @@ USE_FLAC=yes
 # mp3 music support (using mpg123)
 USE_MPG123=yes
 # midi music support (using timidity)
-USE_MIDI=yes
+USE_TIMIDITY=yes
+# midi music support (using fluidsynth)
+USE_FLUIDSYNTH=no
 # tracker music support (using libmikmod)
 USE_MOD=yes
+# tracker music support (using libmodplug)
+USE_MODPLUG=no
 
 LIBFILE = $(LIBNAME).lib
 DLLFILE = $(LIBNAME).dll
 LNKFILE = $(LIBNAME).lnk
-LIBTIMI = timidity/timidity.lib
+TIMILIB = timidity.lib
 
 SRCS = dynamic_flac.c dynamic_fluidsynth.c dynamic_mod.c dynamic_modplug.c &
        dynamic_mp3.c dynamic_ogg.c effects_internal.c effect_position.c &
        effect_stereoreverse.c fluidsynth.c load_aiff.c load_flac.c load_mp3.c &
        load_ogg.c load_voc.c mixer.c music.c mp3utils.c music_cmd.c music_flac.c &
        music_mpg.c music_mad.c music_mod.c music_modplug.c music_ogg.c wavestream.c
+# timidity sources:
+TIMISRCS = common.c instrum.c mix.c output.c playmidi.c readmidi.c resample.c tables.c timidity.c
 
 OBJS = $(SRCS:.c=.obj)
+TIMIOBJS = $(TIMISRCS:.c=.obj)
 
 LIBS = SDL2.lib
 
@@ -50,13 +55,19 @@ CFLAGS+= -bd
 # for DECLSPEC:
 CFLAGS+= -DBUILD_SDL
 
-!ifeq USE_MIDI yes
+!ifeq USE_TIMIDITY yes
 CFLAGS+= -DMID_MUSIC -DUSE_TIMIDITY_MIDI
-LIBS+= $(LIBTIMI)
+LIBS+= $(TIMILIB)
 !endif
+!ifeq USE_FLUIDSYNTH yes
+CFLAGS+= -DUSE_FLUIDSYNTH_MIDI
+LIBS+= fluidsyn.lib
+!endif
+
 !ifeq USE_WAV yes
 CFLAGS+= -DWAV_MUSIC
 !endif
+
 !ifeq USE_TREMOR yes
 VORBIS_LIBS=vorbisidec.lib
 !else
@@ -74,6 +85,7 @@ LIBS+= ogg.lib
 CFLAGS+= -DFLAC_MUSIC
 LIBS+= FLAC.lib
 !endif
+
 !ifeq USE_MP3 yes
 CFLAGS+= -DMP3_MAD_MUSIC
 LIBS+= mad.lib
@@ -82,9 +94,14 @@ LIBS+= mad.lib
 CFLAGS+= -DMP3_MPG_MUSIC
 LIBS+= mpg123.lib
 !endif
+
 !ifeq USE_MOD yes
 CFLAGS+= -DMOD_MUSIC
 LIBS+= mikmod.lib
+!endif
+!ifeq USE_MODPLUG yes
+CFLAGS+= -DMODPLUG_MUSIC
+LIBS+= modplug.lib
 !endif
 
 all: $(DLLFILE) playwave.exe playmus.exe
@@ -93,7 +110,7 @@ $(LIBFILE): $(DLLFILE)
   @echo * Create library: $@...
   wlib -b -n -q -c -pa -s -t -zld -ii -io $@ $(DLLFILE)
 
-$(DLLFILE): $(OBJS) $(LNKFILE)
+$(DLLFILE): $(OBJS) $(TIMILIB) $(LNKFILE)
   @echo * Link: $@
   wlink @$(LNKFILE)
 
@@ -131,13 +148,17 @@ playmus.exe: $(LIBFILE) playmus.obj
 playwave.exe: $(LIBFILE) playwave.obj
   wlink SYS os2v2 OP q LIBPATH $(LIBPATH) LIBR {$(LIBFILE) SDL2.lib} F {playwave.obj} N playwave.exe
 
+.c: timidity;
+timidity.lib: $(TIMIOBJS)
+  wlib -b -n -q -c -pa -s -t -zld -ii -io $@ $(TIMIOBJS)
+
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
   @if exist *.obj rm *.obj
   @if exist *.err rm *.err
   @if exist *.map rm *.map
   @if exist *.exe rm *.exe
+  @if exist $(TIMILIB) rm $(TIMILIB)
   @if exist $(LNKFILE) rm $(LNKFILE)
   @if exist $(DLLFILE) rm $(DLLFILE)
   @if exist $(LIBFILE) rm $(LIBFILE)
-
