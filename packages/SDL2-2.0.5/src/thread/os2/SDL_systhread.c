@@ -40,110 +40,109 @@
 #include <process.h>
 
 
-typedef struct ThreadStartParms {
-  void *args;
-  pfnSDL_CurrentEndThread pfnCurrentEndThread;
+typedef struct ThreadStartParms
+{
+    void *args;
+    pfnSDL_CurrentEndThread pfnCurrentEndThread;
 } tThreadStartParms, *pThreadStartParms;
 
 static void RunThread(void *data)
 {
-  pThreadStartParms           pThreadParms = (pThreadStartParms) data;
-  pfnSDL_CurrentEndThread     pfnEndThread = pThreadParms->pfnCurrentEndThread;
-  void                        *args = pThreadParms->args;
+    pThreadStartParms pThreadParms = (pThreadStartParms) data;
+    pfnSDL_CurrentEndThread pfnEndThread = pThreadParms->pfnCurrentEndThread;
+    void *args = pThreadParms->args;
 
-  SDL_free( pThreadParms );
+    SDL_free(pThreadParms);
 
-  if ( ppSDLTLSData != NULL )
-    *ppSDLTLSData = NULL;
+    if (ppSDLTLSData != NULL)
+        *ppSDLTLSData = NULL;
 
-  SDL_RunThread( args );
+    SDL_RunThread(args);
 
-  if ( pfnEndThread != NULL )
-    pfnEndThread();
+    if (pfnEndThread != NULL)
+        pfnEndThread();
 }
-
-
 
 int
 SDL_SYS_CreateThread(SDL_Thread * thread, void *args,
                      pfnSDL_CurrentBeginThread pfnBeginThread,
                      pfnSDL_CurrentEndThread pfnEndThread)
 {
-  pThreadStartParms    pThreadParms = SDL_malloc( sizeof(tThreadStartParms) );
+    pThreadStartParms pThreadParms = SDL_malloc(sizeof(tThreadStartParms));
 
-  if ( pThreadParms == NULL )
-    return SDL_OutOfMemory();
+    if (pThreadParms == NULL)
+        return SDL_OutOfMemory();
 
-  if (thread->stacksize == 0)
-    thread->stacksize = 65536;
+    if (thread->stacksize == 0)
+        thread->stacksize = 65536;
 
-  // Also save the real parameters we have to pass to thread function
-  pThreadParms->args = args;
+    /* Also save the real parameters we have to pass to thread function */
+    pThreadParms->args = args;
 
-  if (pfnBeginThread) {
-    // Save the function which we will have to call to clear the RTL of calling app!
-    pThreadParms->pfnCurrentEndThread = pfnEndThread;
-    // Start the thread using the runtime library of calling app!
-    thread->handle = (SYS_ThreadHandle)
-      pfnBeginThread( RunThread, NULL, thread->stacksize, pThreadParms );
-  }
-  else {
-    pThreadParms->pfnCurrentEndThread = _endthread;
-    thread->handle = (SYS_ThreadHandle)
-      _beginthread( RunThread, NULL, thread->stacksize, pThreadParms );
-  }
+    if (pfnBeginThread) {
+        /* Save the function which we will have to call to clear the RTL of calling app! */
+        pThreadParms->pfnCurrentEndThread = pfnEndThread;
+        /* Start the thread using the runtime library of calling app! */
+        thread->handle = (SYS_ThreadHandle)
+                            pfnBeginThread(RunThread, NULL, thread->stacksize, pThreadParms);
+    } else {
+        pThreadParms->pfnCurrentEndThread = _endthread;
+        thread->handle = (SYS_ThreadHandle)
+                            _beginthread(RunThread, NULL, thread->stacksize, pThreadParms);
+    }
 
-  if ( thread->handle == -1 )
-      return SDL_SetError( "Not enough resources to create thread" );
+    if (thread->handle == -1)
+        return SDL_SetError("Not enough resources to create thread");
 
-  return 0;
+    return 0;
 }
 
 void
 SDL_SYS_SetupThread(const char *name)
 {
-    return;
+    /* nothing. */
 }
 
 SDL_threadID
 SDL_ThreadID(void)
 {
-  PTIB       tib;
-  PPIB       pib;
+    PTIB  tib;
+    PPIB  pib;
 
-  DosGetInfoBlocks( &tib, &pib );
-  return tib->tib_ptib2->tib2_ultid;
+    DosGetInfoBlocks(&tib, &pib);
+    return tib->tib_ptib2->tib2_ultid;
 }
 
 int
 SDL_SYS_SetThreadPriority(SDL_ThreadPriority priority)
 {
-  ULONG      ulRC;
+    ULONG ulRC;
 
-  ulRC = DosSetPriority( PRTYS_THREAD,
-                         (priority < SDL_THREAD_PRIORITY_NORMAL)? PRTYC_IDLETIME :
+    ulRC = DosSetPriority(PRTYS_THREAD,
+                          (priority < SDL_THREAD_PRIORITY_NORMAL)? PRTYC_IDLETIME :
                            (priority > SDL_THREAD_PRIORITY_NORMAL)? PRTYC_TIMECRITICAL :
-                             PRTYC_REGULAR,
-                         0, 0 );
-  if ( ulRC != NO_ERROR )
-    return SDL_SetError( "DosSetPriority() failed, rc = %u", ulRC );
+                            PRTYC_REGULAR,
+                          0, 0);
+    if (ulRC != NO_ERROR)
+        return SDL_SetError("DosSetPriority() failed, rc = %u", ulRC);
 
-  return 0;
+    return 0;
 }
 
 void
 SDL_SYS_WaitThread(SDL_Thread * thread)
 {
-  ULONG      ulRC = DosWaitThread( (PTID)&thread->handle, DCWW_WAIT );
+    ULONG ulRC = DosWaitThread((PTID)&thread->handle, DCWW_WAIT);
 
-  if ( ulRC != NO_ERROR )
-    debug( "DosWaitThread() failed, rc = %u", ulRC );
+    if (ulRC != NO_ERROR) {
+        debug_os2("DosWaitThread() failed, rc = %u", ulRC);
+    }
 }
 
 void
 SDL_SYS_DetachThread(SDL_Thread * thread)
 {
-  /* nothing. */
+    /* nothing. */
 }
 
 #endif /* SDL_THREAD_OS2 */
