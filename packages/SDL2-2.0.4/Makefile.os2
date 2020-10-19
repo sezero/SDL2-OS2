@@ -129,7 +129,6 @@ $(LNKFILE):
     @%append $@ OPTION IMPF=$(LIBHOME)/$^&.exp
     @%append $@ OPTION MAP=$(LIBHOME)/$^&.map
     @%append $@ OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@$(DESCRIPTION)'
-    @%append $@ OPTION QUIET
     @%append $@ OPTION ELIMINATE
     @%append $@ OPTION MANYAUTODATA
     @%append $@ OPTION OSNAME='OS/2 and eComStation'
