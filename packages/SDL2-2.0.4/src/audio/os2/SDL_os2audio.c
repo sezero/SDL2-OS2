@@ -203,7 +203,7 @@ static void OS2_PlayDevice(_THIS)
 
 static void OS2_WaitDone(_THIS)
 {
-    SDL_PrivateAudioData *pAData = (SDL_PrivateAudioData *)this->hidden;
+    SDL_PrivateAudioData *pAData = (SDL_PrivateAudioData *)_this->hidden;
     DosWaitEventSem(pAData->hevBuf, 3000);
 }
 
@@ -255,7 +255,7 @@ static void OS2_CloseDevice(_THIS)
         DosCloseEventSem(pAData->hevBuf);
 
     SDL_free(pAData);
-    this->hidden = NULL;
+    _this->hidden = NULL;
 }
 
 static int OS2_OpenDevice(_THIS, void *handle, const char *devname,
@@ -304,7 +304,7 @@ static int OS2_OpenDevice(_THIS, void *handle, const char *devname,
                           &stMCIAmpOpen,  0);
     if (ulRC != MCIERR_SUCCESS) {
         stMCIAmpOpen.usDeviceID = (USHORT)~0;
-        OS2_CloseDevice(this);
+        OS2_CloseDevice(_this);
         return _MCIError("MCI_OPEN", ulRC);
     }
     pAData->usDeviceId = stMCIAmpOpen.usDeviceID;
@@ -383,7 +383,7 @@ static int OS2_OpenDevice(_THIS, void *handle, const char *devname,
 
     if (ulRC != MCIERR_SUCCESS) {
         pAData->stMCIMixSetup.ulBitsPerSample = 0;
-        OS2_CloseDevice(this);
+        OS2_CloseDevice(_this);
         return _MCIError("MCI_MIXSETUP", ulRC);
     }
 
@@ -408,7 +408,7 @@ static int OS2_OpenDevice(_THIS, void *handle, const char *devname,
     ulRC = mciSendCommand(pAData->usDeviceId, MCI_BUFFER,
                           MCI_WAIT | MCI_ALLOCATE_MEMORY, &stMCIBuffer, 0);
     if (ulRC != MCIERR_SUCCESS) {
-        OS2_CloseDevice(this);
+        OS2_CloseDevice(_this);
         return _MCIError("MCI_BUFFER", ulRC);
     }
     pAData->cMixBuffers = stMCIBuffer.ulNumBuffers;
