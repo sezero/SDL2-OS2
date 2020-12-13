@@ -3651,6 +3651,7 @@ SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     int show_cursor_prev;
     SDL_bool mouse_captured;
     SDL_Window *current_window;
+    SDL_MessageBoxData mbdata;
 
     if (!messageboxdata) {
         return SDL_InvalidParamError("messageboxdata");
@@ -3667,6 +3668,11 @@ SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     if (!buttonid) {
         buttonid = &dummybutton;
     }
+
+    SDL_memcpy(&mbdata, messageboxdata, sizeof(*messageboxdata));
+    if (!mbdata.title) mbdata.title = "";
+    if (!mbdata.message) mbdata.message = "";
+    messageboxdata = &mbdata;
 
     if (_this && _this->ShowMessageBox) {
         retval = _this->ShowMessageBox(_this, messageboxdata, buttonid);

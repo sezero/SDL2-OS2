@@ -50,10 +50,11 @@
 /* Enable assembly routines */
 #define SDL_ASSEMBLY_ROUTINES 1
 
-/* #undef HAVE_LIBSAMPLERATE_H */
+/* use libsamplerate for audio rate conversion. */
+/*#define HAVE_LIBSAMPLERATE_H 1 */
 
 /* Enable dynamic libsamplerate support */
-/* #undef SDL_LIBSAMPLERATE_DYNAMIC */
+#define SDL_LIBSAMPLERATE_DYNAMIC "SAMPRATE.DLL"
 
 #define HAVE_LIBC 1
 
@@ -99,6 +100,8 @@
 #define HAVE_WCSLCPY 1
 #define HAVE_WCSLCAT 1
 #define HAVE_WCSCMP 1
+#define HAVE__WCSICMP 1
+#define HAVE__WCSNICMP 1
 #define HAVE_STRLEN 1
 #define HAVE_STRLCPY 1
 #define HAVE_STRLCAT 1
@@ -176,5 +179,7 @@
 /* #undef HAVE_SQRTF */
 #define HAVE_TAN 1
 /* #undef HAVE_TANF */
+/* #undef HAVE_TRUNC */
+/* #undef HAVE_TRUNCF */
 
 #endif /* SDL_config_os2_h_ */
