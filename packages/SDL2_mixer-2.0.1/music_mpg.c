@@ -113,16 +113,15 @@ mpg_new_rw(SDL_RWops *src, SDL_AudioSpec* mixer, int freesrc)
         return NULL;
     }
 
-    m = (mpg_data*)SDL_malloc(sizeof(mpg_data));
+    m = (mpg_data*)SDL_calloc(1, sizeof(mpg_data));
     if (!m) {
         SDL_OutOfMemory();
         return NULL;
     }
 
-    SDL_memset(m, 0, sizeof(mpg_data));
-
-    m->mp3file.src = src;
-    m->mp3file.length = SDL_RWsize(src);
+    if (MP3_RWinit(&m->mp3file, src) < 0) {
+        goto fail;
+    }
     if (mp3_skiptags(&m->mp3file) < 0) {
         Mix_SetError("music_mpg: corrupt mp3 file (bad tags.)");
         goto fail;
@@ -236,8 +235,7 @@ update_format(mpg_data* m)
 
     m->gotformat = 1;
 
-    code =
-        mpg123.mpg123_getformat(
+    code = mpg123.mpg123_getformat(
             m->handle,
             &rate, &channels, &encoding
         );
@@ -248,8 +246,7 @@ update_format(mpg_data* m)
     }
 
     sdlfmt = mpg123_format_to_sdl(encoding);
-    if (sdlfmt == (Uint16)-1)
-    {
+    if (sdlfmt == (Uint16)-1) {
         Mix_SetError(
             "Format %s is not supported by SDL",
             mpg123_format_str(encoding)
@@ -272,8 +269,7 @@ update_format(mpg_data* m)
     bufsize = sizeof(m->buf) * m->cvt.len_mult;
     m->cvt.buf = SDL_malloc(bufsize);
 
-    if (!m->cvt.buf)
-    {
+    if (!m->cvt.buf) {
         Mix_SetError("Out of memory");
         mpg_stop(m);
         return 0;
@@ -340,10 +336,9 @@ mpg_get_samples(mpg_data* m, Uint8 *stream, int len)
 {
     int mixable;
 
-    while (len > 0 && m->playing)
-    {
-        if (!m->len_available)
-        {
+    while (len > 0 && m->playing) {
+
+        if (!m->len_available) {
             if (!getsome(m)) {
                 m->playing = 0;
                 return len;

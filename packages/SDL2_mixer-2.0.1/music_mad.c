@@ -30,12 +30,12 @@ mad_openFileRW(SDL_RWops *src, SDL_AudioSpec *mixer, int freesrc)
 {
   mad_data *mp3_mad;
 
-  mp3_mad = (mad_data *)SDL_malloc(sizeof(mad_data));
+  mp3_mad = (mad_data *)SDL_calloc(1, sizeof(mad_data));
   if (mp3_mad) {
-    mp3_mad->mp3file.src = src;
-    mp3_mad->mp3file.start = 0;
-    mp3_mad->mp3file.pos = 0;
-    mp3_mad->mp3file.length = SDL_RWsize(src);
+    if (MP3_RWinit(&mp3_mad->mp3file, src) < 0) {
+        SDL_free(mp3_mad);
+        return NULL;
+    }
     if (mp3_skiptags(&mp3_mad->mp3file) < 0) {
         SDL_free(mp3_mad);
         Mix_SetError("music_mad: corrupt mp3 file (bad tags.)");
