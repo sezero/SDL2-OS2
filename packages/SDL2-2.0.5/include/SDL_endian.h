@@ -66,7 +66,7 @@ extern "C" {
  *  \file SDL_endian.h
  */
 #if defined(__GNUC__) && defined(__i386__) && \
-   !(__GNUC__ == 2 && __GNUC_MINOR__ == 95 /* broken gcc version */)
+   !(__GNUC__ == 2 && __GNUC_MINOR__ <= 95 /* broken gcc version */)
 SDL_FORCE_INLINE Uint16
 SDL_Swap16(Uint16 x)
 {
@@ -89,7 +89,7 @@ SDL_Swap16(Uint16 x)
   __asm__("rlwimi %0,%2,8,16,23": "=&r"(result):"0"(x >> 8), "r"(x));
     return (Uint16)result;
 }
-#elif defined(__GNUC__) && (defined(__M68000__) || defined(__M68020__)) && !defined(__mcoldfire__)
+#elif defined(__GNUC__) && (defined(__m68k__) && !defined(__mcoldfire__))
 SDL_FORCE_INLINE Uint16
 SDL_Swap16(Uint16 x)
 {
@@ -110,7 +110,8 @@ SDL_Swap16(Uint16 x)
 }
 #endif
 
-#if defined(__GNUC__) && defined(__i386__)
+#if defined(__GNUC__) && defined(__i386__) && \
+   !(__GNUC__ == 2 && __GNUC_MINOR__ <= 95 /* broken gcc version */)
 SDL_FORCE_INLINE Uint32
 SDL_Swap32(Uint32 x)
 {
@@ -135,7 +136,7 @@ SDL_Swap32(Uint32 x)
   __asm__("rlwimi %0,%2,24,0,7": "=&r"(result):"0"(result), "r"(x));
     return result;
 }
-#elif defined(__GNUC__) && (defined(__M68000__) || defined(__M68020__)) && !defined(__mcoldfire__)
+#elif defined(__GNUC__) && (defined(__m68k__) && !defined(__mcoldfire__))
 SDL_FORCE_INLINE Uint32
 SDL_Swap32(Uint32 x)
 {
@@ -166,7 +167,8 @@ SDL_Swap32(Uint32 x)
 }
 #endif
 
-#if defined(__GNUC__) && defined(__i386__)
+#if defined(__GNUC__) && defined(__i386__) && \
+   !(__GNUC__ == 2 && __GNUC_MINOR__ <= 95 /* broken gcc version */)
 SDL_FORCE_INLINE Uint64
 SDL_Swap64(Uint64 x)
 {

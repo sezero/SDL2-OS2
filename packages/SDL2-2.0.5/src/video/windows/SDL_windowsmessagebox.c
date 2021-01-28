@@ -143,6 +143,10 @@ static SDL_bool AddDialogString(WIN_DialogData *dialog, const char *string)
     size_t count;
     SDL_bool status;
 
+    if (!string) {
+        string = "";
+    }
+
     wstring = WIN_UTF8ToString(string);
     if (!wstring) {
         return SDL_FALSE;

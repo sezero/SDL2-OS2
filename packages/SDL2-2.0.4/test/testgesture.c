@@ -84,11 +84,13 @@ void setpix(SDL_Surface *screen, float _x, float _y, unsigned int col)
   *pixmem32 = colour;
 }
 
+#if 0 /* unused */
 void drawLine(SDL_Surface *screen,float x0,float y0,float x1,float y1,unsigned int col) {
   float t;
   for(t=0;t<1;t+=(float)(1.f/SDL_max(SDL_fabs(x0-x1),SDL_fabs(y0-y1))))
     setpix(screen,x1+t*(x0-x1),y1+t*(y0-y1),col);
 }
+#endif
 
 void drawCircle(SDL_Surface* screen,float x,float y,float r,unsigned int c)
 {
