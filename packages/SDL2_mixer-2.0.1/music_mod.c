@@ -19,8 +19,6 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-/* $Id: music_mod.c 4211 2008-12-08 00:27:32Z slouken $ */
-
 #ifdef MOD_MUSIC
 
 /* This file supports MOD tracker music streams */
@@ -143,13 +141,15 @@ void MOD_setvolume(MODULE *music, int volume)
 
 typedef struct
 {
-    MREADER mr;
-    /* struct MREADER in libmikmod <= 3.2.0-beta2
-     * doesn't have iobase members. adding them here
-     * so that if we compile against 3.2.0-beta2, we
-     * can still run OK against 3.2.0b3 and newer. */
+    /* MREADER basic members in libmikmod2/3: */
+    int  (*Seek)(struct MREADER*, long, int);
+    long (*Tell)(struct MREADER*);
+    BOOL (*Read)(struct MREADER*, void*, size_t);
+    int  (*Get)(struct MREADER*);
+    BOOL (*Eof)(struct MREADER*);
+    /* no iobase members in libmikmod <= 3.2.0-beta2 */
     long iobase, prev_iobase;
-    Sint64 offset;
+
     Sint64 eof;
     SDL_RWops *src;
 } LMM_MREADER;
@@ -159,16 +159,16 @@ int LMM_Seek(struct MREADER *mr,long to,int dir)
 	Sint64 offset = to;
     LMM_MREADER* lmmmr = (LMM_MREADER*)mr;
     if ( dir == SEEK_SET ) {
-        offset += lmmmr->offset;
-        if (offset < lmmmr->offset)
+        offset += lmmmr->iobase;
+        if (offset < lmmmr->iobase)
             return -1;
     }
-    return (SDL_RWseek(lmmmr->src, offset, dir) < lmmmr->offset)? -1 : 0;
+    return (SDL_RWseek(lmmmr->src, offset, dir) < lmmmr->iobase)? -1 : 0;
 }
 long LMM_Tell(struct MREADER *mr)
 {
     LMM_MREADER* lmmmr = (LMM_MREADER*)mr;
-    return (long)(SDL_RWtell(lmmmr->src) - lmmmr->offset);
+    return (long)(SDL_RWtell(lmmmr->src) - lmmmr->iobase);
 }
 BOOL LMM_Read(struct MREADER *mr,void *buf,size_t sz)
 {
@@ -193,16 +193,18 @@ BOOL LMM_Eof(struct MREADER *mr)
 }
 MODULE *MikMod_LoadSongRW(SDL_RWops *src, int maxchan)
 {
-    LMM_MREADER lmmmr = {
-        { LMM_Seek, LMM_Tell, LMM_Read, LMM_Get, LMM_Eof },
-        0,
-        0,
-        0
-    };
-    lmmmr.offset = SDL_RWtell(src);
+    LMM_MREADER lmmmr;
+    SDL_memset(&lmmmr, 0, sizeof(LMM_MREADER));
+    lmmmr.Seek = LMM_Seek;
+    lmmmr.Tell = LMM_Tell;
+    lmmmr.Read = LMM_Read;
+    lmmmr.Get = LMM_Get;
+    lmmmr.Eof = LMM_Eof;
+
+    lmmmr.prev_iobase = lmmmr.iobase = SDL_RWtell(src);
     SDL_RWseek(src, 0, RW_SEEK_END);
     lmmmr.eof = SDL_RWtell(src);
-    SDL_RWseek(src, lmmmr.offset, RW_SEEK_SET);
+    SDL_RWseek(src, lmmmr.iobase, RW_SEEK_SET);
     lmmmr.src = src;
     return mikmod.Player_LoadGeneric((MREADER*)&lmmmr, maxchan, 0);
 }
@@ -223,15 +225,12 @@ MODULE *MOD_new_RW(SDL_RWops *src, int freesrc)
         return NULL;
     }
 
-    /* Stop implicit looping, fade out and other flags. */
+    /* Allow implicit looping, disable fade out and other flags. */
     module->extspd  = 1;
     module->panflag = 1;
     module->wrap    = 0;
-    module->loop    = 0;
-#if 0 /* Don't set fade out by default - unfortunately there's no real way
-to query the status of the song or set trigger actions.  Hum. */
-    module->fadeout = 1;
-#endif
+    module->loop    = 1;
+    module->fadeout = 0;
 
     if ( freesrc ) {
         SDL_RWclose(src);
@@ -240,8 +239,9 @@ to query the status of the song or set trigger actions.  Hum. */
 }
 
 /* Start playback of a given MOD stream */
-void MOD_play(MODULE *music)
+void MOD_play(MODULE *music, int volume)
 {
+    music->initvolume = (UBYTE)volume;
     mikmod.Player_Start(music);
 }
 
