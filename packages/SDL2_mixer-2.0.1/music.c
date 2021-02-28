@@ -1506,13 +1506,14 @@ int Mix_SetMusicCMD(const char *command)
 int Mix_SetSynchroValue(int i)
 {
     /* Not supported by any players at this time */
-    return(-1);
+    (void) i;
+    return -1;
 }
 
 int Mix_GetSynchroValue(void)
 {
     /* Not supported by any players at this time */
-    return(-1);
+    return -1;
 }
 
 

@@ -241,6 +241,8 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
+PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
+PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 RANLIB = @RANLIB@
 SDL2_CONFIG = @SDL2_CONFIG@
 SDL_CFLAGS = @SDL_CFLAGS@
@@ -309,7 +311,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I acinclude
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = decoders . playsound
+SUBDIRS = decoders . examples
 @USE_TIMIDITY_FALSE@TIMIDITY_LIB = 
 @USE_TIMIDITY_TRUE@TIMIDITY_LIB = decoders/timidity/libtimidity.la
 SDLSOUND_HDRS = SDL_sound.h
@@ -336,6 +338,7 @@ EXTRA_DIST = \
 	PBProjects.tar.gz \
 	borland.zip \
 	Doxyfile \
+	Makefile.os2 \
 	VisualC
 
 all: config.h

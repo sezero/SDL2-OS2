@@ -270,7 +270,10 @@ static UBYTE* IT_ConvertTrack(ITNOTE* tr,UWORD numrows)
 				UniNote(note);
 		}
 
-		if((ins)&&(ins<100))
+		/* Impulse Tracker only allows up to 99 instruments and crashes when it
+		   encounters instruments >=100. But the file format supports them just
+		   fine and there are many MPT-created ITs with that many instruments. */
+		if((ins)&&(ins<253))
 			UniInstrument(ins-1);
 		else if(ins==253)
 			UniWriteByte(UNI_KEYOFF);
@@ -981,8 +984,6 @@ static BOOL IT_Load(BOOL curious)
 	if(!AllocTracks()) return 0;
 
 	for(t=0;t<of.numpat;t++) {
-		UWORD packlen;
-
 		/* seek to pattern position */
 		if(!paraptr[mh->insnum+mh->smpnum+t]) { /* 0 -> empty 64 row pattern */
 			of.pattrows[t]=64;
@@ -995,8 +996,7 @@ static BOOL IT_Load(BOOL curious)
 			}
 		} else {
 			_mm_fseek(modreader,((long)paraptr[mh->insnum+mh->smpnum+t]),SEEK_SET);
-			packlen=_mm_read_I_UWORD(modreader);
-			(void)packlen; /* unused */
+			(void) _mm_read_I_UWORD(modreader);			/* packlen */
 			of.pattrows[t]=_mm_read_I_UWORD(modreader);
 			_mm_read_I_ULONG(modreader);
 			if(!IT_ReadPattern(of.pattrows[t])) return 0;

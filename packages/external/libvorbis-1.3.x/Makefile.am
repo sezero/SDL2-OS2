@@ -19,7 +19,8 @@ EXTRA_DIST = \
 	vorbis.m4 \
 	vorbis.pc.in vorbisfile.pc.in \
 	vorbis-uninstalled.pc.in \
-	vorbisfile-uninstalled.pc.in
+	vorbisfile-uninstalled.pc.in \
+	macosx win32
 
 dist-hook:
 	for item in $(EXTRA_DIST); do \

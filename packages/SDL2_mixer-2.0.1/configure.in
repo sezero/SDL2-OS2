@@ -41,20 +41,13 @@ AC_SUBST(LT_REVISION)
 AC_SUBST(LT_AGE)
 
 dnl Detect the canonical build and host environments
-AC_CONFIG_AUX_DIRS($srcdir/build-scripts)
 dnl AC_CANONICAL_HOST
 
 dnl Check for tools
-AC_PROG_LIBTOOL
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
-if test -z "$host_alias"; then
-    hostaliaswindres=
-else
-    hostaliaswindres="$host_alias-windres"
-fi
-AC_CHECK_PROGS(WINDRES, [windres $hostaliaswindres $host_os-windres])
+LT_PROG_RC
 
 dnl Set up the compiler and linker flags
 case "$host" in
@@ -112,10 +105,6 @@ if test x$enable_dependency_tracking = xyes; then
 fi
 
 case "$host" in
-    *mingw32ce*)
-        #VERSION_SOURCES="$srcdir/version.rc"
-        EXE=".exe"
-    ;;
     *-*-cygwin* | *-*-mingw32*)
         VERSION_SOURCES="$srcdir/version.rc"
         EXE=".exe"
@@ -316,14 +305,13 @@ if test x$enable_music_mod = xyes -a x$enable_music_mod_mikmod = xyes; then
 
 int main(int argc, char **argv)
 {
-long maj=$libmikmod_maj,min=$libmikmod_min,rev=$libmikmod_rev,ver=MikMod_GetVersion();
-/*printf("(%d.%d.%d) ",ver>>16,(ver>>8)&0xff,ver&0xff);*/
-if(ver>=((maj<<16)|(min<<8)|(rev))) {
-    printf("yes\n");
-    return 0;
-}
-printf("no\n*** libmikmod is older than %d.%d.%d, not using.\n",maj,min,rev);
-return 1;
+  long maj=$libmikmod_maj,min=$libmikmod_min,rev=$libmikmod_rev,ver=MikMod_GetVersion();
+  if (ver>=((maj<<16)|(min<<8)|(rev))) {
+      printf("yes\n");
+      return 0;
+  }
+  printf("no\n*** libmikmod is older than %d.%d.%d, not using.\n",maj,min,rev);
+  return 1;
 }
 ], [], [have_libmikmod=no], [echo $ac_n "cross compiling; assumed OK... $ac_c"])
     fi
@@ -380,9 +368,6 @@ AC_HELP_STRING([--enable-music-midi-native], [enable native MIDI music output [[
     if test x$enable_music_midi_native = xyes; then
         use_music_midi_native=no
         case "$host" in
-            *mingw32ce*)
-                use_music_midi_native=no
-                ;;
             *-*-cygwin* | *-*-mingw32*)
                 use_music_midi_native=yes
                 EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lwinmm"
@@ -422,6 +407,9 @@ AC_HELP_STRING([--enable-music-midi-fluidsynth-shared], [dynamically load FluidS
                     ;;
                 *-*-cygwin* | *-*-mingw32*)
                     fluidsynth_lib=[`find_lib "fluidsynth*.dll"`]
+                    if test x$fluidsynth_lib = x; then
+                        fluidsynth_lib=[`find_lib "libfluidsynth*.dll"`]
+                    fi
                     ;;
                 *)
                     fluidsynth_lib=[`find_lib "libfluidsynth[0-9]*.so.*"`]
@@ -433,7 +421,7 @@ AC_HELP_STRING([--enable-music-midi-fluidsynth-shared], [dynamically load FluidS
             SOURCES="$SOURCES $srcdir/dynamic_fluidsynth.c $srcdir/fluidsynth.c"
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DUSE_FLUIDSYNTH_MIDI"
             if test x$enable_music_midi_fluidsynth_shared = xyes && test x$fluidsynth_lib != x; then
-                echo "-- dynamic libfluidsyth -> $fluidsynth_lib"
+                echo "-- dynamic libfluidsynth -> $fluidsynth_lib"
                 EXTRA_CFLAGS="$EXTRA_CFLAGS -DFLUIDSYNTH_DYNAMIC=\\\"$fluidsynth_lib\\\""
             else
                 EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lfluidsynth"
@@ -472,6 +460,9 @@ if test x$enable_music_ogg = xyes; then
                     ;;
                 *-*-cygwin* | *-*-mingw32*)
                     ogg_lib=[`find_lib "vorbisidec*.dll"`]
+                    if test x$ogg_lib = x; then
+                        ogg_lib=[`find_lib "libvorbisidec*.dll"`]
+                    fi
                     ;;
                 *)
                     ogg_lib=[`find_lib "libvorbisidec[0-9]*.so.*"`]
@@ -661,14 +652,14 @@ OBJECTS=`echo $SOURCES`
 DEPENDS=`echo $SOURCES`
 OBJECTS=`echo "$OBJECTS" | sed 's,[[^ ]]*/\([[^ ]]*\)\.c,$(objects)/\1.lo,g'`
 DEPENDS=`echo "$DEPENDS" | sed 's,\([[^ ]]*\)/\([[^ ]]*\)\.c,\\
-$(objects)/\2.lo: \1/\2.c\\
+$(objects)/\2.lo: \1/\2.c \$(objects)/.created\\
 	\$(LIBTOOL) --mode=compile \$(CC) \$(CFLAGS) \$(EXTRA_CFLAGS) '"$DEPENDENCY_TRACKING_OPTIONS"' -c \$< -o \$@,g'`
 
 OBJECTS_CXX=`echo $SOURCES_CXX`
 DEPENDS_CXX=`echo $SOURCES_CXX`
 OBJECTS_CXX=`echo "$OBJECTS_CXX" | sed 's,[[^ ]]*/\([[^ ]]*\)\.cpp,$(objects)/\1.lo,g'`
 DEPENDS_CXX=`echo "$DEPENDS_CXX" | sed 's,\([[^ ]]*\)/\([[^ ]]*\)\.cpp,\\
-$(objects)/\2.lo: \1/\2.cpp\\
+$(objects)/\2.lo: \1/\2.cpp \$(objects)/.created\\
 	\$(LIBTOOL) --mode=compile \$(CXX) \$(CFLAGS) \$(EXTRA_CFLAGS) '"$DEPENDENCY_TRACKING_OPTIONS"' -c \$< -o \$@,g'`
 OBJECTS="$OBJECTS $OBJECTS_CXX"
 DEPENDS="$DEPENDS $DEPENDS_CXX"
@@ -676,10 +667,10 @@ DEPENDS=`echo "$DEPENDS" | sed 's,\\$,\\\\$,g'`
 
 VERSION_OBJECTS=`echo $VERSION_SOURCES`
 VERSION_DEPENDS=`echo $VERSION_SOURCES`
-VERSION_OBJECTS=`echo "$VERSION_OBJECTS" | sed 's,[[^ ]]*/\([[^ ]]*\)\.rc,$(objects)/\1.o,g'`
+VERSION_OBJECTS=`echo "$VERSION_OBJECTS" | sed 's,[[^ ]]*/\([[^ ]]*\)\.rc,$(objects)/\1.lo,g'`
 VERSION_DEPENDS=`echo "$VERSION_DEPENDS" | sed 's,\([[^ ]]*\)/\([[^ ]]*\)\.rc,\\
-$(objects)/\2.o: \1/\2.rc\\
-	\$(WINDRES) \$< \$@,g'`
+$(objects)/\2.lo: \1/\2.rc \$(objects)/.created\\
+	\$(LIBTOOL) --tag=RC --mode=compile \$(RC) \$< -o \$@,g'`
 VERSION_DEPENDS=`echo "$VERSION_DEPENDS" | sed 's,\\$,\\\\$,g'`
 
 PLAYWAVE_SOURCES="$srcdir/playwave.c"
@@ -687,7 +678,7 @@ PLAYWAVE_OBJECTS=`echo $PLAYWAVE_SOURCES`
 PLAYWAVE_DEPENDS=`echo $PLAYWAVE_SOURCES`
 PLAYWAVE_OBJECTS=`echo "$PLAYWAVE_OBJECTS" | sed 's,[[^ ]]*/\([[^ ]]*\)\.c,$(objects)/\1.lo,g'`
 PLAYWAVE_DEPENDS=`echo "$PLAYWAVE_DEPENDS" | sed 's,\([[^ ]]*\)/\([[^ ]]*\)\.c,\\
-$(objects)/\2.lo: \1/\2.c\\
+$(objects)/\2.lo: \1/\2.c \$(objects)/.created\\
 	\$(LIBTOOL) --mode=compile \$(CC) \$(CFLAGS) \$(EXTRA_CFLAGS) '"$DEPENDENCY_TRACKING_OPTIONS"' -c \$< -o \$@,g'`
 PLAYWAVE_DEPENDS=`echo "$PLAYWAVE_DEPENDS" | sed 's,\\$,\\\\$,g'`
 
@@ -696,7 +687,7 @@ PLAYMUS_OBJECTS=`echo $PLAYMUS_SOURCES`
 PLAYMUS_DEPENDS=`echo $PLAYMUS_SOURCES`
 PLAYMUS_OBJECTS=`echo "$PLAYMUS_OBJECTS" | sed 's,[[^ ]]*/\([[^ ]]*\)\.c,$(objects)/\1.lo,g'`
 PLAYMUS_DEPENDS=`echo "$PLAYMUS_DEPENDS" | sed 's,\([[^ ]]*\)/\([[^ ]]*\)\.c,\\
-$(objects)/\2.lo: \1/\2.c\\
+$(objects)/\2.lo: \1/\2.c \$(objects)/.created\\
 	\$(LIBTOOL) --mode=compile \$(CC) \$(CFLAGS) \$(EXTRA_CFLAGS) '"$DEPENDENCY_TRACKING_OPTIONS"' -c \$< -o \$@,g'`
 PLAYMUS_DEPENDS=`echo "$PLAYMUS_DEPENDS" | sed 's,\\$,\\\\$,g'`
 
@@ -711,13 +702,10 @@ AC_SUBST(EXTRA_CFLAGS)
 AC_SUBST(BUILD_LDFLAGS)
 AC_SUBST(EXTRA_LDFLAGS)
 AC_SUBST(EXE)
-AC_SUBST(WINDRES)
 AC_SUBST(SDL_VERSION)
 AC_SUBST(SDL_CFLAGS)
 AC_SUBST(SDL_LIBS)
 
-AC_OUTPUT([
-])
 AC_CONFIG_FILES([
     Makefile SDL2_mixer.spec SDL2_mixer.pc
 ])
@@ -734,7 +722,7 @@ $PLAYWAVE_DEPENDS
 
 -include \$(PLAYMUS_OBJECTS:.lo=.d)
 $PLAYMUS_DEPENDS
-__EOF__ 
+__EOF__
 ], [
 DEPENDS="$DEPENDS"
 VERSION_DEPENDS="$VERSION_DEPENDS"

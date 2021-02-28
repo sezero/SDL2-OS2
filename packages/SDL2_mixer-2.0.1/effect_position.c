@@ -169,7 +169,7 @@ static void SDLCALL _Eff_position_u8_c4(int chan, void *stream, int len, void *u
     }
 
     if (args->room_angle == 0)
-    for (i = 0; i < len; i += sizeof (Uint8) * 6) {
+    for (i = 0; i < len; i += sizeof (Uint8) * 4) {
         /* must adjust the sample so that 0 is the center */
         *ptr = (Uint8) ((Sint8) ((((float) (Sint8) (*ptr - 128))
             * args->left_f) * args->distance_f) + 128);
@@ -185,7 +185,7 @@ static void SDLCALL _Eff_position_u8_c4(int chan, void *stream, int len, void *u
         ptr++;
     }
     else if (args->room_angle == 90)
-    for (i = 0; i < len; i += sizeof (Uint8) * 6) {
+    for (i = 0; i < len; i += sizeof (Uint8) * 4) {
         /* must adjust the sample so that 0 is the center */
         *ptr = (Uint8) ((Sint8) ((((float) (Sint8) (*ptr - 128))
             * args->right_f) * args->distance_f) + 128);
@@ -201,7 +201,7 @@ static void SDLCALL _Eff_position_u8_c4(int chan, void *stream, int len, void *u
         ptr++;
     }
     else if (args->room_angle == 180)
-    for (i = 0; i < len; i += sizeof (Uint8) * 6) {
+    for (i = 0; i < len; i += sizeof (Uint8) * 4) {
         /* must adjust the sample so that 0 is the center */
         *ptr = (Uint8) ((Sint8) ((((float) (Sint8) (*ptr - 128))
             * args->right_rear_f) * args->distance_f) + 128);
@@ -217,7 +217,7 @@ static void SDLCALL _Eff_position_u8_c4(int chan, void *stream, int len, void *u
         ptr++;
     }
     else if (args->room_angle == 270)
-    for (i = 0; i < len; i += sizeof (Uint8) * 6) {
+    for (i = 0; i < len; i += sizeof (Uint8) * 4) {
         /* must adjust the sample so that 0 is the center */
         *ptr = (Uint8) ((Sint8) ((((float) (Sint8) (*ptr - 128))
             * args->left_rear_f) * args->distance_f) + 128);
@@ -1446,7 +1446,7 @@ int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
         angle = -angle;
             angle = angle * 90 / 128; /* Make it larger for more effect? */
         }
-        return( Mix_SetPosition(channel, angle, 0) );
+        return Mix_SetPosition(channel, angle, 0);
     }
 
     f = get_position_effect_func(format, channels);
@@ -1548,7 +1548,9 @@ int Mix_SetPosition(int channel, Sint16 angle, Uint8 distance)
     if (f == NULL)
         return(0);
 
-    angle = SDL_abs(angle) % 360;  /* make angle between 0 and 359. */
+    /* make angle between 0 and 359. */
+    angle %= 360;
+    if (angle < 0) angle += 360;
 
     SDL_LockAudio();
     args = get_position_arg(channel);
