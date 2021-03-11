@@ -6,11 +6,25 @@
 # wmake -f Makefile.os2 target=static
 # - builds the static library FLAC_static.lib
 
+OGG_SUPPORT=1
+METADATA_SUPPORT=0
+ENCODER_SUPPORT=0
+
+INCLUDES=-I. -Iinclude -I"../../include"
 CPPFLAGS=-DHAVE_INTTYPES_H -DHAVE_STDINT_H
 CPPFLAGS+= -DFLAC__CPU_IA32 -DFLAC__HAS_NASM -DFLAC__USE_3DNOW -DSIZEOF_VOIDP=4 -DFLAC__ALIGN_MALLOC_DATA
 CPPFLAGS+= -DNDEBUG
 CPPFLAGS+= -DENABLE_64_BIT_WORDS=0 -DFLAC__HAS_X86INTRIN=0
+!ifeq OGG_SUPPORT 1
 CPPFLAGS+= -DFLAC__HAS_OGG=1
+!else
+CPPFLAGS+= -DFLAC__HAS_OGG=0
+!endif
+!ifdef __UNIX__
+CPPFLAGS+= -DPACKAGE_VERSION=\"1.3.0\"
+!else
+CPPFLAGS+= -DPACKAGE_VERSION="1.3.0"
+!endif
 
 CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -j -zp8
 # -5s  :  Pentium stack calling conventions.
@@ -40,14 +54,24 @@ BLD_TARGET=$(DLLNAME)
 
 COMPILE=wcc386 $(CFLAGS) $(CPPFLAGS) $(INCLUDES)
 
-OBJ=cpu_asm.obj lpc_asm.obj bitmath.obj bitreader.obj cpu.obj crc.obj fixed.obj format.obj lpc.obj md5.obj memory.obj stream_decoder.obj ogg_decoder_aspect.obj ogg_mapping.obj
+OBJ=cpu_asm.obj lpc_asm.obj bitmath.obj bitreader.obj cpu.obj crc.obj fixed.obj format.obj lpc.obj md5.obj memory.obj stream_decoder.obj
+!ifeq OGG_SUPPORT 1
+OBJ+= ogg_decoder_aspect.obj ogg_mapping.obj
+!endif
 # metadata interfaces:
-#CPPFLAGS+= -DFLAC_METADATA_INTERFACES
-#OBJ+= metadata_object.obj metadata_iterators.obj
+!ifeq METADATA_SUPPORT 1
+CPPFLAGS+= -DFLAC_METADATA_INTERFACES
+OBJ+= metadata_object.obj metadata_iterators.obj
+!endif
 # encoder support:
-#NASMFLAGS+= -DFLAC_INCLUDE_ENCODER
-#CPPFLAGS+= -DFLAC_INCLUDE_ENCODER
-#OBJ+= fixed_asm.obj bitwriter.obj ogg_helper.obj ogg_encoder_aspect.obj stream_encoder.obj stream_encoder_framing.obj window.obj
+!ifeq ENCODER_SUPPORT 1
+NASMFLAGS+= -DFLAC_INCLUDE_ENCODER
+CPPFLAGS+= -DFLAC_INCLUDE_ENCODER
+OBJ+= fixed_asm.obj bitwriter.obj stream_encoder.obj stream_encoder_framing.obj window.obj
+!ifeq OGG_SUPPORT 1
+OBJ+= ogg_helper.obj ogg_encoder_aspect.obj
+!endif
+!endif
 
 all: $(BLD_TARGET)
 
@@ -68,22 +92,7 @@ $(LIBSTATIC): $(OBJ)
 .nasm.obj:
 	nasm $(NASMFLAGS) -o $^@ $<
 
-!ifndef __UNIX__
-INCLUDES=-I. -I.\include -I..\..\include
-CPPFLAGS+= -DPACKAGE_VERSION="1.3.0"
-distclean: clean .symbolic
-	@if exist $(DLLNAME) del $(DLLNAME)
-	@if exist $(LIBNAME) del $(LIBNAME)
-	@if exist $(EXPNAME) del $(EXPNAME)
-	@if exist $(LIBSTATIC) del $(LIBSTATIC)
-clean: .symbolic
-	@if exist *.obj del *.obj
-!else
-INCLUDES=-I. -I./include -I../../include
-CPPFLAGS+= -DPACKAGE_VERSION=\"1.3.0\"
 distclean: clean .symbolic
 	rm -f $(LIBSTATIC) $(DLLNAME) $(LIBNAME) $(EXPNAME)
 clean: .symbolic
 	rm -f *.obj
-!endif
-

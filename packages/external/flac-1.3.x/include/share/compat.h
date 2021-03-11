@@ -66,7 +66,7 @@
 #define fseeko fseek
 #define ftello ftell
 #define FLAC__off_t off_t
-#elif defined(__MORPHOS__)
+#elif defined(__MORPHOS__) || defined(__DJGPP__)
 #define fseeko fseek
 #define ftello ftell
 #define FLAC__off_t off_t
