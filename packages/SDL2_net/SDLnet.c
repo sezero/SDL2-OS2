@@ -1,6 +1,6 @@
 /*
   SDL_net:  An example cross-platform network library for use with SDL
-  Copyright (C) 1997-2018 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
   Copyright (C) 2012 Simeon Maxein <smaxein@googlemail.com>
 
   This software is provided 'as-is', without any express or implied
@@ -19,8 +19,6 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-
-/* $Id$ */
 
 #include "SDLnetsys.h"
 #include "SDL_net.h"
@@ -60,7 +58,7 @@ int SDLNet_GetLastError(void)
 void SDLNet_SetLastError(int err)
 {
     #if defined(__OS2__) && !defined(__EMX__)
-    /* FIXME: OS2 doesn't have a function to reset socket errno */
+    (void) err; /* FIXME: OS2 doesn't have a function to reset socket errno */
     #else
     errno = err;
     #endif

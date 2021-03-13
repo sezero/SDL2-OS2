@@ -1,4 +1,6 @@
 # Makefile.am for the SDL Rich Text Format loading library and viewer
+ACLOCAL_AMFLAGS = -I acinclude
+AUTOMAKE_OPTIONS= foreign
 
 lib_LTLIBRARIES = libSDL2_rtf.la
 
@@ -17,6 +19,7 @@ libSDL2_rtf_la_SOURCES =		\
 
 EXTRA_DIST =			\
 	version.rc		\
+	Makefile.os2		\
 	SDL_rtf.spec		\
 	SDL_rtf.spec.in		\
 	gcc-fat.sh		\

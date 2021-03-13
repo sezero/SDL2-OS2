@@ -1,4 +1,6 @@
 # Makefile.am for the SDL sample image loading library and viewer
+ACLOCAL_AMFLAGS = -I acinclude
+AUTOMAKE_OPTIONS= foreign
 
 lib_LTLIBRARIES = libSDL2_net.la
 
@@ -17,6 +19,7 @@ EXTRA_DIST =			\
 	Android.mk		\
 	debian			\
 	version.rc		\
+	Makefile.os2		\
 	VisualC			\
 	Xcode			\
 	Xcode-iOS		\

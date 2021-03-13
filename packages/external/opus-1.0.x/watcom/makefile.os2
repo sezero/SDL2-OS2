@@ -1,0 +1,80 @@
+# Uncomment this for fixed-point build
+#FIXED_POINT=1
+
+# Uncomment this to include the opus encoder
+#USE_ENCODER=1
+
+CPPFLAGS=-DOPUS_BUILD -DUSE_ALLOCA -DHAVE_ALLOCA_H -DHAVE_STDINT_H
+#CPPFLAGS+= -DCUSTOM_MODES
+#CPPFLAGS+= -DENABLE_ASSERTIONS
+INCLUDES=-I../include -I../silk -I../celt
+!ifdef FIXED_POINT
+CPPFLAGS+= -DFIXED_POINT=1 -DDISABLE_FLOAT_API
+INCLUDES+= -I../silk/fixed
+!else
+INCLUDES+= -I../silk/float
+!endif
+
+CFLAGS=-bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8 -zq
+# -5s  :  Pentium stack calling conventions.
+# -5r  :  Pentium register calling conventions.
+CFLAGS+= -5s
+DLLFLAGS=-bd
+
+DLLNAME=opus.dll
+EXPNAME=opus.exp
+LIBNAME=opus.lib
+LIBSTATIC=opus_static.lib
+
+!ifeq target static
+BLD_TARGET=$(LIBSTATIC)
+!else
+CFLAGS+= $(DLLFLAGS)
+BLD_TARGET=$(DLLNAME)
+!endif
+
+!include package_version
+!include silk_sources.mk
+!include celt_sources.mk
+!include opus_sources.mk
+
+!ifdef USE_ENCODER
+CPPFLAGS+= -DOPUS_ENABLE_ENCODER
+CELT_OBJS+= $(CELT_OBJS_ENC)
+SILK_OBJS+= $(SILK_OBJS_ENC)
+OPUS_OBJS+= $(OPUS_OBJS_ENC)
+!ifdef FIXED_POINT
+SILK_OBJS+= $(SILK_OBJS_FIXED)
+!else
+SILK_OBJS+= $(SILK_OBJS_FLOAT)
+OPUS_OBJS+= $(OPUS_OBJS_FLOAT)
+!endif
+!endif
+
+ASM_OBJS =
+
+OBJS=$(SILK_OBJS) $(CELT_OBJS) $(OPUS_OBJS) $(ASM_OBJS)
+
+# Rules
+all: $(BLD_TARGET)
+
+$(DLLNAME): $(OBJS)
+	wlink NAM $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE FIL {$(OBJS)} OPTION IMPF=$(EXPNAME)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
+
+$(LIBSTATIC): $(OBJS)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJS)
+
+.c: ../src;../celt;../silk;../silk/float;../silk/fixed
+.c.obj:
+	wcc386 $(CFLAGS) $(CPPFLAGS) $(INCLUDES) -fo=$^@ $<
+.asm.obj:
+	nasm -f obj -o $^@ $<
+celt.obj: celt.c
+	wcc386 $(CFLAGS) $(CPPFLAGS) -DPACKAGE_VERSION='$(PACKAGE_VERSION)' $(INCLUDES) -fo=$^@ $<
+
+distclean: clean .symbolic
+	rm -f $(DLLNAME) $(EXPNAME) $(LIBNAME) $(LIBSTATIC)
+clean: .symbolic
+	rm -f *.obj *.err
+
