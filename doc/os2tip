@@ -1,5 +1,0 @@
-SDL_AUDIO_SHARE - 0/1 (default is 0)
-SDL_AUDIO_LINEIN - if 1 use line-in instead mic.
-SDL_AUDIO_RECVOL - mic./line-in volume 0..100, default is 90
-
-SDL_VIDEODRIVER - DIVE/VMAN
