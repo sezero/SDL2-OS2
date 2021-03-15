@@ -39,6 +39,15 @@
 
 #define	ENDSWAP_32(x)		(_byteswap_ulong (x))
 
+#elif defined __WATCOMC__ && defined __386__
+
+extern uint32_t _watcom_bswap32(uint32_t);
+#pragma aux _watcom_bswap32 = \
+    "bswap eax"  \
+    parm   [eax] \
+    modify [eax];
+#define	ENDSWAP_32(x)		(_watcom_bswap32 (x))
+
 #elif defined HAVE_BYTESWAP_H		/* Linux */
 
 #include <byteswap.h>
