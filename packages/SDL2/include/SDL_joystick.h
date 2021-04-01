@@ -275,7 +275,7 @@ extern DECLSPEC SDL_Joystick *SDLCALL SDL_JoystickOpen(int device_index);
 /**
  * Get the SDL_Joystick associated with an instance id.
  *
- * \param joyid the instance id to get the SDL_Joystick for
+ * \param instance_id the instance id to get the SDL_Joystick for
  * \returns an SDL_Joystick on success or NULL on failure; call SDL_GetError()
  *          for more information.
  *
@@ -666,26 +666,17 @@ extern DECLSPEC SDL_bool SDLCALL SDL_JoystickGetAxisInitialState(SDL_Joystick *j
  * The returned value will be one of the following positions:
  *
  * - `SDL_HAT_CENTERED`
- *
  * - `SDL_HAT_UP`
- *
  * - `SDL_HAT_RIGHT`
- *
  * - `SDL_HAT_DOWN`
- *
  * - `SDL_HAT_LEFT`
- *
  * - `SDL_HAT_RIGHTUP`
- *
  * - `SDL_HAT_RIGHTDOWN`
- *
  * - `SDL_HAT_LEFTUP`
- *
  * - `SDL_HAT_LEFTDOWN`
  *
  * \param joystick an SDL_Joystick structure containing joystick information
- * \param hat the hat index to get the state from; hat indices start at index
- *            0
+ * \param hat the hat index to get the state from; indices start at index 0
  * \returns the current hat position.
  *
  * \sa SDL_JoystickNumHats

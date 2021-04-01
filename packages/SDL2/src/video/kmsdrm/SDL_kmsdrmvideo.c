@@ -64,6 +64,10 @@
 #define KMSDRM_DRI_CARDPATHFMT "/dev/dri/card%d"
 #endif
 
+#ifndef EGL_PLATFORM_GBM_MESA
+#define EGL_PLATFORM_GBM_MESA 0x31D7
+#endif
+
 static int
 check_modestting(int devindex)
 {
@@ -469,7 +473,7 @@ uint32_t width, uint32_t height, uint32_t refresh_rate){
     target.refresh_rate = refresh_rate;
     target.driverdata = 0; /* Initialize to 0 */
 
-    if (!SDL_GetClosestDisplayMode(0, &target, &closest)) {
+    if (!SDL_GetClosestDisplayMode(SDL_atoi(display->name), &target, &closest)) {
         return NULL;
     } else {
         SDL_DisplayModeData *modedata = (SDL_DisplayModeData *)closest.driverdata;
@@ -512,7 +516,7 @@ void KMSDRM_DeinitDisplays (_THIS) {
 }
 
 /* Gets a DRM connector, builds an SDL_Display with it, and adds it to the
-   list of SDL Displays.  */
+   list of SDL Displays in _this->displays[]  */
 void KMSDRM_AddDisplay (_THIS, drmModeConnector *connector, drmModeRes *resources) {
 
     SDL_VideoData *viddata = ((SDL_VideoData *)_this->driverdata);
@@ -718,7 +722,7 @@ int KMSDRM_InitDisplays (_THIS) {
                an SDL Display representing it. KMSDRM_AddDisplay() is purposely void,
                so if it fails (no encoder for connector, no valid video mode for
                connector etc...) we can keep looking for connected connectors. */
-            KMSDRM_AddDisplay (_this, connector, resources);
+            KMSDRM_AddDisplay(_this, connector, resources);
         }
         else {
             /* If it's not, free it now. */
@@ -961,7 +965,7 @@ KMSDRM_VideoInit(_THIS)
        For VK-incompatible initializations we have KMSDRM_GBMInit(), which is
        called on window creation, and only when we know it's not a VK window. */
     if (KMSDRM_InitDisplays(_this)) {
-        ret = SDL_SetError("error getting KMS/DRM information");
+        ret = SDL_SetError("error getting KMSDRM displays information");
     }
 
 #ifdef SDL_INPUT_LINUXEV
@@ -1011,7 +1015,7 @@ KMSDRM_GetDisplayModes(_THIS, SDL_VideoDisplay * display)
         SDL_DisplayModeData *modedata = SDL_calloc(1, sizeof(SDL_DisplayModeData));
 
         if (modedata) {
-          modedata->mode_index = i;
+            modedata->mode_index = i;
         }
 
         mode.w = conn->modes[i].hdisplay;
@@ -1457,7 +1461,7 @@ KMSDRM_GetWindowWMInfo(_THIS, SDL_Window * window, struct SDL_SysWMinfo *info)
      const Uint32 version = SDL_VERSIONNUM((Uint32)info->version.major,
                                            (Uint32)info->version.minor,
                                            (Uint32)info->version.patch);
- 
+
      if (version < SDL_VERSIONNUM(2, 0, 15)) {
          SDL_SetError("Version must be 2.0.15 or newer");
          return SDL_FALSE;
@@ -1467,7 +1471,7 @@ KMSDRM_GetWindowWMInfo(_THIS, SDL_Window * window, struct SDL_SysWMinfo *info)
      info->info.kmsdrm.dev_index = viddata->devindex;
      info->info.kmsdrm.drm_fd = viddata->drm_fd;
      info->info.kmsdrm.gbm_dev = viddata->gbm_dev;
- 
+
      return SDL_TRUE;
 }
 
