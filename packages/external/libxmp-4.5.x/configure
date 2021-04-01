@@ -4357,7 +4357,7 @@ _ACEOF
 fi
 
 case "${host_os}" in
-darwin*|mingw*)
+darwin*|*djgpp|mingw*)
   LIBS="${old_LIBS}"
   ;;
 esac

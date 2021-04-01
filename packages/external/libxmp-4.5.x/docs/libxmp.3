@@ -254,6 +254,17 @@ major version number, bits 15\-8 contain the minor version number, and
 bits 7\-0 contain the release number.
 .UNINDENT
 .UNINDENT
+.SS int xmp_syserrno()
+.INDENT 0.0
+.INDENT 3.5
+.sp
+\fI[Added in libxmp 4.5]\fP  Use to retrieve errno if you received
+\fC\-XMP_ERROR_SYSTEM\fP from an xmp function call. Useful if either
+libxmp or its client is statically linked to libc.
+.sp
+\fBReturns:\fP System errno.
+.UNINDENT
+.UNINDENT
 .SS const char *const *xmp_get_format_list()
 .INDENT 0.0
 .INDENT 3.5
@@ -363,9 +374,7 @@ or compressed modules can\(aqt be tested in memory.
 .TP
 .B size
 .
-the size of the module, or 0 if the size is unknown or not
-specified. If size is set to 0 certain module formats won\(aqt be
-recognized.
+the size of the module.
 .TP
 .B test_info
 .
@@ -461,7 +470,7 @@ pathname of the module to load.
 .TP
 .B \fBReturns:\fP
 .sp
-0 if sucessful, or a negative error code in case of error.
+0 if successful, or a negative error code in case of error.
 Error codes can be \fC\-XMP_ERROR_FORMAT\fP in case of an unrecognized file
 format, \fC\-XMP_ERROR_DEPACK\fP if the file is compressed and uncompression
 failed, \fC\-XMP_ERROR_LOAD\fP if the file format was recognized but the
@@ -492,15 +501,12 @@ or compressed modules can\(aqt be loaded from memory.
 .TP
 .B size
 .
-the size of the module, or 0 if the size is unknown or not
-specified. If size is set to 0 certain module formats won\(aqt be
-recognized, the MD5 digest will not be set, and module\-specific
-quirks won\(aqt be applied.
+the size of the module.
 .UNINDENT
 .TP
 .B \fBReturns:\fP
 .sp
-0 if sucessful, or a negative error code in case of error.
+0 if successful, or a negative error code in case of error.
 Error codes can be \fC\-XMP_ERROR_FORMAT\fP in case of an unrecognized file
 format, \fC\-XMP_ERROR_LOAD\fP if the file format was recognized but the
 file loading failed, or \fC\-XMP_ERROR_SYSTEM\fP in case of system error
@@ -530,15 +536,12 @@ Caller is responsible for closing the file stream.
 .TP
 .B size
 .
-the size of the module, or 0 if the size is unknown or not
-specified. If size is set to 0 certain module formats won\(aqt be
-recognized, the MD5 digest will not be set, and module\-specific
-quirks won\(aqt be applied.
+the size of the module (ignored.)
 .UNINDENT
 .TP
 .B \fBReturns:\fP
 .sp
-0 if sucessful, or a negative error code in case of error.
+0 if successful, or a negative error code in case of error.
 Error codes can be \fC\-XMP_ERROR_FORMAT\fP in case of an unrecognized file
 format, \fC\-XMP_ERROR_LOAD\fP if the file format was recognized but the
 file loading failed, or \fC\-XMP_ERROR_SYSTEM\fP in case of system error
@@ -685,7 +688,7 @@ XMP_FORMAT_MONO         /* Mix to mono instead of stereo */
 .TP
 .B \fBReturns:\fP
 .sp
-0 if sucessful, or a negative error code in case of error.
+0 if successful, or a negative error code in case of error.
 Error codes can be \fC\-XMP_ERROR_INTERNAL\fP in case of a internal player
 error, \fC\-XMP_ERROR_INVALID\fP if the sampling rate is invalid, or
 \fC\-XMP_ERROR_SYSTEM\fP in case of system error (the system error
@@ -711,7 +714,7 @@ the player context handle.
 .TP
 .B \fBReturns:\fP
 .sp
-0 if sucessful, \fC\-XMP_END\fP if the module ended or was stopped, or
+0 if successful, \fC\-XMP_END\fP if the module ended or was stopped, or
 \fC\-XMP_ERROR_STATE\fP if the player is not in playing state.
 .UNINDENT
 .UNINDENT
@@ -753,7 +756,7 @@ value, or 0 to disable loop checking.
 .TP
 .B \fBReturns:\fP
 .sp
-0 if sucessful, \fC\-XMP_END\fP if module was stopped or the loop counter
+0 if successful, \fC\-XMP_END\fP if module was stopped or the loop counter
 was reached, or \fC\-XMP_ERROR_STATE\fP if the player is not in playing
 state.
 .UNINDENT

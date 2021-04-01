@@ -138,66 +138,67 @@ thead {
 <li><a class="reference internal" href="#version-and-player-information" id="id6">Version and player information</a><ul>
 <li><a class="reference internal" href="#const-char-xmp-version" id="id7">const char *xmp_version</a></li>
 <li><a class="reference internal" href="#const-unsigned-int-xmp-vercode" id="id8">const unsigned int xmp_vercode</a></li>
-<li><a class="reference internal" href="#const-char-const-xmp-get-format-list" id="id9">const char *const *xmp_get_format_list()</a></li>
+<li><a class="reference internal" href="#int-xmp-syserrno" id="id9">int xmp_syserrno()</a></li>
+<li><a class="reference internal" href="#const-char-const-xmp-get-format-list" id="id10">const char *const *xmp_get_format_list()</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#context-creation" id="id10">Context creation</a><ul>
-<li><a class="reference internal" href="#xmp-context-xmp-create-context" id="id11">xmp_context xmp_create_context()</a></li>
-<li><a class="reference internal" href="#void-xmp-free-context-xmp-context-c" id="id12">void xmp_free_context(xmp_context c)</a></li>
+<li><a class="reference internal" href="#context-creation" id="id11">Context creation</a><ul>
+<li><a class="reference internal" href="#xmp-context-xmp-create-context" id="id12">xmp_context xmp_create_context()</a></li>
+<li><a class="reference internal" href="#void-xmp-free-context-xmp-context-c" id="id13">void xmp_free_context(xmp_context c)</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-loading" id="id13">Module loading</a><ul>
-<li><a class="reference internal" href="#int-xmp-test-module-char-path-struct-xmp-test-info-test-info" id="id14">int xmp_test_module(char *path, struct xmp_test_info *test_info)</a></li>
-<li><a class="reference internal" href="#int-xmp-test-module-from-memory-const-void-mem-long-size-struct-xmp-test-info-test-info" id="id15">int xmp_test_module_from_memory(const void *mem, long size, struct xmp_test_info *test_info)</a></li>
-<li><a class="reference internal" href="#int-xmp-test-module-from-file-file-f-struct-xmp-test-info-test-info" id="id16">int xmp_test_module_from_file(FILE *f, struct xmp_test_info *test_info)</a></li>
-<li><a class="reference internal" href="#int-xmp-load-module-xmp-context-c-char-path" id="id17">int xmp_load_module(xmp_context c, char *path)</a></li>
-<li><a class="reference internal" href="#int-xmp-load-module-from-memory-xmp-context-c-const-void-mem-long-size" id="id18">int xmp_load_module_from_memory(xmp_context c, const void *mem, long size)</a></li>
-<li><a class="reference internal" href="#int-xmp-load-module-from-file-xmp-context-c-file-f-long-size" id="id19">int xmp_load_module_from_file(xmp_context c, FILE *f, long size)</a></li>
-<li><a class="reference internal" href="#void-xmp-release-module-xmp-context-c" id="id20">void xmp_release_module(xmp_context c)</a></li>
-<li><a class="reference internal" href="#void-xmp-scan-module-xmp-context-c" id="id21">void xmp_scan_module(xmp_context c)</a></li>
-<li><a class="reference internal" href="#void-xmp-get-module-info-xmp-context-c-struct-xmp-module-info-info" id="id22">void xmp_get_module_info(xmp_context c, struct xmp_module_info *info)</a></li>
+<li><a class="reference internal" href="#module-loading" id="id14">Module loading</a><ul>
+<li><a class="reference internal" href="#int-xmp-test-module-char-path-struct-xmp-test-info-test-info" id="id15">int xmp_test_module(char *path, struct xmp_test_info *test_info)</a></li>
+<li><a class="reference internal" href="#int-xmp-test-module-from-memory-const-void-mem-long-size-struct-xmp-test-info-test-info" id="id16">int xmp_test_module_from_memory(const void *mem, long size, struct xmp_test_info *test_info)</a></li>
+<li><a class="reference internal" href="#int-xmp-test-module-from-file-file-f-struct-xmp-test-info-test-info" id="id17">int xmp_test_module_from_file(FILE *f, struct xmp_test_info *test_info)</a></li>
+<li><a class="reference internal" href="#int-xmp-load-module-xmp-context-c-char-path" id="id18">int xmp_load_module(xmp_context c, char *path)</a></li>
+<li><a class="reference internal" href="#int-xmp-load-module-from-memory-xmp-context-c-const-void-mem-long-size" id="id19">int xmp_load_module_from_memory(xmp_context c, const void *mem, long size)</a></li>
+<li><a class="reference internal" href="#int-xmp-load-module-from-file-xmp-context-c-file-f-long-size" id="id20">int xmp_load_module_from_file(xmp_context c, FILE *f, long size)</a></li>
+<li><a class="reference internal" href="#void-xmp-release-module-xmp-context-c" id="id21">void xmp_release_module(xmp_context c)</a></li>
+<li><a class="reference internal" href="#void-xmp-scan-module-xmp-context-c" id="id22">void xmp_scan_module(xmp_context c)</a></li>
+<li><a class="reference internal" href="#void-xmp-get-module-info-xmp-context-c-struct-xmp-module-info-info" id="id23">void xmp_get_module_info(xmp_context c, struct xmp_module_info *info)</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-playing" id="id23">Module playing</a><ul>
-<li><a class="reference internal" href="#int-xmp-start-player-xmp-context-c-int-rate-int-format" id="id24">int xmp_start_player(xmp_context c, int rate, int format)</a></li>
-<li><a class="reference internal" href="#int-xmp-play-frame-xmp-context-c" id="id25">int xmp_play_frame(xmp_context c)</a></li>
-<li><a class="reference internal" href="#int-xmp-play-buffer-xmp-context-c-void-buffer-int-size-int-loop" id="id26">int xmp_play_buffer(xmp_context c, void *buffer, int size, int loop)</a></li>
-<li><a class="reference internal" href="#void-xmp-get-frame-info-xmp-context-c-struct-xmp-frame-info-info" id="id27">void xmp_get_frame_info(xmp_context c, struct xmp_frame_info *info)</a></li>
-<li><a class="reference internal" href="#void-xmp-end-player-xmp-context-c" id="id28">void xmp_end_player(xmp_context c)</a></li>
+<li><a class="reference internal" href="#module-playing" id="id24">Module playing</a><ul>
+<li><a class="reference internal" href="#int-xmp-start-player-xmp-context-c-int-rate-int-format" id="id25">int xmp_start_player(xmp_context c, int rate, int format)</a></li>
+<li><a class="reference internal" href="#int-xmp-play-frame-xmp-context-c" id="id26">int xmp_play_frame(xmp_context c)</a></li>
+<li><a class="reference internal" href="#int-xmp-play-buffer-xmp-context-c-void-buffer-int-size-int-loop" id="id27">int xmp_play_buffer(xmp_context c, void *buffer, int size, int loop)</a></li>
+<li><a class="reference internal" href="#void-xmp-get-frame-info-xmp-context-c-struct-xmp-frame-info-info" id="id28">void xmp_get_frame_info(xmp_context c, struct xmp_frame_info *info)</a></li>
+<li><a class="reference internal" href="#void-xmp-end-player-xmp-context-c" id="id29">void xmp_end_player(xmp_context c)</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#player-control" id="id29">Player control</a><ul>
-<li><a class="reference internal" href="#int-xmp-next-position-xmp-context-c" id="id30">int xmp_next_position(xmp_context c)</a></li>
-<li><a class="reference internal" href="#int-xmp-prev-position-xmp-context-c" id="id31">int xmp_prev_position(xmp_context c)</a></li>
-<li><a class="reference internal" href="#int-xmp-set-position-xmp-context-c-int-pos" id="id32">int xmp_set_position(xmp_context c, int pos)</a></li>
-<li><a class="reference internal" href="#int-xmp-set-row-xmp-context-c-int-row" id="id33">int xmp_set_row(xmp_context c, int row)</a></li>
-<li><a class="reference internal" href="#int-xmp-set-tempo-factor-xmp-context-c-double-val" id="id34">int xmp_set_tempo_factor(xmp_context c, double val)</a></li>
-<li><a class="reference internal" href="#void-xmp-stop-module-xmp-context-c" id="id35">void xmp_stop_module(xmp_context c)</a></li>
-<li><a class="reference internal" href="#void-xmp-restart-module-xmp-context-c" id="id36">void xmp_restart_module(xmp_context c)</a></li>
-<li><a class="reference internal" href="#int-xmp-seek-time-xmp-context-c-int-time" id="id37">int xmp_seek_time(xmp_context c, int time)</a></li>
-<li><a class="reference internal" href="#int-xmp-channel-mute-xmp-context-c-int-chn-int-status" id="id38">int xmp_channel_mute(xmp_context c, int chn, int status)</a></li>
-<li><a class="reference internal" href="#int-xmp-channel-vol-xmp-context-c-int-chn-int-vol" id="id39">int xmp_channel_vol(xmp_context c, int chn, int vol)</a></li>
-<li><a class="reference internal" href="#void-xmp-inject-event-xmp-context-c-int-chn-struct-xmp-event-event" id="id40">void xmp_inject_event(xmp_context c, int chn, struct xmp_event *event)</a></li>
+<li><a class="reference internal" href="#player-control" id="id30">Player control</a><ul>
+<li><a class="reference internal" href="#int-xmp-next-position-xmp-context-c" id="id31">int xmp_next_position(xmp_context c)</a></li>
+<li><a class="reference internal" href="#int-xmp-prev-position-xmp-context-c" id="id32">int xmp_prev_position(xmp_context c)</a></li>
+<li><a class="reference internal" href="#int-xmp-set-position-xmp-context-c-int-pos" id="id33">int xmp_set_position(xmp_context c, int pos)</a></li>
+<li><a class="reference internal" href="#int-xmp-set-row-xmp-context-c-int-row" id="id34">int xmp_set_row(xmp_context c, int row)</a></li>
+<li><a class="reference internal" href="#int-xmp-set-tempo-factor-xmp-context-c-double-val" id="id35">int xmp_set_tempo_factor(xmp_context c, double val)</a></li>
+<li><a class="reference internal" href="#void-xmp-stop-module-xmp-context-c" id="id36">void xmp_stop_module(xmp_context c)</a></li>
+<li><a class="reference internal" href="#void-xmp-restart-module-xmp-context-c" id="id37">void xmp_restart_module(xmp_context c)</a></li>
+<li><a class="reference internal" href="#int-xmp-seek-time-xmp-context-c-int-time" id="id38">int xmp_seek_time(xmp_context c, int time)</a></li>
+<li><a class="reference internal" href="#int-xmp-channel-mute-xmp-context-c-int-chn-int-status" id="id39">int xmp_channel_mute(xmp_context c, int chn, int status)</a></li>
+<li><a class="reference internal" href="#int-xmp-channel-vol-xmp-context-c-int-chn-int-vol" id="id40">int xmp_channel_vol(xmp_context c, int chn, int vol)</a></li>
+<li><a class="reference internal" href="#void-xmp-inject-event-xmp-context-c-int-chn-struct-xmp-event-event" id="id41">void xmp_inject_event(xmp_context c, int chn, struct xmp_event *event)</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#player-parameter-setting" id="id41">Player parameter setting</a><ul>
-<li><a class="reference internal" href="#int-xmp-set-instrument-path-xmp-context-c-char-path" id="id42">int xmp_set_instrument_path(xmp_context c, char *path)</a></li>
-<li><a class="reference internal" href="#int-xmp-get-player-xmp-context-c-int-param" id="id43">int xmp_get_player(xmp_context c, int param)</a></li>
-<li><a class="reference internal" href="#int-xmp-set-player-xmp-context-c-int-param-int-val" id="id44">int xmp_set_player(xmp_context c, int param, int val)</a></li>
+<li><a class="reference internal" href="#player-parameter-setting" id="id42">Player parameter setting</a><ul>
+<li><a class="reference internal" href="#int-xmp-set-instrument-path-xmp-context-c-char-path" id="id43">int xmp_set_instrument_path(xmp_context c, char *path)</a></li>
+<li><a class="reference internal" href="#int-xmp-get-player-xmp-context-c-int-param" id="id44">int xmp_get_player(xmp_context c, int param)</a></li>
+<li><a class="reference internal" href="#int-xmp-set-player-xmp-context-c-int-param-int-val" id="id45">int xmp_set_player(xmp_context c, int param, int val)</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#external-sample-mixer-api" id="id45">External sample mixer API</a><ul>
-<li><a class="reference internal" href="#example" id="id46">Example</a></li>
-<li><a class="reference internal" href="#smix-api-reference" id="id47">SMIX API reference</a><ul>
-<li><a class="reference internal" href="#int-xmp-start-smix-xmp-context-c-int-nch-int-nsmp" id="id48">int xmp_start_smix(xmp_context c, int nch, int nsmp)</a></li>
-<li><a class="reference internal" href="#int-xmp-smix-play-instrument-xmp-context-c-int-ins-int-note-int-vol-int-chn" id="id49">int xmp_smix_play_instrument(xmp_context c, int ins, int note, int vol, int chn)</a></li>
-<li><a class="reference internal" href="#int-xmp-smix-play-sample-xmp-context-c-int-ins-int-vol-int-chn" id="id50">int xmp_smix_play_sample(xmp_context c, int ins, int vol, int chn)</a></li>
-<li><a class="reference internal" href="#int-xmp-smix-channel-pan-xmp-context-c-int-chn-int-pan" id="id51">int xmp_smix_channel_pan(xmp_context c, int chn, int pan)</a></li>
-<li><a class="reference internal" href="#int-xmp-smix-load-sample-xmp-context-c-int-num-char-path" id="id52">int xmp_smix_load_sample(xmp_context c, int num, char *path)</a></li>
-<li><a class="reference internal" href="#int-xmp-smix-release-sample-xmp-context-c-int-num" id="id53">int xmp_smix_release_sample(xmp_context c, int num)</a></li>
-<li><a class="reference internal" href="#void-xmp-end-smix-xmp-context-c" id="id54">void xmp_end_smix(xmp_context c)</a></li>
+<li><a class="reference internal" href="#external-sample-mixer-api" id="id46">External sample mixer API</a><ul>
+<li><a class="reference internal" href="#example" id="id47">Example</a></li>
+<li><a class="reference internal" href="#smix-api-reference" id="id48">SMIX API reference</a><ul>
+<li><a class="reference internal" href="#int-xmp-start-smix-xmp-context-c-int-nch-int-nsmp" id="id49">int xmp_start_smix(xmp_context c, int nch, int nsmp)</a></li>
+<li><a class="reference internal" href="#int-xmp-smix-play-instrument-xmp-context-c-int-ins-int-note-int-vol-int-chn" id="id50">int xmp_smix_play_instrument(xmp_context c, int ins, int note, int vol, int chn)</a></li>
+<li><a class="reference internal" href="#int-xmp-smix-play-sample-xmp-context-c-int-ins-int-vol-int-chn" id="id51">int xmp_smix_play_sample(xmp_context c, int ins, int vol, int chn)</a></li>
+<li><a class="reference internal" href="#int-xmp-smix-channel-pan-xmp-context-c-int-chn-int-pan" id="id52">int xmp_smix_channel_pan(xmp_context c, int chn, int pan)</a></li>
+<li><a class="reference internal" href="#int-xmp-smix-load-sample-xmp-context-c-int-num-char-path" id="id53">int xmp_smix_load_sample(xmp_context c, int num, char *path)</a></li>
+<li><a class="reference internal" href="#int-xmp-smix-release-sample-xmp-context-c-int-num" id="id54">int xmp_smix_release_sample(xmp_context c, int num)</a></li>
+<li><a class="reference internal" href="#void-xmp-end-smix-xmp-context-c" id="id55">void xmp_end_smix(xmp_context c)</a></li>
 </ul>
 </li>
 </ul>
@@ -401,8 +402,17 @@ The library version encoded in a integer value. Bits 23-16 contain the
 major version number, bits 15-8 contain the minor version number, and
 bits 7-0 contain the release number.</blockquote>
 </div>
+<div class="section" id="int-xmp-syserrno">
+<span id="xmp-syserrno"></span><h3><a class="toc-backref" href="#id9">int xmp_syserrno()</a></h3>
+<blockquote>
+<p><em>[Added in libxmp 4.5]</em>  Use to retrieve errno if you received
+<tt class="docutils literal"><span class="pre">-XMP_ERROR_SYSTEM</span></tt> from an xmp function call. Useful if either
+libxmp or its client is statically linked to libc.</p>
+<p><strong>Returns:</strong> System errno.</p>
+</blockquote>
+</div>
 <div class="section" id="const-char-const-xmp-get-format-list">
-<span id="xmp-get-format-list"></span><h3><a class="toc-backref" href="#id9">const char *const *xmp_get_format_list()</a></h3>
+<span id="xmp-get-format-list"></span><h3><a class="toc-backref" href="#id10">const char *const *xmp_get_format_list()</a></h3>
 <blockquote>
 <p>Query the list of supported module formats.</p>
 <dl class="docutils">
@@ -414,9 +424,9 @@ of all supported module formats.</dd>
 </div>
 </div>
 <div class="section" id="context-creation">
-<h2><a class="toc-backref" href="#id10">Context creation</a></h2>
+<h2><a class="toc-backref" href="#id11">Context creation</a></h2>
 <div class="section" id="xmp-context-xmp-create-context">
-<span id="xmp-create-context"></span><h3><a class="toc-backref" href="#id11">xmp_context xmp_create_context()</a></h3>
+<span id="xmp-create-context"></span><h3><a class="toc-backref" href="#id12">xmp_context xmp_create_context()</a></h3>
 <blockquote>
 <p>Create a new player context and return an opaque handle to be used in
 subsequent accesses to this context.</p>
@@ -427,7 +437,7 @@ subsequent accesses to this context.</p>
 </blockquote>
 </div>
 <div class="section" id="void-xmp-free-context-xmp-context-c">
-<span id="xmp-free-context"></span><h3><a class="toc-backref" href="#id12">void xmp_free_context(xmp_context c)</a></h3>
+<span id="xmp-free-context"></span><h3><a class="toc-backref" href="#id13">void xmp_free_context(xmp_context c)</a></h3>
 <blockquote>
 <p>Destroy a player context previously created using <a class="reference internal" href="#xmp-create-context">xmp_create_context()</a>.</p>
 <dl class="docutils">
@@ -446,9 +456,9 @@ subsequent accesses to this context.</p>
 </div>
 </div>
 <div class="section" id="module-loading">
-<h2><a class="toc-backref" href="#id13">Module loading</a></h2>
+<h2><a class="toc-backref" href="#id14">Module loading</a></h2>
 <div class="section" id="int-xmp-test-module-char-path-struct-xmp-test-info-test-info">
-<span id="xmp-test-module"></span><h3><a class="toc-backref" href="#id14">int xmp_test_module(char *path, struct xmp_test_info *test_info)</a></h3>
+<span id="xmp-test-module"></span><h3><a class="toc-backref" href="#id15">int xmp_test_module(char *path, struct xmp_test_info *test_info)</a></h3>
 <blockquote>
 <p>Test if a file is a valid module. Testing a file does not affect the
 current player context or any currently loaded module.</p>
@@ -486,7 +496,7 @@ and uncompression failed, or <tt class="docutils literal"><span class="pre">-XMP
 <!-- xmp_test_module_from_memory(): -->
 </div>
 <div class="section" id="int-xmp-test-module-from-memory-const-void-mem-long-size-struct-xmp-test-info-test-info">
-<h3><a class="toc-backref" href="#id15">int xmp_test_module_from_memory(const void *mem, long size, struct xmp_test_info *test_info)</a></h3>
+<h3><a class="toc-backref" href="#id16">int xmp_test_module_from_memory(const void *mem, long size, struct xmp_test_info *test_info)</a></h3>
 <blockquote>
 <p><em>[Added in libxmp 4.5]</em> Test if a memory buffer is a valid module. Testing
 memory does not affect the current player context or any currently loaded
@@ -501,9 +511,7 @@ module.</p>
 or compressed modules can't be tested in memory.</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">size:</th><td class="field-body"><p class="first">the size of the module, or 0 if the size is unknown or not
-specified. If size is set to 0 certain module formats won't be
-recognized.</p>
+<tr class="field"><th class="field-name">size:</th><td class="field-body"><p class="first">the size of the module.</p>
 </td>
 </tr>
 <tr class="field"><th class="field-name">test_info:</th><td class="field-body"><p class="first">NULL, or a pointer to a structure used to retrieve the
@@ -530,7 +538,7 @@ unrecognized file format or <tt class="docutils literal"><span class="pre">-XMP_
 <!-- xmp_test_module_from_file(): -->
 </div>
 <div class="section" id="int-xmp-test-module-from-file-file-f-struct-xmp-test-info-test-info">
-<h3><a class="toc-backref" href="#id16">int xmp_test_module_from_file(FILE *f, struct xmp_test_info *test_info)</a></h3>
+<h3><a class="toc-backref" href="#id17">int xmp_test_module_from_file(FILE *f, struct xmp_test_info *test_info)</a></h3>
 <blockquote>
 <p><em>[Added in libxmp 4.5]</em> Test if a module from a stream is a valid module.
 Testing streams does not affect the current player context or any
@@ -570,7 +578,7 @@ and uncompression failed, or <tt class="docutils literal"><span class="pre">-XMP
 </blockquote>
 </div>
 <div class="section" id="int-xmp-load-module-xmp-context-c-char-path">
-<span id="xmp-load-module"></span><h3><a class="toc-backref" href="#id17">int xmp_load_module(xmp_context c, char *path)</a></h3>
+<span id="xmp-load-module"></span><h3><a class="toc-backref" href="#id18">int xmp_load_module(xmp_context c, char *path)</a></h3>
 <blockquote>
 <p>Load a module into the specified player context. (Certain player flags,
 such as <tt class="docutils literal">XMP_PLAYER_SMPCTL</tt> and <tt class="docutils literal">XMP_PLAYER_DEFPAN</tt>, must be set
@@ -589,7 +597,7 @@ before loading the module, see <a class="reference internal" href="#xmp-set-play
 </table>
 </dd>
 <dt><strong>Returns:</strong></dt>
-<dd>0 if sucessful, or a negative error code in case of error.
+<dd>0 if successful, or a negative error code in case of error.
 Error codes can be <tt class="docutils literal"><span class="pre">-XMP_ERROR_FORMAT</span></tt> in case of an unrecognized file
 format, <tt class="docutils literal"><span class="pre">-XMP_ERROR_DEPACK</span></tt> if the file is compressed and uncompression
 failed, <tt class="docutils literal"><span class="pre">-XMP_ERROR_LOAD</span></tt> if the file format was recognized but the
@@ -599,7 +607,7 @@ file loading failed, or <tt class="docutils literal"><span class="pre">-XMP_ERRO
 </blockquote>
 </div>
 <div class="section" id="int-xmp-load-module-from-memory-xmp-context-c-const-void-mem-long-size">
-<span id="xmp-load-module-from-memory"></span><h3><a class="toc-backref" href="#id18">int xmp_load_module_from_memory(xmp_context c, const void *mem, long size)</a></h3>
+<span id="xmp-load-module-from-memory"></span><h3><a class="toc-backref" href="#id19">int xmp_load_module_from_memory(xmp_context c, const void *mem, long size)</a></h3>
 <blockquote>
 <p><em>[Added in libxmp 4.2]</em> Load a module from memory into the specified
 player context.</p>
@@ -614,16 +622,13 @@ player context.</p>
 <tr class="field"><th class="field-name">mem:</th><td class="field-body">a pointer to the module file image in memory. Multi-file modules
 or compressed modules can't be loaded from memory.</td>
 </tr>
-<tr class="field"><th class="field-name">size:</th><td class="field-body">the size of the module, or 0 if the size is unknown or not
-specified. If size is set to 0 certain module formats won't be
-recognized, the MD5 digest will not be set, and module-specific
-quirks won't be applied.</td>
+<tr class="field"><th class="field-name">size:</th><td class="field-body">the size of the module.</td>
 </tr>
 </tbody>
 </table>
 </dd>
 <dt><strong>Returns:</strong></dt>
-<dd>0 if sucessful, or a negative error code in case of error.
+<dd>0 if successful, or a negative error code in case of error.
 Error codes can be <tt class="docutils literal"><span class="pre">-XMP_ERROR_FORMAT</span></tt> in case of an unrecognized file
 format, <tt class="docutils literal"><span class="pre">-XMP_ERROR_LOAD</span></tt> if the file format was recognized but the
 file loading failed, or <tt class="docutils literal"><span class="pre">-XMP_ERROR_SYSTEM</span></tt> in case of system error
@@ -632,7 +637,7 @@ file loading failed, or <tt class="docutils literal"><span class="pre">-XMP_ERRO
 </blockquote>
 </div>
 <div class="section" id="int-xmp-load-module-from-file-xmp-context-c-file-f-long-size">
-<span id="xmp-load-module-from-file"></span><h3><a class="toc-backref" href="#id19">int xmp_load_module_from_file(xmp_context c, FILE *f, long size)</a></h3>
+<span id="xmp-load-module-from-file"></span><h3><a class="toc-backref" href="#id20">int xmp_load_module_from_file(xmp_context c, FILE *f, long size)</a></h3>
 <blockquote>
 <p><em>[Added in libxmp 4.3]</em> Load a module from a stream into the specified
 player context.</p>
@@ -647,16 +652,13 @@ player context.</p>
 <tr class="field"><th class="field-name">f:</th><td class="field-body">the file stream. On return, the stream position is undefined.
 Caller is responsible for closing the file stream.</td>
 </tr>
-<tr class="field"><th class="field-name">size:</th><td class="field-body">the size of the module, or 0 if the size is unknown or not
-specified. If size is set to 0 certain module formats won't be
-recognized, the MD5 digest will not be set, and module-specific
-quirks won't be applied.</td>
+<tr class="field"><th class="field-name">size:</th><td class="field-body">the size of the module (ignored.)</td>
 </tr>
 </tbody>
 </table>
 </dd>
 <dt><strong>Returns:</strong></dt>
-<dd>0 if sucessful, or a negative error code in case of error.
+<dd>0 if successful, or a negative error code in case of error.
 Error codes can be <tt class="docutils literal"><span class="pre">-XMP_ERROR_FORMAT</span></tt> in case of an unrecognized file
 format, <tt class="docutils literal"><span class="pre">-XMP_ERROR_LOAD</span></tt> if the file format was recognized but the
 file loading failed, or <tt class="docutils literal"><span class="pre">-XMP_ERROR_SYSTEM</span></tt> in case of system error
@@ -665,7 +667,7 @@ file loading failed, or <tt class="docutils literal"><span class="pre">-XMP_ERRO
 </blockquote>
 </div>
 <div class="section" id="void-xmp-release-module-xmp-context-c">
-<span id="xmp-release-module"></span><h3><a class="toc-backref" href="#id20">void xmp_release_module(xmp_context c)</a></h3>
+<span id="xmp-release-module"></span><h3><a class="toc-backref" href="#id21">void xmp_release_module(xmp_context c)</a></h3>
 <blockquote>
 <p>Release memory allocated by a module from the specified player context.</p>
 <dl class="docutils">
@@ -683,7 +685,7 @@ file loading failed, or <tt class="docutils literal"><span class="pre">-XMP_ERRO
 </blockquote>
 </div>
 <div class="section" id="void-xmp-scan-module-xmp-context-c">
-<span id="xmp-scan-module"></span><h3><a class="toc-backref" href="#id21">void xmp_scan_module(xmp_context c)</a></h3>
+<span id="xmp-scan-module"></span><h3><a class="toc-backref" href="#id22">void xmp_scan_module(xmp_context c)</a></h3>
 <blockquote>
 <p>Scan the loaded module for sequences and timing. Scanning is automatically
 performed by <a class="reference internal" href="#xmp-load-module">xmp_load_module()</a> and this function should be called only
@@ -704,7 +706,7 @@ if <a class="reference internal" href="#xmp-set-player">xmp_set_player()</a> is 
 </blockquote>
 </div>
 <div class="section" id="void-xmp-get-module-info-xmp-context-c-struct-xmp-module-info-info">
-<span id="xmp-get-module-info"></span><h3><a class="toc-backref" href="#id22">void xmp_get_module_info(xmp_context c, struct xmp_module_info *info)</a></h3>
+<span id="xmp-get-module-info"></span><h3><a class="toc-backref" href="#id23">void xmp_get_module_info(xmp_context c, struct xmp_module_info *info)</a></h3>
 <blockquote>
 <p>Retrieve current module data.</p>
 <dl class="docutils">
@@ -764,9 +766,9 @@ data.</p>
 </div>
 </div>
 <div class="section" id="module-playing">
-<h2><a class="toc-backref" href="#id23">Module playing</a></h2>
+<h2><a class="toc-backref" href="#id24">Module playing</a></h2>
 <div class="section" id="int-xmp-start-player-xmp-context-c-int-rate-int-format">
-<span id="xmp-start-player"></span><h3><a class="toc-backref" href="#id24">int xmp_start_player(xmp_context c, int rate, int format)</a></h3>
+<span id="xmp-start-player"></span><h3><a class="toc-backref" href="#id25">int xmp_start_player(xmp_context c, int rate, int format)</a></h3>
 <blockquote>
 <p>Start playing the currently loaded module.</p>
 <dl class="docutils">
@@ -795,7 +797,7 @@ XMP_FORMAT_MONO         /* Mix to mono instead of stereo */
 </table>
 </dd>
 <dt><strong>Returns:</strong></dt>
-<dd>0 if sucessful, or a negative error code in case of error.
+<dd>0 if successful, or a negative error code in case of error.
 Error codes can be <tt class="docutils literal"><span class="pre">-XMP_ERROR_INTERNAL</span></tt> in case of a internal player
 error, <tt class="docutils literal"><span class="pre">-XMP_ERROR_INVALID</span></tt> if the sampling rate is invalid, or
 <tt class="docutils literal"><span class="pre">-XMP_ERROR_SYSTEM</span></tt> in case of system error (the system error
@@ -804,7 +806,7 @@ code is set in <tt class="docutils literal">errno</tt>).</dd>
 </blockquote>
 </div>
 <div class="section" id="int-xmp-play-frame-xmp-context-c">
-<span id="xmp-play-frame"></span><h3><a class="toc-backref" href="#id25">int xmp_play_frame(xmp_context c)</a></h3>
+<span id="xmp-play-frame"></span><h3><a class="toc-backref" href="#id26">int xmp_play_frame(xmp_context c)</a></h3>
 <blockquote>
 <p>Play one frame of the module. Modules usually play at 50 frames per second.
 Use <a class="reference internal" href="#xmp-get-frame-info">xmp_get_frame_info()</a> to retrieve the buffer containing audio data.</p>
@@ -820,13 +822,13 @@ Use <a class="reference internal" href="#xmp-get-frame-info">xmp_get_frame_info(
 </table>
 </dd>
 <dt><strong>Returns:</strong></dt>
-<dd>0 if sucessful, <tt class="docutils literal"><span class="pre">-XMP_END</span></tt> if the module ended or was stopped, or
+<dd>0 if successful, <tt class="docutils literal"><span class="pre">-XMP_END</span></tt> if the module ended or was stopped, or
 <tt class="docutils literal"><span class="pre">-XMP_ERROR_STATE</span></tt> if the player is not in playing state.</dd>
 </dl>
 </blockquote>
 </div>
 <div class="section" id="int-xmp-play-buffer-xmp-context-c-void-buffer-int-size-int-loop">
-<span id="xmp-play-buffer"></span><h3><a class="toc-backref" href="#id26">int xmp_play_buffer(xmp_context c, void *buffer, int size, int loop)</a></h3>
+<span id="xmp-play-buffer"></span><h3><a class="toc-backref" href="#id27">int xmp_play_buffer(xmp_context c, void *buffer, int size, int loop)</a></h3>
 <blockquote>
 <p><em>[Added in libxmp 4.1]</em> Fill the buffer with PCM data up to the specified
 size. This is a convenience function that calls <a class="reference internal" href="#xmp-play-frame">xmp_play_frame()</a>
@@ -855,14 +857,14 @@ value, or 0 to disable loop checking.</td>
 </table>
 </dd>
 <dt><strong>Returns:</strong></dt>
-<dd>0 if sucessful, <tt class="docutils literal"><span class="pre">-XMP_END</span></tt> if module was stopped or the loop counter
+<dd>0 if successful, <tt class="docutils literal"><span class="pre">-XMP_END</span></tt> if module was stopped or the loop counter
 was reached, or <tt class="docutils literal"><span class="pre">-XMP_ERROR_STATE</span></tt> if the player is not in playing
 state.</dd>
 </dl>
 </blockquote>
 </div>
 <div class="section" id="void-xmp-get-frame-info-xmp-context-c-struct-xmp-frame-info-info">
-<span id="xmp-get-frame-info"></span><h3><a class="toc-backref" href="#id27">void xmp_get_frame_info(xmp_context c, struct xmp_frame_info *info)</a></h3>
+<span id="xmp-get-frame-info"></span><h3><a class="toc-backref" href="#id28">void xmp_get_frame_info(xmp_context c, struct xmp_frame_info *info)</a></h3>
 <blockquote>
 <p>Retrieve the current frame data.</p>
 <dl class="docutils">
@@ -924,7 +926,7 @@ buffer size will be no larger than <tt class="docutils literal">XMP_MAX_FRAMESIZ
 </blockquote>
 </div>
 <div class="section" id="void-xmp-end-player-xmp-context-c">
-<span id="xmp-end-player"></span><h3><a class="toc-backref" href="#id28">void xmp_end_player(xmp_context c)</a></h3>
+<span id="xmp-end-player"></span><h3><a class="toc-backref" href="#id29">void xmp_end_player(xmp_context c)</a></h3>
 <blockquote>
 <p>End module replay and release player memory.</p>
 <dl class="docutils">
@@ -943,9 +945,9 @@ buffer size will be no larger than <tt class="docutils literal">XMP_MAX_FRAMESIZ
 </div>
 </div>
 <div class="section" id="player-control">
-<h2><a class="toc-backref" href="#id29">Player control</a></h2>
+<h2><a class="toc-backref" href="#id30">Player control</a></h2>
 <div class="section" id="int-xmp-next-position-xmp-context-c">
-<span id="xmp-next-position"></span><h3><a class="toc-backref" href="#id30">int xmp_next_position(xmp_context c)</a></h3>
+<span id="xmp-next-position"></span><h3><a class="toc-backref" href="#id31">int xmp_next_position(xmp_context c)</a></h3>
 <blockquote>
 <p>Skip replay to the start of the next position.</p>
 <dl class="docutils">
@@ -966,7 +968,7 @@ in playing state.</dd>
 </blockquote>
 </div>
 <div class="section" id="int-xmp-prev-position-xmp-context-c">
-<span id="xmp-prev-position"></span><h3><a class="toc-backref" href="#id31">int xmp_prev_position(xmp_context c)</a></h3>
+<span id="xmp-prev-position"></span><h3><a class="toc-backref" href="#id32">int xmp_prev_position(xmp_context c)</a></h3>
 <blockquote>
 <p>Skip replay to the start of the previous position.</p>
 <dl class="docutils">
@@ -987,7 +989,7 @@ in playing state.</dd>
 </blockquote>
 </div>
 <div class="section" id="int-xmp-set-position-xmp-context-c-int-pos">
-<span id="xmp-set-position"></span><h3><a class="toc-backref" href="#id32">int xmp_set_position(xmp_context c, int pos)</a></h3>
+<span id="xmp-set-position"></span><h3><a class="toc-backref" href="#id33">int xmp_set_position(xmp_context c, int pos)</a></h3>
 <blockquote>
 <p>Skip replay to the start of the given position.</p>
 <dl class="docutils">
@@ -1010,7 +1012,7 @@ invalid or <tt class="docutils literal"><span class="pre">-XMP_ERROR_STATE</span
 </blockquote>
 </div>
 <div class="section" id="int-xmp-set-row-xmp-context-c-int-row">
-<span id="xmp-set-row"></span><h3><a class="toc-backref" href="#id33">int xmp_set_row(xmp_context c, int row)</a></h3>
+<span id="xmp-set-row"></span><h3><a class="toc-backref" href="#id34">int xmp_set_row(xmp_context c, int row)</a></h3>
 <blockquote>
 <p><em>[Added in libxmp 4.5]</em> Skip replay to the given row.</p>
 <dl class="docutils">
@@ -1033,7 +1035,7 @@ invalid or <tt class="docutils literal"><span class="pre">-XMP_ERROR_STATE</span
 </blockquote>
 </div>
 <div class="section" id="int-xmp-set-tempo-factor-xmp-context-c-double-val">
-<span id="xmp-set-tempo-factor"></span><h3><a class="toc-backref" href="#id34">int xmp_set_tempo_factor(xmp_context c, double val)</a></h3>
+<span id="xmp-set-tempo-factor"></span><h3><a class="toc-backref" href="#id35">int xmp_set_tempo_factor(xmp_context c, double val)</a></h3>
 <blockquote>
 <p><em>[Added in libxmp 4.5]</em> Modify the replay tempo multiplier.</p>
 <dl class="docutils">
@@ -1055,7 +1057,7 @@ invalid or <tt class="docutils literal"><span class="pre">-XMP_ERROR_STATE</span
 </blockquote>
 </div>
 <div class="section" id="void-xmp-stop-module-xmp-context-c">
-<span id="xmp-stop-module"></span><h3><a class="toc-backref" href="#id35">void xmp_stop_module(xmp_context c)</a></h3>
+<span id="xmp-stop-module"></span><h3><a class="toc-backref" href="#id36">void xmp_stop_module(xmp_context c)</a></h3>
 <blockquote>
 <p>Stop the currently playing module.</p>
 <dl class="docutils">
@@ -1073,7 +1075,7 @@ invalid or <tt class="docutils literal"><span class="pre">-XMP_ERROR_STATE</span
 </blockquote>
 </div>
 <div class="section" id="void-xmp-restart-module-xmp-context-c">
-<span id="xmp-restart-module"></span><h3><a class="toc-backref" href="#id36">void xmp_restart_module(xmp_context c)</a></h3>
+<span id="xmp-restart-module"></span><h3><a class="toc-backref" href="#id37">void xmp_restart_module(xmp_context c)</a></h3>
 <blockquote>
 <p>Restart the currently playing module.</p>
 <dl class="docutils">
@@ -1091,7 +1093,7 @@ invalid or <tt class="docutils literal"><span class="pre">-XMP_ERROR_STATE</span
 </blockquote>
 </div>
 <div class="section" id="int-xmp-seek-time-xmp-context-c-int-time">
-<span id="xmp-seek-time"></span><h3><a class="toc-backref" href="#id37">int xmp_seek_time(xmp_context c, int time)</a></h3>
+<span id="xmp-seek-time"></span><h3><a class="toc-backref" href="#id38">int xmp_seek_time(xmp_context c, int time)</a></h3>
 <blockquote>
 <p>Skip replay to the specified time.</p>
 <dl class="docutils">
@@ -1114,7 +1116,7 @@ in playing state.</dd>
 </blockquote>
 </div>
 <div class="section" id="int-xmp-channel-mute-xmp-context-c-int-chn-int-status">
-<span id="xmp-channel-mute"></span><h3><a class="toc-backref" href="#id38">int xmp_channel_mute(xmp_context c, int chn, int status)</a></h3>
+<span id="xmp-channel-mute"></span><h3><a class="toc-backref" href="#id39">int xmp_channel_mute(xmp_context c, int chn, int status)</a></h3>
 <blockquote>
 <p>Mute or unmute the specified channel.</p>
 <dl class="docutils">
@@ -1140,7 +1142,7 @@ in playing state.</dd>
 </blockquote>
 </div>
 <div class="section" id="int-xmp-channel-vol-xmp-context-c-int-chn-int-vol">
-<span id="xmp-channel-vol"></span><h3><a class="toc-backref" href="#id39">int xmp_channel_vol(xmp_context c, int chn, int vol)</a></h3>
+<span id="xmp-channel-vol"></span><h3><a class="toc-backref" href="#id40">int xmp_channel_vol(xmp_context c, int chn, int vol)</a></h3>
 <blockquote>
 <p>Set or retrieve the volume of the specified channel.</p>
 <dl class="docutils">
@@ -1166,7 +1168,7 @@ in playing state.</dd>
 </blockquote>
 </div>
 <div class="section" id="void-xmp-inject-event-xmp-context-c-int-chn-struct-xmp-event-event">
-<span id="xmp-inject-event"></span><h3><a class="toc-backref" href="#id40">void xmp_inject_event(xmp_context c, int chn, struct xmp_event *event)</a></h3>
+<span id="xmp-inject-event"></span><h3><a class="toc-backref" href="#id41">void xmp_inject_event(xmp_context c, int chn, struct xmp_event *event)</a></h3>
 <blockquote>
 <p>Dynamically insert a new event into a playing module.</p>
 <dl class="docutils">
@@ -1205,9 +1207,9 @@ struct xmp_event {
 </div>
 </div>
 <div class="section" id="player-parameter-setting">
-<h2><a class="toc-backref" href="#id41">Player parameter setting</a></h2>
+<h2><a class="toc-backref" href="#id42">Player parameter setting</a></h2>
 <div class="section" id="int-xmp-set-instrument-path-xmp-context-c-char-path">
-<span id="xmp-set-instrument-path"></span><h3><a class="toc-backref" href="#id42">int xmp_set_instrument_path(xmp_context c, char *path)</a></h3>
+<span id="xmp-set-instrument-path"></span><h3><a class="toc-backref" href="#id43">int xmp_set_instrument_path(xmp_context c, char *path)</a></h3>
 <blockquote>
 <p>Set the path to retrieve external instruments or samples. Used by some
 formats (such as MED2) to read sample files from a different directory
@@ -1232,7 +1234,7 @@ in case of error (the system error code is set in <tt class="docutils literal">e
 </blockquote>
 </div>
 <div class="section" id="int-xmp-get-player-xmp-context-c-int-param">
-<span id="xmp-get-player"></span><h3><a class="toc-backref" href="#id43">int xmp_get_player(xmp_context c, int param)</a></h3>
+<span id="xmp-get-player"></span><h3><a class="toc-backref" href="#id44">int xmp_get_player(xmp_context c, int param)</a></h3>
 <blockquote>
 <p>Retrieve current value of the specified player parameter.</p>
 <dl class="docutils">
@@ -1287,7 +1289,7 @@ XMP_MIXER_A500F         /* Amiga 500 with led filter */
 </blockquote>
 </div>
 <div class="section" id="int-xmp-set-player-xmp-context-c-int-param-int-val">
-<span id="xmp-set-player"></span><h3><a class="toc-backref" href="#id44">int xmp_set_player(xmp_context c, int param, int val)</a></h3>
+<span id="xmp-set-player"></span><h3><a class="toc-backref" href="#id45">int xmp_set_player(xmp_context c, int param, int val)</a></h3>
 <blockquote>
 <p>Set player parameter with the specified value.</p>
 <dl class="docutils">
@@ -1420,13 +1422,13 @@ if the player is not in playing state.</dd>
 </div>
 </div>
 <div class="section" id="external-sample-mixer-api">
-<h1><a class="toc-backref" href="#id45">External sample mixer API</a></h1>
+<h1><a class="toc-backref" href="#id46">External sample mixer API</a></h1>
 <p>Libxmp 4.2 includes a mini-API that can be used to add sound effects to
 games and similar applications, provided that you have a low latency sound
 system. It allows module instruments or external sample files in WAV format
 to be played in response to arbitrary events.</p>
 <div class="section" id="example">
-<h2><a class="toc-backref" href="#id46">Example</a></h2>
+<h2><a class="toc-backref" href="#id47">Example</a></h2>
 <p>This example using SDL loads a module and a sound sample, plays the module
 as background music, and plays the sample when a key is pressed:</p>
 <pre class="literal-block">
@@ -1511,9 +1513,9 @@ int main(int argc, char **argv)
 </pre>
 </div>
 <div class="section" id="smix-api-reference">
-<h2><a class="toc-backref" href="#id47">SMIX API reference</a></h2>
+<h2><a class="toc-backref" href="#id48">SMIX API reference</a></h2>
 <div class="section" id="int-xmp-start-smix-xmp-context-c-int-nch-int-nsmp">
-<span id="xmp-start-smix"></span><h3><a class="toc-backref" href="#id48">int xmp_start_smix(xmp_context c, int nch, int nsmp)</a></h3>
+<span id="xmp-start-smix"></span><h3><a class="toc-backref" href="#id49">int xmp_start_smix(xmp_context c, int nch, int nsmp)</a></h3>
 <blockquote>
 <p>Initialize the external sample mixer subsystem with the given number of
 reserved channels and samples.</p>
@@ -1541,7 +1543,7 @@ of system error (the system error code is set in <tt class="docutils literal">er
 </blockquote>
 </div>
 <div class="section" id="int-xmp-smix-play-instrument-xmp-context-c-int-ins-int-note-int-vol-int-chn">
-<span id="xmp-smix-play-instrument"></span><h3><a class="toc-backref" href="#id49">int xmp_smix_play_instrument(xmp_context c, int ins, int note, int vol, int chn)</a></h3>
+<span id="xmp-smix-play-instrument"></span><h3><a class="toc-backref" href="#id50">int xmp_smix_play_instrument(xmp_context c, int ins, int note, int vol, int chn)</a></h3>
 <blockquote>
 <p>Play a note using an instrument from the currently loaded module in
 one of the reserved sound mixer channels.</p>
@@ -1573,7 +1575,7 @@ in playing state.</dd>
 </blockquote>
 </div>
 <div class="section" id="int-xmp-smix-play-sample-xmp-context-c-int-ins-int-vol-int-chn">
-<span id="xmp-smix-play-sample"></span><h3><a class="toc-backref" href="#id50">int xmp_smix_play_sample(xmp_context c, int ins, int vol, int chn)</a></h3>
+<span id="xmp-smix-play-sample"></span><h3><a class="toc-backref" href="#id51">int xmp_smix_play_sample(xmp_context c, int ins, int vol, int chn)</a></h3>
 <blockquote>
 <p>Play an external sample file in one of the reserved sound channels.
 The sample must have been previously loaded using
@@ -1604,7 +1606,7 @@ in playing state.</dd>
 </blockquote>
 </div>
 <div class="section" id="int-xmp-smix-channel-pan-xmp-context-c-int-chn-int-pan">
-<span id="xmp-smix-channel-pan"></span><h3><a class="toc-backref" href="#id51">int xmp_smix_channel_pan(xmp_context c, int chn, int pan)</a></h3>
+<span id="xmp-smix-channel-pan"></span><h3><a class="toc-backref" href="#id52">int xmp_smix_channel_pan(xmp_context c, int chn, int pan)</a></h3>
 <blockquote>
 <p>Set the reserved channel pan value.</p>
 <dl class="docutils">
@@ -1629,7 +1631,7 @@ are invalid.</dd>
 </blockquote>
 </div>
 <div class="section" id="int-xmp-smix-load-sample-xmp-context-c-int-num-char-path">
-<span id="xmp-smix-load-sample"></span><h3><a class="toc-backref" href="#id52">int xmp_smix_load_sample(xmp_context c, int num, char *path)</a></h3>
+<span id="xmp-smix-load-sample"></span><h3><a class="toc-backref" href="#id53">int xmp_smix_load_sample(xmp_context c, int num, char *path)</a></h3>
 <blockquote>
 <p>Load a sound sample from a file. Samples should be in mono WAV (RIFF)
 format.</p>
@@ -1658,7 +1660,7 @@ set in <tt class="docutils literal">errno</tt>).</dd>
 </blockquote>
 </div>
 <div class="section" id="int-xmp-smix-release-sample-xmp-context-c-int-num">
-<span id="xmp-smix-release-sample"></span><h3><a class="toc-backref" href="#id53">int xmp_smix_release_sample(xmp_context c, int num)</a></h3>
+<span id="xmp-smix-release-sample"></span><h3><a class="toc-backref" href="#id54">int xmp_smix_release_sample(xmp_context c, int num)</a></h3>
 <blockquote>
 <p>Release memory allocated by an external sample in the specified player
 context.</p>
@@ -1682,7 +1684,7 @@ sample slot number is invalid.</dd>
 </blockquote>
 </div>
 <div class="section" id="void-xmp-end-smix-xmp-context-c">
-<span id="xmp-end-smix"></span><h3><a class="toc-backref" href="#id54">void xmp_end_smix(xmp_context c)</a></h3>
+<span id="xmp-end-smix"></span><h3><a class="toc-backref" href="#id55">void xmp_end_smix(xmp_context c)</a></h3>
 <blockquote>
 <p>Deinitialize and resease memory used by the external sample mixer subsystem.</p>
 <dl class="docutils">

@@ -231,6 +231,18 @@ const unsigned int xmp_vercode
   bits 7-0 contain the release number.
 
 
+.. _xmp_syserrno():
+
+int xmp_syserrno()
+``````````````````
+
+  *[Added in libxmp 4.5]*  Use to retrieve errno if you received
+  ``-XMP_ERROR_SYSTEM`` from an xmp function call. Useful if either
+  libxmp or its client is statically linked to libc.
+
+  **Returns:** System errno.
+
+
 .. _xmp_get_format_list():
 
 const char \*const \*xmp_get_format_list()
@@ -312,9 +324,7 @@ int xmp_test_module_from_memory(const void \*mem, long size, struct xmp_test_inf
     :mem: a pointer to the module file image in memory. Multi-file modules
       or compressed modules can't be tested in memory.
 
-    :size: the size of the module, or 0 if the size is unknown or not
-      specified. If size is set to 0 certain module formats won't be
-      recognized.
+    :size: the size of the module.
 
     :test_info: NULL, or a pointer to a structure used to retrieve the
       module title and format if the memory buffer is a valid module.
@@ -376,7 +386,7 @@ int xmp_load_module(xmp_context c, char \*path)
     :path: pathname of the module to load.
 
   **Returns:**
-    0 if sucessful, or a negative error code in case of error.
+    0 if successful, or a negative error code in case of error.
     Error codes can be ``-XMP_ERROR_FORMAT`` in case of an unrecognized file
     format, ``-XMP_ERROR_DEPACK`` if the file is compressed and uncompression
     failed, ``-XMP_ERROR_LOAD`` if the file format was recognized but the
@@ -397,13 +407,10 @@ int xmp_load_module_from_memory(xmp_context c, const void \*mem, long size)
     :mem: a pointer to the module file image in memory. Multi-file modules
       or compressed modules can't be loaded from memory.
 
-    :size: the size of the module, or 0 if the size is unknown or not
-      specified. If size is set to 0 certain module formats won't be
-      recognized, the MD5 digest will not be set, and module-specific
-      quirks won't be applied.
+    :size: the size of the module.
 
   **Returns:**
-    0 if sucessful, or a negative error code in case of error.
+    0 if successful, or a negative error code in case of error.
     Error codes can be ``-XMP_ERROR_FORMAT`` in case of an unrecognized file
     format, ``-XMP_ERROR_LOAD`` if the file format was recognized but the
     file loading failed, or ``-XMP_ERROR_SYSTEM`` in case of system error
@@ -423,13 +430,10 @@ int xmp_load_module_from_file(xmp_context c, FILE \*f, long size)
     :f: the file stream. On return, the stream position is undefined.
       Caller is responsible for closing the file stream.
 
-    :size: the size of the module, or 0 if the size is unknown or not
-      specified. If size is set to 0 certain module formats won't be
-      recognized, the MD5 digest will not be set, and module-specific
-      quirks won't be applied.
+    :size: the size of the module (ignored.)
 
   **Returns:**
-    0 if sucessful, or a negative error code in case of error.
+    0 if successful, or a negative error code in case of error.
     Error codes can be ``-XMP_ERROR_FORMAT`` in case of an unrecognized file
     format, ``-XMP_ERROR_LOAD`` if the file format was recognized but the
     file loading failed, or ``-XMP_ERROR_SYSTEM`` in case of system error
@@ -532,7 +536,7 @@ int xmp_start_player(xmp_context c, int rate, int format)
         XMP_FORMAT_MONO         /* Mix to mono instead of stereo */
 
   **Returns:**
-    0 if sucessful, or a negative error code in case of error.
+    0 if successful, or a negative error code in case of error.
     Error codes can be ``-XMP_ERROR_INTERNAL`` in case of a internal player
     error, ``-XMP_ERROR_INVALID`` if the sampling rate is invalid, or
     ``-XMP_ERROR_SYSTEM`` in case of system error (the system error
@@ -550,7 +554,7 @@ int xmp_play_frame(xmp_context c)
     :c: the player context handle.
 
   **Returns:**
-    0 if sucessful, ``-XMP_END`` if the module ended or was stopped, or
+    0 if successful, ``-XMP_END`` if the module ended or was stopped, or
     ``-XMP_ERROR_STATE`` if the player is not in playing state.
 
 .. _xmp_play_buffer():
@@ -578,7 +582,7 @@ int xmp_play_buffer(xmp_context c, void \*buffer, int size, int loop)
      value, or 0 to disable loop checking.
 
   **Returns:**
-    0 if sucessful, ``-XMP_END`` if module was stopped or the loop counter
+    0 if successful, ``-XMP_END`` if module was stopped or the loop counter
     was reached, or ``-XMP_ERROR_STATE`` if the player is not in playing
     state.
 
