@@ -94,7 +94,7 @@ int TTF_SetScript(int script) /* hb_script_t */
 #endif
 
 /* Round glyph width to 16 bytes use NEON instructions */
-#if defined(__ARM_NEON)
+#if 0 /*defined(__ARM_NEON)*/
 #  define HAVE_NEON_INTRINSICS 1
 #endif
 
@@ -394,6 +394,8 @@ static SDL_INLINE void BG_Blended_Color(const TTF_Image *image, Uint32 *destinat
     }
 }
 
+#if TTF_USE_SDF
+
 /* Blended Opaque SDF */
 static SDL_INLINE void BG_Blended_Opaque_SDF(const TTF_Image *image, Uint32 *destination, Sint32 srcskip, Uint32 dstskip)
 {
@@ -449,6 +451,8 @@ static SDL_INLINE void BG_Blended_SDF(const TTF_Image *image, Uint32 *destinatio
         dst  = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+
+#endif /* TTF_USE_SDF */
 
 /* Blended Opaque */
 static SDL_INLINE void BG_Blended_Opaque(const TTF_Image *image, Uint32 *destination, Sint32 srcskip, Uint32 dstskip)
@@ -2367,7 +2371,7 @@ static FT_Error Load_Glyph(TTF_Font *font, c_glyph *cached, int want, int transl
 }
 
 static SDL_INLINE int Find_GlyphByIndex(TTF_Font *font, FT_UInt idx,
-        const int want_bitmap, const int want_pixmap, const int want_color, const int want_subpixel,
+        int want_bitmap, int want_pixmap, int want_color, int want_subpixel,
         int translation, c_glyph **out_glyph, TTF_Image **out_image)
 {
     /* cache size is 256, get key by masking */
