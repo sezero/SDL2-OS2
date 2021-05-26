@@ -1085,6 +1085,9 @@ int Mix_VolumeChunk(Mix_Chunk *chunk, int volume)
 {
     int prev_volume;
 
+    if (chunk == NULL) {
+        return(-1);
+    }
     prev_volume = chunk->volume;
     if (volume >= 0) {
         if (volume > MIX_MAX_VOLUME) {

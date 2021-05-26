@@ -1,57 +1,35 @@
-/*
- * SDL_sound -- An abstract sound format decoding API.
- * Copyright (C) 2001  Ryan C. Gordon.
+/**
+ * SDL_sound; An abstract sound format decoding API.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * Please see the file LICENSE.txt in the source's root directory.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  This file written by Ryan C. Gordon.
  */
 
 /**
  * This is a quick and dirty test of SDL_sound.
- *
- * Please see the file COPYING in the source's root directory.
- *
- *  This file written by Ryan C. Gordon. (icculus@icculus.org)
  */
-
-#if HAVE_CONFIG_H
-#  include <config.h>
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#if HAVE_ASSERT_H
-#  include <assert.h>
-#elif (!defined assert)
-#  define assert(x)
-#endif
-
 #if HAVE_SIGNAL_H
 #  include <signal.h>
 #endif
 
+#ifdef _WIN32
+#define SDL_MAIN_HANDLED /* this is a console-only app */
+#endif
 #include "SDL.h"
 #include "SDL_sound.h"
 
 #define DEFAULT_DECODEBUF 16384
 #define DEFAULT_AUDIOBUF  4096
 
-#define PLAYSOUND_VER_MAJOR  0
-#define PLAYSOUND_VER_MINOR  1
-#define PLAYSOUND_VER_PATCH  6
+#define PLAYSOUND_VER_MAJOR  1
+#define PLAYSOUND_VER_MINOR  9
+#define PLAYSOUND_VER_PATCH  0
 
 
 static const char *option_list[] =
@@ -86,19 +64,11 @@ static void output_versions(const char *argv0)
     Sound_GetLinkedVersion(&linked);
     SDL_VERSION(&sdl_compiled);
 
-    #if SDL_MAJOR_VERSION >= 2
     SDL_GetVersion(&sdl_linked_ver);
-    #else
-    sdl_linked = SDL_Linked_Version();
-    #endif
 
     fprintf(stdout,
            "%s version %d.%d.%d\n"
-           "Copyright 2001 Ryan C. Gordon\n"
-           "This program is free software, covered by the GNU Lesser General\n"
-           "Public License, and you are welcome to change it and/or\n"
-           "distribute copies of it under certain conditions. There is\n"
-           "absolutely NO WARRANTY for this program.\n"
+           "Copyright 2001-2018 Ryan C. Gordon and others.\n"
            "\n"
            " Compiled against SDL_sound version %d.%d.%d,\n"
            " and linked against %d.%d.%d.\n"
@@ -166,6 +136,10 @@ static void output_usage(const char *argv0)
         "     U16MSB  Unsigned 16-bit (most significant byte first).\n"
         "     S16LSB  Signed 16-bit (least significant byte first).\n"
         "     S16MSB  Signed 16-bit (most significant byte first).\n"
+        "     S32LSB  Signed 32-bit (least significant byte first).\n"
+        "     S32MSB  Signed 32-bit (most significant byte first).\n"
+        "     F32LSB  Float 32-bit (least significant byte first).\n"
+        "     F32MSB  Float 32-bit (most significant byte first).\n"
         "\n"
         "   Valid arguments to the --seek options look like:\n"
         "     --seek \"mm:SS:ss;mm:SS:ss;mm:SS:ss\"\n"
@@ -185,17 +159,13 @@ static void output_credits(void)
 {
     fprintf(stdout,
            "playsound version %d.%d.%d\n"
-           "Copyright 2001 Ryan C. Gordon\n"
-           "playsound is free software, covered by the GNU Lesser General\n"
-           "Public License, and you are welcome to change it and/or\n"
-           "distribute copies of it under certain conditions. There is\n"
-           "absolutely NO WARRANTY for playsound.\n"
+           "Copyright 2001-2018 Ryan C. Gordon and others.\n"
            "\n"
            "    Written by Ryan C. Gordon, Torbjörn Andersson, Max Horn,\n"
            "     Tsuyoshi Iguchi, Tyler Montbriand, Darrell Walisser,\n"
            "     and a cast of thousands.\n"
            "\n"
-           "    Website and source code: http://icculus.org/SDL_sound/\n"
+           "    Website and source code: https://icculus.org/SDL_sound/\n"
            "\n",
             PLAYSOUND_VER_MAJOR, PLAYSOUND_VER_MINOR, PLAYSOUND_VER_PATCH);
 } /* output_credits */
@@ -209,7 +179,7 @@ void sigint_catcher(int signum)
     static Uint32 last_sigint = 0;
     Uint32 ticks = SDL_GetTicks();
 
-    assert(signum == SIGINT);
+    SDL_assert(signum == SIGINT);
     if (done_flag < 0)
         return;  /* mashing CTRL-C, we get it already. */
 
@@ -373,11 +343,16 @@ static void memcpy_with_volume(Sound_Sample *sample,
     Uint16 *u16dst = NULL;
     Sint16 *s16src = NULL;
     Sint16 *s16dst = NULL;
+    Sint32 *s32src = NULL;
+    Sint32 *s32dst = NULL;
+    union { float f; Uint32 ui32; } floatswapper;
+    float *f32dst = NULL;
+    float *f32src = NULL;
     float volume = global_state.volume;
 
     if (!global_state.wants_volume_change)
     {
-        memcpy(dst, src, len);
+        SDL_memcpy(dst, src, len);
         return;
     } /* if */
 
@@ -433,6 +408,52 @@ static void memcpy_with_volume(Sound_Sample *sample,
                 *s16dst = SDL_SwapBE16(*s16dst);
             } /* for */
             break;
+
+        case AUDIO_S32LSB:
+            s32src = (Sint32 *) src;
+            s32dst = (Sint32 *) dst;
+            for (i = 0; i < len; i += sizeof (Sint32), s32src++, s32dst++)
+            {
+                *s32dst = (Sint32) (((double) (SDL_SwapLE32(*s32src))) * volume);
+                *s32dst = SDL_SwapLE32(*s32dst);
+            } /* for */
+            break;
+
+        case AUDIO_S32MSB:
+            s32src = (Sint32 *) src;
+            s32dst = (Sint32 *) dst;
+            for (i = 0; i < len; i += sizeof (Sint32), s32src++, s32dst++)
+            {
+                *s32dst = (Sint32) (((double) (SDL_SwapBE32(*s32src))) * volume);
+                *s32dst = SDL_SwapBE32(*s32dst);
+            } /* for */
+            break;
+
+        case AUDIO_F32LSB:
+            f32src = (float *) src;
+            f32dst = (float *) dst;
+            for (i = 0; i < len; i += sizeof (float), f32src++, f32dst++)
+            {
+                floatswapper.f = *f32src;
+                floatswapper.ui32 = SDL_SwapLE32(floatswapper.ui32);
+                floatswapper.f *= volume;
+                floatswapper.ui32 = SDL_SwapLE32(floatswapper.ui32);
+                *f32dst = floatswapper.f;
+            } /* for */
+            break;
+
+        case AUDIO_F32MSB:
+            f32src = (float *) src;
+            f32dst = (float *) dst;
+            for (i = 0; i < len; i += sizeof (float), f32src++, f32dst++)
+            {
+                floatswapper.f = *f32src;
+                floatswapper.ui32 = SDL_SwapBE32(floatswapper.ui32);
+                floatswapper.f *= volume;
+                floatswapper.ui32 = SDL_SwapBE32(floatswapper.ui32);
+                *f32dst = floatswapper.f;
+            } /* for */
+            break;
     } /* switch */
 } /* memcpy_with_volume */
 
@@ -449,7 +470,7 @@ static void SDLCALL audio_callback(void *userdata, Uint8 *stream, int len)
         if (!read_more_data(sample)) /* read more data, if needed. */
         {
             /* ...there isn't any more data to read! */
-            memset(stream + bw, '\0', len - bw);
+            SDL_memset(stream + bw, '\0', len - bw);
             done_flag = 1;
             return;
         } /* if */
@@ -481,7 +502,7 @@ static int count_seek_list(const char *list)
     const char *ptr;
     int retval = 0;
 
-    for (ptr = list; ptr != NULL; ptr = strchr(ptr + 1, ';'))
+    for (ptr = list; ptr != NULL; ptr = SDL_strchr(ptr + 1, ';'))
         retval++;
 
     return(retval);
@@ -494,26 +515,26 @@ static Uint32 parse_time_str(char *str)
     Uint32 seconds = 0;
     Uint32 ms = 0;
 
-    char *ptr = strchr(str, ':');
+    char *ptr = SDL_strchr(str, ':');
     if (ptr != NULL)
     {
         char *ptr2;
 
         *ptr = '\0';
-        ptr2 = strchr(ptr + 1, ':');
+        ptr2 = SDL_strchr(ptr + 1, ':');
         if (ptr2 != NULL)
         {
             *ptr2 = '\0';
-            minutes = atoi(str);
+            minutes = SDL_atoi(str);
             str = ptr + 1;
             ptr = ptr2;
         } /* if */
 
-        seconds = atoi(str);
+        seconds = SDL_atoi(str);
         str = ptr + 1;
     } /* if */
 
-    ms = atoi(str);
+    ms = SDL_atoi(str);
     return( (((minutes * 60) + seconds) * 1000) + ms );
 } /* parse_time_str */
 
@@ -522,7 +543,8 @@ static void parse_seek_list(const char *_list)
 {
     Uint32 i;
 
-    char *list = (char*) malloc(strlen(_list) + 1);
+    const size_t listlen = SDL_strlen(_list) + 1;
+    char *list = (char*) SDL_malloc(listlen);
     char *save_list = list;
     if (list == NULL)
     {
@@ -530,15 +552,15 @@ static void parse_seek_list(const char *_list)
         return;
     } /* if */
 
-    strcpy(list, _list);
+    SDL_strlcpy(list, _list, listlen);
 
     if (global_state.seek_list != NULL)
-        free((void *) global_state.seek_list);
+        SDL_free((void *) global_state.seek_list);
 
     global_state.total_seeks = count_seek_list(list);
 
     global_state.seek_list =
-              (Uint32 *) malloc(global_state.total_seeks * sizeof (Uint32));
+              (Uint32 *) SDL_malloc(global_state.total_seeks * sizeof (Uint32));
 
     if (global_state.seek_list == NULL)
     {
@@ -549,7 +571,7 @@ static void parse_seek_list(const char *_list)
 
     for (i = 0; i < global_state.total_seeks; i++)
     {
-        char *ptr = strchr(list, ';');
+        char *ptr = SDL_strchr(list, ';');
         if (ptr != NULL)
             *ptr = '\0';
         global_state.seek_list[i] = parse_time_str(list);
@@ -558,24 +580,32 @@ static void parse_seek_list(const char *_list)
 
     global_state.bytes_before_next_seek = 0;
 
-    free(save_list);
+    SDL_free(save_list);
 } /* parse_seek_list */
 
 
 static int str_to_fmt(char *str)
 {
-    if (strcmp(str, "U8") == 0)
+    if (SDL_strcmp(str, "U8") == 0)
         return AUDIO_U8;
-    if (strcmp(str, "S8") == 0)
+    if (SDL_strcmp(str, "S8") == 0)
         return AUDIO_S8;
-    if (strcmp(str, "U16LSB") == 0)
+    if (SDL_strcmp(str, "U16LSB") == 0)
         return AUDIO_U16LSB;
-    if (strcmp(str, "S16LSB") == 0)
+    if (SDL_strcmp(str, "S16LSB") == 0)
         return AUDIO_S16LSB;
-    if (strcmp(str, "U16MSB") == 0)
+    if (SDL_strcmp(str, "U16MSB") == 0)
         return AUDIO_U16MSB;
-    if (strcmp(str, "S16MSB") == 0)
+    if (SDL_strcmp(str, "S16MSB") == 0)
         return AUDIO_S16MSB;
+    if (SDL_strcmp(str, "S32LSB") == 0)
+        return AUDIO_S32LSB;
+    if (SDL_strcmp(str, "S32MSB") == 0)
+        return AUDIO_S32MSB;
+    if (SDL_strcmp(str, "F32LSB") == 0)
+        return AUDIO_F32LSB;
+    if (SDL_strcmp(str, "F32MSB") == 0)
+        return AUDIO_F32MSB;
     return 0;
 } /* str_to_fmt */
 
@@ -595,12 +625,12 @@ static int valid_cmdline(int argc, char **argv)
     {
         const char **opts = option_list;
 
-        if (strncmp(argv[i], "--", 2) != 0)  /* not an option; skip it. */
+        if (SDL_strncmp(argv[i], "--", 2) != 0)  /* not an option; skip it. */
             continue;
 
         while (*opts != NULL)
         {
-            if (strcmp(argv[i], *(opts++)) == 0)
+            if (SDL_strcmp(argv[i], *(opts++)) == 0)
                 break;
 
             opts++;  /* skip option description. */
@@ -615,6 +645,26 @@ static int valid_cmdline(int argc, char **argv)
 
     return(1);  /* everything appears to be in order. */
 } /* valid_cmdline */
+
+
+static void report_filename(const char *filename)
+{
+    const char *icon = "playsound";
+    char *ptr = NULL;
+
+    ptr = strrchr(filename, '/');
+    if (ptr != NULL)
+        filename = ptr + 1;
+    ptr = strrchr(filename, '\\');
+    if (ptr != NULL)
+        filename = ptr + 1;
+
+    /* SDL2's PulseAudio backend picks up these hints. */
+    SDL_SetHint("SDL_AUDIO_DEVICE_APP_NAME", icon);
+    SDL_SetHint("SDL_AUDIO_DEVICE_STREAM_NAME", filename);
+
+    fprintf(stdout, "%s: Now playing [%s]...\n", icon, filename);
+} /* report_filename */
 
 
 int main(int argc, char **argv)
@@ -646,30 +696,30 @@ int main(int argc, char **argv)
         return(42);
 
     /* Handle some command lines upfront. */
-    for (i = 0; i < argc; i++)
+    for (i = 1; i < argc; i++)
     {
-        if (strncmp(argv[i], "--", 2) != 0)
+        if (SDL_strncmp(argv[i], "--", 2) != 0)
             continue;
 
-        if (strcmp(argv[i], "--version") == 0)
+        if (SDL_strcmp(argv[i], "--version") == 0)
         {
             output_versions(argv[0]);
             return(42);
         } /* if */
 
-        if (strcmp(argv[i], "--credits") == 0)
+        if (SDL_strcmp(argv[i], "--credits") == 0)
         {
             output_credits();
             return(42);
         } /* if */
 
-        else if (strcmp(argv[i], "--help") == 0)
+        else if (SDL_strcmp(argv[i], "--help") == 0)
         {
             output_usage(argv[0]);
             return(42);
         } /* if */
 
-        else if (strcmp(argv[i], "--decoders") == 0)
+        else if (SDL_strcmp(argv[i], "--decoders") == 0)
         {
             if (!Sound_Init())
             {
@@ -706,10 +756,10 @@ int main(int argc, char **argv)
 
     #if ENABLE_EVENTS
     screen = SDL_SetVideoMode(320, 240, 8, 0);
-    assert(screen != NULL);
+    SDL_assert(screen != NULL);
     #endif
 
-    memset(&sound_desired, '\0', sizeof (Sound_AudioInfo));
+    SDL_memset(&sound_desired, '\0', sizeof (Sound_AudioInfo));
 
     for (i = 1; i < argc; i++)
     {
@@ -719,10 +769,10 @@ int main(int argc, char **argv)
         if (new_sample)
         {
             if (global_state.seek_list != NULL)
-                free((void *) global_state.seek_list);
+                SDL_free((void *) global_state.seek_list);
 
-            memset((void *) &global_state, '\0', sizeof (global_state));
-            memset(&sdl_desired, '\0', sizeof (SDL_AudioSpec));
+            SDL_memset((void *) &global_state, '\0', sizeof (global_state));
+            SDL_memset(&sdl_desired, '\0', sizeof (SDL_AudioSpec));
             global_state.volume = 1.0;
             global_state.bytes_before_next_seek = -1;
             audio_buffersize = DEFAULT_AUDIOBUF;
@@ -730,11 +780,11 @@ int main(int argc, char **argv)
             new_sample = 0;
         } /* if */
 
-        if (strcmp(argv[i], "--rate") == 0 && argc > i + 1)
+        if (SDL_strcmp(argv[i], "--rate") == 0 && argc > i + 1)
         {
             Sint32 r;
             use_specific_audiofmt = 1;
-            r = atoi(argv[++i]);
+            r = SDL_atoi(argv[++i]);
             if (r <= 0)
             {
                 fprintf(stderr, "Bad argument to --rate!\n");
@@ -743,22 +793,22 @@ int main(int argc, char **argv)
             sound_desired.rate = (Uint32)r;
         } /* else if */
 
-        else if (strcmp(argv[i], "--format") == 0 && argc > i + 1)
+        else if (SDL_strcmp(argv[i], "--format") == 0 && argc > i + 1)
         {
             use_specific_audiofmt = 1;
             sound_desired.format = str_to_fmt(argv[++i]);
             if (sound_desired.format == 0)
             {
                 fprintf(stderr, "Bad argument to --format! Try one of:\n"
-                                "U8, S8, U16LSB, S16LSB, U16MSB, S16MSB\n");
+                                "U8, S8, U16LSB, S16LSB, U16MSB, S16MSB, S32LSB, S32MSB, F32LSB, L32MSB\n");
                 return(42);
             } /* if */
         } /* else if */
 
-        else if (strcmp(argv[i], "--channels") == 0 && argc > i + 1)
+        else if (SDL_strcmp(argv[i], "--channels") == 0 && argc > i + 1)
         {
             use_specific_audiofmt = 1;
-            sound_desired.channels = atoi(argv[++i]);
+            sound_desired.channels = SDL_atoi(argv[++i]);
             if (sound_desired.channels < 1 || sound_desired.channels > 2)
             {
                 fprintf(stderr,
@@ -768,39 +818,39 @@ int main(int argc, char **argv)
             } /* if */
         } /* else if */
 
-        else if (strcmp(argv[i], "--audiobuf") == 0 && argc > i + 1)
+        else if (SDL_strcmp(argv[i], "--audiobuf") == 0 && argc > i + 1)
         {
-            audio_buffersize = atoi(argv[++i]);
+            audio_buffersize = SDL_atoi(argv[++i]);
         } /* else if */
 
-        else if (strcmp(argv[i], "--decodebuf") == 0 && argc > i + 1)
+        else if (SDL_strcmp(argv[i], "--decodebuf") == 0 && argc > i + 1)
         {
-            decode_buffersize = atoi(argv[++i]);
+            decode_buffersize = SDL_atoi(argv[++i]);
         } /* else if */
 
-        else if (strcmp(argv[i], "--volume") == 0 && argc > i + 1)
+        else if (SDL_strcmp(argv[i], "--volume") == 0 && argc > i + 1)
         {
-            global_state.volume = atof(argv[++i]);
+            global_state.volume = SDL_atof(argv[++i]);
             if (global_state.volume != 1.0)
                 global_state.wants_volume_change = 1;
         } /* else if */
 
-        else if (strcmp(argv[i], "--predecode") == 0)
+        else if (SDL_strcmp(argv[i], "--predecode") == 0)
         {
             global_state.predecode = 1;
         } /* else if */
 
-        else if (strcmp(argv[i], "--loop") == 0)
+        else if (SDL_strcmp(argv[i], "--loop") == 0)
         {
-            global_state.looping = atoi(argv[++i]);
+            global_state.looping = SDL_atoi(argv[++i]);
         } /* else if */
 
-        else if (strcmp(argv[i], "--seek") == 0)
+        else if (SDL_strcmp(argv[i], "--seek") == 0)
         {
             parse_seek_list(argv[++i]);
         } /* else if */
 
-        else if (strcmp(argv[i], "--stdin") == 0)
+        else if (SDL_strcmp(argv[i], "--stdin") == 0)
         {
             SDL_RWops *rw = SDL_RWFromFP(stdin, 1);
             filename = "...from stdin...";
@@ -814,7 +864,7 @@ int main(int argc, char **argv)
                         decode_buffersize);
         } /* if */
 
-        else if (strncmp(argv[i], "--", 2) == 0)
+        else if (SDL_strncmp(argv[i], "--", 2) == 0)
         {
             /* ignore it, since it was handled at startup. */
         } /* else if */
@@ -885,7 +935,7 @@ int main(int argc, char **argv)
             } /* if */
         } /* if */
 
-        fprintf(stdout, "Now playing [%s]...\n", filename);
+        report_filename(filename);
 
         if (SDL_OpenAudio(&sdl_desired, NULL) < 0)
         {

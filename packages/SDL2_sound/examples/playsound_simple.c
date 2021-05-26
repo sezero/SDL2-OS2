@@ -1,35 +1,23 @@
-/*
- * SDL_sound -- An abstract sound format decoding API.
- * Copyright (C) 2001  Ryan C. Gordon.
+/**
+ * SDL_sound; An abstract sound format decoding API.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * Please see the file LICENSE.txt in the source's root directory.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  This file written by Ryan C. Gordon.
  */
 
 /**
  * This is just a simple "decode sound, play it through SDL" example.
  *  The much more complex, fancy, and robust code is playsound.c.
- *
- * Please see the file COPYING in the source's root directory.
- *
- *  This file written by Ryan C. Gordon. (icculus@icculus.org)
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#define SDL_MAIN_HANDLED /* this is a console-only app */
+#endif
 #include "SDL.h"
 #include "SDL_sound.h"
 
@@ -82,7 +70,7 @@ static void SDLCALL audio_callback(void *userdata, Uint8 *stream, int len)
             if (data->decoded_bytes == 0)
             {
                 /* ...there isn't any more data to read! */
-                memset(stream + bw, '\0', len - bw);  /* write silence. */
+                SDL_memset(stream + bw, '\0', len - bw);  /* write silence. */
                 global_done_flag = 1;
                 return;  /* we're done playback, one way or another. */
             } /* if */
@@ -97,7 +85,7 @@ static void SDLCALL audio_callback(void *userdata, Uint8 *stream, int len)
         if (cpysize > 0)
         {
             /* write this iteration's data to the device. */
-            memcpy(stream + bw, (Uint8 *) data->decoded_ptr, cpysize);
+            SDL_memcpy(stream + bw, (Uint8 *) data->decoded_ptr, cpysize);
 
             /* update state for next iteration or callback */
             bw += cpysize;
@@ -113,7 +101,7 @@ static void playOneSoundFile(const char *fname)
 {
     PlaysoundAudioCallbackData data;
 
-    memset(&data, '\0', sizeof (PlaysoundAudioCallbackData));
+    SDL_zero(data);
     data.sample = Sound_NewSampleFromFile(fname, NULL, 65536);
     if (data.sample == NULL)
     {
