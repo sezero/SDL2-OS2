@@ -30,7 +30,7 @@ SHELL		= /bin/sh
 DIST		= libxmp-$(VERSION)
 DFILES		= README INSTALL install-sh configure configure.ac config.sub \
 		  config.guess Makefile.in libxmp.pc.in libxmp.map Makefile.vc \
-		  Makefile.os2 Makefile.nt watcom.mif
+		  Makefile.os2 Makefile.w32 watcom.mif
 DDIRS		= docs include src loaders prowiz depackers win32 os2 test
 V		= 0
 LIB		= libxmp.a
@@ -44,6 +44,7 @@ GCLIB		= libxmp-gc.a
 DYLIB_COMPAT	= -compatibility_version,$(COMPAT_VERSION),
 
 DARWIN_VERSION	= @DARWIN_VERSION@
+PLATFORM_DIR	= @PLATFORM_DIR@
 
 # https://github.com/cmatsuoka/libxmp/issues/1
 ifneq ($(DARWIN_VERSION),)
@@ -139,11 +140,11 @@ lib/$(GCLIB): $(GCOBJS)
 	$(RANLIB) $@
 
 clean:
-	@rm -f $(ALL_OBJS) $(LOBJS)
+	@rm -f $(ALL_OBJS) $(LOBJS) $(T_OBJS)
 	@rm -f $(GCOBJS) $(ALL_OBJS:.o=.gcno) $(ALL_OBJS:.o=.gcda)
 
 distclean: clean
-	@rm -f config.log config.cache config.status libxmp.pc depend Makefile lib/*
+	@rm -f config.log config.cache config.status libxmp.pc depend Makefile lib/* test/libxmp-test*
 
 install: all
 	@mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
@@ -218,7 +219,6 @@ distcheck:
 	rm -Rf $(DIST)
 	tar xf $(DIST).tar.gz
 	(cd $(DIST); ./configure --enable-static --prefix=`pwd`/test-install; make; make check; make install; find test-install)
-
 
 devcheck:
 	$(MAKE) -C test-dev

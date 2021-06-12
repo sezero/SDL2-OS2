@@ -447,6 +447,72 @@ and uncompression failed, or \fC\-XMP_ERROR_SYSTEM\fP in case of system error
 .UNINDENT
 .UNINDENT
 .UNINDENT
+.SS int xmp_test_module_from_callbacks(void *priv, struct xmp_callbacks callbacks, struct xmp_test_info *test_info)
+.INDENT 0.0
+.INDENT 3.5
+.sp
+\fI[Added in libxmp 4.5]\fP Test if a module from a custom stream is a valid
+module. Testing custom streams does not affect the current player context
+or any currently loaded module.
+.INDENT 0.0
+.TP
+.B \fBParameters:\fP
+.INDENT 7.0
+.TP
+.B priv
+.
+pointer to the custom stream. Multi\-file modules
+or compressed modules can\(aqt be tested using this function.
+This should not be NULL.
+.TP
+.B callbacks
+.
+struct specifying stream callbacks for the custom stream.
+These callbacks should behave as close to \fCfread\fP/\fCfseek\fP/\fCftell\fP/\fCfclose\fP
+as possible, and \fCseek_func\fP must be capable of seeking to \fCSEEK_END\fP.
+The \fCclose_func\fP is optional, but all other functions must be provided.
+If a \fCclose_func\fP is provided, the stream will be closed once testing
+has finished or upon returning an error code.
+\fCstruct xmp_callbacks\fP is defined as:
+.sp
+.nf
+.ft C
+struct xmp_callbacks {
+    unsigned long (*read_func)(void *dest, unsigned long len,
+                               unsigned long nmemb, void *priv);
+    int           (*seek_func)(void *priv, long offset, int whence);
+    long          (*tell_func)(void *priv);
+    int           (*close_func)(void *priv);
+};
+.ft P
+.fi
+.TP
+.B test_info
+.
+NULL, or a pointer to a structure used to retrieve the
+module title and format if the memory buffer is a valid module.
+.sp
+\fCstruct xmp_test_info\fP is defined as:
+.sp
+.nf
+.ft C
+struct xmp_test_info {
+    char name[XMP_NAME_SIZE];      /* Module title */
+    char type[XMP_NAME_SIZE];      /* Module format */
+};
+.ft P
+.fi
+.UNINDENT
+.TP
+.B \fBReturns:\fP
+.sp
+0 if the custom stream is a valid module, or a negative error code
+in case of error. Error codes can be \fC\-XMP_ERROR_FORMAT\fP in case of an
+unrecognized file format or \fC\-XMP_ERROR_SYSTEM\fP in case of system error
+(the system error code is set in \fCerrno\fP).
+.UNINDENT
+.UNINDENT
+.UNINDENT
 .SS int xmp_load_module(xmp_context c, char *path)
 .INDENT 0.0
 .INDENT 3.5
@@ -537,6 +603,60 @@ Caller is responsible for closing the file stream.
 .B size
 .
 the size of the module (ignored.)
+.UNINDENT
+.TP
+.B \fBReturns:\fP
+.sp
+0 if successful, or a negative error code in case of error.
+Error codes can be \fC\-XMP_ERROR_FORMAT\fP in case of an unrecognized file
+format, \fC\-XMP_ERROR_LOAD\fP if the file format was recognized but the
+file loading failed, or \fC\-XMP_ERROR_SYSTEM\fP in case of system error
+(the system error code is set in \fCerrno\fP).
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS int xmp_load_module_from_callbacks(xmp_context c, void *priv, struct xmp_callbacks callbacks)
+.INDENT 0.0
+.INDENT 3.5
+.sp
+\fI[Added in libxmp 4.5]\fP Load a module from a custom stream into the specified
+player context.
+.INDENT 0.0
+.TP
+.B \fBParameters:\fP
+.INDENT 7.0
+.TP
+.B c
+.
+the player context handle.
+.TP
+.B priv
+.
+pointer to the custom stream. Multi\-file modules
+or compressed modules can\(aqt be loaded using this function.
+This should not be NULL.
+.TP
+.B callbacks
+.
+struct specifying stream callbacks for the custom stream.
+These callbacks should behave as close to \fCfread\fP/\fCfseek\fP/\fCftell\fP/\fCfclose\fP
+as possible, and \fCseek_func\fP must be capable of seeking to \fCSEEK_END\fP.
+The \fCclose_func\fP is optional, but all other functions must be provided.
+If a \fCclose_func\fP is provided, the stream will be closed once loading
+has finished or upon returning an error code.
+\fCstruct xmp_callbacks\fP is defined as:
+.sp
+.nf
+.ft C
+struct xmp_callbacks {
+    unsigned long (*read_func)(void *dest, unsigned long len,
+                               unsigned long nmemb, void *priv);
+    int           (*seek_func)(void *priv, long offset, int whence);
+    long          (*tell_func)(void *priv);
+    int           (*close_func)(void *priv);
+};
+.ft P
+.fi
 .UNINDENT
 .TP
 .B \fBReturns:\fP

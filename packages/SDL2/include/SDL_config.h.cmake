@@ -302,6 +302,7 @@
 /* Enable various input drivers */
 #cmakedefine SDL_INPUT_LINUXEV @SDL_INPUT_LINUXEV@
 #cmakedefine SDL_INPUT_LINUXKD @SDL_INPUT_LINUXKD@
+#cmakedefine SDL_INPUT_FBSDKBIO @SDL_INPUT_FBSDKBIO@
 #cmakedefine SDL_JOYSTICK_ANDROID @SDL_JOYSTICK_ANDROID@
 #cmakedefine SDL_JOYSTICK_HAIKU @SDL_JOYSTICK_HAIKU@
 #cmakedefine SDL_JOYSTICK_DINPUT @SDL_JOYSTICK_DINPUT@
@@ -471,6 +472,8 @@
 /* Platform specific definitions */
 #cmakedefine SDL_IPHONE_KEYBOARD @SDL_IPHONE_KEYBOARD@
 #cmakedefine SDL_IPHONE_LAUNCHSCREEN @SDL_IPHONE_LAUNCHSCREEN@
+
+#cmakedefine SDL_VIDEO_VITA_PIB @SDL_VIDEO_VITA_PIB@
 
 #if !defined(__WIN32__) && !defined(__WINRT__)
 #  if !defined(_STDINT_H_) && !defined(_STDINT_H) && !defined(HAVE_STDINT_H) && !defined(_HAVE_STDINT_H)

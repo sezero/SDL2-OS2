@@ -647,6 +647,7 @@ build_os
 build_vendor
 build_cpu
 build
+PLATFORM_DIR
 DARWIN_VERSION
 LD_VERSCRIPT
 target_alias
@@ -668,7 +669,6 @@ infodir
 docdir
 oldincludedir
 includedir
-runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -743,7 +743,6 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
-runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -996,15 +995,6 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
-  -runstatedir | --runstatedir | --runstatedi | --runstated \
-  | --runstate | --runstat | --runsta | --runst | --runs \
-  | --run | --ru | --r)
-    ac_prev=runstatedir ;;
-  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
-  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
-  | --run=* | --ru=* | --r=*)
-    runstatedir=$ac_optarg ;;
-
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1142,7 +1132,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir runstatedir
+		libdir localedir mandir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1295,7 +1285,6 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
-  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1462,8 +1451,8 @@ fi
 
 # ac_fn_c_try_run LINENO
 # ----------------------
-# Try to run conftest.$ac_ext, and return whether this succeeded. Assumes that
-# executables *can* be run.
+# Try to link conftest.$ac_ext, and return whether this succeeded. Assumes
+# that executables *can* be run.
 ac_fn_c_try_run ()
 {
   as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
@@ -1748,7 +1737,7 @@ choke me
 #endif
 
 int
-main (void)
+main ()
 {
 return $2 ();
   ;
@@ -1880,8 +1869,6 @@ done
 # WARNING: Use '\'' to represent an apostrophe within the trap.
 # WARNING: Do not start the trap code with a newline, due to a FreeBSD 4.0 bug.
 trap 'exit_status=$?
-  # Sanitize IFS.
-  IFS=" ""	$as_nl"
   # Save into config.log some information that might help in debugging.
   {
     echo
@@ -2142,6 +2129,7 @@ fi
 if test "${enable_shared+set}" = set; then :
   enableval=$enable_shared;
 fi
+
 
 
 
@@ -2577,7 +2565,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 int
-main (void)
+main ()
 {
 
   ;
@@ -2717,7 +2705,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <stdio.h>
 int
-main (void)
+main ()
 {
 FILE *f = fopen ("conftest.out", "w");
  return ferror (f) || fclose (f) != 0;
@@ -2731,9 +2719,7 @@ ac_clean_files="$ac_clean_files conftest.out"
 # the compiler is broken, or we cross compile.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether we are cross compiling" >&5
 $as_echo_n "checking whether we are cross compiling... " >&6; }
-if test "$cross_compiling" = maybe && test "x$build" != "x$host"; then
-  cross_compiling=yes
-elif test "$cross_compiling" != yes; then
+if test "$cross_compiling" != yes; then
   { { ac_try="$ac_link"
 case "(($ac_try" in
   *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
@@ -2783,7 +2769,7 @@ else
 /* end confdefs.h.  */
 
 int
-main (void)
+main ()
 {
 
   ;
@@ -2834,7 +2820,7 @@ else
 /* end confdefs.h.  */
 
 int
-main (void)
+main ()
 {
 #ifndef __GNUC__
        choke me
@@ -2875,7 +2861,7 @@ else
 /* end confdefs.h.  */
 
 int
-main (void)
+main ()
 {
 
   ;
@@ -2890,7 +2876,7 @@ else
 /* end confdefs.h.  */
 
 int
-main (void)
+main ()
 {
 
   ;
@@ -2906,7 +2892,7 @@ else
 /* end confdefs.h.  */
 
 int
-main (void)
+main ()
 {
 
   ;
@@ -2992,7 +2978,7 @@ int pairnames (int, char **, FILE *(*)(struct buf *, struct stat *, int), int, i
 int argc;
 char **argv;
 int
-main (void)
+main ()
 {
 return f (e, argv, 0) != argv[0]  ||  f (e, argv, 1) != argv[1];
   ;
@@ -3503,7 +3489,7 @@ else
 #include <float.h>
 
 int
-main (void)
+main ()
 {
 
   ;
@@ -3573,7 +3559,7 @@ else
 
 #define XOR(e, f) (((e) && !(f)) || (!(e) && (f)))
 int
-main (void)
+main ()
 {
   int i;
   for (i = 0; i < 256; i++)
@@ -3667,7 +3653,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 	     #include <sys/param.h>
 
 int
-main (void)
+main ()
 {
 #if ! (defined BYTE_ORDER && defined BIG_ENDIAN \
 		     && defined LITTLE_ENDIAN && BYTE_ORDER && BIG_ENDIAN \
@@ -3687,7 +3673,7 @@ if ac_fn_c_try_compile "$LINENO"; then :
 		#include <sys/param.h>
 
 int
-main (void)
+main ()
 {
 #if BYTE_ORDER != BIG_ENDIAN
 		 not big endian
@@ -3713,7 +3699,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 #include <limits.h>
 
 int
-main (void)
+main ()
 {
 #if ! (defined _LITTLE_ENDIAN || defined _BIG_ENDIAN)
 	      bogus endian macros
@@ -3730,7 +3716,7 @@ if ac_fn_c_try_compile "$LINENO"; then :
 #include <limits.h>
 
 int
-main (void)
+main ()
 {
 #ifndef _BIG_ENDIAN
 		 not big endian
@@ -3755,16 +3741,16 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
   # Try to guess by grepping values from an object file.
 	 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-unsigned short int ascii_mm[] =
+short int ascii_mm[] =
 		  { 0x4249, 0x4765, 0x6E44, 0x6961, 0x6E53, 0x7953, 0 };
-		unsigned short int ascii_ii[] =
+		short int ascii_ii[] =
 		  { 0x694C, 0x5454, 0x656C, 0x6E45, 0x6944, 0x6E61, 0 };
 		int use_ascii (int i) {
 		  return ascii_mm[i] + ascii_ii[i];
 		}
-		unsigned short int ebcdic_ii[] =
+		short int ebcdic_ii[] =
 		  { 0x89D3, 0xE3E3, 0x8593, 0x95C5, 0x89C4, 0x9581, 0 };
-		unsigned short int ebcdic_mm[] =
+		short int ebcdic_mm[] =
 		  { 0xC2C9, 0xC785, 0x95C4, 0x8981, 0x95E2, 0xA8E2, 0 };
 		int use_ebcdic (int i) {
 		  return ebcdic_mm[i] + ebcdic_ii[i];
@@ -3772,7 +3758,7 @@ unsigned short int ascii_mm[] =
 		extern int foo;
 
 int
-main (void)
+main ()
 {
 return use_ascii (foo) == use_ebcdic (foo);
   ;
@@ -3798,7 +3784,7 @@ else
 /* end confdefs.h.  */
 $ac_includes_default
 int
-main (void)
+main ()
 {
 
 	     /* Are we little or big endian?  From Harbison&Steele.  */
@@ -3866,6 +3852,9 @@ cygwin* | *djgpp | mint* | amigaos* |aros* | morphos*)
   enable_static=yes
   enable_shared=no
   ;;
+mingw* | msys*)
+  PLATFORM_DIR=win32
+  ;;
 esac
 
 
@@ -3878,7 +3867,7 @@ else
 /* end confdefs.h.  */
 
 int
-main (void)
+main ()
 {
 
     #ifdef __clang__
@@ -3915,7 +3904,7 @@ case "${host_os}" in
 /* end confdefs.h.  */
 
 int
-main (void)
+main ()
 {
 
   ;
@@ -3948,7 +3937,7 @@ else
 /* end confdefs.h.  */
 
 int
-main (void)
+main ()
 {
 
     #ifdef _WIN32
@@ -3989,7 +3978,7 @@ else
 /* end confdefs.h.  */
 
 int
-main (void)
+main ()
 {
 
     #ifdef __APPLE__
@@ -4123,7 +4112,10 @@ else
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-    __attribute__((visibility("default"))) void foo(void) {}
+__attribute__((visibility("default"))) int foo(void);
+__attribute__((visibility("hidden")))  int bar(void);
+int foo(void) { return 0; }
+int bar(void) { return 1; }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
   ac_cv_c_flag_f_visibility_hidden=yes
@@ -4137,7 +4129,7 @@ fi
 $as_echo "$ac_cv_c_flag_f_visibility_hidden" >&6; }
   if test "x$ac_cv_c_flag_f_visibility_hidden" = xyes; then :
   CFLAGS="${old_CFLAGS} -fvisibility=hidden -DXMP_SYM_VISIBILITY"
-    LD_VERSCRIPT="-Wl,--version-script,libxmp.map"
+     LD_VERSCRIPT="-Wl,--version-script,libxmp.map"
 else
   CFLAGS="${old_CFLAGS}"
 fi
@@ -4329,7 +4321,7 @@ extern "C"
 #endif
 char pow ();
 int
-main (void)
+main ()
 {
 return pow ();
   ;
@@ -4385,6 +4377,23 @@ _ACEOF
 fi
 done
 
+case "${host_os}" in
+*djgpp|mingw*|riscos*)
+  ;;
+*) for ac_func in wait pipe fork execvp dup2
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+  ;;
+esac
 
 ac_config_files="$ac_config_files Makefile"
 

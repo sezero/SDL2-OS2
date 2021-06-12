@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -27,14 +27,12 @@
  */
 
 #include "loader.h"
-#include <sys/types.h>
 #include <sys/stat.h>
 #ifdef __native_client__
 #include <sys/syslimits.h>
 #else
 #include <limits.h>
 #endif
-#include <unistd.h>
 
 static int mfp_test(HIO_HANDLE *, char *, const int);
 static int mfp_load(struct module_data *, HIO_HANDLE *, const int);

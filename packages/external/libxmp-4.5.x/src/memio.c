@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,13 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdlib.h>
-#include <stddef.h>
-#include <limits.h>
-#ifndef LIBXMP_CORE_PLAYER
-#include <sys/types.h>
-#include <sys/stat.h>
-#endif
 #include "common.h"
 #include "memio.h"
 

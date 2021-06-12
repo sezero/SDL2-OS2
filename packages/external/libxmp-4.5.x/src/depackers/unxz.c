@@ -1,14 +1,11 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * This file is part of the Extended Module Player and is distributed
  * under the terms of the GNU Lesser General Public License. See COPYING.LIB
  * for more information.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "depacker.h"
 #include "xz.h"
 #include "crc32.h"

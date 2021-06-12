@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,16 +21,14 @@
  */
 
 #include <ctype.h>
-#include <sys/types.h>
-#include <stdarg.h>
 
 #ifndef LIBXMP_CORE_PLAYER
-#include <limits.h>
 #if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
+#include <limits.h>
 #elif defined(__OS2__) || defined(__EMX__)
 #define INCL_DOS
 #define INCL_DOSERRORS
