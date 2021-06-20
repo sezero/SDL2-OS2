@@ -96,7 +96,7 @@ static SDL_JoystickDriver *SDL_joystick_drivers[] = {
     &SDL_VIRTUAL_JoystickDriver,
 #endif
 #ifdef SDL_JOYSTICK_VITA
-    &SDL_VITA_JoystickDriver
+    &SDL_VITA_JoystickDriver,
 #endif
 #if defined(SDL_JOYSTICK_DUMMY) || defined(SDL_JOYSTICK_DISABLED)
     &SDL_DUMMY_JoystickDriver
@@ -1732,6 +1732,17 @@ SDL_CreateJoystickName(Uint16 vendor, Uint16 product, const char *vendor_name, c
         }
     }
 
+    /* Perform any manufacturer replacements */
+    for (i = 0; i < SDL_arraysize(replacements); ++i) {
+        size_t prefixlen = SDL_strlen(replacements[i].prefix);
+        if (SDL_strncasecmp(name, replacements[i].prefix, prefixlen) == 0) {
+            size_t replacementlen = SDL_strlen(replacements[i].replacement);
+            SDL_memcpy(name, replacements[i].replacement, replacementlen);
+            SDL_memmove(name+replacementlen, name+prefixlen, (len-prefixlen+1));
+            break;
+        }
+    }
+
     /* Remove duplicate manufacturer or product in the name */
     for (i = 1; i < (len - 1); ++i) {
         int matchlen = PrefixMatch(name, &name[i]);
@@ -1742,17 +1753,6 @@ SDL_CreateJoystickName(Uint16 vendor, Uint16 product, const char *vendor_name, c
         } else if (matchlen > 0 && name[matchlen] == ' ') {
             SDL_memmove(name, name+matchlen+1, len-matchlen);
             len -= (matchlen + 1);
-            break;
-        }
-    }
-
-    /* Perform any manufacturer replacements */
-    for (i = 0; i < SDL_arraysize(replacements); ++i) {
-        size_t prefixlen = SDL_strlen(replacements[i].prefix);
-        if (SDL_strncasecmp(name, replacements[i].prefix, prefixlen) == 0) {
-            size_t replacementlen = SDL_strlen(replacements[i].replacement);
-            SDL_memcpy(name, replacements[i].replacement, replacementlen);
-            SDL_memmove(name+replacementlen, name+prefixlen, (len-prefixlen+1));
             break;
         }
     }
@@ -1927,16 +1927,23 @@ SDL_IsJoystickXboxOneElite(Uint16 vendor_id, Uint16 product_id)
 }
 
 SDL_bool
-SDL_IsJoystickXboxOneSeriesX(Uint16 vendor_id, Uint16 product_id)
+SDL_IsJoystickXboxSeriesX(Uint16 vendor_id, Uint16 product_id)
 {
     if (vendor_id == USB_VENDOR_MICROSOFT) {
-        if (product_id == USB_PRODUCT_XBOX_ONE_SERIES_X ||
-            product_id == USB_PRODUCT_XBOX_ONE_SERIES_X_BLUETOOTH) {
+        if (product_id == USB_PRODUCT_XBOX_SERIES_X ||
+            product_id == USB_PRODUCT_XBOX_SERIES_X_BLUETOOTH) {
+            return SDL_TRUE;
+        }
+    }
+    if (vendor_id == USB_VENDOR_PDP) {
+        if (product_id == USB_PRODUCT_XBOX_SERIES_X_PDP_AFTERGLOW ||
+            product_id == USB_PRODUCT_XBOX_SERIES_X_PDP_BLUE) {
             return SDL_TRUE;
         }
     }
     if (vendor_id == USB_VENDOR_POWERA_ALT) {
-        if (product_id == USB_PRODUCT_XBOX_ONE_SERIES_X_POWERA) {
+        if (product_id == USB_PRODUCT_XBOX_SERIES_X_POWERA ||
+            product_id == USB_PRODUCT_XBOX_SERIES_X_POWERA_FUSION_PRO2) {
             return SDL_TRUE;
         }
     }
@@ -1950,7 +1957,7 @@ SDL_IsJoystickBluetoothXboxOne(Uint16 vendor_id, Uint16 product_id)
         if (product_id == USB_PRODUCT_XBOX_ONE_S_REV1_BLUETOOTH ||
             product_id == USB_PRODUCT_XBOX_ONE_S_REV2_BLUETOOTH ||
             product_id == USB_PRODUCT_XBOX_ONE_ELITE_SERIES_2_BLUETOOTH ||
-            product_id == USB_PRODUCT_XBOX_ONE_SERIES_X_BLUETOOTH) {
+            product_id == USB_PRODUCT_XBOX_SERIES_X_BLUETOOTH) {
             return SDL_TRUE;
         }
     }
@@ -2059,6 +2066,7 @@ static SDL_bool SDL_IsJoystickProductWheel(Uint32 vidpid)
         MAKE_VIDPID(0x046d, 0xc260),    /* Logitech G29 (PS4) */
         MAKE_VIDPID(0x046d, 0xc261),    /* Logitech G920 (initial mode) */
         MAKE_VIDPID(0x046d, 0xc262),    /* Logitech G920 (active mode) */
+        MAKE_VIDPID(0x046d, 0xc26e),    /* Logitech G923 */
         MAKE_VIDPID(0x044f, 0xb65d),    /* Thrustmaster Wheel FFB */
         MAKE_VIDPID(0x044f, 0xb66d),    /* Thrustmaster Wheel FFB */
         MAKE_VIDPID(0x044f, 0xb677),    /* Thrustmaster T150 */
