@@ -61,9 +61,9 @@ button_messagebox(void *eventNumber)
     if (success == -1) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error Presenting MessageBox: %s\n", SDL_GetError());
         if (eventNumber) {
-            SDL_UserEvent event;
+            SDL_Event event;
             event.type = (intptr_t)eventNumber;
-            SDL_PushEvent((SDL_Event*)&event);
+            SDL_PushEvent(&event);
             return 1;
         } else {
             quit(2);
@@ -72,9 +72,9 @@ button_messagebox(void *eventNumber)
     SDL_Log("Pressed button: %d, %s\n", button, button == -1 ? "[closed]" : button == 1 ? "Cancel" : "OK");
 
     if (eventNumber) {
-        SDL_UserEvent event;
+        SDL_Event event;
         event.type = (intptr_t)eventNumber;
-        SDL_PushEvent((SDL_Event*)&event);
+        SDL_PushEvent(&event);
     }
 
     return 0;
@@ -197,7 +197,7 @@ main(int argc, char *argv[])
 
         success = SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
                     "Simple MessageBox",
-                    "This is a simple error MessageBox with a parent window",
+                    "This is a simple error MessageBox with a parent window. Press a key or close the window after dismissing this messagebox.",
                     window);
         if (success == -1) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error Presenting MessageBox: %s\n", SDL_GetError());

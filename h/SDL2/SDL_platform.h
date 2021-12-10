@@ -70,6 +70,27 @@
 /* lets us know what version of Mac OS X we're compiling on */
 #include "AvailabilityMacros.h"
 #include "TargetConditionals.h"
+
+/* Fix building with older SDKs that don't define these
+   See this for more information:
+   https://stackoverflow.com/questions/12132933/preprocessor-macro-for-os-x-targets
+*/
+#ifndef TARGET_OS_MACCATALYST
+#define TARGET_OS_MACCATALYST 0
+#endif
+#ifndef TARGET_OS_IOS
+#define TARGET_OS_IOS 0
+#endif
+#ifndef TARGET_OS_IPHONE
+#define TARGET_OS_IPHONE 0
+#endif
+#ifndef TARGET_OS_TV
+#define TARGET_OS_TV 0
+#endif
+#ifndef TARGET_OS_SIMULATOR
+#define TARGET_OS_SIMULATOR 0
+#endif
+
 #if TARGET_OS_TV
 #undef __TVOS__
 #define __TVOS__ 1
@@ -198,6 +219,8 @@ extern "C" {
  *
  * \returns the name of the platform. If the correct platform name is not
  *          available, returns a string beginning with the text "Unknown".
+ *
+ * \since This function is available since SDL 2.0.0.
  */
 extern DECLSPEC const char * SDLCALL SDL_GetPlatform (void);
 

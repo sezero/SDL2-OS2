@@ -374,12 +374,12 @@ extern DECLSPEC const char * SDLCALL SDLNet_GetError(void);
 /* Inline functions to read/write network data                         */
 /***********************************************************************/
 
-/* Warning, some systems have data access alignment restrictions */
-#if defined(sparc) || defined(mips) || defined(__arm__)
-#define SDL_DATA_ALIGNED    1
+/* Warning, most systems have data access alignment restrictions */
+#if defined(__i386__) || defined(__x86_64__) || defined(_M_X64) || defined(_M_IX86) || defined(_M_AMD64)
+#define SDL_DATA_ALIGNED    0
 #endif
 #ifndef SDL_DATA_ALIGNED
-#define SDL_DATA_ALIGNED    0
+#define SDL_DATA_ALIGNED    1
 #endif
 
 /* Write a 16/32-bit value to network packet buffer */
@@ -430,9 +430,9 @@ SDL_FORCE_INLINE void _SDLNet_Write32(Uint32 value, void *areap)
     area[3] =  value        & 0xFF;
 }
 
-SDL_FORCE_INLINE Uint16 _SDLNet_Read16(void *areap)
+SDL_FORCE_INLINE Uint16 _SDLNet_Read16(const void *areap)
 {
-    Uint8 *area = (Uint8*)areap;
+    const Uint8 *area = (const Uint8*)areap;
     return ((Uint16)area[0]) << 8 | ((Uint16)area[1]);
 }
 

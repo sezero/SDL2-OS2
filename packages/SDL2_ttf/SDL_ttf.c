@@ -33,7 +33,8 @@
 #include FT_TRUETYPE_IDS_H
 #include FT_IMAGE_H
 
-/* Enable rendering with color */
+/* Enable rendering with color
+ * Freetype may need to be compiled with FT_CONFIG_OPTION_USE_PNG */
 #if defined(FT_HAS_COLOR)
 #  define TTF_USE_COLOR 1
 #else
@@ -51,7 +52,8 @@
 #include FT_MODULE_H
 #endif
 
-/* Enable HarfBuzz for Complex text rendering */
+/* Enable HarfBuzz for Complex text rendering
+ * Freetype may need to be compiled with FT_CONFIG_OPTION_USE_HARFBUZZ */
 #ifndef TTF_USE_HARFBUZZ
 #  define TTF_USE_HARFBUZZ 0
 #endif
@@ -279,7 +281,7 @@ struct _TTF_Font {
 /* The FreeType font engine/library */
 static FT_Library library;
 static int TTF_initialized = 0;
-static int TTF_byteswapped = 0;
+static SDL_bool TTF_byteswapped = SDL_FALSE;
 
 #define TTF_CHECK_INITIALIZED(errval)                   \
     if (!TTF_initialized) {                             \
@@ -384,7 +386,8 @@ static SDL_INLINE void BG_Blended_Color(const TTF_Image *image, Uint32 *destinat
                     tmp = *src++;
                     alpha = tmp >> 24;
                     tmp &= ~0xFF000000;
-                    alpha =  DIVIDE_BY_255(fg_alpha * alpha) << 24;
+                    alpha = fg_alpha * alpha;
+                    alpha =  DIVIDE_BY_255(alpha) << 24;
                     *dst++ = tmp | alpha
                     , width);
             /* *INDENT-ON* */
@@ -1043,8 +1046,8 @@ int Render_Line_##NAME(TTF_Font *font, SDL_Surface *textbuf, int xstart, int yst
                 /* Compute dst */                                                                                       \
                 dst  = (Uint8 *)textbuf->pixels + y * textbuf->pitch + x * bpp;                                         \
                 /* Align dst, get remainder, shift & align glyph width */                                               \
-                remainder = ((size_t)dst & alignment) / bpp;                                                            \
-                dst  = (Uint8 *)((size_t)dst & ~alignment);                                                             \
+                remainder = ((uintptr_t)dst & alignment) / bpp;                                                         \
+                dst  = (Uint8 *)((uintptr_t)dst & ~alignment);                                                          \
                 image->buffer -= remainder;                                                                             \
                 image->width   = (image->width + remainder + alignment) & ~alignment;                                   \
                 /* Compute srcskip, dstskip */                                                                          \
@@ -1161,11 +1164,11 @@ BUILD_RENDER_LINE(8_Blended_Opaque_SP   , 1, 1,  COLOR, SUBPIX, BG_Blended_Opaqu
 
 
 #if TTF_USE_SDF
-int (*Render_Line_SDF_Shaded)() = NULL;
+static int (*Render_Line_SDF_Shaded)(TTF_Font *font, SDL_Surface *textbuf, int xstart, int ystart, Uint8 fg_alpha) = NULL;
 BUILD_RENDER_LINE(SDF_Blended           , 1, 0,  COLOR, 0     ,                       , BG_Blended_SDF ,            )
 BUILD_RENDER_LINE(SDF_Blended_Opaque    , 1, 1,  COLOR, 0     , BG_Blended_Opaque_SDF ,                ,            )
-int (*Render_Line_SDF_Solid)() = NULL;
-int (*Render_Line_SDF_Shaded_SP)() = NULL;
+static int (*Render_Line_SDF_Solid)(TTF_Font *font, SDL_Surface *textbuf, int xstart, int ystart, Uint8 fg_alpha) = NULL;
+static int (*Render_Line_SDF_Shaded_SP)(TTF_Font *font, SDL_Surface *textbuf, int xstart, int ystart, Uint8 fg_alpha) = NULL;
 BUILD_RENDER_LINE(SDF_Blended_SP        , 1, 0,  COLOR, SUBPIX,                       , BG_Blended_SDF ,            )
 BUILD_RENDER_LINE(SDF_Blended_Opaque_SP , 1, 1,  COLOR, SUBPIX, BG_Blended_Opaque_SDF ,                ,            )
 #endif
@@ -1260,7 +1263,7 @@ static SDL_Surface* Create_Surface_Solid(int width, int height, SDL_Color fg, Ui
     }
 
     /* address is aligned */
-    pixels = (void *)(((size_t)ptr + sizeof(void *) + alignment) & ~alignment);
+    pixels = (void *)(((uintptr_t)ptr + sizeof(void *) + alignment) & ~alignment);
     ((void **)pixels)[-1] = ptr;
 
     textbuf = SDL_CreateRGBSurfaceWithFormatFrom(pixels, width, height, 0, pitch, SDL_PIXELFORMAT_INDEX8);
@@ -1324,7 +1327,7 @@ static SDL_Surface* Create_Surface_Shaded(int width, int height, SDL_Color fg, S
     }
 
     /* address is aligned */
-    pixels = (void *)(((size_t)ptr + sizeof(void *) + alignment) & ~alignment);
+    pixels = (void *)(((uintptr_t)ptr + sizeof(void *) + alignment) & ~alignment);
     ((void **)pixels)[-1] = ptr;
 
     textbuf = SDL_CreateRGBSurfaceWithFormatFrom(pixels, width, height, 0, pitch, SDL_PIXELFORMAT_INDEX8);
@@ -1421,7 +1424,7 @@ static SDL_Surface *Create_Surface_Blended(int width, int height, SDL_Color fg, 
         }
 
         /* address is aligned */
-        pixels = (void *)(((size_t)ptr + sizeof(void *) + alignment) & ~alignment);
+        pixels = (void *)(((uintptr_t)ptr + sizeof(void *) + alignment) & ~alignment);
         ((void **)pixels)[-1] = ptr;
 
         textbuf = SDL_CreateRGBSurfaceWithFormatFrom(pixels, width, height, 0, pitch, SDL_PIXELFORMAT_ARGB8888);
@@ -1457,7 +1460,7 @@ const SDL_version* TTF_Linked_Version(void)
 /* This function tells the library whether UNICODE text is generally
    byteswapped.  A UNICODE BOM character at the beginning of a string
    will override this setting for that string.  */
-void TTF_ByteSwappedUNICODE(int swapped)
+void TTF_ByteSwappedUNICODE(SDL_bool swapped)
 {
     TTF_byteswapped = swapped;
 }
@@ -1909,7 +1912,7 @@ static FT_Error Load_Glyph(TTF_Font *font, c_glyph *cached, int want, int transl
 
     error = FT_Load_Glyph(font->face, cached->index, ft_load);
     if (error) {
-        return error;
+        goto ft_failure;
     }
 
     /* Get our glyph shortcut */
@@ -1977,8 +1980,8 @@ static FT_Error Load_Glyph(TTF_Font *font, c_glyph *cached, int want, int transl
         /* Adjust for SDF */
         if (font->render_sdf) {
             /* Default 'spread' property */
-            cached->sz_width += 16;
-            cached->sz_rows  += 16;
+            cached->sz_width += 2 * 8;
+            cached->sz_rows  += 2 * 8;
         }
 
 
@@ -2032,14 +2035,14 @@ static FT_Error Load_Glyph(TTF_Font *font, c_glyph *cached, int want, int transl
 
             error = FT_Get_Glyph(slot, &glyph);
             if (error) {
-                return error;
+                goto ft_failure;
             }
 
             if (font->outline_val > 0) {
                 FT_Stroker stroker;
                 error = FT_Stroker_New(library, &stroker);
                 if (error) {
-                    return error;
+                    goto ft_failure;
                 }
                 FT_Stroker_Set(stroker, font->outline_val * 64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
                 FT_Glyph_Stroke(&glyph, stroker, 1 /* delete the original glyph */);
@@ -2050,7 +2053,7 @@ static FT_Error Load_Glyph(TTF_Font *font, c_glyph *cached, int want, int transl
             error = FT_Glyph_To_Bitmap(&glyph, ft_render_mode, 0, 1);
             if (error) {
                 FT_Done_Glyph(glyph);
-                return error;
+                goto ft_failure;
             }
 
             /* Access bitmap content by typecasting */
@@ -2064,7 +2067,7 @@ static FT_Error Load_Glyph(TTF_Font *font, c_glyph *cached, int want, int transl
             /* Render the glyph */
             error = FT_Render_Glyph(slot, ft_render_mode);
             if (error) {
-                return error;
+                goto ft_failure;
             }
 
             /* Access bitmap from slot */
@@ -2107,7 +2110,8 @@ static FT_Error Load_Glyph(TTF_Font *font, c_glyph *cached, int want, int transl
             dst->buffer = (unsigned char *)SDL_malloc(alignment + dst->pitch * dst->rows);
 
             if (!dst->buffer) {
-                return FT_Err_Out_Of_Memory;
+                error = FT_Err_Out_Of_Memory;
+                goto ft_failure;
             }
 
             /* Memset */
@@ -2140,11 +2144,6 @@ static FT_Error Load_Glyph(TTF_Font *font, c_glyph *cached, int want, int transl
                     remainder = src->width & 0x1;
 #if TTF_USE_COLOR
                 } else if (src->pixel_mode == FT_PIXEL_MODE_BGRA) {
-                    quotient  = src->width;
-                    remainder = 0;
-#endif
-#if TTF_USE_SDF
-                } else if (src->pixel_mode == FT_PIXEL_MODE_GRAY16) {
                     quotient  = src->width;
                     remainder = 0;
 #endif
@@ -2276,19 +2275,30 @@ static FT_Error Load_Glyph(TTF_Font *font, c_glyph *cached, int want, int transl
                 } else if (src->pixel_mode == FT_PIXEL_MODE_BGRA) {
                     SDL_memcpy(dstp, srcp, 4 * src->width);
 #endif
-#if TTF_USE_SDF
-                } else if (src->pixel_mode == FT_PIXEL_MODE_GRAY16) {
-                    /* FT_RENDER_MODE_SDF and src->pixel_mode GRAY16 in FT_F6Dot10
-                       for default spread value: 8 */
-                    while (quotient--) {
-                        Sint16 s = *(Uint16 *)srcp;
-                        srcp += 2;
-                        Uint8 alpha = (s < 0) ? s >> 5 : 255;
-                        *dstp++ = alpha;
-                    }
-#endif
                 } else {
+#if TTF_USE_SDF
+                    if (ft_render_mode != FT_RENDER_MODE_SDF) {
+                        SDL_memcpy(dstp, srcp, src->width);
+                    } else {
+                        int x;
+                        for (x = 0; x < src->width; x++) {
+                            Uint8 s = srcp[x];
+                            Uint8 d;
+                            if (s < 128) {
+                                d = 256 - (128 - s) * 2;
+                            } else {
+                                d = 255;
+                                /* some glitch ?
+                                if (s == 255) {
+                                    d = 0;
+                                }*/
+                            }
+                            dstp[x] = d;
+                        }
+                    }
+#else
                     SDL_memcpy(dstp, srcp, src->width);
+#endif
                 }
             }
         }
@@ -2368,6 +2378,10 @@ static FT_Error Load_Glyph(TTF_Font *font, c_glyph *cached, int want, int transl
 
     /* We're done, this glyph is cached since 'stored' is not 0 */
     return 0;
+
+ft_failure:
+    TTF_SetFTError("Couldn't find glyph", error);
+    return -1;
 }
 
 static SDL_INLINE int Find_GlyphByIndex(TTF_Font *font, FT_UInt idx,
@@ -2413,7 +2427,6 @@ static SDL_INLINE int Find_GlyphByIndex(TTF_Font *font, FT_UInt idx,
         if (retval == 0) {
             return 0;
         } else {
-            TTF_SetFTError("Couldn't find glyph", retval);
             return -1;
         }
     }
@@ -2459,7 +2472,6 @@ static SDL_INLINE int Find_GlyphByIndex(TTF_Font *font, FT_UInt idx,
         if (retval == 0) {
             return 0;
         } else {
-            TTF_SetFTError("Couldn't find glyph", retval);
             return -1;
         }
     }
@@ -2562,16 +2574,16 @@ static void LATIN1_to_UTF8(const char *src, Uint8 *dst)
 /* Convert a UCS-2 string to a UTF-8 string */
 static void UCS2_to_UTF8(const Uint16 *src, Uint8 *dst)
 {
-    int swapped = TTF_byteswapped;
+    SDL_bool swapped = TTF_byteswapped;
 
     while (*src) {
         Uint16 ch = *src++;
         if (ch == UNICODE_BOM_NATIVE) {
-            swapped = 0;
+            swapped = SDL_FALSE;
             continue;
         }
         if (ch == UNICODE_BOM_SWAPPED) {
-            swapped = 1;
+            swapped = SDL_TRUE;
             continue;
         }
         if (swapped) {
@@ -3014,12 +3026,18 @@ static int TTF_Size_Internal(TTF_Font *font,
     if (xstart) {
         *xstart = (minx < 0)? -minx : 0;
         *xstart += font->outline_val;
+        if (font->render_sdf) {
+            *xstart += 8; /* Default 'spread' property */
+        }
     }
 
     /* Initial y start: compensation for a negative y offset */
     if (ystart) {
         *ystart = (miny < 0)? -miny : 0;
         *ystart += font->outline_val;
+        if (font->render_sdf) {
+            *ystart += 8; /* Default 'spread' property */
+        }
     }
 
     /* Fill the bounds rectangle */
@@ -3327,7 +3345,7 @@ static SDL_Surface* TTF_Render_Wrapped_Internal(TTF_Font *font, const char *text
 
         do {
             int extent = 0, max_count = 0, char_count = 0;
-            size_t save_textlen = (size_t)-1;
+            size_t save_textlen = (size_t)(-1);
             char *save_text  = NULL;
 
             if (numLines >= maxNumLines) {
@@ -3661,7 +3679,7 @@ int TTF_SetFontSDF(TTF_Font *font, SDL_bool on_off)
 
 SDL_bool TTF_GetFontSDF(const TTF_Font *font)
 {
-    TTF_CHECK_POINTER(font, -1);
+    TTF_CHECK_POINTER(font, SDL_FALSE);
     return font->render_sdf;
 }
 

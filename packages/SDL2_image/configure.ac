@@ -27,18 +27,20 @@ AC_SUBST([MICRO_VERSION], MICRO_VERSION_MACRO)
 AC_SUBST([INTERFACE_AGE], INTERFACE_AGE_MACRO)
 AC_SUBST([BINARY_AGE], BINARY_AGE_MACRO)
 
-# libtool versioning
+dnl libtool versioning
 LT_INIT([win32-dll])
 
 LT_RELEASE=$MAJOR_VERSION.$MINOR_VERSION
 LT_CURRENT=`expr $MICRO_VERSION - $INTERFACE_AGE`
 LT_REVISION=$INTERFACE_AGE
 LT_AGE=`expr $BINARY_AGE - $INTERFACE_AGE`
+LT_EXTRA="" dnl for OS2 dll name
 
 AC_SUBST(LT_RELEASE)
 AC_SUBST(LT_CURRENT)
 AC_SUBST(LT_REVISION)
 AC_SUBST(LT_AGE)
+AC_SUBST(LT_EXTRA)
 
 dnl Detect the canonical build and host environments
 AC_CANONICAL_HOST
@@ -88,6 +90,14 @@ case "$host" in
         else
             CFLAGS="$CFLAGS -DSDL_IMAGE_USE_COMMON_BACKEND"
         fi
+        ;;
+    *-*-os2*)
+        # disable static builds on os/2
+        enable_static=no
+        # -DBUILD_SDL is needed for DECLSPEC
+        CFLAGS="$CFLAGS -DBUILD_SDL"
+        # OS/2 does not support a DLL name longer than 8 characters.
+        LT_EXTRA="-os2dllname SDL2img"
         ;;
 esac
 AM_CONDITIONAL(USE_IMAGEIO, test x$enable_imageio = xyes)
@@ -155,6 +165,16 @@ AC_ARG_ENABLE([webpdec], [AS_HELP_STRING([--enable-webpdec], [support loading WE
  [], [enable_webpdec=no])
 AC_ARG_ENABLE([webp-shared], [AS_HELP_STRING([--enable-webp-shared], [dynamically load WEBP support [default=yes]])],
  [], [enable_webp_shared=yes])
+
+dnl Check for SDL
+SDL_VERSION=2.0.8
+AC_SUBST(SDL_VERSION)
+AM_PATH_SDL2($SDL_VERSION,
+            :,
+            AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
+)
+CFLAGS="$CFLAGS $SDL_CFLAGS"
+LIBS="$LIBS $SDL_LIBS"
 
 if (test x$enable_jpg = xyes || test x$enable_tif = xyes) && test x$enable_imageio != xyes; then
     AC_CHECK_HEADER([jpeglib.h], [have_jpg_hdr=yes])
@@ -368,16 +388,6 @@ if test x$enable_png = xyes -a x$have_png_hdr = xyes -a x$have_png_lib = xyes; t
         IMG_LIBS="$LIBPNG_LIBS $IMG_LIBS"
     fi
 fi
-
-dnl Check for SDL
-SDL_VERSION=2.0.8
-AC_SUBST(SDL_VERSION)
-AM_PATH_SDL2($SDL_VERSION,
-            :,
-            AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
-)
-CFLAGS="$CFLAGS $SDL_CFLAGS"
-LIBS="$LIBS $SDL_LIBS"
 
 AC_SUBST([WINDRES])
 AC_SUBST([IMG_LIBS])

@@ -27,18 +27,20 @@ AC_SUBST([MICRO_VERSION], MICRO_VERSION_MACRO)
 AC_SUBST([INTERFACE_AGE], INTERFACE_AGE_MACRO)
 AC_SUBST([BINARY_AGE], BINARY_AGE_MACRO)
 
-# libtool versioning
+dnl libtool versioning
 LT_INIT([win32-dll])
 
 LT_RELEASE=$MAJOR_VERSION.$MINOR_VERSION
 LT_CURRENT=`expr $MICRO_VERSION - $INTERFACE_AGE`
 LT_REVISION=$INTERFACE_AGE
 LT_AGE=`expr $BINARY_AGE - $INTERFACE_AGE`
+LT_EXTRA="" dnl for OS2 dll name
 
 AC_SUBST(LT_RELEASE)
 AC_SUBST(LT_CURRENT)
 AC_SUBST(LT_REVISION)
 AC_SUBST(LT_AGE)
+AC_SUBST(LT_EXTRA)
 
 dnl Detect the canonical build and host environments
 AC_CANONICAL_HOST
@@ -66,7 +68,6 @@ case "$host" in
         ;;
 esac
 
-
 case "$host" in
     *-*-beos*)
         ac_default_prefix=/boot/develop/tools/gnupro
@@ -85,6 +86,14 @@ case "$host" in
             use_version_rc=true
         fi
         ;;
+    *-*-os2*)
+        # disable static builds on os/2
+        enable_static=no
+        # -DBUILD_SDL is needed for DECLSPEC
+        CFLAGS="$CFLAGS -DBUILD_SDL"
+        # OS/2 does not support a DLL name longer than 8 characters.
+        LT_EXTRA="-os2dllname SDL2ttf"
+        ;;
 esac
 AM_CONDITIONAL(USE_VERSION_RC, test x$use_version_rc = xtrue)
 
@@ -99,6 +108,8 @@ AM_PATH_SDL2($SDL_VERSION,
 )
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
+TTF_LIBS=
+TTF_CPPFLAGS=
 
 dnl Check for the FreeType 2 library
 AC_ARG_ENABLE(freetype-builtin, [AS_HELP_STRING([--enable-freetype-builtin], [Use included version of FreeType [default=yes]])], [], enable_freetype_builtin=yes)
@@ -108,11 +119,11 @@ if test x$enable_freetype_builtin = xyes; then
 else
 	PKG_CHECK_MODULES([FT2], [freetype2 >= 7.0.1], [], [dnl
 		AC_CHECK_FT2(,,[AC_MSG_ERROR([dnl
-*** Unable to find FreeType2 library (http://www.freetype.org/)])]
+*** Unable to find FreeType2 library (https://www.freetype.org)])]
 		)
 	])
-	CFLAGS="$CFLAGS $FT2_CFLAGS"
-	LIBS="$LIBS $FT2_LIBS"
+	TTF_CFLAGS="$TTF_CFLAGS $FT2_CFLAGS"
+	TTF_LIBS="$TTF_LIBS $FT2_LIBS"
 
 	SUMMARY="${SUMMARY}Using included FreeType : NO\n"
 fi
@@ -131,9 +142,11 @@ if test x$enable_harfbuzz = xyes; then
 		AX_CXX_COMPILE_STDCXX(11)
 		AC_CHECK_ALIGNOF([struct{char;}])
 		case "$host" in
-		  *-*-mingw*) is_win32=yes
-			CXXFLAGS="$CXXFLAGS -static-libgcc"
+		  *-*-mingw*) hb_os_win32=yes
+			CXXFLAGS="$CXXFLAGS -static-libgcc -static-libstdc++"
 			CFLAGS="$CFLAGS -static-libgcc"
+			# for uniscribe support:
+			TTF_LIBS="$TTF_LIBS -lusp10 -lgdi32 -lrpcrt4"
 		  ;;
 		esac
 		case "$host" in
@@ -143,7 +156,6 @@ if test x$enable_harfbuzz = xyes; then
 		    fi
 		  ;;
 		esac
-		AM_CONDITIONAL(OS_WIN32, test "$hb_os_win32" = "yes")
 		dnl silence a lot of harfbuzz warnings:
 		CXXFLAGS="$CXXFLAGS -Wno-unused-result"
 		dnl prevent linking to libstdc++:
@@ -153,13 +165,33 @@ if test x$enable_harfbuzz = xyes; then
 		PKG_CHECK_MODULES([HB], [harfbuzz >= 2.3.1], harfbuzz=yes, harfbuzz=no)
 
 		if test x$harfbuzz = xyes; then
-			AC_DEFINE(TTF_USE_HARFBUZZ, 1, [])
+			save_CFLAGS="$CFLAGS"
+			save_LIBS="$LIBS"
 			CFLAGS="$CFLAGS $HB_CFLAGS"
 			LIBS="$LIBS $HB_LIBS"
+			AC_MSG_CHECKING(for freetype support in harfbuzz)
+			harbuzz_has_freetype=no
+			AC_LINK_IFELSE([AC_LANG_PROGRAM([],[[
+					void* hb_ft_font_create(void*, void*);
+					return !hb_ft_font_create((void*)0, (void*)0);]])
+				],[harbuzz_has_freetype=yes])
+			CFLAGS="$save_CFLAGS"
+			LIBS="$save_LIBS"
+			AC_MSG_RESULT($harbuzz_has_freetype)
+			if test x$harbuzz_has_freetype = xno; then
+				harfbuzz=no
+				AC_MSG_ERROR([dnl
+*** HarfBuzz library was built without FreeType support.)])
+			fi
+		fi
+		if test x$harfbuzz = xyes; then
+			AC_DEFINE(TTF_USE_HARFBUZZ, 1, [])
+			TTF_CFLAGS="$TTF_CFLAGS $HB_CFLAGS"
+			TTF_LIBS="$TTF_LIBS $HB_LIBS"
 			SUMMARY="${SUMMARY}Using harfbuzz      : YES\n"
 		else
 			AC_MSG_ERROR([dnl
-*** Unable to find HarfBuzz library (http://www.freetype.org/)])
+*** Unable to find HarfBuzz library (https://harfbuzz.github.io)])
 		fi
 	fi
 else
@@ -167,6 +199,7 @@ else
 	SUMMARY="${SUMMARY}Using HarfBuzz          : NO\n"
 	enable_harfbuzz_builtin=no
 fi
+AM_CONDITIONAL(OS_WIN32, test x$hb_os_win32 = xyes)
 AM_CONDITIONAL(USE_BUILTIN_HARFBUZZ, test x$enable_harfbuzz_builtin = xyes)
 
 dnl See if GCC's -fvisibility=hidden is supported (gcc4 and later, usually).
@@ -246,6 +279,8 @@ fi
 AC_SUBST([GL_LIBS])
 AC_SUBST([MATHLIB])
 AC_SUBST([WINDRES])
+AC_SUBST([TTF_CFLAGS])
+AC_SUBST([TTF_LIBS])
 
 # Finally create all the generated files
 AC_CONFIG_FILES([

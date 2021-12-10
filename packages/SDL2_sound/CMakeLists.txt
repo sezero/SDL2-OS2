@@ -10,11 +10,6 @@ set(SDLSOUND_VERSION 2.0.0)
 # Increment this if/when we break backwards compatibility.
 set(SDLSOUND_SOVERSION 2)
 
-# I hate that they define "WIN32" ... we're about to move to Win64...I hope!
-if(WIN32 AND NOT WINDOWS)
-    set(WINDOWS TRUE)
-endif()
-
 include_directories(src)
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -30,7 +25,7 @@ if(CMAKE_C_COMPILER_ID STREQUAL "SunPro")
 endif()
 
 find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS})
+include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR})
 if(WIN32)
     # -lmingw32: gcc adds it automatically.
     # -mwindows: doesn't make sense.
@@ -142,6 +137,9 @@ set(SDLSOUND_SRCS
 )
 
 option(SDLSOUND_BUILD_STATIC "Build static library" TRUE)
+if(OS2) # no static library on os/2
+    set(SDLSOUND_BUILD_STATIC FALSE)
+endif()
 if(SDLSOUND_BUILD_STATIC)
     add_library(SDL2_sound-static STATIC ${SDLSOUND_SRCS})
     # Don't rename this on Windows, since DLLs will also produce an import
@@ -161,24 +159,21 @@ if(SDLSOUND_BUILD_SHARED)
     set_target_properties(SDL2_sound PROPERTIES MACOSX_RPATH 1)
     set_target_properties(SDL2_sound PROPERTIES VERSION ${SDLSOUND_VERSION})
     set_target_properties(SDL2_sound PROPERTIES SOVERSION ${SDLSOUND_SOVERSION})
-    if(WIN32)
+    if(WIN32 OR OS2)
         SET_TARGET_PROPERTIES(SDL2_sound PROPERTIES DEFINE_SYMBOL SDL_SOUND_DLL_EXPORTS)
         # avoid DLL having "lib" prefix
         SET(CMAKE_SHARED_LIBRARY_PREFIX "")
     endif()
-    target_link_libraries(SDL2_sound ${SDL2_LIBRARIES} ${OPTIONAL_LIBRARY_LIBS} ${OTHER_LDFLAGS})
+    if(OS2)   # OS/2 does not support a DLL name longer than 8 characters.
+        SET_TARGET_PROPERTIES(SDL2_sound PROPERTIES OUTPUT_NAME "SDL2snd")
+    endif()
+    target_link_libraries(SDL2_sound ${SDL2_LIBRARIES} ${SDL2_LIBRARY} ${OPTIONAL_LIBRARY_LIBS} ${OTHER_LDFLAGS})
     set(SDLSOUND_LIB_TARGET SDL2_sound)
     set(SDLSOUND_INSTALL_TARGETS ${SDLSOUND_INSTALL_TARGETS} ";SDL2_sound")
 endif()
 
 if(NOT SDLSOUND_BUILD_SHARED AND NOT SDLSOUND_BUILD_STATIC)
     message(FATAL "Both shared and static libraries are disabled!")
-endif()
-
-# CMake FAQ says I need this...
-if(SDLSOUND_BUILD_SHARED AND SDLSOUND_BUILD_STATIC AND NOT WINDOWS)
-    set_target_properties(SDL2_sound PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-    set_target_properties(SDL2_sound-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 endif()
 
 option(SDLSOUND_BUILD_TEST "Build stdio test program." TRUE)
