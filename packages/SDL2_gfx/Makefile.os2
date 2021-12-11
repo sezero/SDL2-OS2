@@ -36,7 +36,7 @@ CFLAGS+= -bd -DDLL_EXPORT
 # mmx support:
 # FIXME: Watcom doesn't support align directive in inline asm:
 # https://github.com/open-watcom/open-watcom-v2/issues/521
-#CFLAGS+= -DUSE_MMX
+CFLAGS+= -DUSE_MMX
 
 all: $(DLLFILE) $(LIBFILE)
 
