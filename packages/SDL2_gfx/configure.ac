@@ -82,17 +82,45 @@ case "$host" in
         ;;
 esac
 
-dnl Check for NASM (for x86 assembly blit routines)
-AC_ARG_ENABLE(mmx,[  --enable-mmx            use mmx assembly on x86 [default=yes], disable this on non-x86 platforms],, enable_mmx=yes)
-
-if test x$enable_mmx = xyes; then
-  CFLAGS="$CFLAGS -O -DUSE_MMX"
-  dnl MMX enabled by default in GCC on x86_64, but not i386:
-  AC_CHECK_SIZEOF([long])
-  if test "$ac_cv_sizeof_long" = "4"; then
-          CFLAGS="$CFLAGS -mmmx"
-  fi
+if test x$ac_cv_c_compiler_gnu = xyes; then
+  CFLAGS="$CFLAGS -Wall"
 fi
+
+AC_ARG_ENABLE(mmx, [AS_HELP_STRING([--enable-mmx],[Use mmx assembly on x86 [default=yes]])],
+            , enable_mmx=yes)
+if test x$enable_mmx = xyes; then
+  case "$host" in
+    x86_64-*)
+      CFLAGS="$CFLAGS -DUSE_MMX"
+      ;;
+
+    i?86-*)
+      AC_MSG_CHECKING(for GCC -mmmx option)
+      saved_CFLAGS="$CFLAGS"
+      CFLAGS="$CFLAGS -mmmx"
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+         #include <mmintrin.h>
+         int foo (__m64 m) {
+            return _mm_cvtsi64_si32(m);
+         }]],[])],
+         [have_gcc_mmx=yes],
+         [have_gcc_mmx=no])
+      AC_MSG_RESULT($have_gcc_mmx)
+
+      if test x$have_gcc_mmx = xyes; then
+         CFLAGS="$CFLAGS -DUSE_MMX"
+      else
+         enable_mmx=no
+         CFLAGS="$saved_CFLAGS"
+      fi
+      ;;
+
+    *) enable_mmx=no
+      ;;
+  esac
+fi
+AC_MSG_CHECKING(whether MMX can be enabled)
+AC_MSG_RESULT($enable_mmx)
 
 dnl Check for SDL
 SDL_VERSION=2.0.0
@@ -110,7 +138,3 @@ AC_OUTPUT([
 Makefile
 SDL2_gfx.pc
 ])
-
-echo
-echo "Options summary:"
-echo "* --enable-mmx: $enable_mmx"

@@ -1549,7 +1549,7 @@ Optional Features:
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
-  --enable-mmx            use mmx assembly on x86 default=yes, disable this on non-x86 platforms
+  --enable-mmx            Use mmx assembly on x86 [default=yes]
   --disable-sdltest       Do not try to compile and run a test SDL program
 
 Optional Packages:
@@ -1918,189 +1918,6 @@ $as_echo "$ac_res" >&6; }
   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
 
 } # ac_fn_c_check_func
-
-# ac_fn_c_compute_int LINENO EXPR VAR INCLUDES
-# --------------------------------------------
-# Tries to find the compile-time value of EXPR in a program that includes
-# INCLUDES, setting VAR accordingly. Returns whether the value could be
-# computed
-ac_fn_c_compute_int ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  if test "$cross_compiling" = yes; then
-    # Depending upon the size, compute the lo and hi bounds.
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-static int test_array [1 - 2 * !(($2) >= 0)];
-test_array [0] = 0;
-return test_array [0];
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ac_lo=0 ac_mid=0
-  while :; do
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-static int test_array [1 - 2 * !(($2) <= $ac_mid)];
-test_array [0] = 0;
-return test_array [0];
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ac_hi=$ac_mid; break
-else
-  as_fn_arith $ac_mid + 1 && ac_lo=$as_val
-			if test $ac_lo -le $ac_mid; then
-			  ac_lo= ac_hi=
-			  break
-			fi
-			as_fn_arith 2 '*' $ac_mid + 1 && ac_mid=$as_val
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-  done
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-static int test_array [1 - 2 * !(($2) < 0)];
-test_array [0] = 0;
-return test_array [0];
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ac_hi=-1 ac_mid=-1
-  while :; do
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-static int test_array [1 - 2 * !(($2) >= $ac_mid)];
-test_array [0] = 0;
-return test_array [0];
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ac_lo=$ac_mid; break
-else
-  as_fn_arith '(' $ac_mid ')' - 1 && ac_hi=$as_val
-			if test $ac_mid -le $ac_hi; then
-			  ac_lo= ac_hi=
-			  break
-			fi
-			as_fn_arith 2 '*' $ac_mid && ac_mid=$as_val
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-  done
-else
-  ac_lo= ac_hi=
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-# Binary search between lo and hi bounds.
-while test "x$ac_lo" != "x$ac_hi"; do
-  as_fn_arith '(' $ac_hi - $ac_lo ')' / 2 + $ac_lo && ac_mid=$as_val
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-static int test_array [1 - 2 * !(($2) <= $ac_mid)];
-test_array [0] = 0;
-return test_array [0];
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ac_hi=$ac_mid
-else
-  as_fn_arith '(' $ac_mid ')' + 1 && ac_lo=$as_val
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-done
-case $ac_lo in #((
-?*) eval "$3=\$ac_lo"; ac_retval=0 ;;
-'') ac_retval=1 ;;
-esac
-  else
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-static long int longval () { return $2; }
-static unsigned long int ulongval () { return $2; }
-#include <stdio.h>
-#include <stdlib.h>
-int
-main ()
-{
-
-  FILE *f = fopen ("conftest.val", "w");
-  if (! f)
-    return 1;
-  if (($2) < 0)
-    {
-      long int i = longval ();
-      if (i != ($2))
-	return 1;
-      fprintf (f, "%ld", i);
-    }
-  else
-    {
-      unsigned long int i = ulongval ();
-      if (i != ($2))
-	return 1;
-      fprintf (f, "%lu", i);
-    }
-  /* Do not output a trailing newline, as this causes \r\n confusion
-     on some platforms.  */
-  return ferror (f) || fclose (f) != 0;
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
-  echo >>conftest.val; read $3 <conftest.val; ac_retval=0
-else
-  ac_retval=1
-fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-rm -f conftest.val
-
-  fi
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-  as_fn_set_status $ac_retval
-
-} # ac_fn_c_compute_int
 cat >config.log <<_ACEOF
 This file contains any messages produced by compilers while
 running configure, to aid debugging if configure makes a mistake.
@@ -3975,13 +3792,13 @@ if ${lt_cv_nm_interface+:} false; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:3978: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:3795: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:3981: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:3798: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:3984: output\"" >&5)
+  (eval echo "\"\$as_me:3801: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -5195,7 +5012,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5198 "configure"' > conftest.$ac_ext
+  echo '#line 5015 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7020,11 +6837,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7023: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6840: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7027: \$? = $ac_status" >&5
+   echo "$as_me:6844: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7369,11 +7186,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7372: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7189: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7376: \$? = $ac_status" >&5
+   echo "$as_me:7193: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7474,11 +7291,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7477: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7294: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7481: \$? = $ac_status" >&5
+   echo "$as_me:7298: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -7529,11 +7346,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7532: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7349: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7536: \$? = $ac_status" >&5
+   echo "$as_me:7353: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -9972,7 +9789,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 9975 "configure"
+#line 9792 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10068,7 +9885,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10071 "configure"
+#line 9888 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11623,6 +11440,10 @@ case "$host" in
         ;;
 esac
 
+if test x$ac_cv_c_compiler_gnu = xyes; then
+  CFLAGS="$CFLAGS -Wall"
+fi
+
 # Check whether --enable-mmx was given.
 if test "${enable_mmx+set}" = set; then :
   enableval=$enable_mmx;
@@ -11630,46 +11451,57 @@ else
   enable_mmx=yes
 fi
 
-
 if test x$enable_mmx = xyes; then
-  CFLAGS="$CFLAGS -O -DUSE_MMX"
-    # The cast to long int works around a bug in the HP C Compiler
-# version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
-# declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
-# This bug is HP SR number 8606223364.
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of long" >&5
-$as_echo_n "checking size of long... " >&6; }
-if ${ac_cv_sizeof_long+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (long))" "ac_cv_sizeof_long"        "$ac_includes_default"; then :
+  case "$host" in
+    x86_64-*)
+      CFLAGS="$CFLAGS -DUSE_MMX"
+      ;;
 
-else
-  if test "$ac_cv_type_long" = yes; then
-     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error 77 "cannot compute sizeof (long)
-See \`config.log' for more details" "$LINENO" 5; }
-   else
-     ac_cv_sizeof_long=0
-   fi
-fi
+    i?86-*)
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GCC -mmmx option" >&5
+$as_echo_n "checking for GCC -mmmx option... " >&6; }
+      saved_CFLAGS="$CFLAGS"
+      CFLAGS="$CFLAGS -mmmx"
+      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
 
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sizeof_long" >&5
-$as_echo "$ac_cv_sizeof_long" >&6; }
+         #include <mmintrin.h>
+         int foo (__m64 m) {
+            return _mm_cvtsi64_si32(m);
+         }
+int
+main ()
+{
 
-
-
-cat >>confdefs.h <<_ACEOF
-#define SIZEOF_LONG $ac_cv_sizeof_long
+  ;
+  return 0;
+}
 _ACEOF
-
-
-  if test "$ac_cv_sizeof_long" = "4"; then
-          CFLAGS="$CFLAGS -mmmx"
-  fi
+if ac_fn_c_try_compile "$LINENO"; then :
+  have_gcc_mmx=yes
+else
+  have_gcc_mmx=no
 fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+      { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_gcc_mmx" >&5
+$as_echo "$have_gcc_mmx" >&6; }
+
+      if test x$have_gcc_mmx = xyes; then
+         CFLAGS="$CFLAGS -DUSE_MMX"
+      else
+         enable_mmx=no
+         CFLAGS="$saved_CFLAGS"
+      fi
+      ;;
+
+    *) enable_mmx=no
+      ;;
+  esac
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether MMX can be enabled" >&5
+$as_echo_n "checking whether MMX can be enabled... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_mmx" >&5
+$as_echo "$enable_mmx" >&6; }
 
 SDL_VERSION=2.0.0
 
@@ -14315,7 +14147,3 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
-
-echo
-echo "Options summary:"
-echo "* --enable-mmx: $enable_mmx"

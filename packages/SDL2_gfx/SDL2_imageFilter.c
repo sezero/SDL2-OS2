@@ -44,14 +44,18 @@ him for his work.
 
 /* Use GCC intrinsics if available: they support both i386 and x86_64,
    provide ASM-grade performances, and lift the PUSHA/POPA issues. */
+/* Note: We could use the MM instrinsics with Visual Studio 2005 and
+   newer (_MSC_VER >= 1400), but for X86 only. Is worth the effort? */
 #if defined(USE_MMX) && (defined(__GNUC__) || defined(__clang__))
 #include <mmintrin.h>
 #endif
+
 #if defined(__WATCOMC__)
 /* FIXME: Watcom doesn't support align directive in inline asm:
  * https://github.com/open-watcom/open-watcom-v2/issues/521  */
 #pragma message("FIXME: do something about MMX code.")
 #endif
+
 #include "SDL_cpuinfo.h"
 #include "SDL2_imageFilter.h"
 
@@ -114,7 +118,7 @@ static int SDL_imageFilterAddMMX(unsigned char *Src1, unsigned char *Src2, unsig
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -233,7 +237,7 @@ static int SDL_imageFilterMeanMMX(unsigned char *Src1, unsigned char *Src2, unsi
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -365,7 +369,7 @@ static int SDL_imageFilterSubMMX(unsigned char *Src1, unsigned char *Src2, unsig
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -481,7 +485,7 @@ static int SDL_imageFilterAbsDiffMMX(unsigned char *Src1, unsigned char *Src2, u
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -600,7 +604,7 @@ static int SDL_imageFilterMultMMX(unsigned char *Src1, unsigned char *Src2, unsi
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -791,7 +795,7 @@ int SDL_imageFilterMultNorASM(unsigned char *Src1, unsigned char *Src2, unsigned
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -923,7 +927,7 @@ static int SDL_imageFilterMultDivby2MMX(unsigned char *Src1, unsigned char *Src2
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -1061,7 +1065,7 @@ static int SDL_imageFilterMultDivby4MMX(unsigned char *Src1, unsigned char *Src2
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -1203,7 +1207,7 @@ static int SDL_imageFilterBitAndMMX(unsigned char *Src1, unsigned char *Src2, un
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -1339,7 +1343,7 @@ static int SDL_imageFilterBitOrMMX(unsigned char *Src1, unsigned char *Src2, uns
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -1451,7 +1455,7 @@ static int SDL_imageFilterDivASM(unsigned char *Src1, unsigned char *Src2, unsig
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -1621,7 +1625,7 @@ static int SDL_imageFilterBitNegationMMX(unsigned char *Src1, unsigned char *Des
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -1728,7 +1732,7 @@ static int SDL_imageFilterAddByteMMX(unsigned char *Src1, unsigned char *Dest, u
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -1862,7 +1866,7 @@ static int SDL_imageFilterAddUintMMX(unsigned char *Src1, unsigned char *Dest, u
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -1999,7 +2003,7 @@ static int SDL_imageFilterAddByteToHalfMMX(unsigned char *Src1, unsigned char *D
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -2136,7 +2140,7 @@ int SDL_imageFilterSubByteMMX(unsigned char *Src1, unsigned char *Dest, unsigned
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -2270,7 +2274,7 @@ static int SDL_imageFilterSubUintMMX(unsigned char *Src1, unsigned char *Dest, u
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -2407,7 +2411,7 @@ static int SDL_imageFilterShiftRightMMX(unsigned char *Src1, unsigned char *Dest
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -2549,7 +2553,7 @@ static int SDL_imageFilterShiftRightUintMMX(unsigned char *Src1, unsigned char *
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -2670,7 +2674,7 @@ static int SDL_imageFilterMultByByteMMX(unsigned char *Src1, unsigned char *Dest
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -2863,7 +2867,7 @@ static int SDL_imageFilterShiftRightAndMultByByteMMX(unsigned char *Src1, unsign
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -3021,7 +3025,7 @@ static int SDL_imageFilterShiftLeftByteMMX(unsigned char *Src1, unsigned char *D
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -3163,7 +3167,7 @@ static int SDL_imageFilterShiftLeftUintMMX(unsigned char *Src1, unsigned char *D
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -3284,7 +3288,7 @@ static int SDL_imageFilterShiftLeftMMX(unsigned char *Src1, unsigned char *Dest,
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -3464,7 +3468,7 @@ static int SDL_imageFilterBinarizeUsingThresholdMMX(unsigned char *Src1, unsigne
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -3601,7 +3605,7 @@ static int SDL_imageFilterClipToRangeMMX(unsigned char *Src1, unsigned char *Des
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -3767,7 +3771,7 @@ static int SDL_imageFilterNormalizeLinearMMX(unsigned char *Src1, unsigned char 
 {
 #ifndef USE_MMX
 	return (-1);
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -3995,7 +3999,7 @@ int SDL_imageFilterConvolveKernel3x3Divide(unsigned char *Src, unsigned char *De
 
 #ifndef USE_MMX /* No non-MMX implementation yet */
 	return (-1);
-#elif defined(_M_IX86) && defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_M_IX86) && defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -4183,7 +4187,7 @@ int SDL_imageFilterConvolveKernel5x5Divide(unsigned char *Src, unsigned char *De
 
 #ifndef USE_MMX /* No non-MMX implementation yet */
 	return (-1);
-#elif defined(_M_IX86) && defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_M_IX86) && defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -4484,7 +4488,7 @@ int SDL_imageFilterConvolveKernel7x7Divide(unsigned char *Src, unsigned char *De
 
 #ifndef USE_MMX /* No non-MMX implementation yet */
 	return (-1);
-#elif defined(_M_IX86) && defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_M_IX86) && defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -4839,7 +4843,7 @@ int SDL_imageFilterConvolveKernel9x9Divide(unsigned char *Src, unsigned char *De
 
 #ifndef USE_MMX /* No non-MMX implementation yet */
 	return (-1);
-#elif defined(_M_IX86) && defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_M_IX86) && defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -5385,7 +5389,7 @@ int SDL_imageFilterConvolveKernel3x3ShiftRight(unsigned char *Src, unsigned char
 
 #ifndef USE_MMX /* No non-MMX implementation yet */
 	return (-1);
-#elif defined(_M_IX86) && defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_M_IX86) && defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -5560,7 +5564,7 @@ int SDL_imageFilterConvolveKernel5x5ShiftRight(unsigned char *Src, unsigned char
 
 #ifndef USE_MMX /* No non-MMX implementation yet */
 	return (-1);
-#elif defined(_M_IX86) && defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_M_IX86) && defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -5859,7 +5863,7 @@ int SDL_imageFilterConvolveKernel7x7ShiftRight(unsigned char *Src, unsigned char
 
 #ifndef USE_MMX /* No non-MMX implementation yet */
 	return (-1);
-#elif defined(_M_IX86) && defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_M_IX86) && defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -6220,551 +6224,551 @@ int SDL_imageFilterConvolveKernel9x9ShiftRight(unsigned char *Src, unsigned char
 
 #ifndef USE_MMX /* No non-MMX implementation yet */
 	return (-1);
-#elif defined(_M_IX86) && defined(_MSC_VER) && !defined(__clang__)
-		__asm
-		{
-			pusha
-				pxor mm0, mm0   	/* zero MM0 */
-				xor ebx, ebx   	/* zero EBX */
-				mov bl, NRightShift   	/* load NRightShift into BL */
-				movd mm5, ebx   	/* copy NRightShift into MM5 */
-				mov edx, Kernel   	/* load Kernel address into EDX */
-				mov esi, Src   	/* load Src  address to ESI */
-				mov edi, Dest   	/* load Dest address to EDI */
-				add edi, 4   	/* 4 column offset from the left edge */
-				mov eax, columns   	/* load columns into EAX */
-				add edi, eax   	/* 4 row offset from the top edge */
-				add edi, eax
-				add edi, eax
-				add edi, eax
-				mov ebx, rows   	/* initialize ROWS counter */
-				sub ebx, 8   	/* do not use first 4 and last 4 rows */
-				/* ---, */
+#elif defined(_M_IX86) && defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
+	__asm
+	{
+		pusha
+			pxor mm0, mm0   	/* zero MM0 */
+			xor ebx, ebx   	/* zero EBX */
+			mov bl, NRightShift   	/* load NRightShift into BL */
+			movd mm5, ebx   	/* copy NRightShift into MM5 */
+			mov edx, Kernel   	/* load Kernel address into EDX */
+			mov esi, Src   	/* load Src  address to ESI */
+			mov edi, Dest   	/* load Dest address to EDI */
+			add edi, 4   	/* 4 column offset from the left edge */
+			mov eax, columns   	/* load columns into EAX */
+			add edi, eax   	/* 4 row offset from the top edge */
+			add edi, eax
+			add edi, eax
+			add edi, eax
+			mov ebx, rows   	/* initialize ROWS counter */
+			sub ebx, 8   	/* do not use first 4 and last 4 rows */
+			/* ---, */
 L10390:
-			mov ecx, eax   	/* initialize COLUMNS counter */
-				sub ecx, 8   	/* do not use first 4 and last 4 columns */
-				align 16                 	/* 16 byte alignment of the loop entry */
+		mov ecx, eax   	/* initialize COLUMNS counter */
+			sub ecx, 8   	/* do not use first 4 and last 4 columns */
+			align 16                 	/* 16 byte alignment of the loop entry */
 L10392:
-			pxor mm7, mm7   	/* zero MM7 (accumulator) */
-				movd mm6, esi   	/* save ESI in MM6 */
-				/* --- 1 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			movq mm2, mm1   	/* copy MM1 into MM2 */
-				inc              esi    	/* move pointer to the next 8 bytes of Src */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				movq mm4, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
-				paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			dec              esi
-				add esi, eax   	/* move Src pointer 1 row below */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				/* --- 2 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			movq mm2, mm1   	/* copy MM1 into MM2 */
-				inc              esi    	/* move pointer to the next 8 bytes of Src */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				movq mm4, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
-				paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			dec              esi
-				add esi, eax   	/* move Src pointer 1 row below */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				/* --- 3 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			movq mm2, mm1   	/* copy MM1 into MM2 */
-				inc              esi    	/* move pointer to the next 8 bytes of Src */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				movq mm4, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
-				paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			dec              esi
-				add esi, eax   	/* move Src pointer 1 row below */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				/* --- 4 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			movq mm2, mm1   	/* copy MM1 into MM2 */
-				inc              esi    	/* move pointer to the next 8 bytes of Src */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				movq mm4, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
-				paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			dec              esi
-				add esi, eax   	/* move Src pointer 1 row below */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				/* --- 5 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			movq mm2, mm1   	/* copy MM1 into MM2 */
-				inc              esi    	/* move pointer to the next 8 bytes of Src */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				movq mm4, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
-				paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			dec              esi
-				add esi, eax   	/* move Src pointer 1 row below */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				/* --- 6 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			movq mm2, mm1   	/* copy MM1 into MM2 */
-				inc              esi    	/* move pointer to the next 8 bytes of Src */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				movq mm4, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
-				paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			dec              esi
-				add esi, eax   	/* move Src pointer 1 row below */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				/* --- 7 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			movq mm2, mm1   	/* copy MM1 into MM2 */
-				inc              esi    	/* move pointer to the next 8 bytes of Src */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				movq mm4, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
-				paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			dec              esi
-				add esi, eax   	/* move Src pointer 1 row below */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				/* --- 8 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			movq mm2, mm1   	/* copy MM1 into MM2 */
-				inc              esi    	/* move pointer to the next 8 bytes of Src */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				movq mm4, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
-				paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			dec              esi
-				add esi, eax   	/* move Src pointer 1 row below */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				/* --- 9 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
-			movq mm2, mm1   	/* copy MM1 into MM2 */
-				inc              esi    	/* move pointer to the next 8 bytes of Src */
-				movq mm3, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				movq mm4, [edx]   	/* load 4 words of Kernel */
-			add edx, 8   	/* move pointer to other 4 words */
-				punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
-				paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				movq mm1, [esi]   	/* load 8 bytes of the Src */
+		pxor mm7, mm7   	/* zero MM7 (accumulator) */
+			movd mm6, esi   	/* save ESI in MM6 */
+			/* --- 1 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		movq mm2, mm1   	/* copy MM1 into MM2 */
+			inc              esi    	/* move pointer to the next 8 bytes of Src */
 			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			movq mm4, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
 			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
-				psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
-				pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
-				paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
-				/* ---, */
-				movq mm3, mm7   	/* copy MM7 into MM3 */
-				psrlq mm7, 32   	/* shift 2 left words to the right */
-				paddsw mm7, mm3   	/* add 2 left and 2 right result words */
-				movq mm2, mm7   	/* copy MM7 into MM2 */
-				psrlq mm7, 16   	/* shift 1 left word to the right */
-				paddsw mm7, mm2   	/* add 1 left and 1 right result words */
-				movd mm1, eax   	/* save EAX in MM1 */
-				packuswb mm7, mm0   	/* pack division result with saturation */
-				movd eax, mm7   	/* copy saturated result into EAX */
-				mov [edi], al   	/* copy a byte result into Dest */
-				movd eax, mm1   	/* restore saved EAX */
-				/* --, */
-				movd esi, mm6   	/* move Src pointer to the top pixel */
-				sub edx, 208   	/* EDX = Kernel address */
-				inc              esi    	/* move Src  pointer to the next pixel */
-				inc              edi    	/* move Dest pointer to the next pixel */
-				/* ---, */
-				dec              ecx    	/* decrease loop counter COLUMNS */
-				jnz            L10392    	/* check loop termination, proceed if required */
-				add esi, 8   	/* move to the next row in Src */
-				add edi, 8   	/* move to the next row in Dest */
-				dec              ebx    	/* decrease loop counter ROWS */
-				jnz            L10390    	/* check loop termination, proceed if required */
-				/* ---, */
-				emms                      	/* exit MMX state */
-				popa
+			punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
+			paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		dec              esi
+			add esi, eax   	/* move Src pointer 1 row below */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			/* --- 2 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		movq mm2, mm1   	/* copy MM1 into MM2 */
+			inc              esi    	/* move pointer to the next 8 bytes of Src */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			movq mm4, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
+			paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		dec              esi
+			add esi, eax   	/* move Src pointer 1 row below */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			/* --- 3 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		movq mm2, mm1   	/* copy MM1 into MM2 */
+			inc              esi    	/* move pointer to the next 8 bytes of Src */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			movq mm4, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
+			paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		dec              esi
+			add esi, eax   	/* move Src pointer 1 row below */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			/* --- 4 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		movq mm2, mm1   	/* copy MM1 into MM2 */
+			inc              esi    	/* move pointer to the next 8 bytes of Src */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			movq mm4, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
+			paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		dec              esi
+			add esi, eax   	/* move Src pointer 1 row below */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			/* --- 5 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		movq mm2, mm1   	/* copy MM1 into MM2 */
+			inc              esi    	/* move pointer to the next 8 bytes of Src */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			movq mm4, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
+			paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		dec              esi
+			add esi, eax   	/* move Src pointer 1 row below */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			/* --- 6 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		movq mm2, mm1   	/* copy MM1 into MM2 */
+			inc              esi    	/* move pointer to the next 8 bytes of Src */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			movq mm4, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
+			paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		dec              esi
+			add esi, eax   	/* move Src pointer 1 row below */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			/* --- 7 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		movq mm2, mm1   	/* copy MM1 into MM2 */
+			inc              esi    	/* move pointer to the next 8 bytes of Src */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			movq mm4, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
+			paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		dec              esi
+			add esi, eax   	/* move Src pointer 1 row below */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			/* --- 8 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		movq mm2, mm1   	/* copy MM1 into MM2 */
+			inc              esi    	/* move pointer to the next 8 bytes of Src */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			movq mm4, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
+			paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		dec              esi
+			add esi, eax   	/* move Src pointer 1 row below */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			/* --- 9 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		movq mm2, mm1   	/* copy MM1 into MM2 */
+			inc              esi    	/* move pointer to the next 8 bytes of Src */
+			movq mm3, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			movq mm4, [edx]   	/* load 4 words of Kernel */
+		add edx, 8   	/* move pointer to other 4 words */
+			punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			punpckhbw mm2, mm0   	/* unpack second 4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			psrlw mm2, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			pmullw mm2, mm4   	/* mult 4 high words of Src and Kernel */
+			paddsw mm1, mm2   	/* add 4 words of the high and low bytes */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			movq mm1, [esi]   	/* load 8 bytes of the Src */
+		movq mm3, [edx]   	/* load 4 words of Kernel */
+		punpcklbw mm1, mm0   	/* unpack first  4 bytes into words */
+			psrlw mm1, mm5   	/* shift right each pixel NshiftRight times */
+			pmullw mm1, mm3   	/* mult 4 low  words of Src and Kernel */
+			paddsw mm7, mm1   	/* add MM1 to accumulator MM7 */
+			/* ---, */
+			movq mm3, mm7   	/* copy MM7 into MM3 */
+			psrlq mm7, 32   	/* shift 2 left words to the right */
+			paddsw mm7, mm3   	/* add 2 left and 2 right result words */
+			movq mm2, mm7   	/* copy MM7 into MM2 */
+			psrlq mm7, 16   	/* shift 1 left word to the right */
+			paddsw mm7, mm2   	/* add 1 left and 1 right result words */
+			movd mm1, eax   	/* save EAX in MM1 */
+			packuswb mm7, mm0   	/* pack division result with saturation */
+			movd eax, mm7   	/* copy saturated result into EAX */
+			mov [edi], al   	/* copy a byte result into Dest */
+			movd eax, mm1   	/* restore saved EAX */
+			/* --, */
+			movd esi, mm6   	/* move Src pointer to the top pixel */
+			sub edx, 208   	/* EDX = Kernel address */
+			inc              esi    	/* move Src  pointer to the next pixel */
+			inc              edi    	/* move Dest pointer to the next pixel */
+			/* ---, */
+			dec              ecx    	/* decrease loop counter COLUMNS */
+			jnz            L10392    	/* check loop termination, proceed if required */
+			add esi, 8   	/* move to the next row in Src */
+			add edi, 8   	/* move to the next row in Dest */
+			dec              ebx    	/* decrease loop counter ROWS */
+			jnz            L10390    	/* check loop termination, proceed if required */
+			/* ---, */
+			emms                      	/* exit MMX state */
+			popa
 	}
 	return (0);
 #elif defined(__i386__) && (defined(__GNUC__) || defined(__clang__))
-		asm volatile
-			("pusha		     \n\t" "pxor      %%mm0, %%mm0 \n\t"	/* zero MM0 */
-			"xor       %%ebx, %%ebx \n\t"	/* zero EBX */
-			"mov           %5, %%bl \n\t"	/* load NRightShift into BL */
-			"movd      %%ebx, %%mm5 \n\t"	/* copy NRightShift into MM5 */
-			"mov          %4, %%edx \n\t"	/* load Kernel address into EDX */
-			"mov          %1, %%esi \n\t"	/* load Src  address to ESI */
-			"mov          %0, %%edi \n\t"	/* load Dest address to EDI */
-			"add          $4, %%edi \n\t"	/* 4 column offset from the left edge */
-			"mov          %3, %%eax \n\t"	/* load columns into EAX */
-			"add       %%eax, %%edi \n\t"	/* 4 row offset from the top edge */
-			"add       %%eax, %%edi \n\t" "add       %%eax, %%edi \n\t" "add       %%eax, %%edi \n\t" "mov          %2, %%ebx \n\t"	/* initialize ROWS counter */
-			"sub          $8, %%ebx \n\t"	/* do not use first 4 and last 4 rows */
-			/* --- */
-			".L10390:               \n\t" "mov       %%eax, %%ecx \n\t"	/* initialize COLUMNS counter */
-			"sub          $8, %%ecx \n\t"	/* do not use first 4 and last 4 columns */
-			".align 16              \n\t"	/* 16 byte alignment of the loop entry */
-			".L10392:               \n\t" "pxor      %%mm7, %%mm7 \n\t"	/* zero MM7 (accumulator) */
-			"movd      %%esi, %%mm6 \n\t"	/* save ESI in MM6 */
-			/* --- 1 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
-			"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
-			"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			/* --- 2 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
-			"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
-			"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			/* --- 3 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
-			"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
-			"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			/* --- 4 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
-			"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
-			"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			/* --- 5 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
-			"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
-			"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			/* --- 6 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
-			"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
-			"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			/* --- 7 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
-			"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
-			"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			/* --- 8 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
-			"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
-			"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			/* --- 9 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
-			"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
-			"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
-			"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
-			"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
-			"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
-			"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
-			"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
-			"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
-			/* --- */
-			"movq      %%mm7, %%mm3 \n\t"	/* copy MM7 into MM3 */
-			"psrlq       $32, %%mm7 \n\t"	/* shift 2 left words to the right */
-			"paddsw    %%mm3, %%mm7 \n\t"	/* add 2 left and 2 right result words */
-			"movq      %%mm7, %%mm2 \n\t"	/* copy MM7 into MM2 */
-			"psrlq       $16, %%mm7 \n\t"	/* shift 1 left word to the right */
-			"paddsw    %%mm2, %%mm7 \n\t"	/* add 1 left and 1 right result words */
-			"movd      %%eax, %%mm1 \n\t"	/* save EAX in MM1 */
-			"packuswb  %%mm0, %%mm7 \n\t"	/* pack division result with saturation */
-			"movd      %%mm7, %%eax \n\t"	/* copy saturated result into EAX */
-			"mov      %%al, (%%edi) \n\t"	/* copy a byte result into Dest */
-			"movd      %%mm1, %%eax \n\t"	/* restore saved EAX */
-			/* -- */
-			"movd      %%mm6, %%esi \n\t"	/* move Src pointer to the top pixel */
-			"sub        $208, %%edx \n\t"	/* EDX = Kernel address */
-			"inc              %%esi \n\t"	/* move Src  pointer to the next pixel */
-			"inc              %%edi \n\t"	/* move Dest pointer to the next pixel */
-			/* --- */
-			"dec              %%ecx \n\t"	/* decrease loop counter COLUMNS */
-			"jnz            .L10392 \n\t"	/* check loop termination, proceed if required */
-			"add          $8, %%esi \n\t"	/* move to the next row in Src */
-			"add          $8, %%edi \n\t"	/* move to the next row in Dest */
-			"dec              %%ebx \n\t"	/* decrease loop counter ROWS */
-			"jnz            .L10390 \n\t"	/* check loop termination, proceed if required */
-			/* --- */
-			"emms                   \n\t"	/* exit MMX state */
-			"popa                   \n\t":"=m" (Dest)	/* %0 */
-			:"m"(Src),		/* %1 */
-			"m"(rows),		/* %2 */
-			"m"(columns),		/* %3 */
-			"m"(Kernel),		/* %4 */
-			"m"(NRightShift)	/* %5 */
-		);
+	asm volatile
+		("pusha		     \n\t" "pxor      %%mm0, %%mm0 \n\t"	/* zero MM0 */
+		"xor       %%ebx, %%ebx \n\t"	/* zero EBX */
+		"mov           %5, %%bl \n\t"	/* load NRightShift into BL */
+		"movd      %%ebx, %%mm5 \n\t"	/* copy NRightShift into MM5 */
+		"mov          %4, %%edx \n\t"	/* load Kernel address into EDX */
+		"mov          %1, %%esi \n\t"	/* load Src  address to ESI */
+		"mov          %0, %%edi \n\t"	/* load Dest address to EDI */
+		"add          $4, %%edi \n\t"	/* 4 column offset from the left edge */
+		"mov          %3, %%eax \n\t"	/* load columns into EAX */
+		"add       %%eax, %%edi \n\t"	/* 4 row offset from the top edge */
+		"add       %%eax, %%edi \n\t" "add       %%eax, %%edi \n\t" "add       %%eax, %%edi \n\t" "mov          %2, %%ebx \n\t"	/* initialize ROWS counter */
+		"sub          $8, %%ebx \n\t"	/* do not use first 4 and last 4 rows */
+		/* --- */
+		".L10390:               \n\t" "mov       %%eax, %%ecx \n\t"	/* initialize COLUMNS counter */
+		"sub          $8, %%ecx \n\t"	/* do not use first 4 and last 4 columns */
+		".align 16              \n\t"	/* 16 byte alignment of the loop entry */
+		".L10392:               \n\t" "pxor      %%mm7, %%mm7 \n\t"	/* zero MM7 (accumulator) */
+		"movd      %%esi, %%mm6 \n\t"	/* save ESI in MM6 */
+		/* --- 1 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
+		"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
+		"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		/* --- 2 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
+		"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
+		"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		/* --- 3 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
+		"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
+		"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		/* --- 4 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
+		"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
+		"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		/* --- 5 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
+		"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
+		"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		/* --- 6 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
+		"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
+		"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		/* --- 7 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
+		"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
+		"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		/* --- 8 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
+		"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
+		"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"dec              %%esi \n\t" "add       %%eax, %%esi \n\t"	/* move Src pointer 1 row below */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		/* --- 9 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"movq      %%mm1, %%mm2 \n\t"	/* copy MM1 into MM2 */
+		"inc              %%esi \n\t"	/* move pointer to the next 8 bytes of Src */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"movq    (%%edx), %%mm4 \n\t"	/* load 4 words of Kernel */
+		"add          $8, %%edx \n\t"	/* move pointer to other 4 words */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"punpckhbw %%mm0, %%mm2 \n\t"	/* unpack second 4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"psrlw     %%mm5, %%mm2 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"pmullw    %%mm4, %%mm2 \n\t"	/* mult. 4 high words of Src and Kernel */
+		"paddsw    %%mm2, %%mm1 \n\t"	/* add 4 words of the high and low bytes */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		"movq    (%%esi), %%mm1 \n\t"	/* load 8 bytes of the Src */
+		"movq    (%%edx), %%mm3 \n\t"	/* load 4 words of Kernel */
+		"punpcklbw %%mm0, %%mm1 \n\t"	/* unpack first  4 bytes into words */
+		"psrlw     %%mm5, %%mm1 \n\t"	/* shift right each pixel NshiftRight times */
+		"pmullw    %%mm3, %%mm1 \n\t"	/* mult. 4 low  words of Src and Kernel */
+		"paddsw    %%mm1, %%mm7 \n\t"	/* add MM1 to accumulator MM7 */
+		/* --- */
+		"movq      %%mm7, %%mm3 \n\t"	/* copy MM7 into MM3 */
+		"psrlq       $32, %%mm7 \n\t"	/* shift 2 left words to the right */
+		"paddsw    %%mm3, %%mm7 \n\t"	/* add 2 left and 2 right result words */
+		"movq      %%mm7, %%mm2 \n\t"	/* copy MM7 into MM2 */
+		"psrlq       $16, %%mm7 \n\t"	/* shift 1 left word to the right */
+		"paddsw    %%mm2, %%mm7 \n\t"	/* add 1 left and 1 right result words */
+		"movd      %%eax, %%mm1 \n\t"	/* save EAX in MM1 */
+		"packuswb  %%mm0, %%mm7 \n\t"	/* pack division result with saturation */
+		"movd      %%mm7, %%eax \n\t"	/* copy saturated result into EAX */
+		"mov      %%al, (%%edi) \n\t"	/* copy a byte result into Dest */
+		"movd      %%mm1, %%eax \n\t"	/* restore saved EAX */
+		/* -- */
+		"movd      %%mm6, %%esi \n\t"	/* move Src pointer to the top pixel */
+		"sub        $208, %%edx \n\t"	/* EDX = Kernel address */
+		"inc              %%esi \n\t"	/* move Src  pointer to the next pixel */
+		"inc              %%edi \n\t"	/* move Dest pointer to the next pixel */
+		/* --- */
+		"dec              %%ecx \n\t"	/* decrease loop counter COLUMNS */
+		"jnz            .L10392 \n\t"	/* check loop termination, proceed if required */
+		"add          $8, %%esi \n\t"	/* move to the next row in Src */
+		"add          $8, %%edi \n\t"	/* move to the next row in Dest */
+		"dec              %%ebx \n\t"	/* decrease loop counter ROWS */
+		"jnz            .L10390 \n\t"	/* check loop termination, proceed if required */
+		/* --- */
+		"emms                   \n\t"	/* exit MMX state */
+		"popa                   \n\t":"=m" (Dest)	/* %0 */
+		:"m"(Src),		/* %1 */
+		"m"(rows),		/* %2 */
+		"m"(columns),		/* %3 */
+		"m"(Kernel),		/* %4 */
+		"m"(NRightShift)	/* %5 */
+	);
 	return (0);
 #endif
 	/* No non-MMX implementation yet */
@@ -6797,7 +6801,7 @@ int SDL_imageFilterSobelX(unsigned char *Src, unsigned char *Dest, int rows, int
 
 #ifndef USE_MMX /* No non-MMX implementation yet */
 	return (-1);
-#elif defined(_M_IX86) && defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_M_IX86) && defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -7049,7 +7053,7 @@ int SDL_imageFilterSobelXShiftRight(unsigned char *Src, unsigned char *Dest, int
 
 #ifndef USE_MMX /* No non-MMX implementation yet */
 	return (-1);
-#elif defined(_M_IX86) && defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_M_IX86) && defined(_MSC_VER) && defined(_M_IX86) && !defined(__clang__)
 	__asm
 	{
 		pusha
@@ -7304,52 +7308,4 @@ L10412:
 #endif
 	/* No non-MMX implementation yet */
 	return (-1);
-}
-
-/*!
-\brief Align stack to 32 byte boundary,
-*/
-void SDL_imageFilterAlignStack(void)
-{
-#ifndef USE_MMX
-#elif defined(_MSC_VER) && !defined(__clang__)
-	__asm
-	{				/* --- stack alignment --- */
-		mov ebx, esp   	/* load ESP into EBX */
-			sub ebx, 4   	/* reserve space on stack for old value of ESP */
-			and ebx, -32   	/* align EBX along a 32 byte boundary */
-			mov [ebx], esp   	/* save old value of ESP in stack, behind the bndry */
-			mov esp, ebx   	/* align ESP along a 32 byte boundary */
-	}
-#elif defined(__GNUC__) || defined(__clang__)
-	asm volatile
-		(				/* --- stack alignment --- */
-		"mov       %%esp, %%ebx \n\t"	/* load ESP into EBX */
-		"sub          $4, %%ebx \n\t"	/* reserve space on stack for old value of ESP */
-		"and        $-32, %%ebx \n\t"	/* align EBX along a 32 byte boundary */
-		"mov     %%esp, (%%ebx) \n\t"	/* save old value of ESP in stack, behind the bndry */
-		"mov       %%ebx, %%esp \n\t"	/* align ESP along a 32 byte boundary */
-		::);
-#endif
-}
-
-/*!
-\brief Restore previously aligned stack.
-*/
-void SDL_imageFilterRestoreStack(void)
-{
-#ifndef USE_MMX
-#elif defined(_MSC_VER) && !defined(__clang__)
-	__asm
-	{				/* --- restoring old stack --- */
-		mov ebx, [esp]   	/* load old value of ESP */
-		mov esp, ebx   	/* restore old value of ESP */
-	}
-#elif defined(__GNUC__) || defined(__clang__)
-	asm volatile
-		(				/* --- restoring old stack --- */
-		"mov     (%%esp), %%ebx \n\t"	/* load old value of ESP */
-		"mov       %%ebx, %%esp \n\t"	/* restore old value of ESP */
-		::);
-#endif
 }

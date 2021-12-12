@@ -22,7 +22,7 @@ TestImageFilter.c: test program for MMX filter routines
 
 #include "SDL.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #ifndef bcmp
 #define bcmp(s1, s2, n) memcmp ((s1), (s2), (n))
