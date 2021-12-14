@@ -71,15 +71,15 @@ extern "C" {
 #  else
 #    define SDL2_ROTOZOOM_SCOPE   extern
 #  endif
+#elif defined(SDL2GFX_SYM_VISIBILITY)
+#    define SDL2_ROTOZOOM_SCOPE __attribute__((visibility("default")))
 #endif
 #ifndef SDL2_ROTOZOOM_SCOPE
 #  define SDL2_ROTOZOOM_SCOPE extern
 #endif
 
 	/* 
-
 	Rotozoom functions
-
 	*/
 
 	SDL2_ROTOZOOM_SCOPE SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle, double zoom, int smooth);
@@ -93,12 +93,10 @@ extern "C" {
 
 	SDL2_ROTOZOOM_SCOPE void rotozoomSurfaceSizeXY
 		(int width, int height, double angle, double zoomx, double zoomy, 
-		int *dstwidth, int *dstheight);
+		 int *dstwidth, int *dstheight);
 
 	/* 
-
 	Zooming functions
-
 	*/
 
 	SDL2_ROTOZOOM_SCOPE SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smooth);
@@ -106,17 +104,13 @@ extern "C" {
 	SDL2_ROTOZOOM_SCOPE void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
 
 	/* 
-
 	Shrinking functions
-
-	*/     
+	*/
 
 	SDL2_ROTOZOOM_SCOPE SDL_Surface *shrinkSurface(SDL_Surface * src, int factorx, int factory);
 
 	/* 
-
 	Specialized rotation functions
-
 	*/
 
 	SDL2_ROTOZOOM_SCOPE SDL_Surface* rotateSurface90Degrees(SDL_Surface* src, int numClockwiseTurns);

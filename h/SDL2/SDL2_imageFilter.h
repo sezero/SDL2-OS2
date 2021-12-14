@@ -51,6 +51,8 @@ extern "C" {
 #  else
 #    define SDL2_IMAGEFILTER_SCOPE   extern
 #  endif
+#elif defined(SDL2GFX_SYM_VISIBILITY)
+#    define SDL2_IMAGEFILTER_SCOPE __attribute__((visibility("default")))
 #endif
 #ifndef SDL2_IMAGEFILTER_SCOPE
 #  define SDL2_IMAGEFILTER_SCOPE extern
@@ -163,6 +165,53 @@ extern "C" {
 	//  SDL_imageFilterNormalizeLinear: D = saturation255((Nmax - Nmin)/(Cmax - Cmin)*(S - Cmin) + Nmin)
 	SDL2_IMAGEFILTER_SCOPE int SDL_imageFilterNormalizeLinear(unsigned char *Src, unsigned char *Dest, unsigned int length, int Cmin,
 		int Cmax, int Nmin, int Nmax);
+
+#if 0  /* These are not exported in SDL2_gfx .. */
+	/* !!! NO C-ROUTINE FOR THESE FUNCTIONS YET !!! */
+
+	//  SDL_imageFilterConvolveKernel3x3Divide: Dij = saturation0and255( ... )
+	SDL2_IMAGEFILTER_SCOPE int SDL_imageFilterConvolveKernel3x3Divide(unsigned char *Src, unsigned char *Dest, int rows,
+		int columns, signed short *Kernel, unsigned char Divisor);
+
+	//  SDL_imageFilterConvolveKernel5x5Divide: Dij = saturation0and255( ... )
+	SDL2_IMAGEFILTER_SCOPE int SDL_imageFilterConvolveKernel5x5Divide(unsigned char *Src, unsigned char *Dest, int rows,
+		int columns, signed short *Kernel, unsigned char Divisor);
+
+	//  SDL_imageFilterConvolveKernel7x7Divide: Dij = saturation0and255( ... )
+	SDL2_IMAGEFILTER_SCOPE int SDL_imageFilterConvolveKernel7x7Divide(unsigned char *Src, unsigned char *Dest, int rows,
+		int columns, signed short *Kernel, unsigned char Divisor);
+
+	//  SDL_imageFilterConvolveKernel9x9Divide: Dij = saturation0and255( ... )
+	SDL2_IMAGEFILTER_SCOPE int SDL_imageFilterConvolveKernel9x9Divide(unsigned char *Src, unsigned char *Dest, int rows,
+		int columns, signed short *Kernel, unsigned char Divisor);
+
+	//  SDL_imageFilterConvolveKernel3x3ShiftRight: Dij = saturation0and255( ... )
+	SDL2_IMAGEFILTER_SCOPE int SDL_imageFilterConvolveKernel3x3ShiftRight(unsigned char *Src, unsigned char *Dest, int rows,
+		int columns, signed short *Kernel,
+		unsigned char NRightShift);
+
+	//  SDL_imageFilterConvolveKernel5x5ShiftRight: Dij = saturation0and255( ... )
+	SDL2_IMAGEFILTER_SCOPE int SDL_imageFilterConvolveKernel5x5ShiftRight(unsigned char *Src, unsigned char *Dest, int rows,
+		int columns, signed short *Kernel,
+		unsigned char NRightShift);
+
+	//  SDL_imageFilterConvolveKernel7x7ShiftRight: Dij = saturation0and255( ... )
+	SDL2_IMAGEFILTER_SCOPE int SDL_imageFilterConvolveKernel7x7ShiftRight(unsigned char *Src, unsigned char *Dest, int rows,
+		int columns, signed short *Kernel,
+		unsigned char NRightShift);
+
+	//  SDL_imageFilterConvolveKernel9x9ShiftRight: Dij = saturation0and255( ... )
+	SDL2_IMAGEFILTER_SCOPE int SDL_imageFilterConvolveKernel9x9ShiftRight(unsigned char *Src, unsigned char *Dest, int rows,
+		int columns, signed short *Kernel,
+		unsigned char NRightShift);
+
+	//  SDL_imageFilterSobelX: Dij = saturation255( ... )
+	SDL2_IMAGEFILTER_SCOPE int SDL_imageFilterSobelX(unsigned char *Src, unsigned char *Dest, int rows, int columns);
+
+	//  SDL_imageFilterSobelXShiftRight: Dij = saturation255( ... )
+	SDL2_IMAGEFILTER_SCOPE int SDL_imageFilterSobelXShiftRight(unsigned char *Src, unsigned char *Dest, int rows, int columns,
+		unsigned char NRightShift);
+#endif /* #if 0 */
 
 	/* Ends C function definitions when using C++ */
 #ifdef __cplusplus

@@ -11503,6 +11503,59 @@ $as_echo_n "checking whether MMX can be enabled... " >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_mmx" >&5
 $as_echo "$enable_mmx" >&6; }
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if compiler supports visibility attributes" >&5
+$as_echo_n "checking if compiler supports visibility attributes... " >&6; }
+saved_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS -fvisibility=hidden -Werror"
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+	__attribute__((visibility("default"))) int foo(void);
+	__attribute__((visibility("hidden")))  int bar(void);
+	int foo(void) { return 0; }
+	int bar(void) { return 1; }
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  have_visibility=yes
+else
+  have_visibility=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_visibility" >&5
+$as_echo "$have_visibility" >&6; }
+CFLAGS="$saved_CFLAGS"
+case $host_os in
+    mingw*|cygwin*|emx*|amigaos*|aros*|morphos*)
+	if test $have_visibility = yes; then
+	   { $as_echo "$as_me:${as_lineno-$LINENO}: ignoring -fvisibility flags for $host_os" >&5
+$as_echo "$as_me: ignoring -fvisibility flags for $host_os" >&6;}
+	fi
+	have_visibility=no
+	;;
+esac
+if test $have_visibility = yes; then
+   CFLAGS="$CFLAGS -DSDL2GFX_SYM_VISIBILITY -fvisibility=hidden"
+fi
+
 SDL_VERSION=2.0.0
 
 
