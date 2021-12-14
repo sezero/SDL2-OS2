@@ -34,8 +34,7 @@
  */
 
 #include <setjmp.h>
-#include <limits.h>
-#include "common.h"
+#include "../common.h"
 #include "depacker.h"
 #include "crc32.h"
 
@@ -62,8 +61,10 @@
 
 /* This is what we know about each huffman coding group */
 struct group_data {
+	/* limit and base are 1-indexed. index 0 is never used but increasing
+	 * the length by 1 simplifies the code and isn't that much of a waste. */
 	/* We have an extra slot at the end of limit[] for a sentinal value. */
-	int limit[MAX_HUFCODE_BITS+1],base[MAX_HUFCODE_BITS],permute[MAX_SYMBOLS];
+	int limit[1+MAX_HUFCODE_BITS+1],base[1+MAX_HUFCODE_BITS],permute[MAX_SYMBOLS];
 	int minLen, maxLen;
 };
 
@@ -126,19 +127,20 @@ static unsigned int get_bits(bunzip_data *bd, char bits_wanted)
 static int get_next_block(bunzip_data *bd)
 {
 	struct group_data *hufGroup;
-	int dbufCount,nextSym,dbufSize,groupCount,*base,*limit,selector,
+	int dbufCount,nextSym,dbufSize,groupCount,selector,
 		i,j,k,t,runPos,symCount,symTotal,nSelectors,byteCount[256];
 	unsigned char uc, symToByte[256], mtfSymbol[256], *selectors;
 	unsigned int *dbuf,origPtr;
 
-	limit=base=NULL;
+	/* Reset longjmp I/O error handling */
+	i=setjmp(bd->jmpbuf);
+	if(i) return i;
+
 	hufGroup=NULL;
 	dbuf=bd->dbuf;
 	dbufSize=bd->dbufSize;
 	selectors=bd->selectors;
-	/* Reset longjmp I/O error handling */
-	i=setjmp(bd->jmpbuf);
-	if(i) return i;
+
 	/* Read in header signature and CRC, then validate signature.
 	   (last block signature means CRC is for whole file, return now) */
 	i = get_bits(bd,24);
@@ -235,15 +237,10 @@ static int get_next_block(bunzip_data *bd)
 		hufGroup=bd->groups+j;
 		hufGroup->minLen = minLen;
 		hufGroup->maxLen = maxLen;
-		/* Note that minLen can't be smaller than 1, so we adjust the base
-		   and limit array pointers so we're not always wasting the first
-		   entry.  We do this again when using them (during symbol decoding).*/
-		base=hufGroup->base-1;
-		limit=hufGroup->limit-1;
 		/* Calculate permute[].  Concurently, initialize temp[] and limit[]. */
 		pp=0;
 		for(i=minLen;i<=maxLen;i++) {
-			temp[i]=limit[i]=0;
+			temp[i]=hufGroup->limit[i]=0;
 			for(t=0;t<symCount;t++)
 				if(length[t]==i) hufGroup->permute[pp++] = t;
 		}
@@ -262,13 +259,13 @@ static int get_next_block(bunzip_data *bd)
 			   each level we're really only interested in the first few bits,
 			   so here we set all the trailing to-be-ignored bits to 1 so they
 			   don't affect the value>limit[length] comparison. */
-			limit[i]= (pp << (maxLen - i)) - 1;
+			hufGroup->limit[i]= (pp << (maxLen - i)) - 1;
 			pp<<=1;
-			base[i+1]=pp-(t+=temp[i]);
+			hufGroup->base[i+1]=pp-(t+=temp[i]);
 		}
-		limit[maxLen+1] = INT_MAX; /* Sentinal value for reading next sym. */
-		limit[maxLen]=pp+temp[maxLen]-1;
-		base[minLen]=0;
+		hufGroup->limit[maxLen+1] = INT_MAX; /* Sentinal value for reading next sym. */
+		hufGroup->limit[maxLen]=pp+temp[maxLen]-1;
+		hufGroup->base[minLen]=0;
 	}
 	/* We've finished reading and digesting the block header.  Now read this
 	   block's huffman coded symbols from the file and undo the huffman coding
@@ -287,8 +284,6 @@ static int get_next_block(bunzip_data *bd)
 			symCount=GROUP_SIZE-1;
 			if(selector>=nSelectors) return RETVAL_DATA_ERROR;
 			hufGroup=bd->groups+selectors[selector++];
-			base=hufGroup->base-1;
-			limit=hufGroup->limit-1;
 		}
 		/* Read next huffman-coded symbol. */
 		/* Note: It is far cheaper to read maxLen bits and back up than it is
@@ -313,11 +308,11 @@ static int get_next_block(bunzip_data *bd)
 got_huff_bits:
 		/* Figure how how many bits are in next symbol and unget extras */
 		i=hufGroup->minLen;
-		while(j>limit[i]) ++i;
+		while(j>hufGroup->limit[i]) ++i;
 		bd->inbufBitCount += (hufGroup->maxLen - i);
 		/* Huffman decode value to get nextSym (with bounds checking) */
 		if ((i > hufGroup->maxLen)
-			|| (((unsigned)(j=(j>>(hufGroup->maxLen-i))-base[i]))
+			|| (((unsigned)(j=(j>>(hufGroup->maxLen-i))-hufGroup->base[i]))
 				>= MAX_SYMBOLS))
 			return RETVAL_DATA_ERROR;
 		nextSym = hufGroup->permute[j];
@@ -338,7 +333,8 @@ got_huff_bits:
 			   the basic or 0/1 method (except all bits 0, which would use no
 			   symbols, but a run of length 0 doesn't mean anything in this
 			   context).  Thus space is saved. */
-			t += (runPos << nextSym); /* +runPos if RUNA; +2*runPos if RUNB */
+			/* Note: use unsigned to avoid signed overflows. */
+			t = (unsigned)t + ((unsigned)runPos << nextSym); /* +runPos if RUNA; +2*runPos if RUNB */
 			runPos <<= 1;
 			continue;
 		}
@@ -519,8 +515,8 @@ static int start_bunzip(bunzip_data **bdp, FILE *in, char *inbuf, int len)
 	i=sizeof(bunzip_data);
 	if(in!=NULL) i+=IOBUF_SIZE;
 	/* Allocate bunzip_data.  Most fields initialize to zero. */
-	if(!(bd=*bdp=malloc(i))) return RETVAL_OUT_OF_MEMORY;
-	memset(bd,0,sizeof(bunzip_data));
+	bd=*bdp=(bunzip_data *) calloc(1,i);
+	if(!bd) return RETVAL_OUT_OF_MEMORY;
 	/* Setup input buffer */
 	if(NULL==(bd->in=in)) {
 		bd->inbuf=(unsigned char *)inbuf;
@@ -549,7 +545,8 @@ static int start_bunzip(bunzip_data **bdp, FILE *in, char *inbuf, int len)
 	   uncompressed data.  Allocate intermediate buffer for block. */
 	bd->dbufSize=100000*(i-BZh0);
 
-	if(!(bd->dbuf=malloc(bd->dbufSize * sizeof(unsigned int))))
+	bd->dbuf=(unsigned int *) malloc(bd->dbufSize * sizeof(unsigned int));
+	if (!bd->dbuf)
 		return RETVAL_OUT_OF_MEMORY;
 	return RETVAL_OK;
 }
@@ -561,7 +558,7 @@ static int test_bzip2(unsigned char *b)
 
 /* Example usage: decompress src_fd to dst_fd.  (Stops at end of bzip data,
    not end of file.) */
-static int decrunch_bzip2(FILE *src, FILE *dst)
+static int decrunch_bzip2(FILE *src, FILE *dst, long inlen)
 {
 	char *outbuf;
 	bunzip_data *bd;
@@ -569,7 +566,8 @@ static int decrunch_bzip2(FILE *src, FILE *dst)
 
 	libxmp_crc32_init_B();
 
-	if(!(outbuf=malloc(IOBUF_SIZE))) return RETVAL_OUT_OF_MEMORY;
+	outbuf=(char *)malloc(IOBUF_SIZE);
+	if(!outbuf) return RETVAL_OUT_OF_MEMORY;
 	if(!(i=start_bunzip(&bd,src,0,0))) {
 		for(;;) {
 			if((i=read_bunzip(bd,outbuf,IOBUF_SIZE)) <= 0) break;

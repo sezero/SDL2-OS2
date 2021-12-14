@@ -26,7 +26,7 @@
 
 #include "loader.h"
 #include "mod.h"
-#include "period.h"
+#include "../period.h"
 
 static int st_test(HIO_HANDLE *, char *, const int);
 static int st_load(struct module_data *, HIO_HANDLE *, const int);
@@ -208,7 +208,6 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
 	int i, j;
-	int smp_size;
 	struct xmp_event ev, *event;
 	struct st_header mh;
 	uint8 mod_event[4];
@@ -218,16 +217,12 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	int fxused;
 	int pos;
 	int used_ins;		/* Number of samples actually used */
-	long size;
 
 	LOAD_INIT();
-
-	size = hio_size(f);
 
 	mod->chn = 4;
 	mod->ins = 15;
 	mod->smp = mod->ins;
-	smp_size = 0;
 
 	hio_read(mh.name, 1, 20, f);
 	for (i = 0; i < 15; i++) {
@@ -277,8 +272,6 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		    || mh.ins[i].loop_size > 0x1387) {
 			ust = 0;
 		}
-
-		smp_size += 2 * mh.ins[i].size;
 	}
 
 	if (libxmp_init_instrument(m) < 0) {

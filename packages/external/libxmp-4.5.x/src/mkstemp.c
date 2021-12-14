@@ -38,7 +38,6 @@
  */
 
 #include <string.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 
@@ -48,11 +47,17 @@
 #define open _open
 #endif
 
+#if defined(_MSC_VER) || defined(__WATCOMC__)
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
 
-int mkstemp(char *template)
+int mkstemp(char *pattern)
 {
 	int start, i;
 #ifdef _WIN32
@@ -62,29 +67,29 @@ int mkstemp(char *template)
 #endif
 
 	val = getpid();
-	start = strlen(template) - 1;
+	start = strlen(pattern) - 1;
 
-	while (template[start] == 'X') {
-		template[start] = '0' + val % 10;
+	while (pattern[start] == 'X') {
+		pattern[start] = '0' + val % 10;
 		val /= 10;
 		start--;
 	}
 
 	do {
 		int fd;
-		fd = open(template, O_RDWR | O_CREAT | O_EXCL | O_BINARY, 0600);
+		fd = open(pattern, O_RDWR | O_CREAT | O_EXCL | O_BINARY, 0600);
 		if (fd >= 0 || errno != EEXIST)
 			return fd;
 		i = start + 1;
 		do {
-			if (template[i] == 0)
+			if (pattern[i] == 0)
 				return -1;
-			template[i]++;
-			if (template[i] == '9' + 1)
-				template[i] = 'a';
-			if (template[i] <= 'z')
+			pattern[i]++;
+			if (pattern[i] == '9' + 1)
+				pattern[i] = 'a';
+			if (pattern[i] <= 'z')
 				break;
-			template[i] = 'a';
+			pattern[i] = 'a';
 			i++;
 		} while (1);
 	} while (1);

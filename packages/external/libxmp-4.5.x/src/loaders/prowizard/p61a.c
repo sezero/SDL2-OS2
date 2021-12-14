@@ -27,18 +27,18 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     uint8 tdata[512][256];
     uint8 ptable[128];
     int isize[31];
-    uint8 PACK[31];
+    /* uint8 PACK[31]; */
     uint8 use_delta = 0;
-    uint8 use_packed = 0;
+    /* uint8 use_packed = 0; */
     int taddr[128][4];
     int tdata_addr = 0;
     int sdata_addr = 0;
-    int ssize = 0;
+    /* int ssize = 0; */
     int i = 0, j, k, l, a, b, z;
     int smp_size[31];
     int saddr[31];
-    int Unpacked_Sample_Data_Size;
-    int x;
+    /* int Unpacked_Sample_Data_Size; */
+    int val;
 
     memset(taddr, 0, sizeof(taddr));
     memset(tdata, 0, sizeof(tdata));
@@ -47,7 +47,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     memset(isize, 0, sizeof(isize));
     memset(saddr, 0, sizeof(saddr));
     for (i = 0; i < 31; i++) {
-	PACK[i] = 0;
+	/* PACK[i] = 0; */
 	/* DELTA[i] = 0;*/
     }
 
@@ -67,14 +67,16 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     }
     if (nins & 0x40) {
 	/* Some samples are packed -- depacking not implemented */
-	use_packed = 1;
+	/* use_packed = 1; */
 	return -1;
     }
     nins &= 0x3f;
 
     /* read unpacked sample data size */
+    /*
     if (use_packed == 1)
 	Unpacked_Sample_Data_Size = hio_read32b(in);
+    */
 
     pw_write_zero(out, 20);		/* write title */
 
@@ -93,28 +95,30 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	        saddr[i] = saddr[i - 1] + smp_size[i - 1];
             }
 	    smp_size[i] = j * 2;
-	    ssize += smp_size[i];
+	    /* ssize += smp_size[i]; */
 	}
 	j = smp_size[i] / 2;
 	write16b(out, isize[i]);
 
 	c1 = hio_read8(in);			/* finetune */
+	/*
 	if (c1 & 0x40)
 	    PACK[i] = 1;
+	*/
 	c1 &= 0x3f;
 	write8(out, c1);
 
 	write8(out, hio_read8(in));		/* volume */
 
 	/* loop start */
-	x = hio_read16b(in);
-	if (x == 0xffff) {
+	val = hio_read16b(in);
+	if (val == 0xffff) {
 	    write16b(out, 0x0000);
 	    write16b(out, 0x0001);
 	    continue;
 	}
-	write16b(out, x);
-	write16b(out, j - x);
+	write16b(out, val);
+	write16b(out, j - val);
     }
 
     /* go up to 31 samples */
@@ -177,7 +181,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	                }
 	                c4 = c3 - 0x80;
 
-	                for (l = 0; l < c4; l++) {
+	                for (l = 0; l < c4 && k < max_row; l++) {
 	                    k++;
 			    x = &tdata[i * 4 + j][k * 4];
 	                    *x++ = (c2 & 0x10) | ptk_table[c6 / 2][0];
@@ -216,7 +220,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	                    continue;
 	                }
 	                c4 = c3 - 0x80;		/* repeat current row */
-	                for (l = 0; l < c4; l++) {
+	                for (l = 0; l < c4 && k < max_row; l++) {
 	                    k++;
 			    x = &tdata[i * 4 + j][k * 4] + 2;
 	                    *x++ = c1 & 0x0f;
@@ -265,7 +269,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	            }
 	            c4 = c4 - 0x80;
 
-	            for (l = 0; l < c4; l++) {	/* repeat row c4-0x80 times */
+	            for (l = 0; l < c4 && k < max_row; l++) {	/* repeat row c4-0x80 times */
 	                k++;
 			x = &tdata[i * 4 + j][k * 4];
 
@@ -333,7 +337,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	                            continue;
 	                        }
 	                        c4 = c3 - 0x80;	/* repeat row c3-0x80 times */
-	                        for (b = 0; b < c4; b++) {
+	                        for (b = 0; b < c4 && k < max_row; b++) {
 	                            k++;
 			            x = &tdata[i * 4 + j][k * 4];
 	                            *x++ = (c2 & 0x10) | ptk_table[c6 / 2][0];
@@ -375,7 +379,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	                            continue;
 	                        }
 	                        c4 = c3 - 0x80;	/* repeat row c3-0x80 times */
-	                        for (b = 0; b < c4; b++) {
+	                        for (b = 0; b < c4 && k < max_row; b++) {
 	                            k++;
 			            x = &tdata[i * 4 + j][k * 4] + 2;
 	                            *x++ = c1 & 0x0f;
@@ -422,8 +426,8 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	                        continue;
 	                    }
 	                    c4 = c4 - 0x80;	/* repeat row c4-0x80 times */
-	                    for (b = 0; b < c4; b++) {
-	                        k += 1;
+	                    for (b = 0; b < c4 && k < max_row; b++) {
+	                        k++;
 			        x = &tdata[i * 4 + j][k * 4];
 
 	                        *x++ = ((c1 << 4) & 0x10) |ptk_table[c1 / 2][0];
@@ -511,7 +515,6 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     }
 
     /* write pattern data */
-
     for (i = 0; i < npat; i++) {
 	memset(tmp, 0, sizeof(tmp));
 	for (j = 0; j < 64; j++) {
@@ -529,8 +532,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     /*printf ( "writing sample data ... " ); */
     for (i = 0; i < nins; i++) {
 	hio_seek(in, sdata_addr + saddr[i], 0);
-	smp_buffer = malloc(smp_size[i]);
-	memset(smp_buffer, 0, smp_size[i]);
+	smp_buffer = (signed char *) calloc(1, smp_size[i]);
 	hio_read(smp_buffer, smp_size[i], 1, in);
 	if (use_delta == 1) {
 	    c1 = 0;
@@ -561,7 +563,7 @@ static int test_p61a(const uint8 *data, char *t, int s)
     int nins;
     int pattern_data_offset;
     int sample_data_offset;
-    int ssize;
+    /* int ssize; */
 
 #if 0
     if (i < 7) {
@@ -596,14 +598,16 @@ static int test_p61a(const uint8 *data, char *t, int s)
     }
 
     /* test sample sizes and loop start */
-    ssize = 0;
+    /* ssize = 0; */
     for (i = 0; i < nins; i++) {
 	len = readmem16b(data + i * 6 + 4);
 	if ((len <= 0xffdf && len > 0x8000) || len == 0)
 	    return -1;
 
+	/*
 	if (len < 0xff00)
 	    ssize += len * 2;
+	*/
 
 	lstart = readmem16b(data + i * 6 + 8);
 	if (lstart != 0xffff && lstart >= len)
@@ -799,9 +803,7 @@ void testP61A_pack (void)
     }
 
     /* test sample data address */
-    j =
-	(data[start] << 8) + data[start +
-	1];
+    j = (data[start] << 8) + data[start + 1];
     if (j < (k * 6 + 8 + m * 8)) {
 /*printf ( "#6 Start:%ld\n" , start );*/
 	Test = BAD;

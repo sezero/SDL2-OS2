@@ -12,14 +12,9 @@
    (couldn't keep stdint types, some platforms we build on didn't like them)
 */
 
-/* #include <assert.h> */
-#include <sys/stat.h>
-#include "common.h"
+/*#include <assert.h>*/
+#include "../common.h"
 #include "depacker.h"
-
-/* #include "compat.h" 
-
-#include "s404_dec.h" */
 
 
 struct bitstream {
@@ -91,12 +86,9 @@ static int getb(struct bitstream *bs, int nbits)
 
 
 /* Returns bytes still to read.. or < 0 if error. */
-static int checkS404File(uint32 *buf, /*size_t len,*/
-			 int32 *oLen, int32 *pLen, int32 *sLen )
+static int checkS404File(uint32 *buf,
+                         int32 *oLen, int32 *pLen, int32 *sLen )
 {
-  /*if (len < 16)
-    return -1;*/
-
   if (memcmp(buf, "S404", 4) != 0)
     return -1;
 
@@ -115,7 +107,7 @@ static int checkS404File(uint32 *buf, /*size_t len,*/
 
 
 static int decompressS404(uint8 *src, uint8 *orgdst,
-			   int32 dst_length, int32 src_length)
+                          int32 dst_length, int32 src_length)
 {
   uint16 w;
   int32 eff;
@@ -128,6 +120,10 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
   dst = orgdst + oLen;
 
   eff = initGetb(&bs, src, src_length);
+
+  /* Sanity check--prevent invalid shift exponents. */
+  if (eff < 6 || eff >= 32)
+    return -1;
 
   /*printf("_bl: %02X, _bb: %04X, eff: %d\n",_bl,_bb, eff);*/
 
@@ -171,7 +167,7 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
         w = x;
 
         /*printf("1+001+1111+[4] -> [8] -> %02X\n",w);*/
-	/*assert(dst > orgdst);*/
+        /*assert(dst > orgdst);*/
         if (orgdst >= dst) {
           return -1;
         }
@@ -182,7 +178,7 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
       if (w >= 0x180) {
         /* copy 2-3 */
         n = w & 0x40 ? 3 : 2;
-        
+
         if (w & 0x20) {
           /* dist 545 -> */
           w = (w & 0x1f) << (eff - 5);
@@ -219,7 +215,7 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
       } else if (w >= 0x140) {
         /* copy 4-7 */
         n = ((w & 0x30) >> 4) + 4;
-        
+
         if (w & 0x08) {
           /* dist 545 -> */
           w = (w & 0x07) << (eff - 3);
@@ -256,7 +252,7 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
       } else if (w >= 0x120) {
         /* copy 8-22 */
         n = ((w & 0x1e) >> 1) + 8;
-        
+
         if (w & 0x01) {
           /* dist 545 -> */
           x = getb(&bs, eff);
@@ -295,7 +291,7 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
         }
       } else {
         w = (w & 0x1f) << 3;
-	x = getb(&bs, 3);
+        x = getb(&bs, 3);
         /* Sanity check */
         if (x < 0) {
           return -1;
@@ -335,7 +331,7 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
         } else {
           /* dist 33 -> 544; */
           w <<= 4;
-	  x = getb(&bs, 4);
+          x = getb(&bs, 4);
           /* Sanity check */
           if (x < 0) {
             return -1;
@@ -352,10 +348,10 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
 
       while (n-- > 0) {
         /* printf("Copying: %02X\n",dst[w]); */
-	dst--;
-	if (dst < orgdst || (dst + w + 1) >= (orgdst + dst_length))
+        dst--;
+        if (dst < orgdst || (dst + w + 1) >= (orgdst + dst_length))
             return -1;
-	*dst = dst[w + 1];
+        *dst = dst[w + 1];
       }
     }
   }
@@ -368,35 +364,44 @@ static int test_s404(unsigned char *b)
 	return memcmp(b, "S404", 4) == 0;
 }
 
-static int decrunch_s404(FILE *in, /* size_t s, */ FILE *out)
+static int decrunch_s404(FILE *in, FILE *out, long inlen)
 {
   int32 oLen, sLen, pLen;
   uint8 *dst = NULL;
-  struct stat st;
   uint8 *buf, *src;
 
-  if (fstat(fileno(in), &st))
+  if (inlen <= 16)
     return -1;
-  if (st.st_size <= 16)
-    return -1;
-  src = buf = malloc(st.st_size);
+  src = buf = (uint8 *) malloc(inlen);
   if (src == NULL)
     return -1;
-  if (fread(buf, 1, st.st_size, in) != st.st_size) {
+  if (fread(buf, 1, inlen, in) != inlen) {
     goto error;
   }
 
-  if (checkS404File((uint32 *) src, /*s,*/ &oLen, &pLen, &sLen)) {
+  if (checkS404File((uint32 *) src, &oLen, &pLen, &sLen)) {
     /*fprintf(stderr,"S404 Error: checkS404File() failed..\n");*/
     goto error;
   }
 
   /* Sanity check */
-  if (pLen > st.st_size - 18) {
+  if (pLen > inlen - 18) {
     goto error;
   }
 
-  if ((dst = malloc(oLen)) == NULL) {
+  /**
+   * Best case ratio of S404 sliding window:
+   *
+   *  2-3:  9b + (>=1b) -> 2-3B  ->  24:10
+   *  4-7:  9b + (>=3b) -> 4-7B  ->  56:12
+   *  8:22: 9b + (>=6b) -> 8-22B -> 176:15
+   *  23+:  9b + 3b + 8b * floor((n-23)/255) + 7b + (>=0b) -> n B -> ~255:1
+   */
+  if (pLen < (oLen / 255)) {
+    goto error;
+  }
+
+  if ((dst = (uint8 *)malloc(oLen)) == NULL) {
     /*fprintf(stderr,"S404 Error: malloc(%d) failed..\n", oLen);*/
     goto error;
   }

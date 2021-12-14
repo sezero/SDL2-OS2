@@ -2,6 +2,7 @@
 #define LIBXMP_COMMON_H
 
 #include <stdarg.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,16 +16,41 @@
 #define LIBXMP_EXPORT_VAR
 #endif
 
+#ifndef __cplusplus
+#define LIBXMP_BEGIN_DECLS
+#define LIBXMP_END_DECLS
+#else
+#define LIBXMP_BEGIN_DECLS	extern "C" {
+#define LIBXMP_END_DECLS	}
+#endif
+
+#if defined(_MSC_VER) && !defined(__cplusplus)
+#define inline __inline
+#endif
+
+#if defined(_MSC_VER) ||  defined(__WATCOMC__) || defined(__EMX__)
+#define XMP_MAXPATH _MAX_PATH
+#elif defined(PATH_MAX)
+#define XMP_MAXPATH  PATH_MAX
+#else
+#define XMP_MAXPATH  1024
+#endif
+
 #if defined(__MORPHOS__) || defined(__AROS__) || defined(AMIGAOS) || \
     defined(__amigaos__) || defined(__amigaos4__) ||defined(__amigados__) || \
     defined(AMIGA) || defined(_AMIGA) || defined(__AMIGA__)
 #define LIBXMP_AMIGA	1	/* to identify amiga platforms. */
 #endif
 
-#if (defined(__GNUC__) || defined(__clang__)) && defined(XMP_SYM_VISIBILITY)
-#if !defined(_WIN32) && !defined(__ANDROID__) && !defined(__APPLE__) && !defined(LIBXMP_AMIGA) && !defined(__MSDOS__) && !defined(B_BEOS_VERSION) && !defined(__ATHEOS__) && !defined(EMSCRIPTEN) && !defined(__MINT__)
-#define USE_VERSIONED_SYMBOLS
+#ifdef HAVE_EXTERNAL_VISIBILITY
+#define LIBXMP_EXPORT_VERSIONED __attribute__((visibility("default"),externally_visible))
+#else
+#define LIBXMP_EXPORT_VERSIONED __attribute__((visibility("default")))
 #endif
+#ifdef HAVE_ATTRIBUTE_SYMVER
+#define LIBXMP_ATTRIB_SYMVER(_sym) __attribute__((__symver__(_sym)))
+#else
+#define LIBXMP_ATTRIB_SYMVER(_sym)
 #endif
 
 /* AmigaOS fixes by Chris Young <cdyoung@ntlworld.com>, Nov 25, 2007
@@ -45,7 +71,7 @@ typedef unsigned int uint32;
 #ifdef _MSC_VER				/* MSVC++6.0 has no long long */
 typedef signed __int64 int64;
 typedef unsigned __int64 uint64;
-#elif !defined B_BEOS_VERSION		/* BeOS has its own int64 definition */
+#elif !(defined(B_BEOS_VERSION) || defined(__amigaos4__))
 typedef unsigned long long uint64;
 typedef signed long long int64;
 #endif
@@ -72,6 +98,11 @@ typedef signed long long int64;
 #define RESET_FLAG(a,b)	((a)&=~(b))
 #define TEST_FLAG(a,b)	!!((a)&(b))
 
+/* libxmp_get_filetype() return values */
+#define XMP_FILETYPE_NONE		0
+#define XMP_FILETYPE_DIR	(1 << 0)
+#define XMP_FILETYPE_FILE	(1 << 1)
+
 #define CLAMP(x,a,b) do { \
     if ((x) < (a)) (x) = (a); \
     else if ((x) > (b)) (x) = (b); \
@@ -96,11 +127,12 @@ typedef signed long long int64;
 #endif
 void CLIB_DECL D_(const char *text, ...) ATTR_PRINTF(1,2);
 #else
-// VS prior to VC7.1 does not support variadic macros. VC8.0 does not optimize unused parameters passing
+/* VS prior to VC7.1 does not support variadic macros.
+ * VC8.0 does not optimize unused parameters passing. */
 #if _MSC_VER < 1400
 void __inline CLIB_DECL D_(const char *text, ...) { do {} while (0); }
 #else
-#define D_(args, ...) do {} while (0)
+#define D_(...) do {} while (0)
 #endif
 #endif
 
@@ -111,21 +143,8 @@ void __inline CLIB_DECL D_(const char *text, ...) { do {} while (0); }
 #define D_CRIT "  Error: "
 #define D_WARN "Warning: "
 #define D_INFO "   Info: "
-#define D_(args...) do { \
-	__android_log_print(ANDROID_LOG_DEBUG, "libxmp", args); \
-	} while (0)
-#else
-#define D_(args...) do {} while (0)
-#endif
-
-#elif defined(__WATCOMC__)
-#ifdef DEBUG
-#define D_INFO "\x1b[33m"
-#define D_CRIT "\x1b[31m"
-#define D_WARN "\x1b[36m"
 #define D_(...) do { \
-	printf("\x1b[33m%s \x1b[37m[%s:%d] " D_INFO, __FUNCTION__, \
-		__FILE__, __LINE__); printf (__VA_ARGS__); printf ("\x1b[0m\n"); \
+	__android_log_print(ANDROID_LOG_DEBUG, "libxmp", __VA_ARGS__); \
 	} while (0)
 #else
 #define D_(...) do {} while (0)
@@ -137,12 +156,12 @@ void __inline CLIB_DECL D_(const char *text, ...) { do {} while (0); }
 #define D_INFO "\x1b[33m"
 #define D_CRIT "\x1b[31m"
 #define D_WARN "\x1b[36m"
-#define D_(args...) do { \
+#define D_(...) do { \
 	printf("\x1b[33m%s \x1b[37m[%s:%d] " D_INFO, __FUNCTION__, \
-		__FILE__, __LINE__); printf (args); printf ("\x1b[0m\n"); \
+		__FILE__, __LINE__); printf (__VA_ARGS__); printf ("\x1b[0m\n"); \
 	} while (0)
 #else
-#define D_(args...) do {} while (0)
+#define D_(...) do {} while (0)
 #endif
 
 #endif	/* !_MSC_VER */
@@ -232,8 +251,9 @@ int libxmp_snprintf (char *, size_t, const char *, ...);
 /* Time factor */
 #define DEFAULT_TIME_FACTOR	10.0
 #define MED_TIME_FACTOR		2.64
+#define FAR_TIME_FACTOR		4.01373	/* See far_extras.c */
 
-#define MAX_SEQUENCES		16
+#define MAX_SEQUENCES		255
 #define MAX_SAMPLE_SIZE		0x10000000
 #define MAX_SAMPLES		1024
 #define MAX_INSTRUMENTS		255
@@ -260,7 +280,6 @@ struct ord_data {
 	int st26_speed;
 #endif
 };
-
 
 
 /* Context */
@@ -293,7 +312,7 @@ struct module_data {
 	int volbase;			/* Volume base */
 	int gvolbase;			/* Global volume base */
 	int gvol;			/* Global volume */
-	int *vol_table;			/* Volume translation table */
+	const int *vol_table;		/* Volume translation table */
 	int quirk;			/* player quirks */
 #define READ_EVENT_MOD	0
 #define READ_EVENT_FT2	1
@@ -348,6 +367,13 @@ struct virt_channel {
 	int map;
 };
 
+struct scan_data {
+	int time;			/* replay time in ms */
+	int row;
+	int ord;
+	int num;
+};
+
 struct player_data {
 	int ord;
 	int pos;
@@ -372,12 +398,7 @@ struct player_data {
 
 	struct flow_control flow;
 
-	struct {
-		int time;		/* replay time in ms */
-		int ord;
-		int row;
-		int num;
-	} scan[MAX_SEQUENCES];
+	struct scan_data *scan;
 
 	struct channel_data *xc_data;
 
@@ -469,5 +490,7 @@ uint32	readmem32b		(const uint8 *);
 
 struct xmp_instrument *libxmp_get_instrument(struct context_data *, int);
 struct xmp_sample *libxmp_get_sample(struct context_data *, int);
+
+int libxmp_get_filetype (const char *path);
 
 #endif /* LIBXMP_COMMON_H */

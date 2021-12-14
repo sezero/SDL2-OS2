@@ -21,7 +21,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 #define MAGIC_PSM_	MAGIC4('P','S','M',0xfe)
 
@@ -85,13 +85,13 @@ static int psm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read16l(f);			/* ignore channels to play */
 	mod->chn = hio_read16l(f);	/* use channels to proceed */
 	mod->smp = mod->ins;
-	mod->trk = mod->pat * mod->chn;
 
 	/* Sanity check */
 	if (mod->len > 256 || mod->pat > 256 || mod->ins > 255 ||
 	    mod->chn > XMP_MAX_CHANNELS) {
 		return -1;
-        }
+	}
+	mod->trk = mod->pat * mod->chn;
 
 	p_ord = hio_read32l(f);
 	p_chn = hio_read32l(f);
@@ -132,7 +132,7 @@ static int psm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_read32l(f);			/* memory location */
 		hio_read16l(f);			/* sample number */
 		flags = hio_read8(f);		/* sample type */
-		mod->xxs[i].len = hio_read32l(f); 
+		mod->xxs[i].len = hio_read32l(f);
 		mod->xxs[i].lps = hio_read32l(f);
 		mod->xxs[i].lpe = hio_read32l(f);
 		finetune = (int8)(hio_read8(f) << 4);
@@ -147,6 +147,15 @@ static int psm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 						&mod->xxi[i].sub[0].fin);
 		mod->xxi[i].sub[0].fin += finetune;
 
+		/* The documentation claims samples shouldn't exceed 64k. The
+		 * PS16 modules from Silverball and Epic Pinball confirm this.
+		 * Later Protracker Studio Modules (MASI) allow up to 1MB.
+		 */
+		if ((uint32)mod->xxs[i].len > 64 * 1024) {
+			D_(D_CRIT "invalid sample %d length %d", i, mod->xxs[i].len);
+			return -1;
+		}
+
 		if (mod->xxs[i].len > 0)
 			mod->xxi[i].nsm = 1;
 
@@ -155,7 +164,7 @@ static int psm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			mod->xxs[i].lpe, mod->xxs[i].flg & XMP_SAMPLE_LOOP ?
 			'L' : ' ', mod->xxi[i].sub[0].vol, c2spd);
 	}
-	
+
 	if (libxmp_init_pattern(mod) < 0)
 		return -1;
 
@@ -186,23 +195,23 @@ static int psm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 				if (b == 0)
 					break;
-	
+
 				c = b & 0x0f;
 				if (c >= mod->chn)
 					return -1;
 				event = &EVENT(i, c, r);
-	
+
 				if (b & 0x80) {
 					event->note = hio_read8(f) + 36 + 1;
 					event->ins = hio_read8(f);
 					len -= 2;
 				}
-	
+
 				if (b & 0x40) {
 					event->vol = hio_read8(f) + 1;
 					len--;
 				}
-	
+
 				if (b & 0x20) {
 					event->fxt = hio_read8(f);
 					event->fxp = hio_read8(f);

@@ -31,11 +31,6 @@
 #endif
 
 
-static inline int is_valid_note(int note)
-{
-	return (note >= 0 && note < XMP_MAX_KEYS);
-}
-
 static struct xmp_subinstrument *get_subinstrument(struct context_data *ctx,
 						   int ins, int key)
 {
@@ -45,7 +40,7 @@ static struct xmp_subinstrument *get_subinstrument(struct context_data *ctx,
 
 	if (IS_VALID_INSTRUMENT(ins)) {
 		instrument = &mod->xxi[ins];
-		if (is_valid_note(key)) {
+		if (IS_VALID_NOTE(key)) {
 			int mapped = instrument->map[key].ins;
 			if (mapped != 0xff && mapped >= 0 && mapped < instrument->nsm)
 			  	return &instrument->sub[mapped];
@@ -67,7 +62,7 @@ static void reset_envelopes(struct context_data *ctx, struct channel_data *xc)
 	if (!IS_VALID_INSTRUMENT(xc->ins))
 		return;
 
- 	RESET_NOTE(NOTE_ENV_END);
+	RESET_NOTE(NOTE_ENV_END);
 
 	xc->v_idx = -1;
 	xc->p_idx = -1;
@@ -75,6 +70,20 @@ static void reset_envelopes(struct context_data *ctx, struct channel_data *xc)
 }
 
 #ifndef LIBXMP_CORE_DISABLE_IT
+
+static void reset_envelope_volume(struct context_data *ctx,
+				struct channel_data *xc)
+{
+	struct module_data *m = &ctx->m;
+	struct xmp_module *mod = &m->mod;
+
+	if (!IS_VALID_INSTRUMENT(xc->ins))
+		return;
+
+	RESET_NOTE(NOTE_ENV_END);
+
+	xc->v_idx = -1;
+}
 
 static void reset_envelopes_carry(struct context_data *ctx,
 				struct channel_data *xc)
@@ -109,10 +118,11 @@ static void set_effect_defaults(struct context_data *ctx, int note,
 				struct channel_data *xc, int is_toneporta)
 {
 	struct module_data *m = &ctx->m;
-	struct xmp_module *mod = &m->mod;
-	struct smix_data *smix = &ctx->smix;
-	
+
 	if (sub != NULL && note >= 0) {
+#ifndef LIBXMP_CORE_DISABLE_IT
+		struct xmp_module *mod = &m->mod;
+		struct smix_data *smix = &ctx->smix;
 		struct xmp_instrument *xxi;
 
 		if (xc->ins >= mod->ins) {
@@ -120,6 +130,7 @@ static void set_effect_defaults(struct context_data *ctx, int note,
 		} else {
 			xxi = &mod->xxi[xc->ins];
 		}
+#endif
 
 		if (!HAS_QUIRK(QUIRK_PROTRACK)) {
 			xc->finetune = sub->fin;
@@ -215,7 +226,8 @@ static void set_period_ft2(struct context_data *ctx, int note,
 #ifndef LIBXMP_CORE_PLAYER
 #define IS_SFX_PITCH(x) ((x) == FX_PITCH_ADD || (x) == FX_PITCH_SUB)
 #define IS_TONEPORTA(x) ((x) == FX_TONEPORTA || (x) == FX_TONE_VSLIDE \
-		|| (x) == FX_PER_TPORTA)
+		|| (x) == FX_PER_TPORTA || (x) == FX_ULT_TPORTA \
+		|| (x) == FX_FAR_TPORTA)
 #else
 #define IS_TONEPORTA(x) ((x) == FX_TONEPORTA || (x) == FX_TONE_VSLIDE)
 #endif
@@ -293,7 +305,7 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 		if (e->note == XMP_KEY_OFF) {
 			SET_NOTE(NOTE_RELEASE);
 			use_ins_vol = 0;
-		} else if (!is_toneporta && is_valid_note(e->note - 1)) {
+		} else if (!is_toneporta && IS_VALID_NOTE(e->note - 1)) {
 			xc->key = e->note - 1;
 			RESET_NOTE(NOTE_END);
 
@@ -306,7 +318,7 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 				note = xc->key + sub->xpo + transp;
 				smp = sub->sid;
 
-				if (mod->xxs[smp].len == 0) {
+				if (!IS_VALID_SAMPLE(smp)) {
 					smp = -1;
 				}
 
@@ -332,6 +344,7 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 	if (e->vol) {
 		xc->volume = e->vol - 1;
 		SET(NEW_VOL);
+		RESET_PER(VOL_SLIDE); /* FIXME: should this be for FAR only? */
 	}
 
 	/* Secondary effect handled first */
@@ -375,6 +388,7 @@ static int sustain_check(struct xmp_envelope *env, int idx)
 {
 	return (env &&
 		(env->flg & XMP_ENVELOPE_ON) &&
+		(env->flg & XMP_ENVELOPE_SUS) &&
 		(~env->flg & XMP_ENVELOPE_LOOP) &&
 		idx == env->data[env->sus << 1]);
 }
@@ -457,19 +471,17 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 	/* FT2: Retrieve old instrument volume */
 	if (ins) {
 		if (key == 0 || key >= XMP_KEY_OFF) {
-			struct xmp_subinstrument *sub;
-
 			/* Previous instrument */
 			sub = get_subinstrument(ctx, xc->ins, xc->key);
 
 			/* No note */
 			if (sub != NULL) {
-				int p = mod->xxc[chn].pan - 128;
+				int pan = mod->xxc[chn].pan - 128;
 				xc->volume = sub->vol;
 
 				if (!HAS_QUIRK(QUIRK_FTMOD)) {
-					xc->pan.val = p + ((sub->pan - 128) *
-						(128 - abs(p))) / 128 + 128;
+					xc->pan.val = pan + ((sub->pan - 128) *
+						(128 - abs(pan))) / 128 + 128;
 				}
 
 				xc->ins_fade = mod->xxi[xc->ins].rls;
@@ -516,11 +528,8 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 	}
 
 	/* Check note */
-
 	if (ins) {
 		if (key > 0 && key < XMP_KEY_OFF) {
-			struct xmp_subinstrument *sub;
-
 			/* Retrieve volume when we have note */
 
 			/* and only if we have instrument, otherwise we're in
@@ -530,12 +539,12 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 			/* Current instrument */
 			sub = get_subinstrument(ctx, xc->ins, key - 1);
 			if (sub != NULL) {
-				int p = mod->xxc[chn].pan - 128;
+				int pan = mod->xxc[chn].pan - 128;
 				xc->volume = sub->vol;
 
 				if (!HAS_QUIRK(QUIRK_FTMOD)) {
-					xc->pan.val = p + ((sub->pan - 128) *
-						(128 - abs(p))) / 128 + 128;
+					xc->pan.val = pan + ((sub->pan - 128) *
+						(128 - abs(pan))) / 128 + 128;
 				}
 
 				xc->ins_fade = mod->xxi[xc->ins].rls;
@@ -570,7 +579,7 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 					env_on = 1;
 				}
 			}
-			
+
 			if (env_on || (!vol_set && (!ev.ins || !delay_fx))) {
 				if (sustain_check(env, xc->v_idx)) {
 					/* See OpenMPT EnvOff.xm. In certain
@@ -627,7 +636,7 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 	 *  and remains in the memory."
 	 */
 	sub = NULL;
-	if (is_valid_note(key - 1)) {
+	if (IS_VALID_NOTE(key - 1)) {
 		int k = key - 1;
 		sub = get_subinstrument(ctx, xc->ins, k);
 		if (!new_invalid_ins && sub != NULL) {
@@ -640,7 +649,7 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 		}
 	}
 
-	if (is_valid_note(key - 1)) {
+	if (IS_VALID_NOTE(key - 1)) {
 		xc->key = --key;
 		xc->fadeout = 0x10000;
 		RESET_NOTE(NOTE_END);
@@ -658,7 +667,7 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 			note = key + sub->xpo + transp;
 			smp = sub->sid;
 
-			if (mod->xxs[smp].len == 0) {
+			if (!IS_VALID_SAMPLE(smp)) {
 				smp = -1;
 			}
 
@@ -814,7 +823,7 @@ static int read_event_st3(struct context_data *ctx, struct xmp_event *e, int chn
 			if (not_same_ins) {
 				xc->offset.val = 0;
 			}
-		} else if (is_valid_note(e->note - 1)) {
+		} else if (IS_VALID_NOTE(e->note - 1)) {
 			xc->key = e->note - 1;
 			RESET_NOTE(NOTE_END);
 
@@ -827,7 +836,7 @@ static int read_event_st3(struct context_data *ctx, struct xmp_event *e, int chn
 				note = xc->key + sub->xpo + transp;
 				smp = sub->sid;
 
-				if (mod->xxs[smp].len == 0) {
+				if (!IS_VALID_SAMPLE(smp)) {
 					smp = -1;
 				}
 
@@ -1178,7 +1187,7 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 					SET(NEW_INS);
 					RESET_NOTE(NOTE_RELEASE|NOTE_SUSEXIT|NOTE_FADEOUT);
 				} else {
-					if (is_valid_note(key - 1)) {
+					if (IS_VALID_NOTE(key - 1)) {
 						xc->key_porta = key - 1;
 					}
 					key = 0;
@@ -1187,7 +1196,7 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 		}
 	}
 
-	if (is_valid_note(key - 1) && !new_invalid_ins) {
+	if (IS_VALID_NOTE(key - 1) && !new_invalid_ins) {
 		if (TEST_NOTE(NOTE_CUT)) {
 			use_ins_vol = 1;	/* See OpenMPT NoteOffInstr.it */
 		}
@@ -1203,7 +1212,7 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 
 			note = key + sub->xpo + transp;
 			smp = sub->sid;
-			if (smp >= mod->smp || mod->xxs[smp].len == 0) {
+			if (!IS_VALID_SAMPLE(smp)) {
 				smp = -1;
 			}
 
@@ -1268,10 +1277,11 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 	 * finished (OpenMPT test EnvReset.it). This must take place after
 	 * channel copies in case of NNA (see test/test.it)
 	 * Also if we have envelope in carry mode, check fadeout
+	 * Also, only reset the volume envelope. (it_fade_env_reset_carry.it)
 	 */
 	if (ev.ins && TEST_NOTE(NOTE_ENV_END)) {
 		if (check_fadeout(ctx, xc, candidate_ins)) {
-			reset_envelopes(ctx, xc);
+			reset_envelope_volume(ctx, xc);
 		} else {
 			reset_env = 0;
 		}
@@ -1420,7 +1430,7 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 			SET_NOTE(NOTE_END);
 			xc->period = 0;
 			libxmp_virt_resetchannel(ctx, chn);
-		} else if (!is_toneporta && IS_VALID_INSTRUMENT(xc->ins) && is_valid_note(e->note - 1)) {
+		} else if (!is_toneporta && IS_VALID_INSTRUMENT(xc->ins) && IS_VALID_NOTE(e->note - 1)) {
 			struct xmp_instrument *xxi = &mod->xxi[xc->ins];
 
 			xc->key = e->note - 1;
@@ -1445,7 +1455,7 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 				note = xc->key + sub->xpo + transp;
 				smp = sub->sid;
 
-				if (mod->xxs[smp].len == 0) {
+				if (!IS_VALID_SAMPLE(smp)) {
 					smp = -1;
 				}
 
@@ -1559,7 +1569,7 @@ static int read_event_smix(struct context_data *ctx, struct xmp_event *e, int ch
 			xc->smp = smp;
 		}
 	} else {
-		sub = is_valid_note(xc->key) ?
+		sub = IS_VALID_NOTE(xc->key) ?
 			get_subinstrument(ctx, xc->ins, xc->key) : NULL;
 		if (sub == NULL) {
 			return 0;
@@ -1567,7 +1577,7 @@ static int read_event_smix(struct context_data *ctx, struct xmp_event *e, int ch
 		transp = mod->xxi[xc->ins].map[xc->key].xpo;
 		note = xc->key + sub->xpo + transp;
 		smp = sub->sid;
-		if (mod->xxs[smp].len == 0)
+		if (!IS_VALID_SAMPLE(smp))
 			smp = -1;
 		if (smp >= 0 && smp < mod->smp) {
 			set_patch(ctx, chn, xc->ins, smp, note);

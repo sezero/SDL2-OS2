@@ -42,6 +42,10 @@
 #include "effects.h"
 #include "mixer.h"
 
+#ifndef LIBXMP_CORE_PLAYER
+#include "far_extras.h"
+#endif
+
 #define S3M_END		0xff
 #define S3M_SKIP	0xfe
 
@@ -50,7 +54,9 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 {
     struct player_data *p = &ctx->p;
     struct module_data *m = &ctx->m;
-    struct xmp_module *mod = &m->mod;
+    const struct xmp_module *mod = &m->mod;
+    const struct xmp_track *tracks[XMP_MAX_CHANNELS];
+    const struct xmp_event *event;
     int parm, gvol_memory, f1, f2, p1, p2, ord, ord2;
     int row, last_row, break_row, row_count, row_count_total;
     int orders_since_last_valid, any_valid;
@@ -61,19 +67,19 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     int pdelay = 0;
     int loop_count[XMP_MAX_CHANNELS];
     int loop_row[XMP_MAX_CHANNELS];
-    struct xmp_event* event;
     int i, pat;
     int has_marker;
     struct ord_data *info;
 #ifndef LIBXMP_CORE_PLAYER
     int st26_speed;
+    int far_tempo_coarse, far_tempo_fine, far_tempo_mode;
 #endif
 
     if (mod->len == 0)
 	return 0;
 
     for (i = 0; i < mod->len; i++) {
-	int pat = mod->xxo[i];
+	pat = mod->xxo[i];
 	memset(m->scan_cnt[i], 0, pat >= mod->pat ? 1 :
 			mod->xxp[pat]->rows ? mod->xxp[pat]->rows : 1);
     }
@@ -92,6 +98,15 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     base_time = m->rrate;
 #ifndef LIBXMP_CORE_PLAYER
     st26_speed = 0;
+    far_tempo_coarse = 4;
+    far_tempo_fine = 0;
+    far_tempo_mode = 1;
+
+    if (HAS_FAR_MODULE_EXTRAS(ctx->m)) {
+	far_tempo_coarse = FAR_MODULE_EXTRAS(ctx->m)->coarse_tempo;
+	libxmp_far_translate_tempo(far_tempo_mode, 0, far_tempo_coarse,
+				   &far_tempo_fine, &speed, &bpm);
+    }
 #endif
 
     has_marker = HAS_QUIRK(QUIRK_MARKER);
@@ -196,6 +211,11 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	    info->start_row = break_row;
 	}
 
+	/* Get tracks in advance to speed up the event parsing loop. */
+	for (chn = 0; chn < mod->chn; chn++) {
+		tracks[chn] = mod->xxt[TRACK_NUM(pat, chn)];
+	}
+
 	last_row = mod->xxp[pat]->rows;
 	for (row = break_row, break_row = 0; row < last_row; row++, row_count++, row_count_total++) {
 	    /* Prevent crashes caused by large softmixer frames */
@@ -239,10 +259,11 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	    pdelay = 0;
 
 	    for (chn = 0; chn < mod->chn; chn++) {
-		if (row >= mod->xxt[mod->xxp[pat]->index[chn]]->rows)
+		if (row >= tracks[chn]->rows)
 		    continue;
 
-		event = &EVENT(mod->xxo[ord], chn, row);
+		//event = &EVENT(mod->xxo[ord], chn, row);
+		event = &tracks[chn]->event[row];
 
 		f1 = event->fxt;
 		p1 = event->fxp;
@@ -326,6 +347,39 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 		    } else {
 			st26_speed = MSN(p1);
 		    }
+		}
+
+		/* FAR tempo processing */
+
+		if (f1 == FX_FAR_TEMPO || f1 == FX_FAR_F_TEMPO) {
+			int far_speed, far_bpm, fine_change = 0;
+			if (f1 == FX_FAR_TEMPO) {
+				if (MSN(p1)) {
+					far_tempo_mode = MSN(p1) - 1;
+				} else {
+					far_tempo_coarse = LSN(p1);
+				}
+			}
+			if (f1 == FX_FAR_F_TEMPO) {
+				if (MSN(p1)) {
+					far_tempo_fine += MSN(p1);
+					fine_change = MSN(p1);
+				} else if (LSN(p1)) {
+					far_tempo_fine -= LSN(p1);
+					fine_change = -LSN(p1);
+				} else {
+					far_tempo_fine = 0;
+				}
+			}
+			if (libxmp_far_translate_tempo(far_tempo_mode, fine_change,
+			    far_tempo_coarse, &far_tempo_fine, &far_speed, &far_bpm) == 0) {
+				frame_count += row_count * speed;
+				row_count = 0;
+				time += m->time_factor * frame_count * base_time / bpm;
+				frame_count = 0;
+				speed = far_speed;
+				bpm = far_bpm;
+			}
 		}
 #endif
 
@@ -525,9 +579,17 @@ int libxmp_scan_sequences(struct context_data *ctx)
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
 	struct xmp_module *mod = &m->mod;
+	struct scan_data *s;
 	int i, ep;
 	int seq;
 	unsigned char temp_ep[XMP_MAX_MOD_LENGTH];
+
+	s = (struct scan_data *) realloc(p->scan, MAX(1, mod->len) * sizeof(struct scan_data));
+	if (!s) {
+		D_(D_CRIT "failed to allocate scan data");
+		return -1;
+	}
+	p->scan = s;
 
 	/* Initialize order data to prevent overwrite when a position is used
 	 * multiple times at different starting points (see janosik.xm).
@@ -567,6 +629,12 @@ int libxmp_scan_sequences(struct context_data *ctx)
 		}
 	}
 
+	if (seq < mod->len) {
+		s = (struct scan_data *) realloc(p->scan, seq * sizeof(struct scan_data));
+		if (s != NULL) {
+			p->scan = s;
+		}
+	}
 	m->num_sequences = seq;
 
 	/* Now place entry points in the public accessible array */
@@ -574,7 +642,6 @@ int libxmp_scan_sequences(struct context_data *ctx)
 		m->seq_data[i].entry_point = temp_ep[i];
 		m->seq_data[i].duration = p->scan[i].time;
 	}
-
 
 	return 0;
 }

@@ -1,4 +1,4 @@
-#include "common.h"
+#include "../common.h"
 #include "inflate.h"
 #include "crc32.h"
 
@@ -149,6 +149,10 @@ static unsigned int get_alder(FILE *out)
 static int reverse_bitstream(struct bitstream_t *bitstream)
 {
   unsigned int i;
+  if (bitstream->bitptr <= 0) {
+    bitstream->holding = 0;
+    return 0;
+  }
 
   i=reverse[((bitstream->holding>>24)&255)]|
     (reverse[((bitstream->holding>>16)&255)]<<8)|
@@ -256,12 +260,11 @@ printf("load_fixed_huffman()\n");
     huffman->code[t]=code;
     code++;
   }
-
 */
 
   huffman->dist_huff_count=0;
 
-  huffman_tree=malloc(600*sizeof(struct huffman_tree_t));
+  huffman_tree=(struct huffman_tree_t *) malloc(600*sizeof(struct huffman_tree_t));
   if (huffman_tree == NULL)
     return -1;
 
@@ -1036,16 +1039,14 @@ int libxmp_inflate(FILE *in, FILE *out, uint32 *checksum, int is_zip)
 
   data.huffman_tree_len_static = NULL;
 
-  huffman_tree_len=malloc(HUFFMAN_TREE_SIZE * sizeof(struct huffman_tree_t));
+  huffman_tree_len=(struct huffman_tree_t *) malloc(HUFFMAN_TREE_SIZE * sizeof(struct huffman_tree_t));
   if (huffman_tree_len == NULL)
     goto err;
-
   memset(huffman_tree_len, 0xff, HUFFMAN_TREE_SIZE * sizeof(struct huffman_tree_t));
 
-  huffman_tree_dist=malloc(HUFFMAN_TREE_SIZE * sizeof(struct huffman_tree_t));
+  huffman_tree_dist=(struct huffman_tree_t *) malloc(HUFFMAN_TREE_SIZE * sizeof(struct huffman_tree_t));
   if (huffman_tree_dist == NULL)
     goto err;
-
   memset(huffman_tree_dist, 0xff, HUFFMAN_TREE_SIZE * sizeof(struct huffman_tree_t));
 
   huffman.window_ptr=0;

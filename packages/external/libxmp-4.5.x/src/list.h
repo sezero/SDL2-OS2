@@ -1,11 +1,10 @@
 #ifndef LIBXMP_LIST_H
 #define LIBXMP_LIST_H
 
-#ifdef _MSC_VER
+#include <stddef.h> /* offsetof */
+
+#if defined(_MSC_VER) || defined(__WATCOMC__)
 #define __inline__ __inline
-#endif
-#ifdef __WATCOMC__
-#define __inline__   inline
 #endif
 
 /*
@@ -32,7 +31,7 @@ struct list_head {
 } while (0)
 
 /*
- * Insert a new entry between two known consecutive entries. 
+ * Insert a new entry between two known consecutive entries.
  *
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
@@ -133,7 +132,7 @@ static __inline__ void list_splice(struct list_head *list, struct list_head *hea
  * @member:	the name of the list_struct within the struct.
  */
 #define list_entry(ptr, type, member) \
-	((type *)((char *)(ptr)-(size_t)(&((type *)0)->member)))
+	((type *)((char *)(ptr) - offsetof(type, member)))
 
 /**
  * list_for_each	-	iterate over a list
@@ -143,4 +142,4 @@ static __inline__ void list_splice(struct list_head *list, struct list_head *hea
 #define list_for_each(pos, head) \
 	for (pos = (head)->next; pos != (head); pos = pos->next)
 
-#endif
+#endif  /* LIBXMP_LIST_H */

@@ -20,11 +20,10 @@
  * THE SOFTWARE.
  */
 
-#include "common.h"
+#include "../common.h"
 #include "loader.h"
 
 #ifndef LIBXMP_CORE_PLAYER
-
 /*
  * From the Audio File Formats (version 2.5)
  * Submitted-by: Guido van Rossum <guido@cwi.nl>
@@ -54,7 +53,6 @@ static const int8 vdic_table[128] = {
 	/* 112 */	 62,  65,  68,  72,  77,  80,  84,  91,
 	/* 120 */	 95,  98, 103, 109, 114, 120, 126, 127
 };
-
 
 /* Convert 7 bit samples to 8 bit */
 static void convert_7bit_to_8bit(uint8 *p, int l)
@@ -95,24 +93,23 @@ static void adpcm4_decoder(uint8 *inp, uint8 *outp, char *tab, int len)
 		*outp++ = delta;
 	}
 }
-
 #endif
 
 /* Convert differential to absolute sample data */
 static void convert_delta(uint8 *p, int l, int r)
 {
 	uint16 *w = (uint16 *)p;
-	uint16 abs = 0;
+	uint16 absval = 0;
 
 	if (r) {
 		for (; l--;) {
-			abs = *w + abs;
-			*w++ = abs;
+			absval = *w + absval;
+			*w++ = absval;
 		}
 	} else {
 		for (; l--;) {
-			abs = *p + abs;
-			*p++ = (uint8) abs;
+			absval = *p + absval;
+			*p++ = (uint8) absval;
 		}
 	}
 }
@@ -290,7 +287,7 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 	}
 
 	/* add guard bytes before the buffer for higher order interpolation */
-	xxs->data = malloc(bytelen + extralen + unroll_extralen + 4);
+	xxs->data = (unsigned char *) malloc(bytelen + extralen + unroll_extralen + 4);
 	if (xxs->data == NULL) {
 		goto err;
 	}

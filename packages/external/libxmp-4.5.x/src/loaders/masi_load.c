@@ -62,10 +62,9 @@
  * ugly, maybe caused by finetune issues?
  */
 
-#include <limits.h>
 #include "loader.h"
 #include "iff.h"
-#include "period.h"
+#include "../period.h"
 
 #define MAGIC_PSM_	MAGIC4('P','S','M',' ')
 #define MAGIC_FILE	MAGIC4('F','I','L','E')
@@ -129,10 +128,10 @@ static int get_sdft(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 static int get_titl(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
-	char buf[40];
+	char buf[XMP_NAME_SIZE];
 
-	hio_read(buf, 1, 40, f);
-	size = size > 32 ? 32 : size;
+	size = size > XMP_NAME_SIZE - 1 ? XMP_NAME_SIZE - 1 : size;
+	size = hio_read(buf, 1, size, f);
 	strncpy(mod->name, buf, size);
 	mod->name[size] = '\0';
 
@@ -488,7 +487,7 @@ D_(D_CRIT "p%d r%d c%d: compressed event %02x %02x\n", i, r, chan, fxt, fxp);
 D_(D_CRIT "p%d r%d c%d: unknown effect %02x %02x\n", i, r, chan, fxt, fxp);
 					fxt = fxp = 0;
 				}
-	
+
 				event->fxt = fxt;
 				event->fxp = fxp;
 			}
@@ -608,7 +607,7 @@ static int subchunk_oplh(struct module_data *m, int size, HIO_HANDLE *f, void *p
 				break;
 			case 2:		/* surround */
 				xxc->pan = 0x80;
-                        	xxc->flg |= XMP_CHANNEL_SURROUND;
+				xxc->flg |= XMP_CHANNEL_SURROUND;
 				break;
 			case 4:		/* center */
 				xxc->pan = 0x80;
@@ -760,11 +759,11 @@ static int masi_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	libxmp_iff_release(handle);
 
 	mod->trk = mod->pat * mod->chn;
-	data.pnam = malloc(mod->pat * 8);	/* pattern names */
+	data.pnam = (uint8 *) malloc(mod->pat * 8);	/* pattern names */
 	if (data.pnam == NULL)
 		goto err;
 
-	data.pord = malloc(XMP_MAX_MOD_LENGTH * 8);	/* pattern orders */
+	data.pord = (uint8 *) malloc(XMP_MAX_MOD_LENGTH * 8);	/* pattern orders */
 	if (data.pord == NULL)
 		goto err2;
 

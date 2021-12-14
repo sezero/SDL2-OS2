@@ -20,6 +20,9 @@
  * THE SOFTWARE.
  */
 
+#ifndef LIBXMP_LOADERS_S3M_H
+#define LIBXMP_LOADERS_S3M_H
+
 /* S3M packed pattern macros */
 #define S3M_EOR		0	/* End of row */
 #define S3M_CH_MASK	0x1f	/* Channel */
@@ -79,7 +82,8 @@ struct s3m_file_header {
 };
 
 struct s3m_instrument_header {
-	uint8 dosname[13];	/* DOS file name */
+	uint8 dosname[12];	/* DOS file name */
+	uint8 memseg_hi;	/* High byte of sample pointer */
 	uint16 memseg;		/* Pointer to sample data */
 	uint32 length;		/* Length */
 	uint32 loopbeg;		/* Loop begin */
@@ -113,4 +117,4 @@ struct s3m_adlib_header {
 	uint32 magic;		/* 'SCRI' */
 };
 #endif
-
+#endif  /* LIBXMP_LOADERS_S3M_H */

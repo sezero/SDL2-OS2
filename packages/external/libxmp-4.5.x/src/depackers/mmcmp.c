@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-#include "common.h"
+#include "../common.h"
 #include "depacker.h"
 
 #define MMCMP_COMP	0x0001
@@ -263,7 +263,7 @@ static int test_mmcmp(unsigned char *b)
 	return memcmp(b, "ziRCONia", 8) == 0;
 }
 
-static int decrunch_mmcmp(FILE *in, FILE *out)
+static int decrunch_mmcmp(FILE *in, FILE *out, long inlen)
 {
 	struct header h;
 	uint32 *table;
@@ -300,7 +300,8 @@ static int decrunch_mmcmp(FILE *in, FILE *out)
 		goto err;
 	}
 
-	if ((table = malloc(h.nblocks * 4)) == NULL) {
+	table = (uint32 *) malloc(h.nblocks * 4);
+	if (table == NULL) {
 		goto err;
 	}
 
@@ -349,13 +350,11 @@ static int decrunch_mmcmp(FILE *in, FILE *out)
 			}
 		}
 
-		sub_block = malloc(block.sub_blk * sizeof (struct sub_block));
+		sub_block = (struct sub_block *) malloc(block.sub_blk * sizeof (struct sub_block));
 		if (sub_block == NULL)
 			goto err2;
 
 		for (j = 0; j < block.sub_blk; j++) {
-			uint8 buf[8];
-
 			if (fread(buf, 1, 8, in) != 8) {
 				free(sub_block);
 				goto err2;
@@ -364,7 +363,7 @@ static int decrunch_mmcmp(FILE *in, FILE *out)
 			sub_block[j].unpk_pos  = readmem32l(buf);
 			sub_block[j].unpk_size = readmem32l(buf + 4);
 
-	                /* Sanity check */
+			/* Sanity check */
 			if (sub_block[j].unpk_pos < 0 ||
 			    sub_block[j].unpk_size < 0) {
 				free(sub_block);

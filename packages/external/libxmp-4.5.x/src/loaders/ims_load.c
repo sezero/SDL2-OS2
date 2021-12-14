@@ -40,7 +40,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 struct ims_instrument {
     uint8 name[20];
@@ -116,7 +116,8 @@ static int ims_test(HIO_HANDLE *f, char *t, const int start)
     ih.len = hio_read8(f);
     ih.zero = hio_read8(f);
     hio_read(ih.orders, 128, 1, f);
-    hio_read(ih.magic, 4, 1, f);
+    if (hio_read(ih.magic, 4, 1, f) == 0)
+	return -1;
 
     if (ih.zero > 1)		/* not sure what this is */
 	return -1;
@@ -146,7 +147,6 @@ static int ims_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
     struct xmp_module *mod = &m->mod;
     int i, j;
-    int smp_size;
     struct xmp_event *event;
     struct ims_header ih;
     uint8 ims_event[3];
@@ -157,7 +157,6 @@ static int ims_load(struct module_data *m, HIO_HANDLE *f, const int start)
     mod->chn = 4;
     mod->ins = 31;
     mod->smp = mod->ins;
-    smp_size = 0;
 
     hio_read (ih.title, 20, 1, f);
 
@@ -169,8 +168,6 @@ static int ims_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	ih.ins[i].volume = hio_read8(f);
 	ih.ins[i].loop_start = hio_read16b(f);
 	ih.ins[i].loop_size = hio_read16b(f);
-
-	smp_size += ih.ins[i].size * 2;
     }
 
     ih.len = hio_read8(f);

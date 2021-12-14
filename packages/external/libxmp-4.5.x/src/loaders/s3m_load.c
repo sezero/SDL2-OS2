@@ -60,7 +60,7 @@
 
 #include "loader.h"
 #include "s3m.h"
-#include "period.h"
+#include "../period.h"
 
 #define MAGIC_SCRM	MAGIC4('S','C','R','M')
 #define MAGIC_SCRI	MAGIC4('S','C','R','I')
@@ -262,12 +262,12 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 	libxmp_copy_adjust(mod->name, sfh.name, 28);
 
-	pp_ins = calloc(2, sfh.insnum);
+	pp_ins = (uint16 *) calloc(sfh.insnum, sizeof(uint16));
 	if (pp_ins == NULL) {
 		goto err;
 	}
 
-	pp_pat = calloc(2, sfh.patnum);
+	pp_pat = (uint16 *) calloc(sfh.patnum, sizeof(uint16));
 	if (pp_pat == NULL) {
 		goto err2;
 	}
@@ -487,8 +487,9 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		struct xmp_sample *xxs = &mod->xxs[i];
 		struct xmp_subinstrument *sub;
 		int load_sample_flags;
+		uint32 sample_segment;
 
-		xxi->sub = calloc(sizeof(struct xmp_subinstrument), 1);
+		xxi->sub = (struct xmp_subinstrument *) calloc(1, sizeof(struct xmp_subinstrument));
 		if (xxi->sub == NULL) {
 			goto err3;
 		}
@@ -527,9 +528,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			sub->vol = sah.vol;
 			libxmp_c2spd_to_note(sah.c2spd, &sub->xpo, &sub->fin);
 			sub->xpo += 12;
-			ret =
-			    libxmp_load_sample(m, f, SAMPLE_FLAG_ADLIB, xxs,
-					(char *)sah.reg);
+			ret = libxmp_load_sample(m, f, SAMPLE_FLAG_ADLIB, xxs, (char *)sah.reg);
 			if (ret < 0)
 				goto err3;
 
@@ -541,7 +540,8 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 #endif
 		}
 
-		memcpy(sih.dosname, buf + 1, 13);	/* DOS file name */
+		memcpy(sih.dosname, buf + 1, 12);	/* DOS file name */
+		sih.memseg_hi = buf[13];		/* High byte of sample pointer */
 		sih.memseg = readmem16l(buf + 14);	/* Pointer to sample data */
 		sih.length = readmem32l(buf + 16);	/* Length */
 
@@ -598,7 +598,9 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 		libxmp_c2spd_to_note(sih.c2spd, &sub->xpo, &sub->fin);
 
-		if (hio_seek(f, start + 16L * sih.memseg, SEEK_SET) < 0) {
+		sample_segment = sih.memseg + ((uint32)sih.memseg_hi << 16);
+
+		if (hio_seek(f, start + 16L * sample_segment, SEEK_SET) < 0) {
 			goto err3;
 		}
 

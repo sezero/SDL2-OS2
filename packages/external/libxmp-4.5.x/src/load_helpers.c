@@ -127,7 +127,7 @@ char *libxmp_adjust_string(char *s)
 	int i;
 
 	for (i = 0; i < strlen(s); i++) {
-		if (!isprint((int)s[i]) || ((uint8) s[i] > 127))
+		if (!isprint((unsigned char)s[i]) || ((uint8) s[i] > 127))
 			s[i] = ' ';
 	}
 
@@ -150,9 +150,9 @@ static void check_envelope(struct xmp_envelope *env)
 		env->flg &= ~XMP_ENVELOPE_LOOP;
 	}
 
-	/* Disable envelope loop if invalid sustain */
-	if (env->sus >= env->npt) {
-		env->flg &= ~XMP_ENVELOPE_ON;
+	/* Disable envelope sustain if invalid sustain */
+	if (env->sus >= env->npt || env->sue >= env->npt) {
+		env->flg &= ~XMP_ENVELOPE_SUS;
 	}
 }
 
@@ -283,7 +283,7 @@ int libxmp_prepare_scan(struct context_data *ctx)
 		return 0;
 	}
 
-	m->scan_cnt = calloc(sizeof (uint8 *), mod->len);
+	m->scan_cnt = (uint8 **) calloc(mod->len, sizeof(uint8 *));
 	if (m->scan_cnt == NULL)
 		return -XMP_ERROR_SYSTEM;
 
@@ -299,7 +299,7 @@ int libxmp_prepare_scan(struct context_data *ctx)
 		}
 
 		pat = pat_idx >= mod->pat ? NULL : mod->xxp[pat_idx];
-		m->scan_cnt[i] = calloc(1, pat && pat->rows ? pat->rows : 1);
+		m->scan_cnt[i] = (uint8 *) calloc(1, (pat && pat->rows)? pat->rows : 1);
 		if (m->scan_cnt[i] == NULL)
 			return -XMP_ERROR_SYSTEM;
 	}
@@ -309,6 +309,7 @@ int libxmp_prepare_scan(struct context_data *ctx)
 
 void libxmp_free_scan(struct context_data *ctx)
 {
+	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
 	struct xmp_module *mod = &m->mod;
 	int i;
@@ -320,6 +321,9 @@ void libxmp_free_scan(struct context_data *ctx)
 		free(m->scan_cnt);
 		m->scan_cnt = NULL;
 	}
+
+	free(p->scan);
+	p->scan = NULL;
 }
 
 /* Process player personality flags */
