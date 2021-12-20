@@ -199,7 +199,7 @@ static SDL_bool NormalizeFrames(Frame_t *frames, int count)
     return SDL_TRUE;
 }
 
-Anim_t *
+static Anim_t *
 IMG_LoadGIF_RW_Internal(SDL_RWops *src, SDL_bool load_anim)
 {
     unsigned char buf[16];
@@ -494,8 +494,7 @@ GetCode(SDL_RWops *src, int code_size, int flag, State_t * state)
 static int
 LWZReadByte(SDL_RWops *src, int flag, int input_code_size, State_t * state)
 {
-    int code, incode;
-    register int i;
+    int i, code, incode;
 
     /* Fixed buffer overflow found by Michael Skladnikiewicz */
     if (input_code_size > MAX_LWZ_BITS)

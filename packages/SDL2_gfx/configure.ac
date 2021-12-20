@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(README)
+AC_INIT(SDL2_gfxPrimitives.c)
 
 dnl Set various version strings - taken gratefully from the GTk sources
 
@@ -157,7 +157,14 @@ AM_PATH_SDL2($SDL_VERSION,
 )
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
-saved_LIBS="$LIBS"
+
+dnl Check for libm
+case "${host_os}" in
+   mingw*|darwin*|cygwin*|haiku*)
+    ;;
+   *) AC_CHECK_LIB(m, ceil, LIBS="$LIBS -lm")
+    ;;
+esac
 
 # Finally create all the generated files
 AC_OUTPUT([
