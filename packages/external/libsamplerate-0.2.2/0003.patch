@@ -1,0 +1,332 @@
+From 337b9e35145ecdaca202a5a94e187759920dc5b8 Mon Sep 17 00:00:00 2001
+From: Ozkan Sezer <sezeroz@gmail.com>
+Date: Mon, 29 Nov 2021 11:55:02 +0300
+Subject: [PATCH 3/3] added OS/2 Watcom config and Makefiles.
+
+---
+ src/Makefile.os2       |   53 ++++++++++++++++
+ src/watcom/config.h    |  159 ++++++++++++++++++++++++++++++++++++++++++++++++
+ src/watcom/exports.lbc |   20 ++++++
+ src/watcom/exports.txt |    1 +
+ tests/Makefile.os2     |   48 ++++++++++++++
+ 5 files changed, 281 insertions(+), 0 deletions(-)
+ create mode 100644 src/Makefile.os2
+ create mode 100644 src/watcom/config.h
+ create mode 100644 src/watcom/exports.lbc
+ create mode 100644 src/watcom/exports.txt
+ create mode 100644 tests/Makefile.os2
+
+diff --git a/src/Makefile.os2 b/src/Makefile.os2
+new file mode 100644
+index 0000000..42291b9
+--- /dev/null
++++ b/src/Makefile.os2
+@@ -0,0 +1,53 @@
++# Makefile for OS/2 using Open Watcom compiler.
++#
++# wmake -f Makefile.os2
++# - builds SAMPRATE.DLL and its import library.
++#
++# wmake -f Makefile.os2 target=static
++# - builds static library samprate_static.lib
++#
++!ifndef target
++target = dll
++!endif
++
++CC=wcc386
++
++CPPFLAGS=-DHAVE_CONFIG_H -Iwatcom -I"../include"
++CFLAGS = -bt=os2 -bm -fp5 -fpi87 -mf -d0 -oeatxh -wx -sg -ei -zp8 -zq
++# -5s  :  Pentium stack calling conventions.
++# -5r  :  Pentium register calling conventions.
++CFLAGS+= -5s
++DLLFLAGS=-bd
++
++.SUFFIXES:
++.SUFFIXES: .obj .c
++
++DLLNAME=SAMPRATE.DLL
++LIBNAME=samprate.lib
++LIBSTATIC=samprate_static.lib
++
++!ifeq target static
++BLD_TARGET=$(LIBSTATIC)
++!else
++CFLAGS+= $(DLLFLAGS)
++BLD_TARGET=$(DLLNAME)
++!endif
++
++OBJ=samplerate.obj src_sinc.obj src_zoh.obj src_linear.obj
++
++all: $(BLD_TARGET)
++
++$(DLLNAME): $(OBJ)
++	wlink NAM $@ OP q SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE OPTION MANYAUTODATA EXPORT="watcom/exports.lbc" FIL {$(OBJ)}
++	wlib -q -b -n -c -pa -s -t -zld -ii -io $(LIBNAME) +$(DLLNAME)
++
++$(LIBSTATIC): $(OBJ)
++	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJ)
++
++.c.obj:
++	$(CC) $(CPPFLAGS) $(CFLAGS) -fo=$^@ $<
++
++distclean: clean .symbolic
++	rm -f $(DLLNAME) $(LIBNAME) $(LIBSTATIC)
++clean: .symbolic
++	rm -f *.obj *.err
+diff --git a/src/watcom/config.h b/src/watcom/config.h
+new file mode 100644
+index 0000000..8d27029
+--- /dev/null
++++ b/src/watcom/config.h
+@@ -0,0 +1,159 @@
++/* hand-edited config.h for OS/2 using Watcom compiler. */
++
++/* Version number of package */
++#define VERSION "0.2.1"
++/* Name of package */
++#define PACKAGE "libsamplerate"
++
++/* Define to 1 if you have the `lrint' function. */
++/* #undef HAVE_LRINT */
++
++/* Define to 1 if you have the `lrintf' function. */
++/* #undef HAVE_LRINTF */
++
++#if defined(__WATCOMC__) && defined(__386__) && \
++  !(defined(HAVE_LRINTF) || defined(HAVE_LRINT))
++#define HAVE_LRINT_ASM
++#undef  lrint
++#define lrint  double2int
++#undef  lrintf
++#define lrintf float2int
++
++extern __inline long double2int(double);
++#pragma aux double2int = \
++    "push  eax" \
++    "fistp dword ptr [esp]" \
++    "pop   eax" \
++    parm [8087] \
++    value [eax] \
++    modify exact [eax];
++
++extern __inline long float2int(float);
++#pragma aux float2int = \
++    "push  eax" \
++    "fistp dword ptr [esp]" \
++    "pop   eax" \
++    parm [8087] \
++    value [eax] \
++    modify exact [eax];
++#endif			/* */
++
++/* Host processor clips on negative float to int conversion. */
++#if defined(HAVE_LRINT_ASM)
++#define CPU_CLIPS_NEGATIVE 1
++#else
++#define CPU_CLIPS_NEGATIVE 0
++#endif
++
++/* Host processor clips on positive float to int conversion. */
++#define CPU_CLIPS_POSITIVE 0
++
++/* Host processor is big endian. */
++#define CPU_IS_BIG_ENDIAN 0
++
++/* Host processor is little endian. */
++#define CPU_IS_LITTLE_ENDIAN 1
++
++/* Enable sinc best converter. */
++#define ENABLE_SINC_BEST_CONVERTER 1
++
++/* Enable sinc fast converter. */
++#define ENABLE_SINC_FAST_CONVERTER 1
++
++/* Enable sinc balanced converter. */
++#define ENABLE_SINC_MEDIUM_CONVERTER 1
++
++/* Set to 1 if you have fftw3 */
++/* #undef HAVE_FFTW3 */
++
++/* Set to 1 if you have libsndfile */
++/* #undef HAVE_SNDFILE */
++
++/* Define to 1 if you have the `calloc' function. */
++#define HAVE_CALLOC 1
++
++/* Define to 1 if you have the `ceil' function. */
++#define HAVE_CEIL 1
++
++/* Define to 1 if you have the `floor' function. */
++#define HAVE_FLOOR 1
++
++/* Define to 1 if you have the `fmod' function. */
++#define HAVE_FMOD 1
++
++/* Define to 1 if you have the `free' function. */
++#define HAVE_FREE 1
++
++/* Define to 1 if you have the <inttypes.h> header file. */
++#define HAVE_INTTYPES_H 1
++
++/* Define to 1 if you have the `malloc' function. */
++#define HAVE_MALLOC 1
++
++/* Define to 1 if you have the `memcpy' function. */
++#define HAVE_MEMCPY 1
++
++/* Define to 1 if you have the `memmove' function. */
++#define HAVE_MEMMOVE 1
++
++/* Define to 1 if you have the <memory.h> header file. */
++#define HAVE_MEMORY_H 1
++
++/* Define to 1 if you have the `alarm' function. */
++/* #undef HAVE_ALARM */
++
++/* Define if you have signal SIGALRM. */
++/* #undef HAVE_SIGALRM */
++
++/* Define to 1 if you have the `signal' function. */
++#define HAVE_SIGNAL 1
++
++/* Define to 1 if you have the <stdbool.h> header file. */
++#define HAVE_STDBOOL_H 1
++
++/* Define to 1 if you have the <stdint.h> header file. */
++#define HAVE_STDINT_H 1
++
++/* Define to 1 if you have the <stdlib.h> header file. */
++#define HAVE_STDLIB_H 1
++
++/* Define to 1 if you have the <strings.h> header file. */
++#define HAVE_STRINGS_H 1
++
++/* Define to 1 if you have the <string.h> header file. */
++#define HAVE_STRING_H 1
++
++/* Define to 1 if you have the <sys/stat.h> header file. */
++#define HAVE_SYS_STAT_H 1
++
++/* Define to 1 if you have the <sys/times.h> header file. */
++/* #undef HAVE_SYS_TIMES_H */
++
++/* Define to 1 if you have the <sys/types.h> header file. */
++#define HAVE_SYS_TYPES_H 1
++
++/* Define to 1 if you have the <unistd.h> header file. */
++#define HAVE_UNISTD_H 1
++
++/* Define to 1 if the compiler supports simple visibility declarations. */
++/* #undef HAVE_VISIBILITY */
++
++/* Define to 1 if you have the ANSI C header files. */
++#define STDC_HEADERS 1
++
++/* The size of `double', as computed by sizeof. */
++#define SIZEOF_DOUBLE 8
++
++/* The size of `float', as computed by sizeof. */
++#define SIZEOF_FLOAT 4
++
++/* The size of `int', as computed by sizeof. */
++#define SIZEOF_INT 4
++
++/* The size of `long', as computed by sizeof. */
++#define SIZEOF_LONG 4
++
++/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
++   significant byte first (like Motorola and SPARC, unlike Intel). */
++/* #undef WORDS_BIGENDIAN */
++
+diff --git a/src/watcom/exports.lbc b/src/watcom/exports.lbc
+new file mode 100644
+index 0000000..0f252df
+--- /dev/null
++++ b/src/watcom/exports.lbc
+@@ -0,0 +1,20 @@
++++'src_new'.'SAMPRATE.DLL'.1
++++'src_delete'.'SAMPRATE.DLL'.2
++++'src_get_name'.'SAMPRATE.DLL'.10
++++'src_get_description'.'SAMPRATE.DLL'.11
++++'src_get_version'.'SAMPRATE.DLL'.12
++++'src_process'.'SAMPRATE.DLL'.20
++++'src_reset'.'SAMPRATE.DLL'.21
++++'src_set_ratio'.'SAMPRATE.DLL'.22
++++'src_clone'.'SAMPRATE.DLL'.23
++++'src_error'.'SAMPRATE.DLL'.30
++++'src_strerror'.'SAMPRATE.DLL'.31
++++'src_simple'.'SAMPRATE.DLL'.40
++++'src_is_valid_ratio'.'SAMPRATE.DLL'.50
++++'src_callback_new'.'SAMPRATE.DLL'.60
++++'src_callback_read'.'SAMPRATE.DLL'.61
++++'src_short_to_float_array'.'SAMPRATE.DLL'.70
++++'src_float_to_short_array'.'SAMPRATE.DLL'.71
++++'src_int_to_float_array'.'SAMPRATE.DLL'.80
++++'src_float_to_int_array'.'SAMPRATE.DLL'.81
++++'src_get_channels'.'SAMPRATE.DLL'.90
+diff --git a/src/watcom/exports.txt b/src/watcom/exports.txt
+new file mode 100644
+index 0000000..4cea884
+--- /dev/null
++++ b/src/watcom/exports.txt
+@@ -0,0 +1 @@
++generated from Windows def file.
+diff --git a/tests/Makefile.os2 b/tests/Makefile.os2
+new file mode 100644
+index 0000000..2f6dde7
+--- /dev/null
++++ b/tests/Makefile.os2
+@@ -0,0 +1,48 @@
++TARGETS = misc_test.exe termination_test.exe simple_test.exe callback_test.exe &
++	  reset_test.exe multi_channel_test.exe snr_bw_test.exe float_short_test.exe &
++	  varispeed_test.exe callback_hang_test.exe src-evaluate.exe throughput_test.exe &
++	  multichan_throughput_test.exe downsample_test.exe clone_test.exe nullptr_test.exe
++
++OBJS = $(TARGETS:.exe=.obj)
++
++all: $(TARGETS)
++
++CPPFLAGS=-DHAVE_CONFIG_H -I"../src/watcom" -I"../include"
++CFLAGS = -bt=os2 -bm -fp5 -fpi87 -mf -d0 -oeatxh -wx -sg -ei -zp8 -zq
++CFLAGS+= -5s
++LIBPATH= "../src"
++LIBS   = samprate.lib
++
++.obj.exe:
++  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
++
++.c.obj:
++  wcc386 $(CPPFLAGS) $(CFLAGS) -fo=$^@ $<
++
++clone_test.exe: clone_test.obj util.obj
++  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
++
++multichan_throughput_test.exe: multichan_throughput_test.obj util.obj
++  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
++
++multi_channel_test.exe: multi_channel_test.obj calc_snr.obj util.obj
++  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
++
++reset_test.exe: reset_test.obj util.obj
++  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
++
++# this one requires more stack: 256k seems enough
++termination_test.exe: termination_test.obj
++  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el op stack=0x40000 file {$<} name $@
++
++throughput_test.exe: throughput_test.obj util.obj
++  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
++
++varispeed_test.exe: varispeed_test.obj calc_snr.obj util.obj
++  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
++
++clean: .symbolic
++  rm -f *.obj *.err
++
++distclean: .symbolic clean
++  @rm -f *.exe
+-- 
+1.7.1
+

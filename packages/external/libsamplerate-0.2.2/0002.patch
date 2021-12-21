@@ -1,0 +1,93 @@
+From 24ef819498220e3ec2e811afeb91cca4d86ba522 Mon Sep 17 00:00:00 2001
+From: Ozkan Sezer <sezeroz@gmail.com>
+Date: Mon, 29 Nov 2021 11:55:02 +0300
+Subject: [PATCH 2/3] tests: Watcom and OS/2 compatibility
+
+---
+ tests/multichan_throughput_test.c |    8 ++++++++
+ tests/src-evaluate.c              |    2 +-
+ tests/throughput_test.c           |    8 ++++++++
+ 3 files changed, 17 insertions(+), 1 deletions(-)
+
+diff --git a/tests/multichan_throughput_test.c b/tests/multichan_throughput_test.c
+index a3bd1cc..6cec3ab 100644
+--- a/tests/multichan_throughput_test.c
++++ b/tests/multichan_throughput_test.c
+@@ -25,6 +25,10 @@
+ #endif
+ #include <windows.h>
+ #endif
++#ifdef __OS2__
++#define INCL_DOS
++#include <os2.h>
++#endif
+ 
+ #include <samplerate.h>
+ 
+@@ -59,6 +63,8 @@ throughput_test (int converter, int channels, long *best_throughput)
+ 
+ #ifdef _WIN32
+ 	Sleep (2000) ;
++#elif defined(__OS2__)
++	DosSleep (2000) ;
+ #else
+ 	sleep (2) ;
+ #endif
+@@ -187,6 +193,8 @@ multi_run (int run_count)
+ 			/* Let the CPU cool down. We might be running on a laptop. */
+ #ifdef _WIN32
+ 			Sleep (10000) ;
++#elif defined(__OS2__)
++			DosSleep (10000) ;
+ #else
+ 			sleep (10) ;
+ #endif
+diff --git a/tests/src-evaluate.c b/tests/src-evaluate.c
+index d55d648..b7b8989 100644
+--- a/tests/src-evaluate.c
++++ b/tests/src-evaluate.c
+@@ -18,7 +18,7 @@
+ #include <string.h>
+ #include <ctype.h>
+ 
+-#if defined(_WIN32)
++#if defined(_WIN32) || defined(__WATCOMC__)
+ #define popen _popen
+ #define pclose _pclose
+ #endif
+diff --git a/tests/throughput_test.c b/tests/throughput_test.c
+index e997480..05df920 100644
+--- a/tests/throughput_test.c
++++ b/tests/throughput_test.c
+@@ -25,6 +25,10 @@
+ #endif
+ #include <windows.h>
+ #endif
++#ifdef __OS2__
++#define INCL_DOS
++#include <os2.h>
++#endif
+ 
+ #include <samplerate.h>
+ 
+@@ -56,6 +60,8 @@ throughput_test (int converter, long best_throughput)
+ 
+ #ifdef _WIN32
+ 	Sleep (2000) ;
++#elif defined(__OS2__)
++	DosSleep (2000) ;
+ #else
+ 	sleep (2) ;
+ #endif
+@@ -176,6 +182,8 @@ multi_run (int run_count)
+ 		/* Let the CPU cool down. We might be running on a laptop. */
+ #ifdef _WIN32
+ 		Sleep (10000) ;
++#elif defined(__OS2__)
++		DosSleep (2000) ;
+ #else
+ 		sleep (10) ;
+ #endif
+-- 
+1.7.1
+

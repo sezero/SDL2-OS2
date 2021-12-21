@@ -1,0 +1,48 @@
+TARGETS = misc_test.exe termination_test.exe simple_test.exe callback_test.exe &
+	  reset_test.exe multi_channel_test.exe snr_bw_test.exe float_short_test.exe &
+	  varispeed_test.exe callback_hang_test.exe src-evaluate.exe throughput_test.exe &
+	  multichan_throughput_test.exe downsample_test.exe clone_test.exe nullptr_test.exe
+
+OBJS = $(TARGETS:.exe=.obj)
+
+all: $(TARGETS)
+
+CPPFLAGS=-DHAVE_CONFIG_H -I"../src/watcom" -I"../include"
+CFLAGS = -bt=os2 -bm -fp5 -fpi87 -mf -d0 -oeatxh -wx -sg -ei -zp8 -zq
+CFLAGS+= -5s
+LIBPATH= "../src"
+LIBS   = samprate.lib
+
+.obj.exe:
+  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
+
+.c.obj:
+  wcc386 $(CPPFLAGS) $(CFLAGS) -fo=$^@ $<
+
+clone_test.exe: clone_test.obj util.obj
+  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
+
+multichan_throughput_test.exe: multichan_throughput_test.obj util.obj
+  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
+
+multi_channel_test.exe: multi_channel_test.obj calc_snr.obj util.obj
+  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
+
+reset_test.exe: reset_test.obj util.obj
+  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
+
+# this one requires more stack: 256k seems enough
+termination_test.exe: termination_test.obj
+  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el op stack=0x40000 file {$<} name $@
+
+throughput_test.exe: throughput_test.obj util.obj
+  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
+
+varispeed_test.exe: varispeed_test.obj calc_snr.obj util.obj
+  wlink SYS os2v2 libpath $(LIBPATH) lib $(LIBS) op q op el file {$<} name $@
+
+clean: .symbolic
+  rm -f *.obj *.err
+
+distclean: .symbolic clean
+  @rm -f *.exe

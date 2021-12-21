@@ -1,0 +1,53 @@
+# Makefile for OS/2 using Open Watcom compiler.
+#
+# wmake -f Makefile.os2
+# - builds SAMPRATE.DLL and its import library.
+#
+# wmake -f Makefile.os2 target=static
+# - builds static library samprate_static.lib
+#
+!ifndef target
+target = dll
+!endif
+
+CC=wcc386
+
+CPPFLAGS=-DHAVE_CONFIG_H -Iwatcom -I"../include"
+CFLAGS = -bt=os2 -bm -fp5 -fpi87 -mf -d0 -oeatxh -wx -sg -ei -zp8 -zq
+# -5s  :  Pentium stack calling conventions.
+# -5r  :  Pentium register calling conventions.
+CFLAGS+= -5s
+DLLFLAGS=-bd
+
+.SUFFIXES:
+.SUFFIXES: .obj .c
+
+DLLNAME=SAMPRATE.DLL
+LIBNAME=samprate.lib
+LIBSTATIC=samprate_static.lib
+
+!ifeq target static
+BLD_TARGET=$(LIBSTATIC)
+!else
+CFLAGS+= $(DLLFLAGS)
+BLD_TARGET=$(DLLNAME)
+!endif
+
+OBJ=samplerate.obj src_sinc.obj src_zoh.obj src_linear.obj
+
+all: $(BLD_TARGET)
+
+$(DLLNAME): $(OBJ)
+	wlink NAM $@ OP q SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE OPTION MANYAUTODATA EXPORT="watcom/exports.lbc" FIL {$(OBJ)}
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $(LIBNAME) +$(DLLNAME)
+
+$(LIBSTATIC): $(OBJ)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJ)
+
+.c.obj:
+	$(CC) $(CPPFLAGS) $(CFLAGS) -fo=$^@ $<
+
+distclean: clean .symbolic
+	rm -f $(DLLNAME) $(LIBNAME) $(LIBSTATIC)
+clean: .symbolic
+	rm -f *.obj *.err

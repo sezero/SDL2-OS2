@@ -1,0 +1,499 @@
+From 6bbdfae29a14ffd8363d28b9952bc1e6eab41e54 Mon Sep 17 00:00:00 2001
+From: Ozkan Sezer <sezeroz@gmail.com>
+Date: Mon, 29 Nov 2021 11:55:02 +0300
+Subject: [PATCH 1/3] make it build using c89 compilers
+
+---
+ src/samplerate.c                  |   20 ++++++++------
+ src/src_linear.c                  |   17 ++++++++----
+ src/src_sinc.c                    |   50 ++++++++++++++++++++----------------
+ src/src_zoh.c                     |   20 +++++++++------
+ tests/multichan_throughput_test.c |    5 ++-
+ tests/simple_test.c               |   10 ++++---
+ tests/termination_test.c          |   17 +++++++-----
+ 7 files changed, 81 insertions(+), 58 deletions(-)
+
+diff --git a/src/samplerate.c b/src/samplerate.c
+index 30dcbc9..d64506b 100644
+--- a/src/samplerate.c
++++ b/src/samplerate.c
+@@ -29,7 +29,8 @@ src_new (int converter_type, int channels, int *error)
+ 
+ SRC_STATE*
+ src_clone (SRC_STATE* orig, int *error)
+-{
++{	SRC_STATE	*state ;
++
+ 	if (!orig)
+ 	{
+ 		if (error)
+@@ -39,7 +40,7 @@ src_clone (SRC_STATE* orig, int *error)
+ 	if (error)
+ 		*error = SRC_ERR_NO_ERROR ;
+ 
+-	SRC_STATE *state = orig->vt->copy (orig) ;
++	state = orig->vt->copy (orig) ;
+ 	if (!state)
+ 		if (error)
+ 			*error = SRC_ERR_MALLOC_FAILED ;
+@@ -426,8 +427,8 @@ src_simple (SRC_DATA *src_data, int converter, int channels)
+ 
+ void
+ src_short_to_float_array (const short *in, float *out, int len)
+-{
+-	for (int i = 0 ; i < len ; i++)
++{	int i = 0;
++	for ( ; i < len ; i++)
+ 	{	out [i] = (float) (in [i] / (1.0 * 0x8000)) ;
+ 		} ;
+ 
+@@ -436,8 +437,8 @@ src_short_to_float_array (const short *in, float *out, int len)
+ 
+ void
+ src_float_to_short_array (const float *in, short *out, int len)
+-{
+-	for (int i = 0 ; i < len ; i++)
++{	int i = 0;
++	for ( ; i < len ; i++)
+ 	{	float scaled_value ;
+ 		scaled_value = in [i] * 32768.f ;
+ 		if (scaled_value >= 32767.f)
+@@ -451,8 +452,8 @@ src_float_to_short_array (const float *in, short *out, int len)
+ 
+ void
+ src_int_to_float_array (const int *in, float *out, int len)
+-{
+-	for (int i = 0 ; i < len ; i++)
++{	int i = 0;
++	for ( ; i < len ; i++)
+ 	{	out [i] = (float) (in [i] / (8.0 * 0x10000000)) ;
+ 		} ;
+ 
+@@ -463,7 +464,8 @@ void
+ src_float_to_int_array (const float *in, int *out, int len)
+ {	double scaled_value ;
+ 
+-	for (int i = 0 ; i < len ; i++)
++	int i = 0;
++	for ( ; i < len ; i++)
+ 	{	scaled_value = in [i] * (8.0 * 0x10000000) ;
+ #if CPU_CLIPS_POSITIVE == 0
+ 		if (scaled_value >= (1.0 * 0x7FFFFFFF))
+diff --git a/src/src_linear.c b/src/src_linear.c
+index 11707d2..c9d3c8e 100644
+--- a/src/src_linear.c
++++ b/src/src_linear.c
+@@ -176,9 +176,10 @@ linear_get_description (int src_enum)
+ static LINEAR_DATA *
+ linear_data_new (int channels)
+ {
++	LINEAR_DATA *priv;
+ 	assert (channels > 0) ;
+ 
+-	LINEAR_DATA *priv = (LINEAR_DATA *) calloc (1, sizeof (LINEAR_DATA)) ;
++	priv = (LINEAR_DATA *) calloc (1, sizeof (LINEAR_DATA)) ;
+ 	if (priv)
+ 	{
+ 		priv->linear_magic_marker = LINEAR_MAGIC_MARKER ;
+@@ -196,10 +197,12 @@ linear_data_new (int channels)
+ LIBSAMPLERATE_DLL_PRIVATE SRC_STATE *
+ linear_state_new (int channels, SRC_ERROR *error)
+ {
++	SRC_STATE *state;
++
+ 	assert (channels > 0) ;
+ 	assert (error != NULL) ;
+ 
+-	SRC_STATE *state = (SRC_STATE *) calloc (1, sizeof (SRC_STATE)) ;
++	state = (SRC_STATE *) calloc (1, sizeof (SRC_STATE)) ;
+ 	if (!state)
+ 	{
+ 		*error = SRC_ERR_MALLOC_FAILED ;
+@@ -245,19 +248,21 @@ linear_reset (SRC_STATE *state)
+ 
+ SRC_STATE *
+ linear_copy (SRC_STATE *state)
+-{
++{	SRC_STATE *to ;
++	LINEAR_DATA *from_priv, *to_priv ;
++
+ 	assert (state != NULL) ;
+ 
+ 	if (state->private_data == NULL)
+ 		return NULL ;
+ 
+-	SRC_STATE *to = (SRC_STATE *) calloc (1, sizeof (SRC_STATE)) ;
++	to = (SRC_STATE *) calloc (1, sizeof (SRC_STATE)) ;
+ 	if (!to)
+ 		return NULL ;
+ 	memcpy (to, state, sizeof (SRC_STATE)) ;
+ 
+-	LINEAR_DATA* from_priv = (LINEAR_DATA*) state->private_data ;
+-	LINEAR_DATA *to_priv = (LINEAR_DATA *) calloc (1, sizeof (LINEAR_DATA)) ;
++	from_priv = (LINEAR_DATA*) state->private_data ;
++	to_priv = (LINEAR_DATA *) calloc (1, sizeof (LINEAR_DATA)) ;
+ 	if (!to_priv)
+ 	{
+ 		free (to) ;
+diff --git a/src/src_sinc.c b/src/src_sinc.c
+index 51e2997..cdf9333 100644
+--- a/src/src_sinc.c
++++ b/src/src_sinc.c
+@@ -206,12 +206,14 @@ sinc_get_description (int src_enum)
+ static SINC_FILTER *
+ sinc_filter_new (int converter_type, int channels)
+ {
++	SINC_FILTER *priv;
++
+ 	assert (converter_type == SRC_SINC_FASTEST ||
+ 		converter_type == SRC_SINC_MEDIUM_QUALITY ||
+ 		converter_type == SRC_SINC_BEST_QUALITY) ;
+ 	assert (channels > 0 && channels <= MAX_CHANNELS) ;
+ 
+-	SINC_FILTER *priv = (SINC_FILTER *) calloc (1, sizeof (SINC_FILTER)) ;
++	priv = (SINC_FILTER *) calloc (1, sizeof (SINC_FILTER)) ;
+ 	if (priv)
+ 	{
+ 		priv->sinc_magic_marker = SINC_MAGIC_MARKER ;
+@@ -260,6 +262,8 @@ sinc_filter_new (int converter_type, int channels)
+ LIBSAMPLERATE_DLL_PRIVATE SRC_STATE *
+ sinc_state_new (int converter_type, int channels, SRC_ERROR *error)
+ {
++	SRC_STATE *state ;
++
+ 	assert (converter_type == SRC_SINC_FASTEST ||
+ 		converter_type == SRC_SINC_MEDIUM_QUALITY ||
+ 		converter_type == SRC_SINC_BEST_QUALITY) ;
+@@ -272,7 +276,7 @@ sinc_state_new (int converter_type, int channels, SRC_ERROR *error)
+ 		return NULL ;
+ 	}
+ 
+-	SRC_STATE *state = (SRC_STATE *) calloc (1, sizeof (SRC_STATE)) ;
++	state = (SRC_STATE *) calloc (1, sizeof (SRC_STATE)) ;
+ 	if (!state)
+ 	{
+ 		*error = SRC_ERR_MALLOC_FAILED ;
+@@ -329,20 +333,22 @@ sinc_reset (SRC_STATE *state)
+ 
+ static SRC_STATE *
+ sinc_copy (SRC_STATE *state)
+-{
++{	SINC_FILTER *from_filter, *to_filter ;
++	SRC_STATE *to ;
++
+ 	assert (state != NULL) ;
+ 
+ 	if (state->private_data == NULL)
+ 		return NULL ;
+ 
+-	SRC_STATE *to = (SRC_STATE *) calloc (1, sizeof (SRC_STATE)) ;
++	to = (SRC_STATE *) calloc (1, sizeof (SRC_STATE)) ;
+ 	if (!to)
+ 		return NULL ;
+ 	memcpy (to, state, sizeof (SRC_STATE)) ;
+ 
+ 
+-	SINC_FILTER* from_filter = (SINC_FILTER*) state->private_data ;
+-	SINC_FILTER *to_filter = (SINC_FILTER *) calloc (1, sizeof (SINC_FILTER)) ;
++	from_filter = (SINC_FILTER*) state->private_data ;
++	to_filter = (SINC_FILTER *) calloc (1, sizeof (SINC_FILTER)) ;
+ 	if (!to_filter)
+ 	{
+ 		free (to) ;
+@@ -524,7 +530,7 @@ static inline void
+ calc_output_stereo (SINC_FILTER *filter, int channels, increment_t increment, increment_t start_filter_index, double scale, float * output)
+ {	double		fraction, left [2], right [2], icoeff ;
+ 	increment_t	filter_index, max_filter_index ;
+-	int			data_index, coeff_count, indx ;
++	int			data_index, coeff_count, indx, ch ;
+ 
+ 	/* Convert input parameters into fixed point. */
+ 	max_filter_index = int_to_fp (filter->coeff_half_len) ;
+@@ -550,7 +556,7 @@ calc_output_stereo (SINC_FILTER *filter, int channels, increment_t increment, in
+ 		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
+ 		assert (data_index >= 0 && data_index + 1 < filter->b_len) ;
+ 		assert (data_index + 1 < filter->b_end) ;
+-		for (int ch = 0; ch < 2; ch++)
++		for (ch = 0; ch < 2; ch++)
+ 			left [ch] += icoeff * filter->buffer [data_index + ch] ;
+ 
+ 		filter_index -= increment ;
+@@ -571,7 +577,7 @@ calc_output_stereo (SINC_FILTER *filter, int channels, increment_t increment, in
+ 		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
+ 		assert (data_index >= 0 && data_index + 1 < filter->b_len) ;
+ 		assert (data_index + 1 < filter->b_end) ;
+-		for (int ch = 0; ch < 2; ch++)
++		for (ch = 0; ch < 2; ch++)
+ 			right [ch] += icoeff * filter->buffer [data_index + ch] ;
+ 
+ 		filter_index -= increment ;
+@@ -579,7 +585,7 @@ calc_output_stereo (SINC_FILTER *filter, int channels, increment_t increment, in
+ 		}
+ 	while (filter_index > MAKE_INCREMENT_T (0)) ;
+ 
+-	for (int ch = 0; ch < 2; ch++)
++	for (ch = 0; ch < 2; ch++)
+ 		output [ch] = (float) (scale * (left [ch] + right [ch])) ;
+ } /* calc_output_stereo */
+ 
+@@ -679,7 +685,7 @@ static inline void
+ calc_output_quad (SINC_FILTER *filter, int channels, increment_t increment, increment_t start_filter_index, double scale, float * output)
+ {	double		fraction, left [4], right [4], icoeff ;
+ 	increment_t	filter_index, max_filter_index ;
+-	int			data_index, coeff_count, indx ;
++	int			data_index, coeff_count, indx, ch ;
+ 
+ 	/* Convert input parameters into fixed point. */
+ 	max_filter_index = int_to_fp (filter->coeff_half_len) ;
+@@ -705,7 +711,7 @@ calc_output_quad (SINC_FILTER *filter, int channels, increment_t increment, incr
+ 		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
+ 		assert (data_index >= 0 && data_index + 3 < filter->b_len) ;
+ 		assert (data_index + 3 < filter->b_end) ;
+-		for (int ch = 0; ch < 4; ch++)
++		for (ch = 0; ch < 4; ch++)
+ 			left [ch] += icoeff * filter->buffer [data_index + ch] ;
+ 
+ 		filter_index -= increment ;
+@@ -726,7 +732,7 @@ calc_output_quad (SINC_FILTER *filter, int channels, increment_t increment, incr
+ 		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
+ 		assert (data_index >= 0 && data_index + 3 < filter->b_len) ;
+ 		assert (data_index + 3 < filter->b_end) ;
+-		for (int ch = 0; ch < 4; ch++)
++		for (ch = 0; ch < 4; ch++)
+ 			right [ch] += icoeff * filter->buffer [data_index + ch] ;
+ 
+ 
+@@ -735,7 +741,7 @@ calc_output_quad (SINC_FILTER *filter, int channels, increment_t increment, incr
+ 		}
+ 	while (filter_index > MAKE_INCREMENT_T (0)) ;
+ 
+-	for (int ch = 0; ch < 4; ch++)
++	for (ch = 0; ch < 4; ch++)
+ 		output [ch] = (float) (scale * (left [ch] + right [ch])) ;
+ } /* calc_output_quad */
+ 
+@@ -835,7 +841,7 @@ static inline void
+ calc_output_hex (SINC_FILTER *filter, int channels, increment_t increment, increment_t start_filter_index, double scale, float * output)
+ {	double		fraction, left [6], right [6], icoeff ;
+ 	increment_t	filter_index, max_filter_index ;
+-	int			data_index, coeff_count, indx ;
++	int			data_index, coeff_count, indx, ch ;
+ 
+ 	/* Convert input parameters into fixed point. */
+ 	max_filter_index = int_to_fp (filter->coeff_half_len) ;
+@@ -861,7 +867,7 @@ calc_output_hex (SINC_FILTER *filter, int channels, increment_t increment, incre
+ 		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
+ 		assert (data_index >= 0 && data_index + 5 < filter->b_len) ;
+ 		assert (data_index + 5 < filter->b_end) ;
+-		for (int ch = 0; ch < 6; ch++)
++		for (ch = 0; ch < 6; ch++)
+ 			left [ch] += icoeff * filter->buffer [data_index + ch] ;
+ 
+ 		filter_index -= increment ;
+@@ -882,7 +888,7 @@ calc_output_hex (SINC_FILTER *filter, int channels, increment_t increment, incre
+ 		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
+ 		assert (data_index >= 0 && data_index + 5 < filter->b_len) ;
+ 		assert (data_index + 5 < filter->b_end) ;
+-		for (int ch = 0; ch < 6; ch++)
++		for (ch = 0; ch < 6; ch++)
+ 			right [ch] += icoeff * filter->buffer [data_index + ch] ;
+ 
+ 		filter_index -= increment ;
+@@ -890,7 +896,7 @@ calc_output_hex (SINC_FILTER *filter, int channels, increment_t increment, incre
+ 		}
+ 	while (filter_index > MAKE_INCREMENT_T (0)) ;
+ 
+-	for (int ch = 0; ch < 6; ch++)
++	for (ch = 0; ch < 6; ch++)
+ 		output [ch] = (float) (scale * (left [ch] + right [ch])) ;
+ } /* calc_output_hex */
+ 
+@@ -992,7 +998,7 @@ calc_output_multi (SINC_FILTER *filter, increment_t increment, increment_t start
+ 	/* The following line is 1999 ISO Standard C. If your compiler complains, get a better compiler. */
+ 	double		*left, *right ;
+ 	increment_t	filter_index, max_filter_index ;
+-	int			data_index, coeff_count, indx ;
++	int			data_index, coeff_count, indx, ch ;
+ 
+ 	left = filter->left_calc ;
+ 	right = filter->right_calc ;
+@@ -1024,7 +1030,7 @@ calc_output_multi (SINC_FILTER *filter, increment_t increment, increment_t start
+ 
+ 		assert (data_index >= 0 && data_index + channels - 1 < filter->b_len) ;
+ 		assert (data_index + channels - 1 < filter->b_end) ;
+-		for (int ch = 0; ch < channels; ch++)
++		for (ch = 0; ch < channels; ch++)
+ 			left [ch] += icoeff * filter->buffer [data_index + ch] ;
+ 
+ 		filter_index -= increment ;
+@@ -1045,7 +1051,7 @@ calc_output_multi (SINC_FILTER *filter, increment_t increment, increment_t start
+ 		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
+ 		assert (data_index >= 0 && data_index + channels - 1 < filter->b_len) ;
+ 		assert (data_index + channels - 1 < filter->b_end) ;
+-		for (int ch = 0; ch < channels; ch++)
++		for (ch = 0; ch < channels; ch++)
+ 			right [ch] += icoeff * filter->buffer [data_index + ch] ;
+ 
+ 		filter_index -= increment ;
+@@ -1053,7 +1059,7 @@ calc_output_multi (SINC_FILTER *filter, increment_t increment, increment_t start
+ 		}
+ 	while (filter_index > MAKE_INCREMENT_T (0)) ;
+ 
+-	for(int ch = 0; ch < channels; ch++)
++	for(ch = 0; ch < channels; ch++)
+ 		output [ch] = (float) (scale * (left [ch] + right [ch])) ;
+ 
+ 	return ;
+diff --git a/src/src_zoh.c b/src/src_zoh.c
+index 4dba3d4..d87dd26 100644
+--- a/src/src_zoh.c
++++ b/src/src_zoh.c
+@@ -164,10 +164,11 @@ zoh_get_description (int src_enum)
+ 
+ static ZOH_DATA *
+ zoh_data_new (int channels)
+-{
++{	ZOH_DATA *priv ;
++
+ 	assert (channels > 0) ;
+ 
+-	ZOH_DATA *priv = (ZOH_DATA *) calloc (1, sizeof (ZOH_DATA)) ;
++	priv = (ZOH_DATA *) calloc (1, sizeof (ZOH_DATA)) ;
+ 	if (priv)
+ 	{
+ 		priv->zoh_magic_marker = ZOH_MAGIC_MARKER ;
+@@ -184,11 +185,12 @@ zoh_data_new (int channels)
+ 
+ LIBSAMPLERATE_DLL_PRIVATE SRC_STATE *
+ zoh_state_new (int channels, SRC_ERROR *error)
+-{
++{	SRC_STATE *state ;
++
+ 	assert (channels > 0) ;
+ 	assert (error != NULL) ;
+ 
+-	SRC_STATE *state = (SRC_STATE *) calloc (1, sizeof (SRC_STATE)) ;
++	state = (SRC_STATE *) calloc (1, sizeof (SRC_STATE)) ;
+ 	if (!state)
+ 	{
+ 		*error = SRC_ERR_MALLOC_FAILED ;
+@@ -234,19 +236,21 @@ zoh_reset (SRC_STATE *state)
+ 
+ static SRC_STATE *
+ zoh_copy (SRC_STATE *state)
+-{
++{	SRC_STATE *to ;
++	ZOH_DATA *from_priv, *to_priv ;
++
+ 	assert (state != NULL) ;
+ 
+ 	if (state->private_data == NULL)
+ 		return NULL ;
+ 
+-	SRC_STATE *to = (SRC_STATE *) calloc (1, sizeof (SRC_STATE)) ;
++	to = (SRC_STATE *) calloc (1, sizeof (SRC_STATE)) ;
+ 	if (!to)
+ 		return NULL ;
+ 	memcpy (to, state, sizeof (SRC_STATE)) ;
+ 
+-	ZOH_DATA* from_priv = (ZOH_DATA*) state->private_data ;
+-	ZOH_DATA *to_priv = (ZOH_DATA *) calloc (1, sizeof (ZOH_DATA)) ;
++	from_priv = (ZOH_DATA *) state->private_data ;
++	to_priv = (ZOH_DATA *) calloc (1, sizeof (ZOH_DATA)) ;
+ 	if (!to_priv)
+ 	{
+ 		free (to) ;
+diff --git a/tests/multichan_throughput_test.c b/tests/multichan_throughput_test.c
+index 5cab44a..a3bd1cc 100644
+--- a/tests/multichan_throughput_test.c
++++ b/tests/multichan_throughput_test.c
+@@ -147,6 +147,7 @@ single_run (void)
+ static void
+ multi_run (int run_count)
+ {	int channels[] = {1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18};
++	int i, k ;
+ 
+ 	printf ("\n    CPU name : %s\n", get_cpu_name ()) ;
+ 
+@@ -156,7 +157,7 @@ multi_run (int run_count)
+ 		"    ----------------------------------------------------------------------------------------"
+ 		) ;
+ 
+-	for (int i = 0 ; i < ARRAY_LEN(channels) ; i++)
++	for (i = 0 ; i < ARRAY_LEN(channels) ; i++)
+ 	{
+ #ifdef ENABLE_SINC_FAST_CONVERTER
+ 		long sinc_fastest = 0 ;
+@@ -169,7 +170,7 @@ multi_run (int run_count)
+ #endif
+ 		int ch = channels[i];
+ 
+-		for (int k = 0 ; k < run_count ; k++)
++		for (k = 0 ; k < run_count ; k++)
+ 		{
+ #ifdef ENABLE_SINC_FAST_CONVERTER
+ 			throughput_test (SRC_SINC_FASTEST, ch, &sinc_fastest) ;
+diff --git a/tests/simple_test.c b/tests/simple_test.c
+index f9014fd..8d535c4 100644
+--- a/tests/simple_test.c
++++ b/tests/simple_test.c
+@@ -63,7 +63,8 @@ main (void)
+ static void
+ src_simple_produces_output_test (int converter, double src_ratio)
+ {
+-	for (int channels = 1; channels <= 9; channels++)
++	int channels;
++	for (channels = 1; channels <= 9; channels++)
+ 		src_simple_produces_output(converter, channels, src_ratio);
+ }
+ 
+@@ -74,14 +75,15 @@ src_simple_produces_output (int converter, int channels, double src_ratio)
+ 	// At least 256 so a conversion ratio of 1/256 can produce any output
+ 	const long NUM_FRAMES = 1000;
+ 	int error;
++	float *input, *output;
++	SRC_DATA src_data;
+ 
+ 	printf ("\tproduces_output\t(SRC ratio = %6.4f, channels = %d) ... ", src_ratio, channels) ;
+ 	fflush (stdout) ;
+ 
+-	float *input = calloc (NUM_FRAMES * channels, sizeof (float));
+-	float *output = calloc (NUM_FRAMES * channels, sizeof (float));
++	input = calloc (NUM_FRAMES * channels, sizeof (float));
++	output = calloc (NUM_FRAMES * channels, sizeof (float));
+ 
+-	SRC_DATA src_data;
+ 	memset (&src_data, 0, sizeof (src_data)) ;
+ 	src_data.data_in = input;
+ 	src_data.data_out = output;
+diff --git a/tests/termination_test.c b/tests/termination_test.c
+index 0b27a21..ca758bb 100644
+--- a/tests/termination_test.c
++++ b/tests/termination_test.c
+@@ -83,13 +83,16 @@ simple_test (int converter)
+ 	{
+ 		float in [ilen] ;
+ 		float out [olen] ;
+-		double ratio = (1.0 * olen) / ilen ;
+-		SRC_DATA src_data =
+-		{	in, out,
+-			ilen, olen,
+-			0, 0, 0,
+-			ratio
+-		} ;
++		SRC_DATA src_data;
++
++		src_data.data_in = in ;
++		src_data.data_out = out ;
++		src_data.input_frames = ilen ;
++		src_data.output_frames = olen ;
++		src_data.input_frames_used = 0;
++		src_data.output_frames_gen = 0;
++		src_data.end_of_input = 0;
++		src_data.src_ratio = (1.0 * olen) / ilen ;
+ 
+ 		error = src_simple (&src_data, converter, 1) ;
+ 		if (error)
+-- 
+1.7.1
+
