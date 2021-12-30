@@ -58,10 +58,10 @@ OBJS	= \
  src\loaders\common.obj \
  src\loaders\iff.obj \
  src\loaders\itsex.obj \
- src\loaders\asif.obj \
  src\loaders\lzw.obj \
  src\loaders\voltable.obj \
  src\loaders\sample.obj \
+ src\loaders\vorbis.obj \
  src\loaders\xm_load.obj \
  src\loaders\mod_load.obj \
  src\loaders\s3m_load.obj \
@@ -162,29 +162,28 @@ DEPACKER_OBJS	= \
  src\depackers\ppdepack.obj \
  src\depackers\unsqsh.obj \
  src\depackers\mmcmp.obj \
- src\depackers\readrle.obj \
- src\depackers\readlzw.obj \
+ src\depackers\s404_dec.obj \
  src\depackers\unarc.obj \
  src\depackers\arcfs.obj \
- src\depackers\xfd.obj \
- src\depackers\inflate.obj \
+ src\depackers\readrle.obj \
+ src\depackers\readlzw.obj \
  src\depackers\muse.obj \
- src\depackers\unlzx.obj \
- src\depackers\s404_dec.obj \
+ src\depackers\miniz_tinfl.obj \
+ src\depackers\miniz_zip.obj \
  src\depackers\unzip.obj \
  src\depackers\gunzip.obj \
  src\depackers\uncompress.obj \
- src\depackers\unxz.obj \
  src\depackers\bunzip2.obj \
  src\depackers\unlha.obj \
+ src\depackers\unlzx.obj \
+ src\depackers\unxz.obj \
  src\depackers\xz_dec_lzma2.obj \
  src\depackers\xz_dec_stream.obj \
- src\depackers\oxm.obj \
- src\depackers\vorbis.obj \
  src\depackers\crc32.obj \
- src\depackers\ptpopen.obj \
- src\depackers\xfd_link.obj \
  src\depackers\xfnmatch.obj \
+ src\depackers\ptpopen.obj \
+ src\depackers\xfd.obj \
+ src\depackers\xfd_link.obj \
 
 ALL_OBJS	= $(OBJS)
 !if $(USE_PROWIZARD)==1

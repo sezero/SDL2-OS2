@@ -74,8 +74,6 @@ static struct depacker *depacker_list[] = {
 	NULL
 };
 
-int test_oxm		(FILE *);
-
 #if defined(HAVE_FORK) && defined(HAVE_PIPE) && defined(HAVE_EXECVP) && \
     defined(HAVE_DUP2) && defined(HAVE_WAIT)
 #define DECRUNCH_USE_FORK
@@ -201,20 +199,126 @@ static int execute_command(const char * const cmd[], FILE *t)
 }
 #endif /* USE_FORK */
 
+static int decrunch_command(HIO_HANDLE **h, const char * const cmd[], char **temp)
+{
+#if defined __ANDROID__ || defined __native_client__
+	/* Don't use external helpers in android */
+	return 0;
+#else
+	HIO_HANDLE *tmp;
+	FILE *t;
+
+	D_(D_WARN "Depacking file... ");
+
+	if ((t = make_temp_file(temp)) == NULL) {
+		goto err;
+	}
+
+	/* Depack file */
+	D_(D_INFO "External depacker: %s", cmd[0]);
+	if (execute_command(cmd, t) < 0) {
+		D_(D_CRIT "failed");
+		goto err2;
+	}
+
+	D_(D_INFO "done");
+
+	if (fseek(t, 0, SEEK_SET) < 0) {
+		D_(D_CRIT "fseek error");
+		goto err2;
+	}
+
+	if ((tmp = hio_open_file2(t)) == NULL)
+		return -1;  /* call closes on failure. */
+
+	hio_close(*h);
+	*h = tmp;
+	return 0;
+
+    err2:
+	fclose(t);
+    err:
+	return -1;
+#endif
+}
+
+static int decrunch_internal_tempfile(HIO_HANDLE **h, struct depacker *depacker, char **temp)
+{
+	HIO_HANDLE *tmp;
+	FILE *t;
+
+	D_(D_WARN "Depacking file... ");
+
+	if ((t = make_temp_file(temp)) == NULL) {
+		goto err;
+	}
+
+	/* Depack file */
+	D_(D_INFO "Internal depacker");
+	if (depacker->depack(*h, t, hio_size(*h)) < 0) {
+		D_(D_CRIT "failed");
+		goto err2;
+	}
+
+	D_(D_INFO "done");
+
+	if (fseek(t, 0, SEEK_SET) < 0) {
+		D_(D_CRIT "fseek error");
+		goto err2;
+	}
+
+	if ((tmp = hio_open_file2(t)) == NULL)
+		return -1; /* call closes on failure. */
+
+	hio_close(*h);
+	*h = tmp;
+	return 0;
+
+    err2:
+	fclose(t);
+    err:
+	return -1;
+}
+
+static int decrunch_internal_memory(HIO_HANDLE **h, struct depacker *depacker)
+{
+	HIO_HANDLE *tmp;
+	void *out;
+	long outlen;
+
+	D_(D_WARN "Depacking file... ");
+
+	/* Depack file */
+	D_(D_INFO "Internal depacker");
+	if (depacker->depack_mem(*h, &out, hio_size(*h), &outlen) < 0) {
+		D_(D_CRIT "failed");
+		return -1;
+	}
+
+	D_(D_INFO "done");
+
+	if ((tmp = hio_open_mem(out, outlen, 1)) == NULL) {
+		free(out);
+		return -1;
+	}
+
+	hio_close(*h);
+	*h = tmp;
+	return 0;
+}
+
 int libxmp_decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 {
 	unsigned char b[1024];
 	const char *cmd[32];
-	FILE *f, *t;
 	int headersize;
 	int i;
 	struct depacker *depacker = NULL;
 
 	cmd[0] = NULL;
 	*temp = NULL;
-	f = (*h)->handle.file;
 
-	headersize = fread(b, 1, 1024, f);
+	headersize = hio_read(b, 1, 1024, *h);
 	if (headersize < 100) {	/* minimum valid file size */
 		return 0;
 	}
@@ -254,73 +358,31 @@ int libxmp_decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 			cmd[i++] = "-x*.com";
 			cmd[i++] = filename;
 			cmd[i++] = NULL;
-		} else if (test_oxm(f) == 0) {
-			/* oggmod */
-			D_(D_INFO "oggmod");
-			depacker = &libxmp_depacker_oxm;
 		}
 	}
 
-	if (fseek(f, 0, SEEK_SET) < 0) {
-		goto err;
-	}
-
-	if (depacker == NULL && cmd[0] == NULL) {
-		D_(D_INFO "Not packed");
-		return 0;
-	}
-
-#if defined __ANDROID__ || defined __native_client__
-	/* Don't use external helpers in android */
-	if (cmd[0]) {
-		return 0;
-	}
-#endif
-
-	/* When the filename is unknown (because it is a stream) don't use
-	 * external helpers
-	 */
-	if (cmd[0] && filename == NULL) {
-		return 0;
-	}
-
-	D_(D_WARN "Depacking file... ");
-
-	if ((t = make_temp_file(temp)) == NULL) {
-		goto err;
+	if (hio_seek(*h, 0, SEEK_SET) < 0) {
+		return -1;
 	}
 
 	/* Depack file */
 	if (cmd[0]) {
-		D_(D_INFO "External depacker: %s", cmd[0]);
-		if (execute_command(cmd, t) < 0) {
-			D_(D_CRIT "failed");
-			goto err2;
+		/* When the filename is unknown (because it is a stream) don't use
+		 * external helpers
+		 */
+		if (filename == NULL) {
+			return 0;
 		}
-	} else if (depacker) {
-		D_(D_INFO "Internal depacker");
-		if (depacker->depack(f, t, hio_size(*h)) < 0) {
-			D_(D_CRIT "failed");
-			goto err2;
-		}
+
+		return decrunch_command(h, cmd, temp);
+	} else if (depacker && depacker->depack) {
+		return decrunch_internal_tempfile(h, depacker, temp);
+	} else if (depacker && depacker->depack_mem) {
+		return decrunch_internal_memory(h, depacker);
+	} else {
+		D_(D_INFO "Not packed");
+		return 0;
 	}
-
-	D_(D_INFO "done");
-
-	if (fseek(t, 0, SEEK_SET) < 0) {
-		D_(D_CRIT "fseek error");
-		goto err2;
-	}
-
-	hio_close(*h);
-	*h = hio_open_file2(t);
-
-	return (*h == NULL)? -1 : 0;
-
-    err2:
-	fclose(t);
-    err:
-	return -1;
 }
 
 /*

@@ -33,9 +33,11 @@ static int compare_md5(const unsigned char *d, const char *digest)
 {
 	int i;
 
-	/*for (i = 0; i < 16 ; i++)
+	/*
+	for (i = 0; i < 16 ; i++)
 		printf("%02x", d[i]);
-	printf("\n");*/
+	printf("\n");
+	*/
 
 	for (i = 0; i < 16 && *digest; i++, digest += 2) {
 		char hex[3];
@@ -104,7 +106,12 @@ int main(void)
 
 	MD5Final(digest, &ctx);
 
-	if (compare_md5(digest, "0133c6e3fa08cab9ee352d4d55b2332e") < 0) {
+	/*
+	  x87 floating point results in a very slightly different output from
+	  SSE and other floating point implementations, so check two hashes.
+	 */
+	if (compare_md5(digest, "28cb82d8774f4388a91e32cc6d3a29ed") < 0 && /* SSE2 */
+	    compare_md5(digest, "051d9d24253f9cf010672a0c2625034f") < 0) { /* x87 */
 		printf("rendering error\n");
 		goto err;
 	}
