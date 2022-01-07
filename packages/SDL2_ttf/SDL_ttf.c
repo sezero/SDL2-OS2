@@ -1,6 +1,6 @@
 /*
   SDL_ttf:  A companion library to SDL for working with TrueType (tm) fonts
-  Copyright (C) 2001-2021 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 2001-2022 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -279,7 +279,7 @@ struct _TTF_Font {
 #define TTF_STYLE_NO_GLYPH_CHANGE   (TTF_STYLE_UNDERLINE | TTF_STYLE_STRIKETHROUGH)
 
 /* The FreeType font engine/library */
-static FT_Library library;
+static FT_Library library = NULL;
 static int TTF_initialized = 0;
 static SDL_bool TTF_byteswapped = SDL_FALSE;
 
@@ -1542,6 +1542,32 @@ int TTF_Init(void)
 #endif
     }
     return status;
+}
+
+SDL_COMPILE_TIME_ASSERT(FT_Int, sizeof(int) == sizeof(FT_Int)); /* just in case. */
+void TTF_GetFreeTypeVersion(int *major, int *minor, int *patch)
+{
+    FT_Library_Version(library, major, minor, patch);
+}
+
+void TTF_GetHarfBuzzVersion(int *major, int *minor, int *patch)
+{
+    unsigned int hb_major = 0;
+    unsigned int hb_minor = 0;
+    unsigned int hb_micro = 0;
+
+#if TTF_USE_HARFBUZZ
+    hb_version(&hb_major, &hb_minor, &hb_micro);
+#endif
+    if (major) {
+        *major = (int)hb_major;
+    }
+    if (minor) {
+        *minor = (int)hb_minor;
+    }
+    if (patch) {
+        *patch = (int)hb_micro;
+    }
 }
 
 static unsigned long RWread(
@@ -3285,6 +3311,14 @@ static SDL_bool CharacterIsDelimiter(Uint32 c)
     return SDL_FALSE;
 }
 
+static SDL_bool CharacterIsNewLine(Uint32 c)
+{
+    if (c == '\n') {
+        return SDL_TRUE;
+    }
+    return SDL_FALSE;
+}
+
 static SDL_Surface* TTF_Render_Wrapped_Internal(TTF_Font *font, const char *text, const str_type_t str_type,
         SDL_Color fg, SDL_Color bg, Uint32 wrapLength, const render_mode_t render_mode)
 {
@@ -3336,9 +3370,15 @@ static SDL_Surface* TTF_Render_Wrapped_Internal(TTF_Font *font, const char *text
         goto failure;
     }
 
+    /* wrapLength is unsigned, but don't allow negative values */
+    if ((int)wrapLength < 0) {
+        TTF_SetError("Invalid parameter 'wrapLength'");
+        goto failure;
+    }
+
     numLines = 1;
 
-    if (wrapLength > 0 && *text_cpy) {
+    if (*text_cpy) {
         int maxNumLines = 0;
         size_t textlen = SDL_strlen(text_cpy);
         numLines = 0;
@@ -3350,7 +3390,11 @@ static SDL_Surface* TTF_Render_Wrapped_Internal(TTF_Font *font, const char *text
 
             if (numLines >= maxNumLines) {
                 char **saved = strLines;
-                maxNumLines += (width / wrapLength) + 1;
+                if (wrapLength == 0) {
+                    maxNumLines += 32;
+                } else {
+                    maxNumLines += (width / wrapLength) + 1;
+                }
                 strLines = (char **)SDL_realloc(strLines, maxNumLines * sizeof (*strLines));
                 if (strLines == NULL) {
                     strLines = saved;
@@ -3366,8 +3410,13 @@ static SDL_Surface* TTF_Render_Wrapped_Internal(TTF_Font *font, const char *text
                 goto failure;
             }
 
+            if (max_count == 0) {
+                max_count = 1;
+            }
+
             while (textlen > 0) {
                 int inc = 0;
+                int is_delim;
                 Uint32 c = UTF8_getch(text_cpy, textlen, &inc);
                 text_cpy += inc;
                 textlen -= inc;
@@ -3378,8 +3427,11 @@ static SDL_Surface* TTF_Render_Wrapped_Internal(TTF_Font *font, const char *text
 
                 char_count += 1;
 
+                /* With wrapLength == 0, normal text rendering but newline aware */
+                is_delim = (wrapLength > 0) ?  CharacterIsDelimiter(c) : CharacterIsNewLine(c);
+
                 /* Record last delimiter position */
-                if (CharacterIsDelimiter(c)) {
+                if (is_delim) {
                     save_textlen = textlen;
                     save_text = text_cpy;
                     /* Break, if new line */
@@ -3406,10 +3458,42 @@ static SDL_Surface* TTF_Render_Wrapped_Internal(TTF_Font *font, const char *text
     lineskip = TTF_FontLineSkip(font);
     rowHeight = SDL_max(height, lineskip);
 
-    width  = (numLines > 1) ? wrapLength : width;
-    /* Don't go above wrapLength if you have only 1 line which hasn't been cut */
-    if (wrapLength > 0) {
-        width = SDL_min((int)wrapLength, width);
+    if (wrapLength == 0) {
+        /* Find the max of all line lengths */
+        if (numLines > 1) {
+            width = 0;
+            for (i = 0; i < numLines; i++) {
+                char save_c = 0;
+                int w, h;
+
+                /* Add end-of-line */
+                if (strLines) {
+                    text = strLines[i];
+                    if (i + 1 < numLines) {
+                        save_c = strLines[i + 1][0];
+                        strLines[i + 1][0] = '\0';
+                    }
+                }
+
+                if (TTF_SizeUTF8(font, text, &w, &h) == 0) {
+                    width = SDL_max(w, width);
+                }
+
+                /* Remove end-of-line */
+                if (strLines) {
+                    if (i + 1 < numLines) {
+                        strLines[i + 1][0] = save_c;
+                    }
+                }
+            }
+        }
+    } else {
+        if (numLines > 1) {
+            width = wrapLength;
+        } else {
+            /* Don't go above wrapLength if you have only 1 line which hasn't been cut */
+            width = SDL_min((int)wrapLength, width);
+        }
     }
     height = rowHeight + lineskip * (numLines - 1);
 
@@ -3688,6 +3772,7 @@ void TTF_Quit(void)
     if (TTF_initialized) {
         if (--TTF_initialized == 0) {
             FT_Done_FreeType(library);
+            library = NULL;
         }
     }
 }
