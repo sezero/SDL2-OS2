@@ -1,0 +1,24 @@
+diff --git a/include/freetype/config/integer-types.h b/include/freetype/config/integer-types.h
+index b772845..af848fb 100644
+--- a/include/freetype/config/integer-types.h
++++ b/include/freetype/config/integer-types.h
+@@ -219,15 +219,18 @@
+ 
+   /* this compiler provides the `__int64` type */
+ #define FT_INT64   __int64
+ #define FT_UINT64  unsigned __int64
+ 
+ #elif defined( __WATCOMC__ )   /* Watcom C++ */
+ 
+-  /* Watcom doesn't provide 64-bit data types */
++#if ( __WATCOMC__ >= 1100 )    /* As of Watcom 11.0 */
++#define FT_INT64   long long int
++#define FT_UINT64  unsigned long long int
++#endif
+ 
+ #elif defined( __MWERKS__ )    /* Metrowerks CodeWarrior */
+ 
+ #define FT_INT64   long long int
+ #define FT_UINT64  unsigned long long int
+ 
+ #elif defined( __GNUC__ )
