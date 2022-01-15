@@ -1,25 +1,50 @@
+From 11ea89b51c8a3e1d81e0dbec47d6909ff60c9a1d Mon Sep 17 00:00:00 2001
+From: Ozkan Sezer <sezeroz@gmail.com>
+Date: Fri, 14 Jan 2022 22:07:44 -0500
+Subject: Add Watcom C/C++ support.
+
+* include/freetype/config/integer-types.h: Make sure `long long` is
+used then available.
+* include/freetype/internal/ftcalc.h (FT_MSB): Add Watcom C/C++ pragma.
+---
+ include/freetype/config/integer-types.h |  5 +++--
+ include/freetype/internal/ftcalc.h      | 13 +++++++++++++
+ 2 files changed, 16 insertions(+), 2 deletions(-)
+
+diff --git a/include/freetype/config/integer-types.h b/include/freetype/config/integer-types.h
+index b772845..d9d2638 100644
+--- a/include/freetype/config/integer-types.h
++++ b/include/freetype/config/integer-types.h
+@@ -221,9 +221,10 @@
+ #define FT_INT64   __int64
+ #define FT_UINT64  unsigned __int64
+ 
+-#elif defined( __WATCOMC__ )   /* Watcom C++ */
++#elif defined( __WATCOMC__ ) && __WATCOMC__ >= 1100  /* Watcom C++ */
+ 
+-  /* Watcom doesn't provide 64-bit data types */
++#define FT_INT64   long long int
++#define FT_UINT64  unsigned long long int
+ 
+ #elif defined( __MWERKS__ )    /* Metrowerks CodeWarrior */
+ 
 diff --git a/include/freetype/internal/ftcalc.h b/include/freetype/internal/ftcalc.h
-index 46e7f22..e228617 100644
+index 46e7f22..e6a87db 100644
 --- a/include/freetype/internal/ftcalc.h
 +++ b/include/freetype/internal/ftcalc.h
-@@ -401,20 +401,31 @@ FT_BEGIN_HEADER
- 
-     _BitScanReverse( &where, x );
- 
-     return (FT_Int32)where;
-   }
- 
- #define FT_MSB( x )  FT_MSB_i386( x )
+@@ -408,6 +408,19 @@ FT_BEGIN_HEADER
  
  #endif
  
 +#elif defined( __WATCOMC__ ) && defined( __386__ )
 +
-+extern __inline FT_Int32 FT_MSB_i386(FT_UInt32);
-+#pragma aux FT_MSB_i386 = \
-+  "bsr eax, eax" \
-+  parm [eax] nomemory \
-+  value [eax] \
++  extern __inline FT_Int32
++  FT_MSB_i386( FT_UInt32  x );
++
++#pragma aux FT_MSB_i386 =     \
++  "bsr eax, eax"              \
++  parm [eax] nomemory         \
++  value [eax]                 \
 +  modify exact [eax] nomemory;
 +
 +#define FT_MSB( x )  FT_MSB_i386( x )
@@ -27,10 +52,6 @@ index 46e7f22..e228617 100644
  #elif defined( __DECC ) || defined( __DECCXX )
  
  #include <builtins.h>
- 
- #define FT_MSB( x )  (FT_Int)( 63 - _leadz( x ) )
- 
- #elif defined( _CRAYC )
- 
- #include <intrinsics.h>
- 
+-- 
+cgit v1.1
+

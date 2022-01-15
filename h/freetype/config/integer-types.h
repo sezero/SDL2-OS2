@@ -221,12 +221,10 @@
 #define FT_INT64   __int64
 #define FT_UINT64  unsigned __int64
 
-#elif defined( __WATCOMC__ )   /* Watcom C++ */
+#elif defined( __WATCOMC__ ) && __WATCOMC__ >= 1100  /* Watcom C++ */
 
-#if ( __WATCOMC__ >= 1100 )    /* As of Watcom 11.0 */
 #define FT_INT64   long long int
 #define FT_UINT64  unsigned long long int
-#endif
 
 #elif defined( __MWERKS__ )    /* Metrowerks CodeWarrior */
 

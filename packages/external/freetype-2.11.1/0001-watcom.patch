@@ -1,23 +1,30 @@
+From 7f7bf6f0f0b707f84594a424d5e15fda8275887b Mon Sep 17 00:00:00 2001
+From: Alexei Podtelezhnikov <apodtele@gmail.com>
+Date: Fri, 14 Jan 2022 20:33:28 -0500
+Subject: * include/freetype/internal/compiler-macros.h [FT_COMPARE_DEF]:
+ Tighten.
+
+This works around Watcom C library using __watcall.
+---
+ include/freetype/internal/compiler-macros.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
 diff --git a/include/freetype/internal/compiler-macros.h b/include/freetype/internal/compiler-macros.h
-index 88c0bf0..1a6633c 100644
+index 88c0bf0..84c3203 100644
 --- a/include/freetype/internal/compiler-macros.h
 +++ b/include/freetype/internal/compiler-macros.h
-@@ -295,17 +295,15 @@ FT_BEGIN_HEADER
-    */
- #ifdef __cplusplus
- #define FT_CALLBACK_DEF( x )  extern "C"  x
- #else
+@@ -299,9 +299,9 @@ FT_BEGIN_HEADER
  #define FT_CALLBACK_DEF( x )  static  x
  #endif
  
 -#if defined( __i386__ )
--#define FT_COMPARE_DEF( x )  FT_CALLBACK_DEF( x ) __attribute__(( cdecl ))
++#if defined( __GNUC__ ) && defined( __i386__ )
+ #define FT_COMPARE_DEF( x )  FT_CALLBACK_DEF( x ) __attribute__(( cdecl ))
 -#elif defined( _M_IX86 )
-+#if defined( _MSC_VER ) && defined( _M_IX86 )
++#elif defined( _MSC_VER ) && defined( _M_IX86 )
  #define FT_COMPARE_DEF( x )  FT_CALLBACK_DEF( x ) __cdecl
  #else
  #define FT_COMPARE_DEF( x )  FT_CALLBACK_DEF( x )
- #endif
- 
- #define FT_BASE_CALLBACK( x )      FT_FUNCTION_DECLARATION( x )
- #define FT_BASE_CALLBACK_DEF( x )  FT_FUNCTION_DEFINITION( x )
+-- 
+cgit v1.1
+

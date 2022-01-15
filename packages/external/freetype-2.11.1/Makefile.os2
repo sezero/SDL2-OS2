@@ -36,9 +36,6 @@ src/sdf;src/dlg;
 
 .c.obj:
   wcc386 $(CFLAGS) -fo=$^@ $<
-# struct _ED has a member named near, so undefine Watcom's near macro:
-sdf.obj: sdf.c
-  wcc386 $(CFLAGS) -Unear -fo=$^@ $<
 
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
