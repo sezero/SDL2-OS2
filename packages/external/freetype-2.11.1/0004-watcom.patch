@@ -1,0 +1,31 @@
+From 3f6497bdc53bf19c1ac07cfbb121d7c51966b0d7 Mon Sep 17 00:00:00 2001
+From: Ozkan Sezer <sezeroz@gmail.com>
+Date: Sat, 15 Jan 2022 22:44:28 -0500
+Subject: Add Watcom C/C++ calling.
+
+In the unlikely case the source is built with OpenWatcom's -ec?
+switches to enforce a calling convention, the qsort() compare
+function must still be set to __watcall.
+
+* include/freetype/internal/compiler-macros.h (FT_COMPARE_DEF):
+Updated.
+---
+ include/freetype/internal/compiler-macros.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/freetype/internal/compiler-macros.h b/include/freetype/internal/compiler-macros.h
+index 84c3203..66fa13c 100644
+--- a/include/freetype/internal/compiler-macros.h
++++ b/include/freetype/internal/compiler-macros.h
+@@ -303,6 +303,8 @@ FT_BEGIN_HEADER
+ #define FT_COMPARE_DEF( x )  FT_CALLBACK_DEF( x ) __attribute__(( cdecl ))
+ #elif defined( _MSC_VER ) && defined( _M_IX86 )
+ #define FT_COMPARE_DEF( x )  FT_CALLBACK_DEF( x ) __cdecl
++#elif defined( __WATCOMC__ ) && __WATCOMC__ >= 1240
++#define FT_COMPARE_DEF( x )  FT_CALLBACK_DEF( x ) __watcall
+ #else
+ #define FT_COMPARE_DEF( x )  FT_CALLBACK_DEF( x )
+ #endif
+-- 
+cgit v1.1
+
