@@ -25,7 +25,7 @@ TROBJECTS= jpegtran.obj rdswitch.obj cdjpeg.obj transupp.obj
 # Added switch -ei for compatibility with SDL: 
 # Function like jpeg_CreateDecompress() check the size of given structure that
 # must be same at compile time and at runtime.
-CFLAGS = -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm -wx -wcd=136
+CFLAGS = -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oeatxh -wx -wcd=136
 # newer OpenWatcom versions enable W303 by default
 CFLAGS+= -wcd=303
 

@@ -3,7 +3,7 @@ VERSION = 1.0.3
 
 LIBFILE = $(LIBNAME).lib
 
-CFLAGS = -zq -bt=os2 -ei -5s -fp5 -fpi87 -sg -s -bm -d0 -oilrtfm -wx
+CFLAGS = -zq -bt=os2 -ei -5s -fp5 -fpi87 -sg -s -bm -d0 -sg -oeatxh -wx
 #CFLAGS += -DWEBP_USE_THREAD=1
 #CFLAGS += -DWEBP_USE_SSE2=1 -DWEBP_USE_SSE41=1
 CFLAGS += -DNDEBUG
@@ -19,12 +19,11 @@ OBJS = $(SRCS:.c=.obj)
 
 all: $(LIBFILE)
 
-.c: src/dec;src/dsp;src/utils
-
 $(LIBFILE): $(OBJS)
   @echo * Create library: $(LIBFILE)...
   wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJS)
 
+.c: src/dec;src/dsp;src/utils
 .c.obj:
   wcc386 $(CFLAGS) -fo=$^@ $<
 

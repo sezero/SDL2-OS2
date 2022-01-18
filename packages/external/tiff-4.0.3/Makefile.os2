@@ -14,7 +14,7 @@ SRCS = tif_aux.c tif_close.c tif_codec.c tif_color.c tif_compress.c tif_dir.c &
 
 OBJS = $(SRCS:.c=.obj)
 
-CFLAGS = -bt=os2 -ei -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier
+CFLAGS = -bt=os2 -ei -d0 -q -bm -5s -fp5 -fpi87 -sg -oeatxh
 CFLAGS+= -DNDEBUG
 CFLAGS+= -I"../zlib-1.2.8"
 

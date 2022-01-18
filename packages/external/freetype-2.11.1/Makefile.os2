@@ -16,7 +16,7 @@ SRCS = autofit.c ftbase.c ftbbox.c ftbdf.c ftdebug.c ftbitmap.c ftpfr.c &
 OBJS = $(SRCS:.c=.obj)
 
 INCPATH =-Iinclude
-CFLAGS = -bt=os2 -ei -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier
+CFLAGS = -bt=os2 -ei -d0 -q -bm -5s -fp5 -fpi87 -sg -oeatxh
 CFLAGS+= -wcd=124 -DFT2_BUILD_LIBRARY
 CFLAGS+= -DFT_CONFIG_OPTION_SYSTEM_ZLIB
 INCPATH+= -I"../zlib-1.2.11"
@@ -41,5 +41,6 @@ clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
   @if exist *.obj rm *.obj
   @if exist *.err rm *.err
+
 distclean: clean .SYMBOLIC
   @if exist $(LIBFILE) rm $(LIBFILE)

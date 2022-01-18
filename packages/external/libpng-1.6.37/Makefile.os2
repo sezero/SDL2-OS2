@@ -14,7 +14,7 @@ SRCS = png.c pngerror.c pngget.c pngmem.c pngpread.c pngread.c pngrio.c &
 
 OBJS = $(SRCS:.c=.obj)
 
-CFLAGS = -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -s -oilrtfm -wx -wcd=124
+CFLAGS = -bt=os2 -ei -d0 -q -5s -fp5 -fpi87 -sg -oeatxh -wx -wcd=124
 CFLAGS+= -I"../zlib-1.2.11"
 
 all: $(LIBFILE) pngtest.exe
