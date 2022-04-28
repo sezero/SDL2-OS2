@@ -61,14 +61,6 @@ fi
 AC_CHECK_PROGS(WINDRES, [windres $hostaliaswindres $host_os-windres])
 
 case "$host" in
-    *-*-cygwin* | *-*-mingw*)
-        ;;
-
-    *)  AC_FUNC_ALLOCA
-        ;;
-esac
-
-case "$host" in
     *-*-beos*)
         ac_default_prefix=/boot/develop/tools/gnupro
         ;;
@@ -108,99 +100,38 @@ AM_PATH_SDL2($SDL_VERSION,
 )
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
-TTF_LIBS=
-TTF_CPPFLAGS=
 
-dnl Check for the FreeType 2 library
-AC_ARG_ENABLE(freetype-builtin, [AS_HELP_STRING([--enable-freetype-builtin], [Use included version of FreeType [default=yes]])], [], enable_freetype_builtin=yes)
+dnl See if GCC's -Wall is supported.
+CheckWarnAll()
+{
+    AC_MSG_CHECKING(for GCC -Wall option)
+    have_gcc_Wall=no
 
-if test x$enable_freetype_builtin = xyes; then
-	SUMMARY="${SUMMARY}Using included FreeType : YES\n"
-else
-	PKG_CHECK_MODULES([FT2], [freetype2 >= 7.0.1], [], [dnl
-		AC_CHECK_FT2(,,[AC_MSG_ERROR([dnl
-*** Unable to find FreeType2 library (https://www.freetype.org)])]
-		)
-	])
-	TTF_CFLAGS="$TTF_CFLAGS $FT2_CFLAGS"
-	TTF_LIBS="$TTF_LIBS $FT2_LIBS"
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$save_CFLAGS -Wall"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([int x = 0;])], [have_gcc_Wall=yes])
+    AC_MSG_RESULT($have_gcc_Wall)
+    CFLAGS="$save_CFLAGS"
 
-	SUMMARY="${SUMMARY}Using included FreeType : NO\n"
-fi
-AM_CONDITIONAL(USE_BUILTIN_FREETYPE, test x$enable_freetype_builtin = xyes)
+    if test x$have_gcc_Wall = xyes; then
+        CFLAGS="$CFLAGS -Wall"
+        CXXFLAGS="$CXXFLAGS -Wall"
 
-dnl Check for the HarfBuzz library
-AC_ARG_ENABLE(harfbuzz, [AS_HELP_STRING([--enable-harfbuzz], [Enable HarfBuzz [default=yes]])], [], enable_harfbuzz=yes)
-AC_ARG_ENABLE(harfbuzz-builtin, [AS_HELP_STRING([--enable-harfbuzz-builtin], [Use included version of HarfBuzz [default=yes]])], [], enable_harfbuzz_builtin=yes)
-
-if test x$enable_harfbuzz = xyes; then
-	AC_DEFINE(TTF_USE_HARFBUZZ, 1, [])
-	SUMMARY="${SUMMARY}Using HarfBuzz          : YES\n"
-
-	if test x$enable_harfbuzz_builtin = xyes; then
-		SUMMARY="${SUMMARY}Using included HarfBuzz : YES\n"
-		AX_CXX_COMPILE_STDCXX(11)
-		AC_CHECK_ALIGNOF([struct{char;}])
-		case "$host" in
-		  *-*-mingw*) hb_os_win32=yes
-			CXXFLAGS="$CXXFLAGS -static-libgcc -static-libstdc++"
-			CFLAGS="$CFLAGS -static-libgcc"
-			# for uniscribe support:
-			TTF_LIBS="$TTF_LIBS -lusp10 -lgdi32 -lrpcrt4"
-		  ;;
-		esac
-		case "$host" in
-		  arm-*-*)
-		    if test "x$ac_cv_alignof_struct_char__" != x1; then
-			CXXFLAGS="$CXXFLAGS -mstructure-size-boundary=8"
-		    fi
-		  ;;
-		esac
-		dnl silence a lot of harfbuzz warnings:
-		CXXFLAGS="$CXXFLAGS -Wno-unused-result"
-		dnl prevent linking to libstdc++:
-		CXXFLAGS="$CXXFLAGS -fno-rtti -fno-exceptions -fno-threadsafe-statics"
-	else
-		SUMMARY="${SUMMARY}Using included HarfBuzz : NO\n"
-		PKG_CHECK_MODULES([HB], [harfbuzz >= 2.3.1], harfbuzz=yes, harfbuzz=no)
-
-		if test x$harfbuzz = xyes; then
-			save_CFLAGS="$CFLAGS"
-			save_LIBS="$LIBS"
-			CFLAGS="$CFLAGS $HB_CFLAGS"
-			LIBS="$LIBS $HB_LIBS"
-			AC_MSG_CHECKING(for freetype support in harfbuzz)
-			harbuzz_has_freetype=no
-			AC_LINK_IFELSE([AC_LANG_PROGRAM([],[[
-					void* hb_ft_font_create(void*, void*);
-					return !hb_ft_font_create((void*)0, (void*)0);]])
-				],[harbuzz_has_freetype=yes])
-			CFLAGS="$save_CFLAGS"
-			LIBS="$save_LIBS"
-			AC_MSG_RESULT($harbuzz_has_freetype)
-			if test x$harbuzz_has_freetype = xno; then
-				harfbuzz=no
-				AC_MSG_ERROR([dnl
-*** HarfBuzz library was built without FreeType support.)])
-			fi
-		fi
-		if test x$harfbuzz = xyes; then
-			AC_DEFINE(TTF_USE_HARFBUZZ, 1, [])
-			TTF_CFLAGS="$TTF_CFLAGS $HB_CFLAGS"
-			TTF_LIBS="$TTF_LIBS $HB_LIBS"
-			SUMMARY="${SUMMARY}Using harfbuzz      : YES\n"
-		else
-			AC_MSG_ERROR([dnl
-*** Unable to find HarfBuzz library (https://harfbuzz.github.io)])
-		fi
-	fi
-else
-	AC_DEFINE(TTF_USE_HARFBUZZ, 0, [])
-	SUMMARY="${SUMMARY}Using HarfBuzz          : NO\n"
-	enable_harfbuzz_builtin=no
-fi
-AM_CONDITIONAL(OS_WIN32, test x$hb_os_win32 = xyes)
-AM_CONDITIONAL(USE_BUILTIN_HARFBUZZ, test x$enable_harfbuzz_builtin = xyes)
+dnl Haiku headers use multicharacter constants all over the place. Ignore these warnings when using -Wall.
+        AC_MSG_CHECKING(for necessary GCC -Wno-multichar option)
+        need_gcc_Wno_multichar=no
+        case "$host" in
+            *-*-haiku*)
+                need_gcc_Wno_multichar=yes
+                ;;
+        esac
+        AC_MSG_RESULT($need_gcc_Wno_multichar)
+        if test x$need_gcc_Wno_multichar = xyes; then
+            CFLAGS="$CFLAGS -Wno-multichar"
+            CXXFLAGS="$CXXFLAGS -Wno-multichar"
+        fi
+    fi
+}
 
 dnl See if GCC's -fvisibility=hidden is supported (gcc4 and later, usually).
 CheckVisibilityHidden()
@@ -230,7 +161,113 @@ CheckVisibilityHidden()
         CXXFLAGS="$CXXFLAGS $visibility_CFLAGS"
     fi
 }
+
+dnl check for GCC warning options
+CheckWarnAll
+
+dnl check for GCC visibility attributes
 CheckVisibilityHidden
+
+TTF_LIBS=
+TTF_CPPFLAGS=
+PC_REQUIRES=
+PC_LIBS=
+
+dnl Check for the FreeType 2 library
+AC_ARG_ENABLE(freetype-builtin, [AS_HELP_STRING([--enable-freetype-builtin], [Use included version of FreeType [default=yes]])], [], enable_freetype_builtin=yes)
+
+if test x$enable_freetype_builtin = xyes; then
+	SUMMARY="${SUMMARY}Using included FreeType : YES\n"
+else
+	PKG_CHECK_MODULES([FT2], [freetype2 >= 7.0.1], [
+		PC_REQUIRES="freetype2 $PC_REQUIRES"
+	], [dnl
+		AC_CHECK_FT2(,,[AC_MSG_ERROR([dnl
+*** Unable to find FreeType2 library (https://www.freetype.org)])]
+		)
+		PC_LIBS="$FT2_LIBS $PC_LIBS"
+	])
+	TTF_CFLAGS="$TTF_CFLAGS $FT2_CFLAGS"
+	TTF_LIBS="$TTF_LIBS $FT2_LIBS"
+
+	SUMMARY="${SUMMARY}Using included FreeType : NO\n"
+fi
+AM_CONDITIONAL(USE_BUILTIN_FREETYPE, test x$enable_freetype_builtin = xyes)
+
+dnl Check for the HarfBuzz library
+AC_ARG_ENABLE(harfbuzz, [AS_HELP_STRING([--enable-harfbuzz], [Enable HarfBuzz [default=yes]])], [], enable_harfbuzz=yes)
+AC_ARG_ENABLE(harfbuzz-builtin, [AS_HELP_STRING([--enable-harfbuzz-builtin], [Use included version of HarfBuzz [default=yes]])], [], enable_harfbuzz_builtin=yes)
+
+if test x$enable_harfbuzz = xyes; then
+	AC_DEFINE(TTF_USE_HARFBUZZ, 1, [])
+	SUMMARY="${SUMMARY}Using HarfBuzz          : YES\n"
+
+	if test x$enable_harfbuzz_builtin = xyes; then
+		SUMMARY="${SUMMARY}Using included HarfBuzz : YES\n"
+		AX_CXX_COMPILE_STDCXX(11)
+		AC_CHECK_ALIGNOF([struct{char;}])
+		case "$host" in
+		  *-*-mingw*) hb_os_win32=yes
+			CXXFLAGS="$CXXFLAGS -static-libgcc -static-libstdc++"
+			CFLAGS="$CFLAGS -static-libgcc"
+			# for uniscribe support:
+			TTF_LIBS="$TTF_LIBS -lusp10 -lgdi32 -lrpcrt4"
+			PC_LIBS="$PC_LIBS -lusp10 -lgdi32 -lrpcrt4"
+		  ;;
+		esac
+		case "$host" in
+		  arm-*-*)
+		    if test "x$ac_cv_alignof_struct_char__" != x1; then
+			CXXFLAGS="$CXXFLAGS -mstructure-size-boundary=8"
+		    fi
+		  ;;
+		esac
+		# silence a lot of harfbuzz warnings:
+		CXXFLAGS="$CXXFLAGS -Wno-unused-result"
+		# prevent linking to libstdc++ :
+		CXXFLAGS="$CXXFLAGS -fno-rtti -fno-exceptions -fno-threadsafe-statics"
+	else
+		SUMMARY="${SUMMARY}Using included HarfBuzz : NO\n"
+		PKG_CHECK_MODULES([HB], [harfbuzz >= 2.3.1], harfbuzz=yes, harfbuzz=no)
+
+		if test x$harfbuzz = xyes; then
+			save_CFLAGS="$CFLAGS"
+			save_LIBS="$LIBS"
+			CFLAGS="$CFLAGS $HB_CFLAGS"
+			LIBS="$LIBS $HB_LIBS"
+			AC_MSG_CHECKING(for freetype support in harfbuzz)
+			harbuzz_has_freetype=no
+			AC_LINK_IFELSE([AC_LANG_PROGRAM([],[[
+					void* hb_ft_font_create(void*, void*);
+					return !hb_ft_font_create((void*)0, (void*)0);]])
+				],[harbuzz_has_freetype=yes])
+			CFLAGS="$save_CFLAGS"
+			LIBS="$save_LIBS"
+			AC_MSG_RESULT($harbuzz_has_freetype)
+			if test x$harbuzz_has_freetype = xno; then
+				harfbuzz=no
+				AC_MSG_ERROR([dnl
+*** HarfBuzz library was built without FreeType support.)])
+			fi
+		fi
+		if test x$harfbuzz = xyes; then
+			AC_DEFINE(TTF_USE_HARFBUZZ, 1, [])
+			PC_REQUIRES="harfbuzz $PC_REQUIRES"
+			TTF_CFLAGS="$TTF_CFLAGS $HB_CFLAGS"
+			TTF_LIBS="$TTF_LIBS $HB_LIBS"
+			SUMMARY="${SUMMARY}Using harfbuzz      : YES\n"
+		else
+			AC_MSG_ERROR([dnl
+*** Unable to find HarfBuzz library (https://harfbuzz.github.io)])
+		fi
+	fi
+else
+	AC_DEFINE(TTF_USE_HARFBUZZ, 0, [])
+	SUMMARY="${SUMMARY}Using HarfBuzz          : NO\n"
+	enable_harfbuzz_builtin=no
+fi
+AM_CONDITIONAL(OS_WIN32, test x$hb_os_win32 = xyes)
+AM_CONDITIONAL(USE_BUILTIN_HARFBUZZ, test x$enable_harfbuzz_builtin = xyes)
 
 dnl Check for OpenGL
 case "$host" in
@@ -271,7 +308,7 @@ LIBS="$LIBS $SYS_GL_LIBS"
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[
  #include "SDL_opengl.h"
 ]], [[
- glOrtho( -2.0, 2.0, -2.0, 2.0, -20.0, 20.0 );
+ glOrtho(-2.0, 2.0, -2.0, 2.0, -20.0, 20.0);
 ]])], [have_opengl=yes],[])
 AC_MSG_RESULT($have_opengl)
 LIBS="$save_LIBS"
@@ -286,6 +323,8 @@ AC_SUBST([MATHLIB])
 AC_SUBST([WINDRES])
 AC_SUBST([TTF_CFLAGS])
 AC_SUBST([TTF_LIBS])
+AC_SUBST([PC_REQUIRES])
+AC_SUBST([PC_LIBS])
 
 # Finally create all the generated files
 AC_CONFIG_FILES([

@@ -4,8 +4,8 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 
-project(SDL_sound)
-set(SDLSOUND_VERSION 2.0.0)
+project(SDL_sound C)
+set(SDLSOUND_VERSION 2.0.1)
 
 # Increment this if/when we break backwards compatibility.
 set(SDLSOUND_SOVERSION 2)
@@ -13,15 +13,14 @@ set(SDLSOUND_SOVERSION 2)
 include_directories(src)
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-    add_definitions(-std=gnu99)
-    add_definitions(-Wall)
+    add_compile_options(-Wall)
     # Don't use -rpath.
     set(CMAKE_SKIP_RPATH ON CACHE BOOL "Skip RPATH" FORCE)
 endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL "SunPro")
-    add_definitions(-erroff=E_EMPTY_TRANSLATION_UNIT)
-    add_definitions(-xldscope=hidden)
+    add_compile_options(-erroff=E_EMPTY_TRANSLATION_UNIT)
+    add_compile_options(-xldscope=hidden)
 endif()
 
 find_package(SDL2 REQUIRED)
@@ -37,33 +36,51 @@ if(WIN32)
     string(STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
 endif()
 
+if(UNIX AND NOT (WIN32 OR APPLE OR HAIKU OR EMSCRIPTEN))
+    find_library(LIBM_LIBRARY m)
+    if(LIBM_LIBRARY)
+        set(LIBM_LIBRARY m)
+    endif()
+endif()
+
 # Decoders ...
 # These are (mostly) on by default now, so these options are only useful for
 #  disabling them.
 
-macro(sdlsound_decoder_option _VAR _NAME _EXTS)
-    option(SDLSOUND_DECODER_${_VAR} "Enable ${_NAME} support (${_EXTS})" TRUE)
+macro(sdlsound_decoder_option _VAR _NAME _EXTS _DEFLT)
+    option(SDLSOUND_DECODER_${_VAR} "Enable ${_NAME} support (${_EXTS})" ${_DEFLT})
     if(NOT SDLSOUND_DECODER_${_VAR})
         add_definitions("-DSOUND_SUPPORTS_${_VAR}=0")
     endif()
 endmacro()
 
-sdlsound_decoder_option(WAV "Wave" ".WAV")
-sdlsound_decoder_option(AIFF "Audio Interchange" ".AIFF")
-sdlsound_decoder_option(AU "Sun/NeXT audio" ".AU")
-sdlsound_decoder_option(VOC "Creative Labs voice" ".VOC")
-sdlsound_decoder_option(FLAC "Free Lossless Audio Codec" ".FLAC")
-sdlsound_decoder_option(VORBIS "Ogg Vorbis" ".OGG")
-sdlsound_decoder_option(RAW "raw PCM audio" ".RAW")
-sdlsound_decoder_option(SHN "Shorten" ".SHN")
-sdlsound_decoder_option(MIDI "Midi" ".MID")
-sdlsound_decoder_option(MODPLUG "ModPlug" "various tracker formats")
-sdlsound_decoder_option(MP3 "MPEG-1 Layers I-III" ".MP3, .MP2, .MP1")
+sdlsound_decoder_option(WAV "Wave" ".WAV" TRUE)
+sdlsound_decoder_option(AIFF "Audio Interchange" ".AIFF" TRUE)
+sdlsound_decoder_option(AU "Sun/NeXT audio" ".AU" TRUE)
+sdlsound_decoder_option(VOC "Creative Labs voice" ".VOC" TRUE)
+sdlsound_decoder_option(FLAC "Free Lossless Audio Codec" ".FLAC" TRUE)
+sdlsound_decoder_option(VORBIS "Ogg Vorbis" ".OGG" TRUE)
+sdlsound_decoder_option(RAW "raw PCM audio" ".RAW" TRUE)
+sdlsound_decoder_option(SHN "Shorten" ".SHN" TRUE)
+sdlsound_decoder_option(MODPLUG "ModPlug" "various tracker formats" TRUE)
+sdlsound_decoder_option(MP3 "MPEG-1 Layers I-III" ".MP3, .MP2, .MP1" TRUE)
+
+# timidity is not public domain code, so default to not building it.
+sdlsound_decoder_option(MIDI "Midi" ".MID" FALSE)
+
+if(SDLSOUND_DECODER_VORBIS AND LIBM_LIBRARY)
+# stb_vorbis uses exp(), SDL_exp() is available as of SDL2-2.0.9
+# Instead of testing SDL_exp() presence, we unconditionally link
+# with -lm which is just harmless.
+    set(OPTIONAL_LIBRARY_LIBS ${OPTIONAL_LIBRARY_LIBS} ${LIBM_LIBRARY})
+    set(PC_LIBS ${PC_LIBS} -l${LIBM_LIBRARY})
+endif()
 
 if(APPLE)
-    sdlsound_decoder_option(COREAUDIO "CoreAudio" "various audio formats")
+    sdlsound_decoder_option(COREAUDIO "CoreAudio" "various audio formats" TRUE)
     if(SDLSOUND_DECODER_COREAUDIO)
         set(OPTIONAL_LIBRARY_LIBS ${OPTIONAL_LIBRARY_LIBS} "-framework AudioToolbox")
+        set(PC_LIBS ${PC_LIBS} "-framework AudioToolbox")
     endif()
 endif()
 
@@ -79,6 +96,19 @@ if(SDLSOUND_DECODER_MIDI)
         src/timidity/tables.c
         src/timidity/timidity.c
     )
+    set(TIMIDITY_HDRS
+        src/timidity/common.h
+        src/timidity/instrum.h
+        src/timidity/mix.h
+        src/timidity/options.h
+        src/timidity/output.h
+        src/timidity/playmidi.h
+        src/timidity/readmidi.h
+        src/timidity/resample.h
+        src/timidity/tables.h
+        src/timidity/timidity.h
+    )
+    source_group("src/timidity" FILES ${TIMIDITY_SRCS} ${TIMIDITY_HDRS})
 endif()
 if(SDLSOUND_DECODER_MODPLUG)
     set(LIBMODPLUG_SRCS
@@ -113,6 +143,17 @@ if(SDLSOUND_DECODER_MODPLUG)
         src/libmodplug/sndfile.c
         src/libmodplug/sndmix.c
     )
+    set(LIBMODPLUG_HDRS
+        src/libmodplug/libmodplug.h
+        src/libmodplug/modplug.h
+        src/libmodplug/tables.h
+    )
+    source_group("src/libmodplug" FILES ${LIBMODPLUG_SRCS} ${LIBMODPLUG_HDRS})
+endif()
+if(WIN32)
+    set(SDLSOUND_SHARED_SRCS
+        src/version.rc
+    )
 endif()
 
 # Almost everything is "compiled" here, but things that don't apply to the
@@ -133,8 +174,23 @@ set(SDLSOUND_SRCS
     src/SDL_sound_voc.c
     src/SDL_sound_vorbis.c
     src/SDL_sound_wav.c
+)
+set(SDLSOUND_HDRS
+    src/dr_flac.h
+    src/dr_mp3.h
+    src/SDL_sound.h
+    src/SDL_sound_internal.h
+    src/stb_vorbis.h
+)
+source_group("src" FILES ${SDLSOUND_SRCS} ${SDLSOUND_HDRS} ${SDLSOUND_SHARED_SRCS})
+
+set(SDLSOUND_ALL_SRCS
+    ${SDLSOUND_SRCS}
+    ${SDLSOUND_HDRS}
     ${TIMIDITY_SRCS}
+    ${TIMIDITY_HDRS}
     ${LIBMODPLUG_SRCS}
+    ${LIBMODPLUG_HDRS}
 )
 
 option(SDLSOUND_BUILD_STATIC "Build static library" TRUE)
@@ -142,7 +198,7 @@ if(OS2) # no static library on os/2
     set(SDLSOUND_BUILD_STATIC FALSE)
 endif()
 if(SDLSOUND_BUILD_STATIC)
-    add_library(SDL2_sound-static STATIC ${SDLSOUND_SRCS})
+    add_library(SDL2_sound-static STATIC ${SDLSOUND_ALL_SRCS})
     # Don't rename this on Windows, since DLLs will also produce an import
     #  library named "SDL2_sound.lib" which would conflict; Unix tend to like
     #  the same library name with a different extension for static libs, but
@@ -156,7 +212,7 @@ endif()
 
 option(SDLSOUND_BUILD_SHARED "Build shared library" TRUE)
 if(SDLSOUND_BUILD_SHARED)
-    add_library(SDL2_sound SHARED ${SDLSOUND_SRCS})
+    add_library(SDL2_sound SHARED ${SDLSOUND_ALL_SRCS} ${SDLSOUND_SHARED_SRCS})
     set_target_properties(SDL2_sound PROPERTIES MACOSX_RPATH 1)
     set_target_properties(SDL2_sound PROPERTIES VERSION ${SDLSOUND_VERSION})
     set_target_properties(SDL2_sound PROPERTIES SOVERSION ${SDLSOUND_SOVERSION})
@@ -172,6 +228,8 @@ if(SDLSOUND_BUILD_SHARED)
     set(SDLSOUND_LIB_TARGET SDL2_sound)
     set(SDLSOUND_INSTALL_TARGETS ${SDLSOUND_INSTALL_TARGETS} ";SDL2_sound")
 endif()
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/SDL2_sound.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/SDL2_sound.pc" @ONLY)
 
 if(NOT SDLSOUND_BUILD_SHARED AND NOT SDLSOUND_BUILD_STATIC)
     message(FATAL "Both shared and static libraries are disabled!")
@@ -207,11 +265,20 @@ if(SDLSOUND_BUILD_TEST)
     endif()
 endif()
 
+include(GNUInstallDirs)
 install(TARGETS ${SDLSOUND_INSTALL_TARGETS}
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib${LIB_SUFFIX}
-        ARCHIVE DESTINATION lib${LIB_SUFFIX})
-install(FILES src/SDL_sound.h DESTINATION include/SDL2)
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+install(FILES src/SDL_sound.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/SDL2)
+if(FREEBSD)
+  # FreeBSD uses ${PREFIX}/libdata/pkgconfig
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SDL2_sound.pc DESTINATION "libdata/pkgconfig")
+else()
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SDL2_sound.pc
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+endif()
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
@@ -236,21 +303,17 @@ else()
     message(STATUS "Doxygen not found. You won't be able to build documentation.")
 endif()
 
-if(UNIX)
-    set(SDLSOUND_TARBALL "${CMAKE_CURRENT_SOURCE_DIR}/../SDL_sound-${SDLSOUND_VERSION}.tar.bz2")
-    add_custom_target(
-        SDL2_sound-dist
-        hg archive -t tbz2 "${SDLSOUND_TARBALL}"
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        COMMENT "Building source tarball '${SDLSOUND_TARBALL}'..."
-    )
-    add_custom_target(
-        SDL2_sound-uninstall
-        "${CMAKE_CURRENT_SOURCE_DIR}/docs/uninstall.sh"
-        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-        COMMENT "Uninstall the project..."
-    )
-endif()
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+add_custom_target(
+    SDL2_sound-uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
+    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+    COMMENT "Uninstall the project..."
+)
 
 macro(message_bool_option _NAME _VALUE)
     if(${_VALUE})
@@ -270,8 +333,8 @@ message_bool_option("VORBIS support" SDLSOUND_DECODER_VORBIS)
 message_bool_option("RAW support" SDLSOUND_DECODER_RAW)
 message_bool_option("SHN support" SDLSOUND_DECODER_SHN)
 message_bool_option("MODPLUG support" SDLSOUND_DECODER_MODPLUG)
-message_bool_option("TiMidity support" SDLSOUND_DECODER_MIDI)
 message_bool_option("MP3 support" SDLSOUND_DECODER_MP3)
+message_bool_option("TiMidity support" SDLSOUND_DECODER_MIDI)
 message_bool_option("COREAUDIO support" SDLSOUND_DECODER_COREAUDIO)
 message_bool_option("Build static library" SDLSOUND_BUILD_STATIC)
 message_bool_option("Build shared library" SDLSOUND_BUILD_SHARED)

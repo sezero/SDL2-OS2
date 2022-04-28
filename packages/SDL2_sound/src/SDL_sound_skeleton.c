@@ -1,5 +1,5 @@
 /**
- * SDL_sound; A sound processing toolkit.
+ * SDL_sound; An abstract sound format decoding API.
  *
  * Please see the file LICENSE.txt in the source's root directory.
  *
@@ -27,11 +27,11 @@
 
 #if SOUND_SUPPORTS_FMT
 
-static int FMT_init(void)
+static SDL_bool FMT_init(void)
 {
     /* do any global decoder/library initialization you need here. */
 
-    return 1;  /* initialization successful. */
+    return SDL_TRUE;  /* initialization successful. */
 } /* FMT_init */
 
 

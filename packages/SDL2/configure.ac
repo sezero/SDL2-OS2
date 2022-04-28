@@ -22,9 +22,9 @@ dnl Set various version strings - taken gratefully from the GTk sources
 #
 SDL_MAJOR_VERSION=2
 SDL_MINOR_VERSION=0
-SDL_MICRO_VERSION=20
-SDL_INTERFACE_AGE=2
-SDL_BINARY_AGE=20
+SDL_MICRO_VERSION=22
+SDL_INTERFACE_AGE=0
+SDL_BINARY_AGE=22
 SDL_VERSION=$SDL_MAJOR_VERSION.$SDL_MINOR_VERSION.$SDL_MICRO_VERSION
 
 AC_SUBST(SDL_MAJOR_VERSION)
@@ -415,9 +415,18 @@ SOURCES="$SOURCES $srcdir/src/locale/*.c"
 
 dnl Enable/disable various subsystems of the SDL library
 
+case "$host" in
+    *-*-emscripten*)
+        default_atomic=no
+        ;;
+    *)
+        default_atomic=yes
+        ;;
+esac
+
 AC_ARG_ENABLE(atomic,
 [AS_HELP_STRING([--enable-atomic], [Enable the atomic operations subsystem [default=yes]])],
-              , enable_atomic=yes)
+              , enable_atomic=$default_atomic)
 if test x$enable_atomic != xyes; then
     AC_DEFINE(SDL_ATOMIC_DISABLED, 1, [ ])
 else
@@ -526,6 +535,22 @@ if test x$enable_file != xyes; then
     AC_DEFINE(SDL_FILE_DISABLED, 1, [ ])
 else
     SUMMARY_modules="${SUMMARY_modules} file"
+fi
+AC_ARG_ENABLE(misc,
+[AS_HELP_STRING([--enable-misc], [Enable the misc subsystem [default=yes]])],
+              , enable_misc=yes)
+if test x$enable_misc != xyes; then
+    AC_DEFINE(SDL_MISC_DISABLED, 1, [ ])
+else
+    SUMMARY_modules="${SUMMARY_modules} misc"
+fi
+AC_ARG_ENABLE(locale,
+[AS_HELP_STRING([--enable-locale], [Enable the locale subsystem [default=yes]])],
+              , enable_locale=yes)
+if test x$enable_locale != xyes; then
+    AC_DEFINE(SDL_LOCALE_DISABLED, 1, [ ])
+else
+    SUMMARY_modules="${SUMMARY_modules} locale"
 fi
 AC_ARG_ENABLE(loadso,
 [AS_HELP_STRING([--enable-loadso], [Enable the shared object loading subsystem [default=yes]])],
@@ -1273,6 +1298,7 @@ CheckDiskAudio()
         AC_DEFINE(SDL_AUDIO_DRIVER_DISK, 1, [ ])
         SOURCES="$SOURCES $srcdir/src/audio/disk/*.c"
         SUMMARY_audio="${SUMMARY_audio} disk"
+        have_audio=yes
     fi
 }
 
@@ -1286,6 +1312,7 @@ CheckDummyAudio()
         AC_DEFINE(SDL_AUDIO_DRIVER_DUMMY, 1, [ ])
         SOURCES="$SOURCES $srcdir/src/audio/dummy/*.c"
         SUMMARY_audio="${SUMMARY_audio} dummy"
+        have_audio=yes
     fi
 }
 
@@ -1528,7 +1555,7 @@ CheckWayland()
         video_wayland=no
         if  test x$video_opengl_egl = xyes && \
             test x$video_opengles_v2 = xyes; then
-            if $PKG_CONFIG --exists wayland-client wayland-scanner wayland-egl wayland-cursor egl 'xkbcommon >= 0.5.0'; then
+            if $PKG_CONFIG --exists 'wayland-client >= 1.18' wayland-scanner wayland-egl wayland-cursor egl 'xkbcommon >= 0.5.0'; then
                 WAYLAND_CFLAGS=`$PKG_CONFIG --cflags wayland-client wayland-egl wayland-cursor xkbcommon`
                 WAYLAND_LIBS=`$PKG_CONFIG --libs wayland-client wayland-egl wayland-cursor xkbcommon`
                 WAYLAND_SCANNER=`$PKG_CONFIG --variable=wayland_scanner wayland-scanner`
@@ -1599,39 +1626,31 @@ dnl FIXME: Do BSD and OS X need special cases?
 
 dnl See if libdecor is available
             AC_ARG_ENABLE(libdecor,
-[AS_HELP_STRING([--enable-libdecor], [use libdecor for Wayland client-side decorations [default=yes]])],
-                          , enable_libdecor=yes)
+[AS_HELP_STRING([--enable-libdecor], [use libdecor for Wayland client-side decorations [default=yes]])],, enable_libdecor=yes)
             if test x$enable_libdecor = xyes; then
-                AC_MSG_CHECKING(for libdecor support)
-                AS_IF([$PKG_CONFIG --exists libdecor-0],
-                      [video_libdecor=yes],
-                      [video_libdecor=no])
-                AC_MSG_RESULT($video_libdecor)
+                PKG_CHECK_MODULES([DECOR], [libdecor-0], video_libdecor=yes, video_libdecor=no)
                 if test x$video_libdecor = xyes; then
-                    EXTRA_CFLAGS="$EXTRA_CFLAGS `$PKG_CONFIG --cflags libdecor-0`"
+                    EXTRA_CFLAGS="$EXTRA_CFLAGS $DECOR_CFLAGS"
                     AC_DEFINE(HAVE_LIBDECOR_H, 1, [ ])
 
                     AC_ARG_ENABLE(libdecor-shared,
-[AS_HELP_STRING([--enable-libdecor-shared], [dynamically load libdecor [default=yes]])],
-                         , enable_libdecor_shared=yes)
+[AS_HELP_STRING([--enable-libdecor-shared], [dynamically load libdecor [default=yes]])],, enable_libdecor_shared=yes)
+
+                    decor_lib=[`find_lib "libdecor-0.so.*" "$DECOR_LIBS" | sed 's/.*\/\(.*\)/\1/; q'`]
 
                     if test x$enable_wayland_shared != xyes; then
                        enable_libdecor_shared=no
                     fi
-
-                    decor_lib=[`find_lib "libdecor-0.so.*" "" | sed 's/.*\/\(.*\)/\1/; q'`]
-
                     if test x$have_loadso != xyes && \
                        test x$enable_libdecor_shared = xyes; then
                         AC_MSG_WARN([You must have SDL_LoadObject() support for dynamic libdecor loading])
                     fi
-
                     if test x$have_loadso = xyes && \
                        test x$enable_libdecor_shared = xyes && test x$decor_lib != x; then
                         echo "-- dynamic libdecor -> $decor_lib"
                         AC_DEFINE_UNQUOTED(SDL_VIDEO_DRIVER_WAYLAND_DYNAMIC_LIBDECOR, "$decor_lib", [ ])
                     else
-                        EXTRA_LDFLAGS="$EXTRA_LDFLAGS `$PKG_CONFIG --libs libdecor-0`"
+                        EXTRA_LDFLAGS="$EXTRA_LDFLAGS $DECOR_LIBS"
                     fi
                 fi
             fi
@@ -1659,8 +1678,10 @@ CheckNativeClient()
         SDLMAIN_SOURCES="$srcdir/src/main/nacl/*.c"
         SOURCES="$SOURCES $srcdir/src/audio/nacl/*.c"
         SUMMARY_audio="${SUMMARY_audio} nacl"
+        have_audio=yes
         SOURCES="$SOURCES $srcdir/src/video/nacl/*.c"
         SUMMARY_video="${SUMMARY_video} nacl opengles2"
+        have_video=yes
         ],[])
 }
 
@@ -1710,6 +1731,7 @@ CheckRPI()
             SOURCES="$SOURCES $srcdir/src/video/raspberry/*.c"
             AC_DEFINE(SDL_VIDEO_DRIVER_RPI, 1, [ ])
             SUMMARY_video="${SUMMARY_video} rpi"
+            have_video=yes
         fi
     fi
 }
@@ -3176,6 +3198,16 @@ CheckWINDOWS()
 
     # This fixes Windows stack alignment with newer GCC
     CheckStackBoundary
+
+    # headers needed elsewhere
+    AC_CHECK_HEADER(tpcshrd.h,have_tpcshrd_h=yes)
+    if test x$have_tpcshrd_h = xyes; then
+        AC_DEFINE(HAVE_TPCSHRD_H, 1, [ ])
+    fi
+    AC_CHECK_HEADER(roapi.h,have_roapi_h=yes)
+    if test x$have_roapi_h = xyes; then
+        AC_DEFINE(HAVE_ROAPI_H, 1, [ ])
+    fi
 }
 
 dnl Determine whether the compiler can produce OS/2 executables
@@ -3634,6 +3666,7 @@ case "$host" in
                     SOURCES="$SOURCES $srcdir/src/core/android/*.c $srcdir/src/video/android/*.c"
                     AC_DEFINE(SDL_VIDEO_DRIVER_ANDROID, 1, [ ])
                     SUMMARY_video="${SUMMARY_video} android"
+                    have_video=yes
                 fi
                 ;;
             *-*-linux*)         ARCH=linux ;;
@@ -3715,12 +3748,16 @@ case "$host" in
         CheckRPATH
         CheckVivanteVideo
 
-        SOURCES="$SOURCES $srcdir/src/misc/unix/*.c"
-        have_misc=yes
-
-        SOURCES="$SOURCES $srcdir/src/locale/unix/*.c"
-        have_locale=yes
-
+        # Set up files for the misc library
+        if test x$enable_misc = xyes; then
+            SOURCES="$SOURCES $srcdir/src/misc/unix/*.c"
+            have_misc=yes
+        fi
+        # Set up files for the locale library
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/unix/*.c"
+            have_locale=yes
+        fi
         # Set up files for the audio library
         if test x$enable_audio = xyes; then
           case $ARCH in
@@ -3898,12 +3935,16 @@ case "$host" in
 
         # Set up the core platform files
         SOURCES="$SOURCES $srcdir/src/core/windows/*.c"
-        SOURCES="$SOURCES $srcdir/src/misc/windows/*.c"
-        have_misc=yes
+        # Set up files for the misc library
+        if test x$enable_misc = xyes; then
+            SOURCES="$SOURCES $srcdir/src/misc/windows/*.c"
+            have_misc=yes
+        fi
         # Use the Windows locale APIs.
-        SOURCES="$SOURCES $srcdir/src/locale/windows/*.c"
-        have_locale=yes
-
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/windows/*.c"
+            have_locale=yes
+        fi
         # Set up files for the video library
         if test x$enable_video = xyes; then
             AC_DEFINE(SDL_VIDEO_DRIVER_WINDOWS, 1, [ ])
@@ -3967,10 +4008,6 @@ case "$host" in
                 SOURCES="$SOURCES $srcdir/src/haptic/windows/*.c"
                 have_haptic=yes
             fi
-        fi
-        AC_CHECK_HEADER(tpcshrd.h,have_tpcshrd_h=yes)
-        if test x$have_tpcshrd_h = xyes; then
-            AC_DEFINE(HAVE_TPCSHRD_H, 1, [ ])
         fi
         # Set up files for the sensor library
         AC_CHECK_HEADER(sensorsapi.h,have_winsensors=yes,have_winsensors=no)
@@ -4086,14 +4123,16 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
             SOURCES="$SOURCES $srcdir/src/filesystem/haiku/*.cc"
             have_filesystem=yes
         fi
-
-        SOURCES="$SOURCES $srcdir/src/misc/haiku/*.cc"
-        have_misc=yes
-
+        # Set up files for the misc library
+        if test x$enable_misc = xyes; then
+            SOURCES="$SOURCES $srcdir/src/misc/haiku/*.cc"
+            have_misc=yes
+        fi
         # Set up files for the locale library
-        SOURCES="$SOURCES $srcdir/src/locale/haiku/*.cc"
-        have_locale=yes
-
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/haiku/*.cc"
+            have_locale=yes
+        fi
         # The Haiku platform requires special setup.
         SOURCES="$srcdir/src/main/haiku/*.cc $SOURCES"
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lroot -lbe -lmedia -lgame -ldevice -ltextencoding"
@@ -4113,13 +4152,16 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         CheckVulkan
         CheckPTHREAD
 
-        SOURCES="$SOURCES $srcdir/src/misc/ios/*.m"
-        have_misc=yes
-
+        # Set up files for the misc library
+        if test x$enable_misc = xyes; then
+            SOURCES="$SOURCES $srcdir/src/misc/ios/*.m"
+            have_misc=yes
+        fi
         # Set up files for the locale library
-        SOURCES="$SOURCES $srcdir/src/locale/macosx/*.m"
-        have_locale=yes
-
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/macosx/*.m"
+            have_locale=yes
+        fi
         # Set up files for the audio library
         if test x$enable_audio = xyes; then
             AC_DEFINE(SDL_AUDIO_DRIVER_COREAUDIO, 1, [ ])
@@ -4180,6 +4222,8 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES, 1, [ ])
         AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
         SOURCES="$SOURCES $srcdir/src/video/uikit/*.m"
+        SUMMARY_video="${SUMMARY_video} uikit"
+        have_video=yes
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lm -liconv -lobjc"
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,AVFoundation"
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,AudioToolbox"
@@ -4225,13 +4269,16 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         CheckPTHREAD
         CheckHIDAPI
 
-        SOURCES="$SOURCES $srcdir/src/misc/macosx/*.m"
-        have_misc=yes
-
+        # Set up files for the misc library
+        if test x$enable_misc = xyes; then
+            SOURCES="$SOURCES $srcdir/src/misc/macosx/*.m"
+            have_misc=yes
+        fi
         # Set up files for the locale library
-        SOURCES="$SOURCES $srcdir/src/locale/macosx/*.m"
-        have_locale=yes
-
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/macosx/*.m"
+            have_locale=yes
+        fi
         # Set up files for the audio library
         if test x$enable_audio = xyes; then
             AC_DEFINE(SDL_AUDIO_DRIVER_COREAUDIO, 1, [ ])
@@ -4339,6 +4386,12 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         CheckClockGettime
         CheckEmscriptenGLES
 
+        # Set up files for the misc library
+        if test x$enable_misc = xyes; then
+            SOURCES="$SOURCES $srcdir/src/misc/emscripten/*.c"
+            have_misc=yes
+        fi
+
          # Set up files for the power library
         if test x$enable_power = xyes; then
             AC_DEFINE(SDL_POWER_EMSCRIPTEN, 1, [ ])
@@ -4346,7 +4399,7 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
             have_power=yes
         fi
 
-        # Set up files for the power library
+        # Set up files for the joystick library
         if test x$enable_joystick = xyes; then
             AC_DEFINE(SDL_JOYSTICK_EMSCRIPTEN, 1, [ ])
             SOURCES="$SOURCES $srcdir/src/joystick/emscripten/*.c"
@@ -4366,8 +4419,10 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
             have_timers=yes
         fi
         # Set up files for the locale library
-        SOURCES="$SOURCES $srcdir/src/locale/emscripten/*.c"
-        have_locale=yes
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/emscripten/*.c"
+            have_locale=yes
+        fi
         ;;
     *-*-riscos*)
         ARCH=riscos
@@ -4383,9 +4438,11 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         CheckPTHREAD
         CheckClockGettime
 
-        SOURCES="$SOURCES $srcdir/src/misc/riscos/*.c"
-        have_misc=yes
-
+        # Set up files for the misc library
+        if test x$enable_misc = xyes; then
+            SOURCES="$SOURCES $srcdir/src/misc/riscos/*.c"
+            have_misc=yes
+        fi
         # Set up files for the video library
         if test x$enable_video = xyes; then
             AC_DEFINE(SDL_VIDEO_DRIVER_RISCOS, 1, [ ])
@@ -4432,8 +4489,10 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
             SOURCES="$SOURCES $srcdir/src/core/os2/geniconv/*.c"
         fi
         # Use the Unix locale APIs.
-        SOURCES="$SOURCES $srcdir/src/locale/unix/*.c"
-        have_locale=yes
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/unix/*.c"
+            have_locale=yes
+        fi
         # Set up files for the video library
         if test x$enable_video = xyes; then
             AC_DEFINE(SDL_VIDEO_DRIVER_OS2, 1, [ ])
@@ -4509,10 +4568,28 @@ AC_SUBST([INSTALL_SDL2_CONFIG], [$enable_sdl2_config])
 
 # Verify that we have all the platform specific files we need
 
+if test x$have_audio != xyes; then
+    if test x$enable_audio = xyes; then
+        AC_DEFINE(SDL_AUDIO_DRIVER_DUMMY, 1, [ ])
+    fi
+    SOURCES="$SOURCES $srcdir/src/audio/dummy/*.c"
+fi
+if test x$have_video != xyes; then
+    if test x$enable_video = xyes; then
+        AC_DEFINE(SDL_VIDEO_DRIVER_DUMMY, 1, [ ])
+    fi
+    SOURCES="$SOURCES $srcdir/src/video/dummy/*.c"
+fi
 if test x$have_misc != xyes; then
+    if test x$enable_misc = xyes; then
+        AC_DEFINE(SDL_MISC_DUMMY, 1, [ ])
+    fi
     SOURCES="$SOURCES $srcdir/src/misc/dummy/*.c"
 fi
 if test x$have_locale != xyes; then
+    if test x$enable_locale = xyes; then
+        AC_DEFINE(SDL_LOCALE_DUMMY, 1, [ ])
+    fi
     SOURCES="$SOURCES $srcdir/src/locale/dummy/*.c"
 fi
 if test x$have_joystick != xyes; then
@@ -4541,19 +4618,19 @@ if test x$have_threads != xyes; then
 fi
 if test x$have_timers != xyes; then
     if test x$enable_timers = xyes; then
-        AC_DEFINE(SDL_TIMERS_DISABLED, 1, [ ])
+        AC_DEFINE(SDL_TIMER_DUMMY, 1, [ ])
     fi
     SOURCES="$SOURCES $srcdir/src/timer/dummy/*.c"
 fi
 if test x$have_filesystem != xyes; then
     if test x$enable_filesystem = xyes; then
-        AC_DEFINE(SDL_FILESYSTEM_DISABLED, 1, [ ])
+        AC_DEFINE(SDL_FILESYSTEM_DUMMY, 1, [ ])
     fi
     SOURCES="$SOURCES $srcdir/src/filesystem/dummy/*.c"
 fi
 if test x$have_loadso != xyes; then
     if test x$enable_loadso = xyes; then
-        AC_DEFINE(SDL_LOADSO_DISABLED, 1, [ ])
+        AC_DEFINE(SDL_LOADSO_DUMMY, 1, [ ])
     fi
     SOURCES="$SOURCES $srcdir/src/loadso/dummy/*.c"
 fi

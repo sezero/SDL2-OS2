@@ -10,7 +10,7 @@ DEPS_INC=-I"../../../h/SDL2"
 DEPS_LIB= ../../../lib
 
 LIBNAME = SDL2snd
-VERSION = 2.0.0
+VERSION = 2.0.1
 
 LIBFILE = $(LIBNAME).lib
 DLLFILE = $(LIBNAME).dll
@@ -50,13 +50,8 @@ CFLAGS_BASE+= -I. $(DEPS_INC)
 CFLAGS = $(CFLAGS_BASE)
 # to build a dll:
 CFLAGS+= -bd
-# there are _lots_ of lazy declarations:
-CFLAGS+= -za99
 # for DECLSPEC:
 CFLAGS+= -DBUILD_SDL -DSDL_SOUND_DLL_EXPORTS
-
-#this is noted as experimental:
-#CFLAGS+= -DSOUND_USE_ALTCVT=1
 
 CFLAGS+= -DSOUND_SUPPORTS_MP3 &
          -DSOUND_SUPPORTS_MODPLUG &
