@@ -99,17 +99,11 @@ PSM		Epic Megagames MASI	epic, sinaria
 J2B		Galaxy Music System 5.0	-
 -		Galaxy Music System 4.0	-
 MFP/SMP		Magnetic Fields Packer  -
+MMDC		MED Packer		-
 -		Novotrade Packer	-
 PSM		Protracker Studio	0.01, 1.00
 STIM		Slamtilt		-
 UMX		Epic Games Unreal/UT	IT, S3M, MOD, XM
-
-YM3812 (Adlib) formats:
-
-AMD		Amusic Adlib Tracker	-
-RAD		Reality Adlib Tracker	-
-HSC		NEO soft/HSC-Tracker	1.5
-S3M		Scream Tracker 3	3.00, 3.01+
 
 
 Formats marked with (*) are experimental and are known to have

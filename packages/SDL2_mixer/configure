@@ -2631,20 +2631,21 @@ ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
 
 
 
-# Making releases:
-#   MICRO_VERSION += 1;
-#   INTERFACE_AGE += 1;
-#   BINARY_AGE += 1;
-# if any functions have been added, set INTERFACE_AGE to 0.
-# if backwards compatibility has been broken,
-# set BINARY_AGE and INTERFACE_AGE to 0.
-#
+# See release_checklist.md
 MAJOR_VERSION=2
-MINOR_VERSION=0
-MICRO_VERSION=4
-INTERFACE_AGE=2
-BINARY_AGE=4
+MINOR_VERSION=5
+MICRO_VERSION=0
 VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION
+
+BINARY_AGE=`expr $MINOR_VERSION \* 100 + $MICRO_VERSION`
+case "$MINOR_VERSION" in #(
+  *[02468]) :
+        INTERFACE_AGE="$MICRO_VERSION" ;; #(
+  *) :
+        INTERFACE_AGE=0 ;; #(
+  *) :
+     ;;
+esac
 
 
 
@@ -4122,13 +4123,13 @@ if ${lt_cv_nm_interface+:} false; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:4125: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:4126: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4128: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:4129: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4131: output\"" >&5)
+  (eval echo "\"\$as_me:4132: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -5342,7 +5343,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5345 "configure"' > conftest.$ac_ext
+  echo '#line 5346 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7167,11 +7168,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7170: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7171: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7174: \$? = $ac_status" >&5
+   echo "$as_me:7175: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7516,11 +7517,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7519: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7520: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7523: \$? = $ac_status" >&5
+   echo "$as_me:7524: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7621,11 +7622,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7624: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7625: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7628: \$? = $ac_status" >&5
+   echo "$as_me:7629: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -7676,11 +7677,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7679: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7680: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7683: \$? = $ac_status" >&5
+   echo "$as_me:7684: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10111,7 +10112,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10114 "configure"
+#line 10115 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10207,7 +10208,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10210 "configure"
+#line 10211 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10435,16 +10436,42 @@ CC="$lt_save_CC"
 
 
 
-LT_RELEASE=$MAJOR_VERSION.$MINOR_VERSION
-LT_CURRENT=`expr $MICRO_VERSION - $INTERFACE_AGE`
+# For historical reasons, the library name redundantly includes the major
+# version twice: libSDL2_mixer-2.0.so.0.
+# TODO: in SDL 3, stop using -release, which will simplify it to libSDL3_mixer.so.0
+LT_RELEASE=2.0
+
+# Increment this if there is an incompatible change - but if that happens,
+# we should rename the library from SDL2 to SDL3, at which point this would
+# reset to 0 anyway.
+LT_MAJOR=0
+
 LT_REVISION=$INTERFACE_AGE
 LT_AGE=`expr $BINARY_AGE - $INTERFACE_AGE`
+LT_CURRENT=`expr $LT_MAJOR + $LT_AGE`
+
 LT_EXTRA=""
 
 
 
 
 
+
+
+
+cat >>confdefs.h <<_ACEOF
+#define SDL_BUILD_MAJOR_VERSION $MAJOR_VERSION
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define SDL_BUILD_MINOR_VERSION $MINOR_VERSION
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define SDL_BUILD_MICRO_VERSION $MICRO_VERSION
+_ACEOF
 
 
 
@@ -13425,11 +13452,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13428: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13455: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13432: \$? = $ac_status" >&5
+   echo "$as_me:13459: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13524,11 +13551,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13527: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13554: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13531: \$? = $ac_status" >&5
+   echo "$as_me:13558: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -13576,11 +13603,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13579: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13606: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13583: \$? = $ac_status" >&5
+   echo "$as_me:13610: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14830,6 +14857,126 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 CC="$lt_save_CC"
 
 
+
+
+
+
+
+
+if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
+	if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
+set dummy ${ac_tool_prefix}pkg-config; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_PKG_CONFIG+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $PKG_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+PKG_CONFIG=$ac_cv_path_PKG_CONFIG
+if test -n "$PKG_CONFIG"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PKG_CONFIG" >&5
+$as_echo "$PKG_CONFIG" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+fi
+if test -z "$ac_cv_path_PKG_CONFIG"; then
+  ac_pt_PKG_CONFIG=$PKG_CONFIG
+  # Extract the first word of "pkg-config", so it can be a program name with args.
+set dummy pkg-config; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_ac_pt_PKG_CONFIG+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $ac_pt_PKG_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_ac_pt_PKG_CONFIG="$ac_pt_PKG_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_ac_pt_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+ac_pt_PKG_CONFIG=$ac_cv_path_ac_pt_PKG_CONFIG
+if test -n "$ac_pt_PKG_CONFIG"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_pt_PKG_CONFIG" >&5
+$as_echo "$ac_pt_PKG_CONFIG" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+  if test "x$ac_pt_PKG_CONFIG" = x; then
+    PKG_CONFIG=""
+  else
+    case $cross_compiling:$ac_tool_warned in
+yes:)
+{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
+$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
+ac_tool_warned=yes ;;
+esac
+    PKG_CONFIG=$ac_pt_PKG_CONFIG
+  fi
+else
+  PKG_CONFIG="$ac_cv_path_PKG_CONFIG"
+fi
+
+fi
+if test -n "$PKG_CONFIG"; then
+	_pkg_min_version=0.9.0
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking pkg-config is at least version $_pkg_min_version" >&5
+$as_echo_n "checking pkg-config is at least version $_pkg_min_version... " >&6; }
+	if $PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version; then
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	else
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+		PKG_CONFIG=""
+	fi
+fi
+
 case "$host" in
     *-*-cygwin*)
         # We build SDL on cygwin without the UNIX emulation layer
@@ -15025,6 +15172,8 @@ case "$host" in
             # Look for the location of the tools and install there
             if test "$BUILD_PREFIX" != ""; then
                 ac_default_prefix=$BUILD_PREFIX
+            elif test "$MINGW_PREFIX" != ""; then
+                ac_default_prefix=$MINGW_PREFIX
             fi
         fi
         ;;
@@ -15039,6 +15188,7 @@ esac
 # Standard C sources
 SOURCES=`ls $srcdir/src/*.c $srcdir/src/codecs/*.c | fgrep -v playwave.c | fgrep -v playmus.c`
 
+base_bindir=`echo \${bindir} | sed 's/.*\/\(.*\)/\1/; q'`
 base_libdir=`echo \${libdir} | sed 's/.*\/\(.*\)/\1/; q'`
 
 CheckWarnAll()
@@ -15139,7 +15289,7 @@ find_lib()
     if test "$cross_compiling" = yes; then
         host_lib_path=""
     else
-        host_lib_path="/usr/$base_libdir /usr/local/$base_libdir"
+        host_lib_path="$ac_default_prefix/$base_libdir $ac_default_prefix/$base_bindir /usr/$base_libdir /usr/local/$base_libdir"
     fi
     for path in $env_lib_path $gcc_bin_path $gcc_lib_path $host_lib_path; do
         lib=`ls -- $path/$1 2>/dev/null | sed -e '/\.so\..*\./d' -e 's,.*/,,' | sort | tail -1`
@@ -15151,126 +15301,6 @@ find_lib()
 }
 
 SDL_VERSION=2.0.7
-
-
-
-
-
-
-
-if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
-	if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
-set dummy ${ac_tool_prefix}pkg-config; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_PKG_CONFIG+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
-if test -n "$PKG_CONFIG"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PKG_CONFIG" >&5
-$as_echo "$PKG_CONFIG" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_path_PKG_CONFIG"; then
-  ac_pt_PKG_CONFIG=$PKG_CONFIG
-  # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_ac_pt_PKG_CONFIG+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $ac_pt_PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_ac_pt_PKG_CONFIG="$ac_pt_PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_ac_pt_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-ac_pt_PKG_CONFIG=$ac_cv_path_ac_pt_PKG_CONFIG
-if test -n "$ac_pt_PKG_CONFIG"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_pt_PKG_CONFIG" >&5
-$as_echo "$ac_pt_PKG_CONFIG" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-  if test "x$ac_pt_PKG_CONFIG" = x; then
-    PKG_CONFIG=""
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    PKG_CONFIG=$ac_pt_PKG_CONFIG
-  fi
-else
-  PKG_CONFIG="$ac_cv_path_PKG_CONFIG"
-fi
-
-fi
-if test -n "$PKG_CONFIG"; then
-	_pkg_min_version=0.9.0
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking pkg-config is at least version $_pkg_min_version" >&5
-$as_echo_n "checking pkg-config is at least version $_pkg_min_version... " >&6; }
-	if $PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version; then
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-	else
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-		PKG_CONFIG=""
-	fi
-fi
 
 # Check whether --with-sdl-prefix was given.
 if test "${with_sdl_prefix+set}" = set; then :
@@ -17035,48 +17065,6 @@ else
 fi
 
 if test x$enable_music_flac = xyes; then
-    ac_fn_c_check_header_mongrel "$LINENO" "FLAC/export.h" "ac_cv_header_FLAC_export_h" "$ac_includes_default"
-if test "x$ac_cv_header_FLAC_export_h" = xyes; then :
-  have_flac_export=yes
-fi
-
-
-    if test x$have_flac_export = xyes; then
-        LIBS_SAVED="$LIBS"
-        LIBS="-lFLAC"
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libflac so-name version >= $libflac_ver" >&5
-$as_echo_n "checking for libflac so-name version >= $libflac_ver... " >&6; }
-        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#include "FLAC/export.h"
-#include "stdio.h"
-
-int
-main ()
-{
-
-#if defined(FLAC_API_VERSION_CURRENT) && (FLAC_API_VERSION_CURRENT >= $libflac_ver)
-#else
-#error "old-flac"
-#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  have_flac_ver=yes
-else
-  have_flac_ver=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-        LIBS="$LIBS_SAVED"
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_flac_ver" >&5
-$as_echo "$have_flac_ver" >&6; }
-    fi
-
-    if test x$have_flac_ver = xyes; then
 
 pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for flac" >&5
@@ -17136,13 +17124,13 @@ fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$FLAC_PKG_ERRORS" >&5
 
-	                ac_fn_c_check_header_mongrel "$LINENO" "FLAC/stream_decoder.h" "ac_cv_header_FLAC_stream_decoder_h" "$ac_includes_default"
+	            ac_fn_c_check_header_mongrel "$LINENO" "FLAC/stream_decoder.h" "ac_cv_header_FLAC_stream_decoder_h" "$ac_includes_default"
 if test "x$ac_cv_header_FLAC_stream_decoder_h" = xyes; then :
   have_flac_hdr=yes
 fi
 
 
-                { $as_echo "$as_me:${as_lineno-$LINENO}: checking for FLAC__stream_decoder_new in -lFLAC" >&5
+            { $as_echo "$as_me:${as_lineno-$LINENO}: checking for FLAC__stream_decoder_new in -lFLAC" >&5
 $as_echo_n "checking for FLAC__stream_decoder_new in -lFLAC... " >&6; }
 if ${ac_cv_lib_FLAC_FLAC__stream_decoder_new+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -17186,13 +17174,13 @@ fi
 elif test $pkg_failed = untried; then
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-	                ac_fn_c_check_header_mongrel "$LINENO" "FLAC/stream_decoder.h" "ac_cv_header_FLAC_stream_decoder_h" "$ac_includes_default"
+	            ac_fn_c_check_header_mongrel "$LINENO" "FLAC/stream_decoder.h" "ac_cv_header_FLAC_stream_decoder_h" "$ac_includes_default"
 if test "x$ac_cv_header_FLAC_stream_decoder_h" = xyes; then :
   have_flac_hdr=yes
 fi
 
 
-                { $as_echo "$as_me:${as_lineno-$LINENO}: checking for FLAC__stream_decoder_new in -lFLAC" >&5
+            { $as_echo "$as_me:${as_lineno-$LINENO}: checking for FLAC__stream_decoder_new in -lFLAC" >&5
 $as_echo_n "checking for FLAC__stream_decoder_new in -lFLAC... " >&6; }
 if ${ac_cv_lib_FLAC_FLAC__stream_decoder_new+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -17238,37 +17226,71 @@ else
 	FLAC_LIBS=$pkg_cv_FLAC_LIBS
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-	                have_flac_hdr=yes
-                have_flac_lib=yes
-                have_flac_pc=yes
+	            have_flac_hdr=yes
+            have_flac_lib=yes
+            have_flac_pc=yes
 
 fi
-        if test x$have_flac_hdr = xyes -a x$have_flac_lib = xyes; then
-            case "$host" in
-                *-*-darwin*)
-                    flac_lib=`find_lib libFLAC.dylib`
-                    ;;
-                *-*-cygwin* | *-*-mingw*)
-                    flac_lib=`find_lib "libFLAC-*.dll"`
-                    ;;
-                *)
-                    flac_lib=`find_lib "libFLAC[0-9]*.so.*"`
-                    if test x$flac_lib = x; then
-                        flac_lib=`find_lib "libFLAC.so.*"`
-                    fi
-                    ;;
-            esac
-            EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_FLAC $FLAC_CFLAGS"
-            if test x$enable_music_flac_shared = xyes && test x$flac_lib != x; then
-                echo "-- dynamic libFLAC -> $flac_lib"
-                EXTRA_CFLAGS="$EXTRA_CFLAGS -DFLAC_DYNAMIC=\\\"$flac_lib\\\""
-            else
-                EXTRA_LDFLAGS="$EXTRA_LDFLAGS $FLAC_LIBS"
-                if test x$have_flac_pc = xyes; then
-                    PC_REQUIRES="$PC_REQUIRES flac"
-                else
-                    PC_LIBS="$PC_LIBS $FLAC_LIBS"
+
+    if test x$have_flac_hdr = xyes -a x$have_flac_lib = xyes; then
+        save_CFLAGS="$CFLAGS"
+        CFLAGS="$CFLAGS $FLAC_CFLAGS"
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libflac so-name version >= $libflac_ver" >&5
+$as_echo_n "checking for libflac so-name version >= $libflac_ver... " >&6; }
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include "FLAC/export.h"
+#include "stdio.h"
+
+int
+main ()
+{
+
+#if defined(FLAC_API_VERSION_CURRENT) && (FLAC_API_VERSION_CURRENT >= $libflac_ver)
+#else
+#error "old-flac"
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  have_flac_ver=yes
+else
+  have_flac_ver=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+        CFLAGS="$save_CFLAGS"
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_flac_ver" >&5
+$as_echo "$have_flac_ver" >&6; }
+    fi
+    if test x$have_flac_ver = xyes; then
+        case "$host" in
+            *-*-darwin*)
+                flac_lib=`find_lib libFLAC.dylib`
+                ;;
+            *-*-cygwin* | *-*-mingw*)
+                flac_lib=`find_lib "libFLAC*.dll"`
+                ;;
+            *)
+                flac_lib=`find_lib "libFLAC[0-9]*.so.*"`
+                if test x$flac_lib = x; then
+                    flac_lib=`find_lib "libFLAC.so.*"`
                 fi
+                ;;
+        esac
+        EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_FLAC $FLAC_CFLAGS"
+        if test x$enable_music_flac_shared = xyes && test x$flac_lib != x; then
+            echo "-- dynamic libFLAC -> $flac_lib"
+            EXTRA_CFLAGS="$EXTRA_CFLAGS -DFLAC_DYNAMIC=\\\"$flac_lib\\\""
+        else
+            EXTRA_LDFLAGS="$EXTRA_LDFLAGS $FLAC_LIBS"
+            if test x$have_flac_pc = xyes; then
+                PC_REQUIRES="$PC_REQUIRES flac"
+            else
+                PC_LIBS="$PC_LIBS $FLAC_LIBS"
             fi
         fi
     else

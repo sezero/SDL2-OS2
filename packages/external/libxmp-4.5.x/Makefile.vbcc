@@ -1,0 +1,214 @@
+# VBCC makefile for AmigaOS3:
+#	make -f Makefile.vbcc
+#
+# To disable module depacker functionality:
+#	make -f Makefile.vbcc USE_DEPACKERS=0
+#
+# To disable ProWizard functionality:
+#	make -f Makefile.vbcc USE_PROWIZARD=0
+#
+USE_DEPACKERS	= 1
+USE_PROWIZARD	= 1
+
+LIBFILE = xmp.lib
+
+CC	= vc
+CFLAGS  = -Iinclude -O2 -speed -maxoptpasses=32 -c99 -cpu=68060 -fpu=68060 -D__AMIGA__ -DWORDS_BIGENDIAN
+#CFLAGS += -DDEBUG
+#CFLAGS += -DHAVE_PROTO_XFDMASTER_H
+
+# vbcc_PosixLib is needed:
+CFLAGS += -I/opt/vbcc68k-posix/include
+CFLAGS += -DHAVE_UNISTD_H -DHAVE_MKSTEMP -DHAVE_FNMATCH -DHAVE_POPEN -DHAVE_UMASK -DHAVE_SYS_STAT_H
+
+ifeq ($(USE_PROWIZARD),0)
+CFLAGS += -DLIBXMP_NO_PROWIZARD
+endif
+ifeq ($(USE_DEPACKERS),0)
+CFLAGS += -DLIBXMP_NO_DEPACKERS
+endif
+
+OBJS	= \
+ src/virtual.o \
+ src/format.o \
+ src/period.o \
+ src/player.o \
+ src/read_event.o \
+ src/dataio.o \
+ src/misc.o \
+ src/mkstemp.o \
+ src/md5.o \
+ src/lfo.o \
+ src/scan.o \
+ src/control.o \
+ src/far_extras.o \
+ src/med_extras.o \
+ src/filter.o \
+ src/effects.o \
+ src/mixer.o \
+ src/mix_all.o \
+ src/load_helpers.o \
+ src/load.o \
+ src/hio.o \
+ src/hmn_extras.o \
+ src/extras.o \
+ src/smix.o \
+ src/filetype.o \
+ src/memio.o \
+ src/tempfile.o \
+ src/mix_paula.o \
+ src/win32.o \
+ src/loaders/common.o \
+ src/loaders/iff.o \
+ src/loaders/itsex.o \
+ src/loaders/lzw.o \
+ src/loaders/voltable.o \
+ src/loaders/sample.o \
+ src/loaders/vorbis.o \
+ src/loaders/xm_load.o \
+ src/loaders/mod_load.o \
+ src/loaders/s3m_load.o \
+ src/loaders/stm_load.o \
+ src/loaders/669_load.o \
+ src/loaders/far_load.o \
+ src/loaders/mtm_load.o \
+ src/loaders/ptm_load.o \
+ src/loaders/okt_load.o \
+ src/loaders/ult_load.o \
+ src/loaders/mdl_load.o \
+ src/loaders/it_load.o \
+ src/loaders/stx_load.o \
+ src/loaders/pt3_load.o \
+ src/loaders/sfx_load.o \
+ src/loaders/flt_load.o \
+ src/loaders/st_load.o \
+ src/loaders/emod_load.o \
+ src/loaders/imf_load.o \
+ src/loaders/digi_load.o \
+ src/loaders/fnk_load.o \
+ src/loaders/ice_load.o \
+ src/loaders/liq_load.o \
+ src/loaders/ims_load.o \
+ src/loaders/masi_load.o \
+ src/loaders/amf_load.o \
+ src/loaders/psm_load.o \
+ src/loaders/stim_load.o \
+ src/loaders/mmd_common.o \
+ src/loaders/mmd1_load.o \
+ src/loaders/mmd3_load.o \
+ src/loaders/rtm_load.o \
+ src/loaders/dt_load.o \
+ src/loaders/no_load.o \
+ src/loaders/arch_load.o \
+ src/loaders/sym_load.o \
+ src/loaders/med2_load.o \
+ src/loaders/med3_load.o \
+ src/loaders/med4_load.o \
+ src/loaders/dbm_load.o \
+ src/loaders/umx_load.o \
+ src/loaders/gdm_load.o \
+ src/loaders/pw_load.o \
+ src/loaders/gal5_load.o \
+ src/loaders/gal4_load.o \
+ src/loaders/mfp_load.o \
+ src/loaders/asylum_load.o \
+ src/loaders/hmn_load.o \
+ src/loaders/mgt_load.o \
+ src/loaders/chip_load.o \
+ src/loaders/abk_load.o \
+ src/loaders/coco_load.o \
+
+PROWIZ_OBJS	= \
+ src/loaders/prowizard/prowiz.o \
+ src/loaders/prowizard/ptktable.o \
+ src/loaders/prowizard/tuning.o \
+ src/loaders/prowizard/ac1d.o \
+ src/loaders/prowizard/di.o \
+ src/loaders/prowizard/eureka.o \
+ src/loaders/prowizard/fc-m.o \
+ src/loaders/prowizard/fuchs.o \
+ src/loaders/prowizard/fuzzac.o \
+ src/loaders/prowizard/gmc.o \
+ src/loaders/prowizard/heatseek.o \
+ src/loaders/prowizard/ksm.o \
+ src/loaders/prowizard/mp.o \
+ src/loaders/prowizard/np1.o \
+ src/loaders/prowizard/np2.o \
+ src/loaders/prowizard/np3.o \
+ src/loaders/prowizard/p61a.o \
+ src/loaders/prowizard/pm10c.o \
+ src/loaders/prowizard/pm18a.o \
+ src/loaders/prowizard/pha.o \
+ src/loaders/prowizard/prun1.o \
+ src/loaders/prowizard/prun2.o \
+ src/loaders/prowizard/tdd.o \
+ src/loaders/prowizard/unic.o \
+ src/loaders/prowizard/unic2.o \
+ src/loaders/prowizard/wn.o \
+ src/loaders/prowizard/zen.o \
+ src/loaders/prowizard/tp1.o \
+ src/loaders/prowizard/tp3.o \
+ src/loaders/prowizard/p40.o \
+ src/loaders/prowizard/xann.o \
+ src/loaders/prowizard/theplayer.o \
+ src/loaders/prowizard/pp10.o \
+ src/loaders/prowizard/pp21.o \
+ src/loaders/prowizard/starpack.o \
+ src/loaders/prowizard/titanics.o \
+ src/loaders/prowizard/skyt.o \
+ src/loaders/prowizard/novotrade.o \
+ src/loaders/prowizard/hrt.o \
+ src/loaders/prowizard/noiserun.o \
+
+DEPACKER_OBJS	= \
+ src/depackers/depacker.o \
+ src/depackers/ppdepack.o \
+ src/depackers/unsqsh.o \
+ src/depackers/mmcmp.o \
+ src/depackers/s404_dec.o \
+ src/depackers/arc.o \
+ src/depackers/arcfs.o \
+ src/depackers/arc_unpack.o \
+ src/depackers/lzx.o \
+ src/depackers/lzx_unpack.o \
+ src/depackers/muse.o \
+ src/depackers/miniz_tinfl.o \
+ src/depackers/miniz_zip.o \
+ src/depackers/unzip.o \
+ src/depackers/gunzip.o \
+ src/depackers/uncompress.o \
+ src/depackers/bunzip2.o \
+ src/depackers/unlha.o \
+ src/depackers/unxz.o \
+ src/depackers/xz_dec_lzma2.o \
+ src/depackers/xz_dec_stream.o \
+ src/depackers/crc32.o \
+ src/depackers/xfnmatch.o \
+ src/depackers/ptpopen.o \
+ src/depackers/xfd.o \
+ src/depackers/xfd_link.o \
+
+ALL_OBJS	= $(OBJS)
+ifeq ($(USE_PROWIZARD),1)
+ALL_OBJS += $(PROWIZ_OBJS)
+endif
+ifeq ($(USE_DEPACKERS),1)
+ALL_OBJS += $(DEPACKER_OBJS)
+endif
+
+.PHONY: clean distclean
+
+.c.o:
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+all: $(LIBFILE)
+
+$(LIBFILE): $(ALL_OBJS)
+	cat $(ALL_OBJS) > $(LIBFILE)
+
+clean:
+	$(RM) $(OBJS)
+	$(RM) $(DEPACKER_OBJS)
+	$(RM) $(PROWIZ_OBJS)
+distclean: clean
+	$(RM) $(LIBFILE)

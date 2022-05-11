@@ -306,7 +306,7 @@ static SDL_Surface* Create_SDL_Surface_From_CGImage_Index(CGImageRef image_ref)
     }
 
     CGColorSpaceGetColorTable(color_space, entries);
-    surface = SDL_CreateRGBSurface(SDL_SWSURFACE, (int)w, (int)h, bits_per_pixel, 0, 0, 0, 0);
+    surface = SDL_CreateRGBSurface(SDL_SWSURFACE, (int)w, (int)h, (int)bits_per_pixel, 0, 0, 0, 0);
     if (surface) {
         uint8_t* pixels = (uint8_t*)surface->pixels;
         CGDataProviderRef provider = CGImageGetDataProvider(image_ref);
@@ -355,6 +355,8 @@ static int Internal_checkImageIOisAvailable() {
 }
 #endif
 
+#ifdef JPG_USES_IMAGEIO
+
 int IMG_InitJPG()
 {
     return 0;
@@ -364,6 +366,10 @@ void IMG_QuitJPG()
 {
 }
 
+#endif /* JPG_USES_IMAGEIO */
+
+#ifdef PNG_USES_IMAGEIO
+
 int IMG_InitPNG()
 {
     return 0;
@@ -372,6 +378,8 @@ int IMG_InitPNG()
 void IMG_QuitPNG()
 {
 }
+
+#endif /* PNG_USES_IMAGEIO */
 
 int IMG_InitTIF()
 {
@@ -585,16 +593,24 @@ int IMG_isGIF(SDL_RWops *src)
     return Internal_isType(src, kUTTypeGIF);
 }
 
+#ifdef JPG_USES_IMAGEIO
+
 // Note: JPEG 2000 is kUTTypeJPEG2000
 int IMG_isJPG(SDL_RWops *src)
 {
     return Internal_isType(src, kUTTypeJPEG);
 }
 
+#endif /* JPG_USES_IMAGEIO */
+
+#ifdef PNG_USES_IMAGEIO
+
 int IMG_isPNG(SDL_RWops *src)
 {
     return Internal_isType(src, kUTTypePNG);
 }
+
+#endif /* PNG_USES_IMAGEIO */
 
 // This isn't a public API function. Apple seems to be able to identify tga's.
 int IMG_isTGA(SDL_RWops *src)
@@ -743,15 +759,23 @@ SDL_Surface* IMG_LoadGIF_RW (SDL_RWops *src)
     return LoadImageFromRWops (src, kUTTypeGIF);
 }
 
+#ifdef JPG_USES_IMAGEIO
+
 SDL_Surface* IMG_LoadJPG_RW (SDL_RWops *src)
 {
     return LoadImageFromRWops (src, kUTTypeJPEG);
 }
 
+#endif /* JPG_USES_IMAGEIO */
+
+#ifdef PNG_USES_IMAGEIO
+
 SDL_Surface* IMG_LoadPNG_RW (SDL_RWops *src)
 {
     return LoadImageFromRWops (src, kUTTypePNG);
 }
+
+#endif /* PNG_USES_IMAGEIO */
 
 SDL_Surface* IMG_LoadTGA_RW (SDL_RWops *src)
 {

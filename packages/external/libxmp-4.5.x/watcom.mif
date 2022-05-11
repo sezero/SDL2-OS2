@@ -4,7 +4,7 @@ CFLAGS += -DLIBXMP_NO_PROWIZARD
 !ifeq USE_DEPACKERS 0
 CFLAGS += -DLIBXMP_NO_DEPACKERS
 !endif
-CFLAGS += -DHAVE_ALLOCA_H -DHAVE_FNMATCH -DHAVE_MKSTEMP -DHAVE_UMASK
+CFLAGS += -DHAVE_FNMATCH -DHAVE_MKSTEMP -DHAVE_UMASK
 #CFLAGS += -DDEBUG
 CFLAGS += -Iinclude
 
@@ -168,10 +168,11 @@ DEPACKER_OBJS= &
  src/depackers/unsqsh.obj &
  src/depackers/mmcmp.obj &
  src/depackers/s404_dec.obj &
- src/depackers/unarc.obj &
+ src/depackers/arc.obj &
  src/depackers/arcfs.obj &
- src/depackers/readrle.obj &
- src/depackers/readlzw.obj &
+ src/depackers/arc_unpack.obj &
+ src/depackers/lzx.obj &
+ src/depackers/lzx_unpack.obj &
  src/depackers/muse.obj &
  src/depackers/miniz_tinfl.obj &
  src/depackers/miniz_zip.obj &
@@ -180,7 +181,6 @@ DEPACKER_OBJS= &
  src/depackers/uncompress.obj &
  src/depackers/bunzip2.obj &
  src/depackers/unlha.obj &
- src/depackers/unlzx.obj &
  src/depackers/unxz.obj &
  src/depackers/xz_dec_lzma2.obj &
  src/depackers/xz_dec_stream.obj &
@@ -239,6 +239,7 @@ clean: .symbolic
 	rm -f $(TEST_OBJS)
 
 distclean: clean .symbolic
+	rm -f *.err
 	rm -f $(DLLNAME) $(EXPNAME) $(MAPNAME) $(LIBNAME) $(LIBSTATIC) test/$(DLLNAME) test/$(TESTNAME)
 
 !ifdef __UNIX__

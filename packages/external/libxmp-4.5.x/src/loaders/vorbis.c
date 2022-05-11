@@ -601,24 +601,9 @@ enum STBVorbisError
 #else // STB_VORBIS_NO_CRT
    #define NULL 0
    #define malloc(s)   0
-   #define free(s)     ((void) 0)
-   #define realloc(s)  0
+   #define free(p)     ((void) 0)
+   #define realloc(p, s)  0
 #endif // STB_VORBIS_NO_CRT
-
-/* we need alloca() regardless of STB_VORBIS_NO_CRT,
- * because there is not a corresponding 'dealloca' */
-#if !defined(alloca)
-# if defined(HAVE_ALLOCA_H)
-#  include <alloca.h>
-# elif defined(__GNUC__)
-#  define alloca __builtin_alloca
-# elif defined(_MSC_VER)
-#  include <malloc.h>
-#  define alloca _alloca
-# elif defined(__WATCOMC__)
-#  include <malloc.h>
-# endif
-#endif
 
 #include <limits.h>
 
@@ -645,7 +630,7 @@ enum STBVorbisError
 #include <crtdbg.h>
 #define CHECK(f)   _CrtIsValidHeapPointer(f->channel_buffers[1])
 #else
-#define CHECK(f)   ((void) 0)
+#define CHECK(f)   do {} while(0)
 #endif
 
 #define MAX_BLOCKSIZE_LOG  13   // from specification
@@ -779,11 +764,12 @@ typedef struct
 
 typedef struct
 {
-   uint16 coupling_steps;
+  // libxmp hack: https://github.com/nothings/stb/pull/1312
    MappingChannel *chan;
+   uint16 coupling_steps;
    uint8  submaps;
-   uint8  submap_floor[15]; // varies
-   uint8  submap_residue[15]; // varies
+   uint8  submap_floor[16]; // varies
+   uint8  submap_residue[16]; // varies
 } Mapping;
 
 typedef struct
@@ -928,11 +914,14 @@ struct stb_vorbis
    int channel_buffer_start;
    int channel_buffer_end;
 
+  // libxmp hack: decode work buffer (used in inverse_mdct and decode_residues)
+   void *work_buffer;
+
   // temporary buffers
-   uint8 *temp_lengths;
-   uint32 *temp_codewords;
-   uint32 *temp_values;
-   uint16 *temp_mults;
+   void *temp_lengths;
+   void *temp_codewords;
+   void *temp_values;
+   void *temp_mults;
 };
 
 #if defined(STB_VORBIS_NO_PUSHDATA_API)
@@ -962,8 +951,8 @@ static int error(vorb *f, enum STBVorbisError e)
 
 #define array_size_required(count,size)  (count*(sizeof(void *)+(size)))
 
-#define temp_alloc(f,size)              (f->alloc.alloc_buffer ? setup_temp_malloc(f,size) : alloca(size))
-#define temp_free(f,p)                  (void)0
+#define temp_alloc(f,size)              (f->alloc.alloc_buffer ? setup_temp_malloc(f,size) : f->work_buffer)
+#define temp_free(f,p)                  do {} while (0)
 #define temp_alloc_save(f)              ((f)->temp_offset)
 #define temp_alloc_restore(f,p)         ((f)->temp_offset = (p))
 
@@ -984,6 +973,7 @@ static void *make_block_array(void *mem, int count, int size)
 
 static void *setup_malloc(vorb *f, int sz)
 {
+   if (sz <= 0) return NULL; /* libxmp hack: https://github.com/nothings/stb/issues/1248 */
    sz = (sz+7) & ~7; // round up to nearest 8 for alignment of future allocs.
    f->setup_memory_required += sz;
    if (f->alloc.alloc_buffer) {
@@ -1003,6 +993,7 @@ static void setup_free(vorb *f, void *p)
 
 static void *setup_temp_malloc(vorb *f, int sz)
 {
+   if (sz <= 0) return NULL; /* libxmp hack: https://github.com/nothings/stb/issues/1248 */
    sz = (sz+7) & ~7; // round up to nearest 8 for alignment of future allocs.
    if (f->alloc.alloc_buffer) {
       if (f->temp_offset - sz < f->setup_offset) return NULL;
@@ -1742,7 +1733,9 @@ static int codebook_decode_scalar_raw(vorb *f, Codebook *c)
    assert(!c->sparse);
    for (i=0; i < c->entries; ++i) {
       if (c->codeword_lengths[i] == NO_CODE) continue;
-      if (c->codewords[i] == (f->acc & ((1 << c->codeword_lengths[i])-1))) {
+      /* libxmp hack: unsigned left shift for 32-bit codewords.
+       * https://github.com/nothings/stb/issues/1168 */
+      if (c->codewords[i] == (f->acc & ((1U << c->codeword_lengths[i])-1))) {
          if (f->valid_bits >= c->codeword_lengths[i]) {
             f->acc >>= c->codeword_lengths[i];
             f->valid_bits -= c->codeword_lengths[i];
@@ -3786,8 +3779,10 @@ static int start_decoder(vorb *f)
       if (c->dimensions == 0 && c->entries != 0)    return error(f, VORBIS_invalid_setup);
       if (f->valid_bits < 0)                        return error(f, VORBIS_unexpected_eof);
 
-      if (c->sparse)
-         lengths = f->temp_lengths = (uint8 *) setup_temp_malloc(f, c->entries);
+      if (c->sparse) {
+         lengths = (uint8 *) setup_temp_malloc(f, c->entries);
+         f->temp_lengths = lengths;
+      }
       else
          lengths = c->codeword_lengths = (uint8 *) setup_malloc(f, c->entries);
 
@@ -3828,7 +3823,7 @@ static int start_decoder(vorb *f)
          c->codeword_lengths = (uint8 *) setup_malloc(f, c->entries);
          if (c->codeword_lengths == NULL) return error(f, VORBIS_outofmem);
          memcpy(c->codeword_lengths, lengths, c->entries);
-         setup_temp_free(f, (void **)&(f->temp_lengths), c->entries); // note this is only safe if there have been no intervening temp mallocs!
+         setup_temp_free(f, &f->temp_lengths, c->entries); // note this is only safe if there have been no intervening temp mallocs!
          lengths = c->codeword_lengths;
          c->sparse = 0;
       }
@@ -3857,9 +3852,11 @@ static int start_decoder(vorb *f)
          if (c->sorted_entries) {
             c->codeword_lengths = (uint8 *) setup_malloc(f, c->sorted_entries);
             if (!c->codeword_lengths)           return error(f, VORBIS_outofmem);
-            c->codewords = f->temp_codewords = (uint32 *) setup_temp_malloc(f, sizeof(*c->codewords) * c->sorted_entries);
+            c->codewords = (uint32 *) setup_temp_malloc(f, sizeof(*c->codewords) * c->sorted_entries);
+            f->temp_codewords = c->codewords;
             if (!c->codewords)                  return error(f, VORBIS_outofmem);
-            values = f->temp_values = (uint32 *) setup_temp_malloc(f, sizeof(*values) * c->sorted_entries);
+            values = (uint32 *) setup_temp_malloc(f, sizeof(*values) * c->sorted_entries);
+            f->temp_values = values;
             if (!values)                        return error(f, VORBIS_outofmem);
          }
          size = c->entries + (sizeof(*c->codewords) + sizeof(*values)) * c->sorted_entries;
@@ -3885,9 +3882,9 @@ static int start_decoder(vorb *f)
       }
 
       if (c->sparse) {
-         setup_temp_free(f, (void **)&(f->temp_values), sizeof(*values)*c->sorted_entries);
-         setup_temp_free(f, (void **)&(f->temp_codewords), sizeof(*c->codewords)*c->sorted_entries);
-         setup_temp_free(f, (void **)&(f->temp_lengths), c->entries);
+         setup_temp_free(f, &f->temp_values, sizeof(*values)*c->sorted_entries);
+         setup_temp_free(f, &f->temp_codewords, sizeof(*c->codewords)*c->sorted_entries);
+         setup_temp_free(f, &f->temp_lengths, c->entries);
          c->codewords = NULL;
       }
 
@@ -3907,10 +3904,13 @@ static int start_decoder(vorb *f)
             if (values < 0) return error(f, VORBIS_invalid_setup);
             c->lookup_values = (uint32) values;
          } else {
-            c->lookup_values = c->entries * c->dimensions;
+            /* libxmp hack: unsigned multiply to suppress (legitimate) warning.
+             * https://github.com/nothings/stb/issues/1168 */
+            c->lookup_values = (unsigned)c->entries * (unsigned)c->dimensions;
          }
          if (c->lookup_values == 0) return error(f, VORBIS_invalid_setup);
-         mults = f->temp_mults = (uint16 *) setup_temp_malloc(f, sizeof(mults[0]) * c->lookup_values);
+         mults = (uint16 *) setup_temp_malloc(f, sizeof(mults[0]) * c->lookup_values);
+         f->temp_mults = mults;
          if (mults == NULL) return error(f, VORBIS_outofmem);
          for (j=0; j < (int) c->lookup_values; ++j) {
             int q = get_bits(f, c->value_bits);
@@ -3966,7 +3966,7 @@ static int start_decoder(vorb *f)
 #ifndef STB_VORBIS_DIVIDES_IN_CODEBOOK
         skip:;
 #endif
-         setup_temp_free(f, (void **)&(f->temp_mults), sizeof(mults[0])*c->lookup_values);
+         setup_temp_free(f, &f->temp_mults, sizeof(mults[0])*c->lookup_values);
 
          CHECK(f);
       }
@@ -4246,6 +4246,9 @@ static int start_decoder(vorb *f)
       // check if there's enough temp memory so we don't error later
       if (f->setup_offset + sizeof(*f) + f->temp_memory_required > (unsigned) f->temp_offset)
          return error(f, VORBIS_outofmem);
+   } else {
+      f->work_buffer = setup_malloc(f, f->temp_memory_required);
+      if (f->work_buffer == NULL) return error(f, VORBIS_outofmem);
    }
 
    // @TODO: stb_vorbis_seek_start expects first_audio_page_offset to point to a page
@@ -4325,10 +4328,11 @@ static void vorbis_deinit(stb_vorbis *p)
       setup_free(p, p->bit_reverse[i]);
    }
    if (!p->alloc.alloc_buffer) {
-      setup_temp_free(p, (void **)&(p->temp_lengths), 0);
-      setup_temp_free(p, (void **)&(p->temp_codewords), 0);
-      setup_temp_free(p, (void **)&(p->temp_values), 0);
-      setup_temp_free(p, (void **)&(p->temp_mults), 0);
+      setup_free(p, p->work_buffer);
+      setup_temp_free(p, &p->temp_lengths, 0);
+      setup_temp_free(p, &p->temp_codewords, 0);
+      setup_temp_free(p, &p->temp_values, 0);
+      setup_temp_free(p, &p->temp_mults, 0);
    }
    #ifndef STB_VORBIS_NO_STDIO
    if (p->close_on_free) fclose(p->f);
@@ -5239,6 +5243,9 @@ static int8 channel_position[7][6] =
    #define FASTDEF(x)
 #endif
 
+// libxmp hack: replaced signed overflow clamps with unsigned overflow (UBSan).
+// Reported upstream: https://github.com/nothings/stb/issues/1168.
+
 static void copy_samples(short *dest, float *src, int len)
 {
    int i;
@@ -5246,7 +5253,7 @@ static void copy_samples(short *dest, float *src, int len)
    for (i=0; i < len; ++i) {
       FASTDEF(temp);
       int v = FAST_SCALED_FLOAT_TO_INT(temp, src[i],15);
-      if ((unsigned int) (v + 32768) > 65535)
+      if ((unsigned int)v + 32768 > 65535)
          v = v < 0 ? -32768 : 32767;
       dest[i] = v;
    }
@@ -5270,7 +5277,7 @@ static void compute_samples(int mask, short *output, int num_c, float **data, in
       for (i=0; i < n; ++i) {
          FASTDEF(temp);
          int v = FAST_SCALED_FLOAT_TO_INT(temp,buffer[i],15);
-         if ((unsigned int) (v + 32768) > 65535)
+         if ((unsigned int)v + 32768 > 65535)
             v = v < 0 ? -32768 : 32767;
          output[o+i] = v;
       }
@@ -5310,7 +5317,7 @@ static void compute_stereo_samples(short *output, int num_c, float **data, int d
       for (i=0; i < (n<<1); ++i) {
          FASTDEF(temp);
          int v = FAST_SCALED_FLOAT_TO_INT(temp,buffer[i],15);
-         if ((unsigned int) (v + 32768) > 65535)
+         if ((unsigned int)v + 32768 > 65535)
             v = v < 0 ? -32768 : 32767;
          output[o2+i] = v;
       }
@@ -5360,7 +5367,7 @@ static void convert_channels_short_interleaved(int buf_c, short *buffer, int dat
             FASTDEF(temp);
             float f = data[i][d_offset+j];
             int v = FAST_SCALED_FLOAT_TO_INT(temp, f,15);//data[i][d_offset+j],15);
-            if ((unsigned int) (v + 32768) > 65535)
+            if ((unsigned int)v + 32768 > 65535)
                v = v < 0 ? -32768 : 32767;
             *buffer++ = v;
          }

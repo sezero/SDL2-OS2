@@ -1,18 +1,10 @@
 dnl Process this file with autoconf to produce a configure script.
 
 dnl Set various version strings - taken gratefully from the GTk sources
-# Making releases:
-#   MICRO_VERSION_MACRO += 1;
-#   INTERFACE_AGE_MACRO += 1;
-#   BINARY_AGE_MACRO += 1;
-# if any functions have been added, set INTERFACE_AGE_MACRO to 0.
-# if backwards compatibility has been broken,
-# set BINARY_AGE_MACRO and INTERFACE_AGE_MACRO to 0.
+# See docs/release_checklist.md
 m4_define([MAJOR_VERSION_MACRO], [2])
-m4_define([MINOR_VERSION_MACRO], [0])
-m4_define([MICRO_VERSION_MACRO], [6])
-m4_define([INTERFACE_AGE_MACRO], [0])
-m4_define([BINARY_AGE_MACRO], [6])
+m4_define([MINOR_VERSION_MACRO], [5])
+m4_define([MICRO_VERSION_MACRO], [0])
 
 AC_INIT([SDL2_image],
         MAJOR_VERSION_MACRO.MINOR_VERSION_MACRO.MICRO_VERSION_MACRO,
@@ -24,16 +16,32 @@ AC_CONFIG_SRCDIR([IMG.c])
 AC_SUBST([MAJOR_VERSION], MAJOR_VERSION_MACRO)
 AC_SUBST([MINOR_VERSION], MINOR_VERSION_MACRO)
 AC_SUBST([MICRO_VERSION], MICRO_VERSION_MACRO)
-AC_SUBST([INTERFACE_AGE], INTERFACE_AGE_MACRO)
-AC_SUBST([BINARY_AGE], BINARY_AGE_MACRO)
+
+BINARY_AGE=`expr $MINOR_VERSION \* 100 + $MICRO_VERSION`
+AS_CASE(["$MINOR_VERSION"],
+  [*@<:@02468@:>@],
+    dnl Stable branch, 2.6.1 -> libSDL2-2.0.so.0.600.1
+    [INTERFACE_AGE="$MICRO_VERSION"],
+  [*],
+    dnl Development branch, 2.5.1 -> libSDL2-2.0.so.0.501.0
+    [INTERFACE_AGE=0])
 
 dnl libtool versioning
 LT_INIT([win32-dll])
 
-LT_RELEASE=$MAJOR_VERSION.$MINOR_VERSION
-LT_CURRENT=`expr $MICRO_VERSION - $INTERFACE_AGE`
-LT_REVISION=$INTERFACE_AGE
+# For historical reasons, the library name redundantly includes the major
+# version twice: libSDL2_image-2.0.so.0.
+# TODO: in SDL 3, stop using -release, which will simplify it to libSDL3.so.0
+LT_RELEASE=2.0
+# Increment this if there is an incompatible change - but if that happens,
+# we should rename the library from SDL2 to SDL3, at which point this would
+# reset to 0 anyway.
+LT_MAJOR=0
 LT_AGE=`expr $BINARY_AGE - $INTERFACE_AGE`
+LT_CURRENT=`expr $LT_MAJOR + $LT_AGE`
+LT_REVISION=$INTERFACE_AGE
+m4_pattern_allow([LT_MAJOR])
+
 LT_EXTRA="" dnl for OS2 dll name
 
 AC_SUBST(LT_RELEASE)
@@ -41,6 +49,11 @@ AC_SUBST(LT_CURRENT)
 AC_SUBST(LT_REVISION)
 AC_SUBST(LT_AGE)
 AC_SUBST(LT_EXTRA)
+
+dnl For use in static assertions
+AC_DEFINE_UNQUOTED([SDL_BUILD_MAJOR_VERSION], $MAJOR_VERSION, [ ])
+AC_DEFINE_UNQUOTED([SDL_BUILD_MINOR_VERSION], $MINOR_VERSION, [ ])
+AC_DEFINE_UNQUOTED([SDL_BUILD_MICRO_VERSION], $MICRO_VERSION, [ ])
 
 dnl Detect the canonical build and host environments
 AC_CANONICAL_HOST
@@ -51,15 +64,11 @@ AM_INIT_AUTOMAKE([foreign tar-ustar])
 dnl Check for tools
 AC_PROG_CC
 AC_PROG_OBJC
+AC_CHECK_TOOL(RC,[windres],[:])
 AC_C_INLINE
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
-if test -z "$host_alias"; then
-    hostaliaswindres=
-else
-    hostaliaswindres="$host_alias-windres"
-fi
-AC_CHECK_PROGS(WINDRES, [windres $hostaliaswindres $host_os-windres])
+PKG_PROG_PKG_CONFIG
 
 case "$host" in
     *-*-beos*)
@@ -77,9 +86,8 @@ case "$host" in
                 ac_default_prefix=$MINGW_PREFIX
             fi
         fi
-        if test x$WINDRES != x; then
-            use_version_rc=true
-        fi
+        use_version_rc=true
+        LT_EXTRA="-Wl,version.o"
         ;;
     *-*-darwin*)
         AC_ARG_ENABLE([imageio], [AS_HELP_STRING([--enable-imageio], [use native Mac OS X frameworks for loading images [default=yes]])],
@@ -188,6 +196,12 @@ CheckVisibilityHidden()
 }
 
 dnl Check command-line options
+AC_ARG_ENABLE([stb_image], [AS_HELP_STRING([--enable-stb-image], [use stb_image for loading JPG and PNG images [default=yes]])],
+ [], [enable_stb_image=yes])
+AC_ARG_ENABLE([avif], [AS_HELP_STRING([--enable-avif], [support loading AVIF images [default=yes]])],
+ [], [enable_avif=yes])
+AC_ARG_ENABLE([avif-shared], [AS_HELP_STRING([--enable-avif-shared], [dynamically load AVIF support [default=yes]])],
+ [], [enable_avif_shared=yes])
 AC_ARG_ENABLE([bmp], [AS_HELP_STRING([--enable-bmp], [support loading BMP/ICO/CUR images [default=yes]])],
  [], [enable_bmp=yes])
 AC_ARG_ENABLE([gif], [AS_HELP_STRING([--enable-gif], [support loading GIF images [default=yes]])],
@@ -196,6 +210,10 @@ AC_ARG_ENABLE([jpg], [AS_HELP_STRING([--enable-jpg], [support loading JPG images
  [], [enable_jpg=yes])
 AC_ARG_ENABLE([jpg-shared], [AS_HELP_STRING([--enable-jpg-shared], [dynamically load JPG support [default=yes]])],
  [], [enable_jpg_shared=yes])
+AC_ARG_ENABLE([jxl], [AS_HELP_STRING([--enable-jxl], [support loading JXL images [default=yes]])],
+ [], [enable_jxl=yes])
+AC_ARG_ENABLE([jxl-shared], [AS_HELP_STRING([--enable-jxl-shared], [dynamically load JXL support [default=yes]])],
+ [], [enable_jxl_shared=yes])
 AC_ARG_ENABLE([lbm], [AS_HELP_STRING([--enable-lbm], [support loading LBM images [default=yes]])],
  [], [enable_lbm=yes])
 AC_ARG_ENABLE([pcx], [AS_HELP_STRING([--enable-pcx], [support loading PCX images [default=yes]])],
@@ -239,7 +257,52 @@ AM_PATH_SDL2($SDL_VERSION,
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
-if (test x$enable_jpg = xyes || test x$enable_tif = xyes) && test x$enable_imageio != xyes; then
+if test x$enable_stb_image = xyes; then
+    AC_DEFINE([LOAD_JPG])
+    AC_DEFINE([LOAD_PNG])
+    AC_DEFINE([USE_STBIMAGE])
+fi
+if test x$enable_avif = xyes; then
+    PKG_CHECK_MODULES([LIBAVIF], [libavif], [dnl
+        have_avif_hdr=yes
+        have_avif_lib=yes
+        have_avif_pc=yes
+      ], [dnl
+        AC_CHECK_HEADER([avif/avif.h], [
+            have_avif_hdr=yes
+            LIBAVIF_CFLAGS=""
+        ])
+        AC_CHECK_LIB([avif], [avifVersion], [
+            have_avif_lib=yes
+            LIBAVIF_LIBS="-lavif"
+        ])
+      ])
+    if test x$have_avif_hdr = xyes -a x$have_avif_lib = xyes; then
+        if test x$enable_avif = xyes; then
+            AC_DEFINE([LOAD_AVIF])
+        fi
+
+        case "$host" in
+            *-*-darwin*)
+                avif_lib=[`find_lib libavif.dylib`]
+                ;;
+            *-*-cygwin* | *-*-mingw*)
+                avif_lib=[`find_lib "libavif*.dll"`]
+                ;;
+            *)
+                avif_lib=[`find_lib "libavif[0-9]*.so.*"`]
+                if test x$avif_lib = x; then
+                    avif_lib=[`find_lib "libavif.so.*"`]
+                fi
+                ;;
+        esac
+    elif test x$enable_avif = xyes; then
+        AC_MSG_WARN([*** Unable to find AVIF library (https://github.com/AOMediaCodec/libavif)])
+        AC_MSG_WARN([AVIF image loading disabled])
+    fi
+fi
+
+if test x$enable_jpg = xyes -a x$enable_stb_image != xyes -a x$enable_imageio != xyes; then
     PKG_CHECK_MODULES([LIBJPEG], [libjpeg], [dnl
         have_jpg_hdr=yes
         have_jpg_lib=yes
@@ -279,7 +342,47 @@ if (test x$enable_jpg = xyes || test x$enable_tif = xyes) && test x$enable_image
     fi
 fi
 
-if test x$enable_png = xyes -a x$enable_imageio != xyes; then
+if test x$enable_jxl = xyes; then
+    PKG_CHECK_MODULES([LIBJXL], [libjxl], [dnl
+        have_jxl_hdr=yes
+        have_jxl_lib=yes
+        have_jxl_pc=yes
+      ], [dnl
+        AC_CHECK_HEADER([jxl/decode.h], [
+            have_jxl_hdr=yes
+            LIBJXL_CFLAGS=""
+        ])
+        AC_CHECK_LIB([jxl], [JxlSignatureCheck], [
+            have_jxl_lib=yes
+            LIBJXL_LIBS="-ljxl"
+        ])
+      ])
+    if test x$have_jxl_hdr = xyes -a x$have_jxl_lib = xyes; then
+        if test x$enable_jxl = xyes; then
+            AC_DEFINE([LOAD_JXL])
+        fi
+
+        case "$host" in
+            *-*-darwin*)
+                jxl_lib=[`find_lib libjxl.dylib`]
+                ;;
+            *-*-cygwin* | *-*-mingw*)
+                jxl_lib=[`find_lib "libjxl*.dll"`]
+                ;;
+            *)
+                jxl_lib=[`find_lib "libjxl[0-9]*.so.*"`]
+                if test x$jxl_lib = x; then
+                    jxl_lib=[`find_lib "libjxl.so.*"`]
+                fi
+                ;;
+        esac
+    elif test x$enable_jxl = xyes; then
+        AC_MSG_WARN([*** Unable to find JXL library (https://jpegxl.info/)])
+        AC_MSG_WARN([JXL image loading disabled])
+    fi
+fi
+
+if test x$enable_png = xyes -a x$enable_stb_image != xyes -a x$enable_imageio != xyes; then
     PKG_CHECK_MODULES([LIBPNG], [libpng], [dnl
         have_png_hdr=yes
         have_png_lib=yes
@@ -457,6 +560,20 @@ if test x$enable_webp = xyes -a x$have_webp_hdr = xyes -a x$have_webp_lib = xyes
     fi
 fi
 
+if test x$enable_avif = xyes -a x$have_avif_hdr = xyes -a x$have_avif_lib = xyes; then
+    CFLAGS="$LIBAVIF_CFLAGS $CFLAGS"
+    if test x$enable_avif_shared = xyes && test x$avif_lib != x; then
+        echo "-- dynamic libavif -> $avif_lib"
+        AC_DEFINE_UNQUOTED(LOAD_AVIF_DYNAMIC, "$avif_lib")
+    else
+        IMG_LIBS="$LIBAVIF_LIBS $IMG_LIBS"
+        if test x$have_avif_pc = xyes; then
+            PC_REQUIRES="libavif $PC_REQUIRES"
+        else
+            PC_LIBS="$LIBAVIF_LIBS $PC_LIBS"
+        fi
+    fi
+fi
 if test x$enable_tif = xyes -a x$have_tif_hdr = xyes -a x$have_tif_lib = xyes; then
     CFLAGS="$LIBTIFF_CFLAGS $CFLAGS"
     if test x$enable_tif_shared = xyes && test x$tif_lib != x; then
@@ -489,6 +606,20 @@ if test x$enable_jpg = xyes -a x$have_jpg_hdr = xyes -a x$have_jpg_lib = xyes; t
         fi
     fi
 fi
+if test x$enable_jxl = xyes -a x$have_jxl_hdr = xyes -a x$have_jxl_lib = xyes; then
+    CFLAGS="$LIBJXL_CFLAGS $CFLAGS"
+    if test x$enable_jxl_shared = xyes && test x$jxl_lib != x; then
+        echo "-- dynamic libjxl -> $jxl_lib"
+        AC_DEFINE_UNQUOTED(LOAD_JXL_DYNAMIC, "$jxl_lib")
+    else
+        IMG_LIBS="$LIBJXL_LIBS $IMG_LIBS"
+        if test x$have_jxl_pc = xyes; then
+            PC_REQUIRES="libjxl $PC_REQUIRES"
+        else
+            PC_LIBS="$LIBJXL_LIBS $PC_LIBS"
+        fi
+    fi
+fi
 if test x$enable_png = xyes -a x$have_png_hdr = xyes -a x$have_png_lib = xyes; then
     CFLAGS="$LIBPNG_CFLAGS $CFLAGS"
     if test x$enable_png_shared = xyes && test x$png_lib != x; then
@@ -504,7 +635,6 @@ if test x$enable_png = xyes -a x$have_png_hdr = xyes -a x$have_png_lib = xyes; t
     fi
 fi
 
-AC_SUBST([WINDRES])
 AC_SUBST([IMG_LIBS])
 AC_SUBST([PC_LIBS])
 AC_SUBST([PC_REQUIRES])

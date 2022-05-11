@@ -5,20 +5,20 @@ AC_CONFIG_SRCDIR([SDLnet.c])
 
 dnl Set various version strings - taken gratefully from the GTk sources
 
-# Making releases:
-#   MICRO_VERSION += 1;
-#   INTERFACE_AGE += 1;
-#   BINARY_AGE += 1;
-# if any functions have been added, set INTERFACE_AGE to 0.
-# if backwards compatibility has been broken,
-# set BINARY_AGE and INTERFACE_AGE to 0.
-
+# See release_checklist.md
 MAJOR_VERSION=2
-MINOR_VERSION=0
-MICRO_VERSION=1
-INTERFACE_AGE=1
-BINARY_AGE=1
+MINOR_VERSION=1
+MICRO_VERSION=0
 VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION
+
+BINARY_AGE=`expr $MINOR_VERSION \* 100 + $MICRO_VERSION`
+AS_CASE(["$MINOR_VERSION"],
+  [*@<:@02468@:>@],
+    dnl Stable branch, 2.2.1 -> libSDL2_net-2.0.so.0.200.1
+    [INTERFACE_AGE="$MICRO_VERSION"],
+  [*],
+    dnl Development branch, 2.1.1 -> libSDL2_net-2.0.so.0.101.0
+    [INTERFACE_AGE=0])
 
 AC_SUBST(MAJOR_VERSION)
 AC_SUBST(MINOR_VERSION)
@@ -30,11 +30,27 @@ AC_SUBST(VERSION)
 dnl libtool versioning
 LT_INIT([win32-dll])
 
-LT_RELEASE=$MAJOR_VERSION.$MINOR_VERSION
-LT_CURRENT=`expr $MICRO_VERSION - $INTERFACE_AGE`
+# For historical reasons, the library name redundantly includes the major
+# version twice: libSDL2_net-2.0.so.0.
+# TODO: in SDL 3, stop using -release, which will simplify it to libSDL3_net.so.0
+LT_RELEASE=2.0
+
+# Increment this if there is an incompatible change - but if that happens,
+# we should rename the library from SDL2 to SDL3, at which point this would
+# reset to 0 anyway.
+LT_MAJOR=0
+
 LT_REVISION=$INTERFACE_AGE
 LT_AGE=`expr $BINARY_AGE - $INTERFACE_AGE`
+LT_CURRENT=`expr $LT_MAJOR + $LT_AGE`
 LT_EXTRA="" dnl for OS2 dll name
+m4_pattern_allow([^LT_MAJOR$])
+
+
+dnl For use in static assertions
+AC_DEFINE_UNQUOTED([SDL_BUILD_MAJOR_VERSION], $MAJOR_VERSION, [ ])
+AC_DEFINE_UNQUOTED([SDL_BUILD_MINOR_VERSION], $MINOR_VERSION, [ ])
+AC_DEFINE_UNQUOTED([SDL_BUILD_MICRO_VERSION], $MICRO_VERSION, [ ])
 
 AC_SUBST(LT_RELEASE)
 AC_SUBST(LT_CURRENT)
@@ -51,14 +67,9 @@ AM_INIT_AUTOMAKE(SDL2_net, $VERSION)
 dnl Check for tools
 AC_PROG_CC
 AC_PROG_CXX
+AC_CHECK_TOOL(RC,[windres],[:])
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
-if test -z "$host_alias"; then
-    hostaliaswindres=
-else
-    hostaliaswindres="$host_alias-windres"
-fi
-AC_CHECK_PROGS(WINDRES, [windres $hostaliaswindres $host_os-windres])
 
 case "$host" in
     *-*-beos*)
@@ -74,9 +85,8 @@ case "$host" in
                 ac_default_prefix=$BUILD_PREFIX
             fi
         fi
-        if test x$WINDRES != x; then
-            use_version_rc=true
-        fi
+        use_version_rc=true
+        LT_EXTRA="-Wl,version.o"
         ;;
     *-*-os2*)
         # disable static builds on os/2
@@ -226,7 +236,6 @@ AC_SUBST(ENABLE_SHARED_FALSE)
 AC_SUBST(ENABLE_STATIC_TRUE)
 AC_SUBST(ENABLE_STATIC_FALSE)
 
-AC_SUBST([WINDRES])
 
 # Finally create all the generated files
 AC_CONFIG_FILES([

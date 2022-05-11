@@ -208,7 +208,7 @@ void mmd_xlat_fx(struct xmp_event *event, int bpm_on, int bpmlen, int med_8ch,
 		 * The effect depends upon the value of the argument.
 		 */
 		if (event->fxp == 0x00) {	/* Jump to next block */
-			event->fxt = 0x0d;
+			event->fxt = FX_BREAK;
 			break;
 		} else if (event->fxp <= 0xf0) {
 			event->fxt = FX_S3M_BPM;
@@ -358,6 +358,21 @@ void mmd_xlat_fx(struct xmp_event *event, int bpm_on, int bpmlen, int med_8ch,
 			event->fxp = 0x90 | (event->fxp & 0x0f);
 		}
 		break;
+	case 0x20:
+		/* Command 20: REVERSE SAMPLE / RELATIVE SAMPLE OFFSET
+		 * With command level $00, the sample is reversed. With other
+		 * levels, it changes the sample offset, just like command 19,
+		 * except the command level is the new offset relative to the
+		 * current sample position being played.
+		 * Note: 20 00 only works on the same line as a new note.
+		 */
+		if (event->fxp == 0 && event->note != 0) {
+			event->fxt = FX_REVERSE;
+			event->fxp = 1;
+		} else {
+			event->fxt = event->fxp = 0;
+		}
+		break;
 	case 0x2e:
 		/* Command 2E: SET TRACK PANNING
 		 * Allows track panning to be changed during play. The track
@@ -429,8 +444,10 @@ int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	synth->volspeed = hio_read8(f);
 	synth->wfspeed = hio_read8(f);
 	synth->wforms = hio_read16b(f);
-	hio_read(synth->voltbl, 1, 128, f);;
-	hio_read(synth->wftbl, 1, 128, f);;
+	hio_read(synth->voltbl, 1, 128, f);
+	hio_read(synth->wftbl, 1, 128, f);
+	if (hio_error(f))
+		return -1;
 
 	/* Sanity check */
 	if (synth->voltbllen > 128 || synth->wftbllen > 128) {
@@ -501,15 +518,24 @@ int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	synth->volspeed = hio_read8(f);
 	synth->wfspeed = hio_read8(f);
 	synth->wforms = hio_read16b(f);
-	hio_read(synth->voltbl, 1, 128, f);;
-	hio_read(synth->wftbl, 1, 128, f);;
-	for (j = 0; j < 64; j++)
-		synth->wf[j] = hio_read32b(f);
+	hio_read(synth->voltbl, 1, 128, f);
+	hio_read(synth->wftbl, 1, 128, f);
 
-	/* Sanity check */
-	if (synth->voltbllen > 128 || synth->wftbllen > 128 || synth->wforms > 256) {
+	if (synth->wforms == 0xffff) {
+		xxi->nsm = 0;
+		return 1;
+	}
+	if (synth->voltbllen > 128 ||
+	    synth->wftbllen > 128 ||
+	    synth->wforms > 64) {
 		return -1;
 	}
+
+	for (j = 0; j < synth->wforms; j++)
+		synth->wf[j] = hio_read32b(f);
+
+	if (hio_error(f))
+		return -1;
 
 	D_(D_INFO "  VS:%02x WS:%02x WF:%02x %02x %+3d %+1d",
 			synth->volspeed, synth->wfspeed,
@@ -517,14 +543,6 @@ int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 			sample->svol,
 			sample->strans,
 			exp_smp->finetune);
-
-	if (synth->wforms == 0xffff) {
-		xxi->nsm = 0;
-		return 1;
-	}
-
-	if (synth->wforms > 64)
-		return -1;
 
 	if (libxmp_med_new_instrument_extras(&mod->xxi[i]) != 0)
 		return -1;

@@ -24,7 +24,7 @@
 #include "xz.h"
 #include "crc32.h"
 
-#define XZ_MAX_OUTPUT	(512 << 20)
+#define XZ_MAX_OUTPUT	LIBXMP_DEPACK_LIMIT
 #define XZ_MAX_DICT	(16 << 20)
 #define XZ_BUFFER_SIZE	4096
 
@@ -42,8 +42,6 @@ static int decrunch_xz(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	enum xz_ret ret = XZ_OK;
 	uint8 *inbuf = NULL;
 	uint8 *tmp;
-
-	libxmp_crc32_init_A();
 
 	xz = xz_dec_init(XZ_DYNALLOC, XZ_MAX_DICT);
 	if (xz == NULL)

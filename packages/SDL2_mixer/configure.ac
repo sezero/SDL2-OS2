@@ -5,20 +5,20 @@ AC_CONFIG_AUX_DIR(build-scripts)
 
 dnl Set various version strings - taken gratefully from the GTk sources
 
-# Making releases:
-#   MICRO_VERSION += 1;
-#   INTERFACE_AGE += 1;
-#   BINARY_AGE += 1;
-# if any functions have been added, set INTERFACE_AGE to 0.
-# if backwards compatibility has been broken,
-# set BINARY_AGE and INTERFACE_AGE to 0.
-#
+# See release_checklist.md
 MAJOR_VERSION=2
-MINOR_VERSION=0
-MICRO_VERSION=4
-INTERFACE_AGE=2
-BINARY_AGE=4
+MINOR_VERSION=5
+MICRO_VERSION=0
 VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION
+
+BINARY_AGE=`expr $MINOR_VERSION \* 100 + $MICRO_VERSION`
+AS_CASE(["$MINOR_VERSION"],
+  [*@<:@02468@:>@],
+    dnl Stable branch, 2.6.1 -> libSDL2_mixer-2.0.so.0.600.1
+    [INTERFACE_AGE="$MICRO_VERSION"],
+  [*],
+    dnl Development branch, 2.5.1 -> libSDL2_mixer-2.0.so.0.501.0
+    [INTERFACE_AGE=0])
 
 AC_SUBST(MAJOR_VERSION)
 AC_SUBST(MINOR_VERSION)
@@ -30,10 +30,20 @@ AC_SUBST(VERSION)
 dnl libtool versioning
 LT_INIT([win32-dll])
 
-LT_RELEASE=$MAJOR_VERSION.$MINOR_VERSION
-LT_CURRENT=`expr $MICRO_VERSION - $INTERFACE_AGE`
+# For historical reasons, the library name redundantly includes the major
+# version twice: libSDL2_mixer-2.0.so.0.
+# TODO: in SDL 3, stop using -release, which will simplify it to libSDL3_mixer.so.0
+LT_RELEASE=2.0
+
+# Increment this if there is an incompatible change - but if that happens,
+# we should rename the library from SDL2 to SDL3, at which point this would
+# reset to 0 anyway.
+LT_MAJOR=0
+
 LT_REVISION=$INTERFACE_AGE
 LT_AGE=`expr $BINARY_AGE - $INTERFACE_AGE`
+LT_CURRENT=`expr $LT_MAJOR + $LT_AGE`
+
 LT_EXTRA="" dnl for OS2 dll name
 m4_pattern_allow([^LT_])
 
@@ -42,6 +52,11 @@ AC_SUBST(LT_CURRENT)
 AC_SUBST(LT_REVISION)
 AC_SUBST(LT_AGE)
 AC_SUBST(LT_EXTRA)
+
+dnl For use in static assertions
+AC_DEFINE_UNQUOTED([SDL_BUILD_MAJOR_VERSION], $MAJOR_VERSION, [ ])
+AC_DEFINE_UNQUOTED([SDL_BUILD_MINOR_VERSION], $MINOR_VERSION, [ ])
+AC_DEFINE_UNQUOTED([SDL_BUILD_MICRO_VERSION], $MICRO_VERSION, [ ])
 
 dnl Detect the canonical build and host environments
 dnl AC_CANONICAL_HOST
@@ -52,6 +67,7 @@ AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 LT_PROG_RC
+PKG_PROG_PKG_CONFIG
 
 dnl Set up the compiler and linker flags
 case "$host" in
@@ -136,6 +152,8 @@ case "$host" in
             # Look for the location of the tools and install there
             if test "$BUILD_PREFIX" != ""; then
                 ac_default_prefix=$BUILD_PREFIX
+            elif test "$MINGW_PREFIX" != ""; then
+                ac_default_prefix=$MINGW_PREFIX
             fi
         fi
         ;;
@@ -151,6 +169,7 @@ esac
 SOURCES=`ls $srcdir/src/*.c $srcdir/src/codecs/*.c | fgrep -v playwave.c | fgrep -v playmus.c`
 
 dnl set this to use on systems that use lib64 instead of lib
+base_bindir=`echo \${bindir} | sed 's/.*\/\(.*\)/\1/; q'`
 base_libdir=`echo \${libdir} | sed 's/.*\/\(.*\)/\1/; q'`
 
 dnl See if GCC's -Wall is supported.
@@ -220,7 +239,7 @@ find_lib()
     if test "$cross_compiling" = yes; then
         host_lib_path=""
     else
-        host_lib_path="/usr/$base_libdir /usr/local/$base_libdir"
+        host_lib_path="$ac_default_prefix/$base_libdir $ac_default_prefix/$base_bindir /usr/$base_libdir /usr/local/$base_libdir"
     fi
     for path in $env_lib_path $gcc_bin_path $gcc_lib_path $host_lib_path; do
         lib=[`ls -- $path/$1 2>/dev/null | sed -e '/\.so\..*\./d' -e 's,.*/,,' | sort | tail -1`]
@@ -675,10 +694,18 @@ AC_ARG_ENABLE([music-flac-shared],
               [dynamically load FLAC library [default=yes]])],
               [], [enable_music_flac_shared=yes])
 if test x$enable_music_flac = xyes; then
-    AC_CHECK_HEADER([FLAC/export.h], [have_flac_export=yes])
-    if test x$have_flac_export = xyes; then
-        LIBS_SAVED="$LIBS"
-        LIBS="-lFLAC"
+    PKG_CHECK_MODULES([FLAC], [flac], [dnl
+            have_flac_hdr=yes
+            have_flac_lib=yes
+            have_flac_pc=yes
+        ], [dnl
+            AC_CHECK_HEADER([FLAC/stream_decoder.h], [have_flac_hdr=yes])
+            AC_CHECK_LIB([FLAC], [FLAC__stream_decoder_new], [have_flac_lib=yes;FLAC_LIBS="-lFLAC"])
+        ])
+
+    if test x$have_flac_hdr = xyes -a x$have_flac_lib = xyes; then
+        save_CFLAGS="$CFLAGS"
+        CFLAGS="$CFLAGS $FLAC_CFLAGS"
         AC_MSG_CHECKING([for libflac so-name version >= $libflac_ver])
         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include "FLAC/export.h"
@@ -689,45 +716,34 @@ if test x$enable_music_flac = xyes; then
 #error "old-flac"
 #endif
 ]])], [have_flac_ver=yes],[have_flac_ver=no])
-        LIBS="$LIBS_SAVED"
+        CFLAGS="$save_CFLAGS"
         AC_MSG_RESULT($have_flac_ver)
     fi
-
     if test x$have_flac_ver = xyes; then
-        PKG_CHECK_MODULES([FLAC], [flac], [dnl
-                have_flac_hdr=yes
-                have_flac_lib=yes
-                have_flac_pc=yes
-            ], [dnl
-                AC_CHECK_HEADER([FLAC/stream_decoder.h], [have_flac_hdr=yes])
-                AC_CHECK_LIB([FLAC], [FLAC__stream_decoder_new], [have_flac_lib=yes;FLAC_LIBS="-lFLAC"])
-            ])
-        if test x$have_flac_hdr = xyes -a x$have_flac_lib = xyes; then
-            case "$host" in
-                *-*-darwin*)
-                    flac_lib=[`find_lib libFLAC.dylib`]
-                    ;;
-                *-*-cygwin* | *-*-mingw*)
-                    flac_lib=[`find_lib "libFLAC-*.dll"`]
-                    ;;
-                *)
-                    flac_lib=[`find_lib "libFLAC[0-9]*.so.*"`]
-                    if test x$flac_lib = x; then
-                        flac_lib=[`find_lib "libFLAC.so.*"`]
-                    fi
-                    ;;
-            esac
-            EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_FLAC $FLAC_CFLAGS"
-            if test x$enable_music_flac_shared = xyes && test x$flac_lib != x; then
-                echo "-- dynamic libFLAC -> $flac_lib"
-                EXTRA_CFLAGS="$EXTRA_CFLAGS -DFLAC_DYNAMIC=\\\"$flac_lib\\\""
-            else
-                EXTRA_LDFLAGS="$EXTRA_LDFLAGS $FLAC_LIBS"
-                if test x$have_flac_pc = xyes; then
-                    PC_REQUIRES="$PC_REQUIRES flac"
-                else
-                    PC_LIBS="$PC_LIBS $FLAC_LIBS"
+        case "$host" in
+            *-*-darwin*)
+                flac_lib=[`find_lib libFLAC.dylib`]
+                ;;
+            *-*-cygwin* | *-*-mingw*)
+                flac_lib=[`find_lib "libFLAC*.dll"`]
+                ;;
+            *)
+                flac_lib=[`find_lib "libFLAC[0-9]*.so.*"`]
+                if test x$flac_lib = x; then
+                    flac_lib=[`find_lib "libFLAC.so.*"`]
                 fi
+                ;;
+        esac
+        EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_FLAC $FLAC_CFLAGS"
+        if test x$enable_music_flac_shared = xyes && test x$flac_lib != x; then
+            echo "-- dynamic libFLAC -> $flac_lib"
+            EXTRA_CFLAGS="$EXTRA_CFLAGS -DFLAC_DYNAMIC=\\\"$flac_lib\\\""
+        else
+            EXTRA_LDFLAGS="$EXTRA_LDFLAGS $FLAC_LIBS"
+            if test x$have_flac_pc = xyes; then
+                PC_REQUIRES="$PC_REQUIRES flac"
+            else
+                PC_LIBS="$PC_LIBS $FLAC_LIBS"
             fi
         fi
     else

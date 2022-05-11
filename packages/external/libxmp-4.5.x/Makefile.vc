@@ -13,6 +13,7 @@ USE_PROWIZARD	= 1
 CC	= cl
 CFLAGS	= /O2 /W3 /MD /Iinclude /DBUILDING_DLL /DWIN32 \
 	  /D_USE_MATH_DEFINES /D_CRT_SECURE_NO_WARNINGS
+#CFLAGS	= $(CFLAGS) /DDEBUG
 LD	= link
 LDFLAGS	= /DLL /RELEASE /OUT:$(DLL)
 DLL	= libxmp.dll
@@ -22,7 +23,7 @@ CFLAGS	= $(CFLAGS) /DLIBXMP_NO_PROWIZARD
 !endif
 
 !if $(USE_DEPACKERS)==0
-CFLAGS  = $(CFLAGS) /DLIBXMP_NO_DEPACKERS
+CFLAGS	= $(CFLAGS) /DLIBXMP_NO_DEPACKERS
 !endif
 
 OBJS	= \
@@ -163,10 +164,11 @@ DEPACKER_OBJS	= \
  src\depackers\unsqsh.obj \
  src\depackers\mmcmp.obj \
  src\depackers\s404_dec.obj \
- src\depackers\unarc.obj \
+ src\depackers\arc.obj \
  src\depackers\arcfs.obj \
- src\depackers\readrle.obj \
- src\depackers\readlzw.obj \
+ src\depackers\arc_unpack.obj \
+ src\depackers\lzx.obj \
+ src\depackers\lzx_unpack.obj \
  src\depackers\muse.obj \
  src\depackers\miniz_tinfl.obj \
  src\depackers\miniz_zip.obj \
@@ -175,7 +177,6 @@ DEPACKER_OBJS	= \
  src\depackers\uncompress.obj \
  src\depackers\bunzip2.obj \
  src\depackers\unlha.obj \
- src\depackers\unlzx.obj \
  src\depackers\unxz.obj \
  src\depackers\xz_dec_lzma2.obj \
  src\depackers\xz_dec_stream.obj \

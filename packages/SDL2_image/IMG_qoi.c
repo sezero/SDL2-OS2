@@ -24,8 +24,14 @@
  */
 
 #include "SDL_image.h"
+#include <limits.h> /* for INT_MAX */
 
 #ifdef LOAD_QOI
+
+/* SDL < 2.0.12 compatibility */
+#ifndef SDL_zeroa
+#define SDL_zeroa(x) SDL_memset((x), 0, sizeof((x)))
+#endif
 
 #define QOI_MALLOC(sz) SDL_malloc(sz)
 #define QOI_FREE(p)    SDL_free(p)
@@ -68,8 +74,13 @@ SDL_Surface *IMG_LoadQOI_RW(SDL_RWops *src)
     if ( !data ) {
         return NULL;
     }
+    if ( size > INT_MAX ) {
+        SDL_free(data);
+        IMG_SetError("QOI image is too big.");
+        return NULL;
+    }
 
-    pixel_data = qoi_decode(data, size, &image_info, 4);
+    pixel_data = qoi_decode(data, (int)size, &image_info, 4);
     SDL_free(data);
     if ( !pixel_data ) {
         IMG_SetError("Couldn't parse QOI image");
