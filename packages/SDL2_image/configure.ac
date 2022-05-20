@@ -210,6 +210,8 @@ AC_ARG_ENABLE([jpg], [AS_HELP_STRING([--enable-jpg], [support loading JPG images
  [], [enable_jpg=yes])
 AC_ARG_ENABLE([jpg-shared], [AS_HELP_STRING([--enable-jpg-shared], [dynamically load JPG support [default=yes]])],
  [], [enable_jpg_shared=yes])
+AC_ARG_ENABLE([save-jpg], [AS_HELP_STRING([--enable-save-jpg], [support saving JPG images [default=yes]])],
+ [], [enable_save_jpg=yes])
 AC_ARG_ENABLE([jxl], [AS_HELP_STRING([--enable-jxl], [support loading JXL images [default=yes]])],
  [], [enable_jxl=yes])
 AC_ARG_ENABLE([jxl-shared], [AS_HELP_STRING([--enable-jxl-shared], [dynamically load JXL support [default=yes]])],
@@ -222,6 +224,8 @@ AC_ARG_ENABLE([png], [AS_HELP_STRING([--enable-png], [support loading PNG images
  [], [enable_png=yes])
 AC_ARG_ENABLE([png-shared], [AS_HELP_STRING([--enable-png-shared], [dynamically load PNG support [default=yes]])],
  [], [enable_png_shared=yes])
+AC_ARG_ENABLE([save-png], [AS_HELP_STRING([--enable-save-png], [support saving PNG images [default=yes]])],
+ [], [enable_save_png=yes])
 AC_ARG_ENABLE([pnm], [AS_HELP_STRING([--enable-pnm], [support loading PNM images [default=yes]])],
  [], [enable_pnm=yes])
 AC_ARG_ENABLE([svg], [AS_HELP_STRING([--enable-svg], [support loading SVG images [default=yes]])],
@@ -258,8 +262,6 @@ CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
 if test x$enable_stb_image = xyes; then
-    AC_DEFINE([LOAD_JPG])
-    AC_DEFINE([LOAD_PNG])
     AC_DEFINE([USE_STBIMAGE])
 fi
 if test x$enable_avif = xyes; then
@@ -302,43 +304,50 @@ if test x$enable_avif = xyes; then
     fi
 fi
 
-if test x$enable_jpg = xyes -a x$enable_stb_image != xyes -a x$enable_imageio != xyes; then
-    PKG_CHECK_MODULES([LIBJPEG], [libjpeg], [dnl
-        have_jpg_hdr=yes
-        have_jpg_lib=yes
-        have_jpg_pc=yes
-      ], [dnl
-        AC_CHECK_HEADER([jpeglib.h], [
+if test x$enable_jpg = xyes; then
+    if test x$enable_stb_image = xyes; then
+        AC_DEFINE([LOAD_JPG])
+    elif test x$enable_imageio = xyes; then
+        AC_DEFINE([LOAD_JPG])
+        AC_DEFINE([JPG_USES_IMAGEIO])
+    else
+        PKG_CHECK_MODULES([LIBJPEG], [libjpeg], [dnl
             have_jpg_hdr=yes
-            LIBJPEG_CFLAGS=""
-        ])
-        AC_CHECK_LIB([jpeg], [jpeg_CreateDecompress], [
             have_jpg_lib=yes
-            LIBJPEG_LIBS="-ljpeg"
-        ])
-      ])
-    if test x$have_jpg_hdr = xyes -a x$have_jpg_lib = xyes; then
-        if test x$enable_jpg = xyes; then
-            AC_DEFINE([LOAD_JPG])
-        fi
+            have_jpg_pc=yes
+          ], [dnl
+            AC_CHECK_HEADER([jpeglib.h], [
+                have_jpg_hdr=yes
+                LIBJPEG_CFLAGS=""
+            ])
+            AC_CHECK_LIB([jpeg], [jpeg_CreateDecompress], [
+                have_jpg_lib=yes
+                LIBJPEG_LIBS="-ljpeg"
+            ])
+          ])
+        if test x$have_jpg_hdr = xyes -a x$have_jpg_lib = xyes; then
+            if test x$enable_jpg = xyes; then
+                AC_DEFINE([LOAD_JPG])
+            fi
 
-        case "$host" in
-            *-*-darwin*)
-                jpg_lib=[`find_lib libjpeg.dylib`]
-                ;;
-            *-*-cygwin* | *-*-mingw*)
-                jpg_lib=[`find_lib "libjpeg*.dll"`]
-                ;;
-            *)
-                jpg_lib=[`find_lib "libjpeg[0-9]*.so.*"`]
-                if test x$jpg_lib = x; then
-                    jpg_lib=[`find_lib "libjpeg.so.*"`]
-                fi
-                ;;
-        esac
-    elif test x$enable_jpg = xyes; then
-        AC_MSG_WARN([*** Unable to find JPEG library (http://www.ijg.org/)])
-        AC_MSG_WARN([JPG image loading disabled])
+            case "$host" in
+                *-*-darwin*)
+                    jpg_lib=[`find_lib libjpeg.dylib`]
+                    ;;
+                *-*-cygwin* | *-*-mingw*)
+                    jpg_lib=[`find_lib "libjpeg*.dll"`]
+                    ;;
+                *)
+                    jpg_lib=[`find_lib "libjpeg[0-9]*.so.*"`]
+                    if test x$jpg_lib = x; then
+                        jpg_lib=[`find_lib "libjpeg.so.*"`]
+                    fi
+                    ;;
+            esac
+        else
+            AC_MSG_WARN([*** Unable to find JPEG library (http://www.ijg.org/)])
+            AC_MSG_WARN([JPG image loading disabled])
+        fi
     fi
 fi
 
@@ -382,41 +391,48 @@ if test x$enable_jxl = xyes; then
     fi
 fi
 
-if test x$enable_png = xyes -a x$enable_stb_image != xyes -a x$enable_imageio != xyes; then
-    PKG_CHECK_MODULES([LIBPNG], [libpng], [dnl
-        have_png_hdr=yes
-        have_png_lib=yes
-        have_png_pc=yes
-      ], [dnl
-        AC_CHECK_HEADER([png.h], [
-            have_png_hdr=yes
-            LIBPNG_CFLAGS=""
-        ])
-        AC_CHECK_LIB([png], [png_create_read_struct], [
-            have_png_lib=yes
-            LIBPNG_LIBS="-lpng -lz"
-        ], [], [-lz])
-      ])
-    if test x$have_png_hdr = xyes -a x$have_png_lib = xyes; then
+if test x$enable_png = xyes; then
+    if test x$enable_stb_image = xyes; then
         AC_DEFINE([LOAD_PNG])
-
-        case "$host" in
-            *-*-darwin*)
-                png_lib=[`find_lib libpng.dylib`]
-                ;;
-            *-*-cygwin* | *-*-mingw*)
-                png_lib=[`find_lib "libpng*.dll"`]
-                ;;
-            *)
-                png_lib=[`find_lib "libpng[0-9]*.so.*"`]
-                if test x$png_lib = x; then
-                    png_lib=[`find_lib "libpng.so.*"`]
-                fi
-                ;;
-        esac
+    elif test x$enable_imageio = xyes; then
+        AC_DEFINE([LOAD_PNG])
+        AC_DEFINE([PNG_USES_IMAGEIO])
     else
-        AC_MSG_WARN([*** Unable to find PNG library (http://www.libpng.org/pub/png/libpng.html)])
-        AC_MSG_WARN([PNG image loading disabled])
+        PKG_CHECK_MODULES([LIBPNG], [libpng], [dnl
+            have_png_hdr=yes
+            have_png_lib=yes
+            have_png_pc=yes
+          ], [dnl
+            AC_CHECK_HEADER([png.h], [
+                have_png_hdr=yes
+                LIBPNG_CFLAGS=""
+            ])
+            AC_CHECK_LIB([png], [png_create_read_struct], [
+                have_png_lib=yes
+                LIBPNG_LIBS="-lpng -lz"
+            ], [], [-lz])
+          ])
+        if test x$have_png_hdr = xyes -a x$have_png_lib = xyes; then
+            AC_DEFINE([LOAD_PNG])
+
+            case "$host" in
+                *-*-darwin*)
+                    png_lib=[`find_lib libpng.dylib`]
+                    ;;
+                *-*-cygwin* | *-*-mingw*)
+                    png_lib=[`find_lib "libpng*.dll"`]
+                    ;;
+                *)
+                    png_lib=[`find_lib "libpng[0-9]*.so.*"`]
+                    if test x$png_lib = x; then
+                        png_lib=[`find_lib "libpng.so.*"`]
+                    fi
+                    ;;
+            esac
+        else
+            AC_MSG_WARN([*** Unable to find PNG library (http://www.libpng.org/pub/png/libpng.html)])
+            AC_MSG_WARN([PNG image loading disabled])
+        fi
     fi
 fi
 
@@ -633,6 +649,16 @@ if test x$enable_png = xyes -a x$have_png_hdr = xyes -a x$have_png_lib = xyes; t
             PC_LIBS="$LIBPNG_LIBS $PC_LIBS"
         fi
     fi
+fi
+if test x$enable_save_png = xyes; then
+    AC_DEFINE([SDL_IMAGE_SAVE_PNG], 1)
+else
+    AC_DEFINE([SDL_IMAGE_SAVE_PNG], 0)
+fi
+if test x$enable_save_jpg = xyes; then
+    AC_DEFINE([SDL_IMAGE_SAVE_JPG], 1)
+else
+    AC_DEFINE([SDL_IMAGE_SAVE_JPG], 0)
 fi
 
 AC_SUBST([IMG_LIBS])

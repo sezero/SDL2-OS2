@@ -24,8 +24,8 @@
 #include "SDL_image.h"
 
 /* We'll have PNG save support by default */
-#ifndef SAVE_PNG
-#define SAVE_PNG    1
+#if !defined(SDL_IMAGE_SAVE_PNG)
+#  define SDL_IMAGE_SAVE_PNG 1
 #endif
 
 #if defined(USE_STBIMAGE)
@@ -115,7 +115,7 @@ static struct {
     jmp_buf* (*png_set_longjmp_fn) (png_structrp, png_longjmp_ptr, size_t);
 #endif
 #endif
-#if SAVE_PNG
+#if SDL_IMAGE_SAVE_PNG
     png_structp (*png_create_write_struct) (png_const_charp user_png_ver, png_voidp error_ptr, png_error_ptr error_fn, png_error_ptr warn_fn);
     void (*png_destroy_write_struct) (png_structpp png_ptr_ptr, png_infopp info_ptr_ptr);
     void (*png_set_write_fn) (png_structrp png_ptr, png_voidp io_ptr, png_rw_ptr write_data_fn, png_flush_ptr output_flush_fn);
@@ -170,7 +170,7 @@ int IMG_InitPNG()
         FUNCTION_LOADER(png_set_longjmp_fn, jmp_buf* (*) (png_structrp, png_longjmp_ptr, size_t))
 #endif
 #endif
-#if SAVE_PNG
+#if SDL_IMAGE_SAVE_PNG
         FUNCTION_LOADER(png_create_write_struct, png_structp (*) (png_const_charp user_png_ver, png_voidp error_ptr, png_error_ptr error_fn, png_error_ptr warn_fn))
         FUNCTION_LOADER(png_destroy_write_struct, void (*) (png_structpp png_ptr_ptr, png_infopp info_ptr_ptr))
         FUNCTION_LOADER(png_set_write_fn, void (*) (png_structrp png_ptr, png_voidp io_ptr, png_rw_ptr write_data_fn, png_flush_ptr output_flush_fn))
@@ -540,7 +540,7 @@ SDL_Surface *IMG_LoadPNG_RW(SDL_RWops *src)
 
 #endif /* LOAD_PNG */
 
-#if SAVE_PNG
+#if SDL_IMAGE_SAVE_PNG
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 static const Uint32 png_format = SDL_PIXELFORMAT_ABGR8888;
@@ -732,7 +732,7 @@ static int IMG_SavePNG_RW_miniz(SDL_Surface *surface, SDL_RWops *dst, int freeds
 }
 #endif /* LOAD_PNG_DYNAMIC || !WANT_LIBPNG */
 
-#endif /* SAVE_PNG */
+#endif /* SDL_IMAGE_SAVE_PNG */
 
 int IMG_SavePNG(SDL_Surface *surface, const char *file)
 {
@@ -746,7 +746,7 @@ int IMG_SavePNG(SDL_Surface *surface, const char *file)
 
 int IMG_SavePNG_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst)
 {
-#if SAVE_PNG
+#if SDL_IMAGE_SAVE_PNG
 #ifdef USE_LIBPNG
     if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) != 0) {
         if (IMG_SavePNG_RW_libpng(surface, dst, freedst) == 0) {
@@ -763,5 +763,5 @@ int IMG_SavePNG_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst)
 #else
     return IMG_SetError("SDL_image built without PNG save support");
 
-#endif /* SAVE_PNG */
+#endif /* SDL_IMAGE_SAVE_PNG */
 }
