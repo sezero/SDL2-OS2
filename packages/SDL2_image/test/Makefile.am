@@ -20,7 +20,7 @@ AM_TESTS_ENVIRONMENT = \
 	$(NULL)
 
 EXTRA_DIST = \
-	CMakeLists.txt Makefile.os2
+	CMakeLists.txt Makefile.os2 template.test.in
 
 if INSTALL_TESTS
 testexec_PROGRAMS = $(test_programs)
@@ -64,7 +64,8 @@ generatetestmeta:
 
 install-data-hook: installtestmeta
 installtestmeta: generatetestmeta
-	install -m644 -D -t $(DESTDIR)$(testmetadir) *.test
+	install -d $(DESTDIR)$(testmetadir)
+	install -m644 *.test $(DESTDIR)$(testmetadir)
 
 clean-local:
 	rm -f *.test

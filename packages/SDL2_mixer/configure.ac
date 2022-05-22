@@ -251,7 +251,7 @@ find_lib()
 }
 
 dnl Check for SDL
-SDL_VERSION=2.0.7
+SDL_VERSION=2.0.9
 AM_PATH_SDL2($SDL_VERSION,
             :,
             AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
@@ -590,6 +590,9 @@ fi
 AC_ARG_ENABLE([music-ogg],
 [AS_HELP_STRING([--enable-music-ogg], [enable Ogg Vorbis music [default=yes]])],
               [], [enable_music_ogg=yes])
+AC_ARG_ENABLE(music-ogg-stb,
+[AS_HELP_STRING([--enable-music-ogg-stb], [enable OGG Vorbis music via stb_vorbis [default=yes]])],
+              [], enable_music_ogg_stb=yes)
 AC_ARG_ENABLE(music-ogg-tremor,
 [AS_HELP_STRING([--enable-music-ogg-tremor], [enable OGG Vorbis music via libtremor [default=no]])],
               [], enable_music_ogg_tremor=no)
@@ -598,7 +601,9 @@ AC_ARG_ENABLE([music-ogg-shared],
               [], [enable_music_ogg_shared=yes])
 if test x$enable_music_ogg = xyes; then
     LIBS_SAVED="$LIBS"
-    if test x$enable_music_ogg_tremor = xyes; then
+    if test x$enable_music_ogg_stb = xyes; then
+        EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_OGG -DOGG_USE_STB"
+    elif test x$enable_music_ogg_tremor = xyes; then
         PKG_CHECK_MODULES([TREMOR], [vorbisidec], [dnl
                 have_tremor_hdr=yes
                 have_tremor_lib=yes
@@ -693,6 +698,14 @@ AC_ARG_ENABLE([music-flac-shared],
 [AS_HELP_STRING([--enable-music-flac-shared],
               [dynamically load FLAC library [default=yes]])],
               [], [enable_music_flac_shared=yes])
+
+AC_ARG_ENABLE(music-flac-drflac,
+[AS_HELP_STRING([--enable-music-flac-drflac], [enable FLAC music via dr_flac [default=yes]])],
+                  [], [enable_music_flac_drflac=yes])
+if test x$enable_music_flac_drflac = xyes; then
+    EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_FLAC_DRFLAC"
+fi
+
 if test x$enable_music_flac = xyes; then
     PKG_CHECK_MODULES([FLAC], [flac], [dnl
             have_flac_hdr=yes
@@ -734,7 +747,7 @@ if test x$enable_music_flac = xyes; then
                 fi
                 ;;
         esac
-        EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_FLAC $FLAC_CFLAGS"
+        EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_FLAC_LIBFLAC $FLAC_CFLAGS"
         if test x$enable_music_flac_shared = xyes && test x$flac_lib != x; then
             echo "-- dynamic libFLAC -> $flac_lib"
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DFLAC_DYNAMIC=\\\"$flac_lib\\\""
@@ -748,13 +761,25 @@ if test x$enable_music_flac = xyes; then
         fi
     else
         AC_MSG_WARN([*** Unable to find FLAC library (http://flac.sourceforge.net/)])
-        AC_MSG_WARN([FLAC support disabled])
     fi
+fi
+
+if test x$enable_music_flac_drflac = xyes -o x$have_libflac = xyes; then
+    :
+else
+    AC_MSG_WARN([FLAC support disabled])
 fi
 
 AC_ARG_ENABLE(music-mp3,
 [AS_HELP_STRING([--enable-music-mp3], [enable MP3 music [default=yes]])],
               [], enable_music_mp3=yes)
+
+AC_ARG_ENABLE(music-mp3-drmp3,
+[AS_HELP_STRING([--enable-music-mp3-drmp3], [enable MP3 music via dr_mp3 [default=yes]])],
+                  [], [enable_music_mp3_drmp3=yes])
+if test x$enable_music_mp3_drmp3 = xyes; then
+    EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_MP3_DRMP3"
+fi
 
 AC_ARG_ENABLE(music-mp3-mad-gpl,
 [AS_HELP_STRING([--enable-music-mp3-mad-gpl], [enable MP3 music via libmad GPL code [default=no]])],
@@ -828,7 +853,7 @@ if test x$enable_music_mp3_mpg123 = xyes; then
     fi
 fi
 
-if test x$have_libmad = xyes -o x$have_libmpg123 = xyes; then
+if test x$enable_music_mp3_drmp3 = xyes -o x$have_libmad = xyes -o x$have_libmpg123 = xyes; then
     :
 else
     AC_MSG_WARN([MP3 support disabled])

@@ -566,7 +566,7 @@ AM_TESTS_ENVIRONMENT = \
 	$(NULL)
 
 EXTRA_DIST = \
-	CMakeLists.txt Makefile.os2
+	CMakeLists.txt Makefile.os2 template.test.in
 
 @INSTALL_TESTS_TRUE@dist_testexec_DATA = \
 @INSTALL_TESTS_TRUE@	palette.bmp \
@@ -1159,7 +1159,8 @@ uninstall-am: uninstall-dist_testexecDATA uninstall-testexecPROGRAMS
 
 @INSTALL_TESTS_TRUE@install-data-hook: installtestmeta
 @INSTALL_TESTS_TRUE@installtestmeta: generatetestmeta
-@INSTALL_TESTS_TRUE@	install -m644 -D -t $(DESTDIR)$(testmetadir) *.test
+@INSTALL_TESTS_TRUE@	install -d $(DESTDIR)$(testmetadir)
+@INSTALL_TESTS_TRUE@	install -m644 *.test $(DESTDIR)$(testmetadir)
 
 @INSTALL_TESTS_TRUE@clean-local:
 @INSTALL_TESTS_TRUE@	rm -f *.test

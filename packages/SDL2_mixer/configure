@@ -932,11 +932,14 @@ enable_music_midi_native
 enable_music_midi_fluidsynth
 enable_music_midi_fluidsynth_shared
 enable_music_ogg
+enable_music_ogg_stb
 enable_music_ogg_tremor
 enable_music_ogg_shared
 enable_music_flac
 enable_music_flac_shared
+enable_music_flac_drflac
 enable_music_mp3
+enable_music_mp3_drmp3
 enable_music_mp3_mad_gpl
 enable_music_mp3_mad_gpl_dithering
 enable_music_mp3_mpg123
@@ -1623,6 +1626,7 @@ Optional Features:
   --enable-music-midi-fluidsynth-shared
                           dynamically load FluidSynth library [default=yes]
   --enable-music-ogg      enable Ogg Vorbis music [default=yes]
+  --enable-music-ogg-stb  enable OGG Vorbis music via stb_vorbis [default=yes]
   --enable-music-ogg-tremor
                           enable OGG Vorbis music via libtremor [default=no]
   --enable-music-ogg-shared
@@ -1630,7 +1634,11 @@ Optional Features:
   --enable-music-flac     enable FLAC music [default=yes]
   --enable-music-flac-shared
                           dynamically load FLAC library [default=yes]
+  --enable-music-flac-drflac
+                          enable FLAC music via dr_flac [default=yes]
   --enable-music-mp3      enable MP3 music [default=yes]
+  --enable-music-mp3-drmp3
+                          enable MP3 music via dr_mp3 [default=yes]
   --enable-music-mp3-mad-gpl
                           enable MP3 music via libmad GPL code [default=no]
   --enable-music-mp3-mad-gpl-dithering
@@ -4123,13 +4131,13 @@ if ${lt_cv_nm_interface+:} false; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:4126: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:4134: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4129: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:4137: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4132: output\"" >&5)
+  (eval echo "\"\$as_me:4140: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -5343,7 +5351,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5346 "configure"' > conftest.$ac_ext
+  echo '#line 5354 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7168,11 +7176,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7171: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7179: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7175: \$? = $ac_status" >&5
+   echo "$as_me:7183: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7517,11 +7525,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7520: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7528: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7524: \$? = $ac_status" >&5
+   echo "$as_me:7532: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7622,11 +7630,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7625: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7633: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7629: \$? = $ac_status" >&5
+   echo "$as_me:7637: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -7677,11 +7685,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7680: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7688: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7684: \$? = $ac_status" >&5
+   echo "$as_me:7692: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10112,7 +10120,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10115 "configure"
+#line 10123 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10208,7 +10216,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10211 "configure"
+#line 10219 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13452,11 +13460,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13455: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13463: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13459: \$? = $ac_status" >&5
+   echo "$as_me:13467: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13551,11 +13559,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13554: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13562: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13558: \$? = $ac_status" >&5
+   echo "$as_me:13566: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -13603,11 +13611,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13606: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13614: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13610: \$? = $ac_status" >&5
+   echo "$as_me:13618: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15300,7 +15308,7 @@ find_lib()
     done
 }
 
-SDL_VERSION=2.0.7
+SDL_VERSION=2.0.9
 
 # Check whether --with-sdl-prefix was given.
 if test "${with_sdl_prefix+set}" = set; then :
@@ -16626,6 +16634,13 @@ else
   enable_music_ogg=yes
 fi
 
+# Check whether --enable-music-ogg-stb was given.
+if test "${enable_music_ogg_stb+set}" = set; then :
+  enableval=$enable_music_ogg_stb;
+else
+  enable_music_ogg_stb=yes
+fi
+
 # Check whether --enable-music-ogg-tremor was given.
 if test "${enable_music_ogg_tremor+set}" = set; then :
   enableval=$enable_music_ogg_tremor;
@@ -16642,7 +16657,9 @@ fi
 
 if test x$enable_music_ogg = xyes; then
     LIBS_SAVED="$LIBS"
-    if test x$enable_music_ogg_tremor = xyes; then
+    if test x$enable_music_ogg_stb = xyes; then
+        EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_OGG -DOGG_USE_STB"
+    elif test x$enable_music_ogg_tremor = xyes; then
 
 pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for vorbisidec" >&5
@@ -17064,6 +17081,18 @@ else
   enable_music_flac_shared=yes
 fi
 
+
+# Check whether --enable-music-flac-drflac was given.
+if test "${enable_music_flac_drflac+set}" = set; then :
+  enableval=$enable_music_flac_drflac;
+else
+  enable_music_flac_drflac=yes
+fi
+
+if test x$enable_music_flac_drflac = xyes; then
+    EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_FLAC_DRFLAC"
+fi
+
 if test x$enable_music_flac = xyes; then
 
 pkg_failed=no
@@ -17281,7 +17310,7 @@ $as_echo "$have_flac_ver" >&6; }
                 fi
                 ;;
         esac
-        EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_FLAC $FLAC_CFLAGS"
+        EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_FLAC_LIBFLAC $FLAC_CFLAGS"
         if test x$enable_music_flac_shared = xyes && test x$flac_lib != x; then
             echo "-- dynamic libFLAC -> $flac_lib"
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DFLAC_DYNAMIC=\\\"$flac_lib\\\""
@@ -17296,9 +17325,14 @@ $as_echo "$have_flac_ver" >&6; }
     else
         { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: *** Unable to find FLAC library (http://flac.sourceforge.net/)" >&5
 $as_echo "$as_me: WARNING: *** Unable to find FLAC library (http://flac.sourceforge.net/)" >&2;}
-        { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: FLAC support disabled" >&5
-$as_echo "$as_me: WARNING: FLAC support disabled" >&2;}
     fi
+fi
+
+if test x$enable_music_flac_drflac = xyes -o x$have_libflac = xyes; then
+    :
+else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: FLAC support disabled" >&5
+$as_echo "$as_me: WARNING: FLAC support disabled" >&2;}
 fi
 
 # Check whether --enable-music-mp3 was given.
@@ -17308,6 +17342,17 @@ else
   enable_music_mp3=yes
 fi
 
+
+# Check whether --enable-music-mp3-drmp3 was given.
+if test "${enable_music_mp3_drmp3+set}" = set; then :
+  enableval=$enable_music_mp3_drmp3;
+else
+  enable_music_mp3_drmp3=yes
+fi
+
+if test x$enable_music_mp3_drmp3 = xyes; then
+    EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_MP3_DRMP3"
+fi
 
 # Check whether --enable-music-mp3-mad-gpl was given.
 if test "${enable_music_mp3_mad_gpl+set}" = set; then :
@@ -17575,7 +17620,7 @@ $as_echo "$as_me: WARNING: mpg123 support disabled" >&2;}
     fi
 fi
 
-if test x$have_libmad = xyes -o x$have_libmpg123 = xyes; then
+if test x$enable_music_mp3_drmp3 = xyes -o x$have_libmad = xyes -o x$have_libmpg123 = xyes; then
     :
 else
     { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: MP3 support disabled" >&5
