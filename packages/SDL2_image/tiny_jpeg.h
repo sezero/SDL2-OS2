@@ -66,7 +66,7 @@ int main()
         return EXIT_FAILURE;
     }
 
-    if ( !tje_encode_to_file("out.jpg", width, height, num_components, data) ) {
+    if ( !tje_encode_to_file("out.jpg", width, height, num_components, data, width * num_components) ) {
         fprintf(stderr, "Could not write JPEG\n");
         return EXIT_FAILURE;
     }
@@ -81,13 +81,6 @@ int main()
 #ifdef __cplusplus
 extern "C"
 {
-#endif
-
-#if defined(__GNUC__) || defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"  // We use {0}, which will zero-out the struct.
-#pragma GCC diagnostic ignored "-Wmissing-braces"
-#pragma GCC diagnostic ignored "-Wpadded"
 #endif
 
 // ============================================================
@@ -115,7 +108,8 @@ int tje_encode_to_file(const char* dest_path,
                        const int width,
                        const int height,
                        const int num_components,
-                       const unsigned char* src_data);
+                       const unsigned char* src_data,
+                       const int pitch);
 
 // - tje_encode_to_file_at_quality -
 //
@@ -139,7 +133,8 @@ int tje_encode_to_file_at_quality(const char* dest_path,
                                   const int width,
                                   const int height,
                                   const int num_components,
-                                  const unsigned char* src_data);
+                                  const unsigned char* src_data,
+                                  const int pitch);
 
 // - tje_encode_with_func -
 //
@@ -157,7 +152,8 @@ int tje_encode_with_func(tje_write_func* func,
                          const int width,
                          const int height,
                          const int num_components,
-                         const unsigned char* src_data);
+                         const unsigned char* src_data,
+                         const int pitch);
 
 #endif // TJE_HEADER_GUARD
 
@@ -644,6 +640,7 @@ TJEI_FORCE_INLINE void tjei_write_bits(TJEState* state,
     }
 }
 
+#if TJE_USE_FAST_DCT
 // DCT implementation by Thomas G. Lane.
 // Obtained through NVIDIA
 //  http://developer.download.nvidia.com/SDK/9.5/Samples/vidimaging_samples.html#gpgpu_dct
@@ -763,6 +760,8 @@ static void tjei_fdct (float * data)
         dataptr++;          /* advance pointer to next column */
     }
 }
+#endif
+
 #if !TJE_USE_FAST_DCT
 static float slow_fdct(int u, int v, float* data)
 {
@@ -918,13 +917,15 @@ struct TJEProcessedQT
 // Set up huffman tables in state.
 static void tjei_huff_expand(TJEState* state)
 {
-    int32_t spec_tables_len[4] = { 0 };
+    int32_t spec_tables_len[4];
     uint8_t huffsize[4][257];
     uint16_t huffcode[4][256];
 
     int i, k;
 
     assert(state);
+
+    memset(spec_tables_len, 0, sizeof(spec_tables_len));
 
     state->ht_bits[TJEI_LUMA_DC]   = tjei_default_ht_luma_dc_len;
     state->ht_bits[TJEI_LUMA_AC]   = tjei_default_ht_luma_ac_len;
@@ -964,7 +965,8 @@ static int tjei_encode_main(TJEState* state,
                             const unsigned char* src_data,
                             const int width,
                             const int height,
-                            const int src_num_components)
+                            const int src_num_components,
+                            const int pitch)
 {
 #if TJE_USE_FAST_DCT
     // Again, taken from classic japanese implementation.
@@ -1131,7 +1133,7 @@ static int tjei_encode_main(TJEState* state,
                 for ( off_x = 0; off_x < 8; ++off_x ) {
                     int block_index = (off_y * 8 + off_x);
 
-                    int src_index = (((y + off_y) * width) + (x + off_x)) * src_num_components;
+                    int src_index = (((y + off_y) * pitch) + ((x + off_x) * src_num_components));
 
                     int col = x + off_x;
                     int row = y + off_y;
@@ -1141,12 +1143,12 @@ static int tjei_encode_main(TJEState* state,
                     uint8_t r, g, b;
 
                     if(row >= height) {
-                        src_index -= (width * (row - height + 1)) * src_num_components;
+                        src_index -= (pitch * (row - height + 1));
                     }
                     if(col >= width) {
                         src_index -= (col - width + 1) * src_num_components;
                     }
-                    assert(src_index < width * height * src_num_components);
+                    assert(src_index < height * pitch);
 
                     r = src_data[src_index + 0];
                     g = src_data[src_index + 1];
@@ -1216,9 +1218,10 @@ int tje_encode_to_file(const char* dest_path,
                        const int width,
                        const int height,
                        const int num_components,
-                       const unsigned char* src_data)
+                       const unsigned char* src_data,
+                       const int pitch)
 {
-    int res = tje_encode_to_file_at_quality(dest_path, 3, width, height, num_components, src_data);
+    int res = tje_encode_to_file_at_quality(dest_path, 3, width, height, num_components, src_data, pitch);
     return res;
 }
 
@@ -1234,7 +1237,8 @@ int tje_encode_to_file_at_quality(const char* dest_path,
                                   const int width,
                                   const int height,
                                   const int num_components,
-                                  const unsigned char* src_data)
+                                  const unsigned char* src_data,
+                                  const int pitch)
 {
     FILE* fd = fopen(dest_path, "wb");
     if (!fd) {
@@ -1243,7 +1247,7 @@ int tje_encode_to_file_at_quality(const char* dest_path,
     }
 
     int result = tje_encode_with_func(tjei_stdlib_func, fd,
-                                      quality, width, height, num_components, src_data);
+                                      quality, width, height, num_components, src_data, pitch);
 
     result |= 0 == fclose(fd);
 
@@ -1257,17 +1261,22 @@ int tje_encode_with_func(tje_write_func* func,
                          const int width,
                          const int height,
                          const int num_components,
-                         const unsigned char* src_data)
+                         const unsigned char* src_data,
+                         const int pitch)
 {
-    TJEState state = { 0 };
-    TJEWriteContext wc = { 0 };
-    uint8_t qt_factor = 1;
+    TJEState state;
+    TJEWriteContext wc;
+    uint8_t qt_factor;
     int i;
 
     if (quality < 1 || quality > 3) {
         tje_log("[ERROR] -- Valid 'quality' values are 1 (lowest), 2, or 3 (highest)\n");
         return 0;
     }
+
+    qt_factor = 1;
+    memset(&state, 0, sizeof(state));
+    memset(&wc, 0, sizeof(wc));
 
     switch(quality) {
     case 3:
@@ -1278,7 +1287,7 @@ int tje_encode_with_func(tje_write_func* func,
         break;
     case 2:
         qt_factor = 10;
-        // don't break. fall through.
+        /* fallthrough */
     case 1:
         for ( i = 0; i < 64; ++i ) {
             state.qt_luma[i]   = tjei_default_qt_luma_from_spec[i] / qt_factor;
@@ -1303,15 +1312,12 @@ int tje_encode_with_func(tje_write_func* func,
 
     tjei_huff_expand(&state);
 
-    return tjei_encode_main(&state, src_data, width, height, num_components);
+    return tjei_encode_main(&state, src_data, width, height, num_components, pitch);
 }
 // ============================================================
 #endif // TJE_IMPLEMENTATION
 // ============================================================
 //
-#if defined(__GNUC__) || defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
 
 
 #ifdef __cplusplus
