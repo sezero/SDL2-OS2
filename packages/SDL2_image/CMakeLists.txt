@@ -400,6 +400,7 @@ endif()
 if(SDL2IMAGE_JXL)
     target_compile_definitions(SDL2_image PRIVATE LOAD_JXL)
     if(SDL2IMAGE_JXL_VENDORED)
+        enable_language(CXX)
         message(STATUS "${PROJECT_NAME}: Using vendored libjxl")
         set(BUILD_TESTING OFF)
         # JPEGXL_ENABLE_MANPAGES variable is used by libjxl
@@ -423,8 +424,8 @@ if(SDL2IMAGE_JXL)
                 )
             endif()
         else()
-            set(jxl_lib jxl-static)
-            list(APPEND INSTALL_EXTRA_TARGETS brotlidec-static brotlicommon-static brotlienc-static hwy ${jxl_lib})
+            set(jxl_lib jxl_dec-static)
+            list(APPEND INSTALL_EXTRA_TARGETS brotlidec-static brotlicommon-static hwy ${jxl_lib})
         endif()
         if(NOT TARGET libjxl::libjxl)
             add_library(libjxl::libjxl ALIAS ${jxl_lib})
@@ -462,7 +463,7 @@ endif()
 if(SDL2IMAGE_PNG)
     target_compile_definitions(SDL2_image PRIVATE
         LOAD_PNG
-        SAVE_PNG=$<BOOL:${SDL2IMAGE_PNG_SAVE}>
+        SDL_IMAGE_SAVE_PNG=$<BOOL:${SDL2IMAGE_PNG_SAVE}>
     )
     if(NOT SDL2IMAGE_BACKEND_STB AND NOT SDL2IMAGE_BACKEND_WIC AND NOT SDL2IMAGE_BACKEND_IMAGEIO)
         set(HAVE_LD_VERSION_SCRIPT OFF CACHE BOOL "" FORCE)
