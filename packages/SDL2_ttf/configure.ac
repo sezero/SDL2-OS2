@@ -4,7 +4,7 @@ dnl Set various version strings - taken gratefully from the GTk sources
 # See docs/release_checklist.md
 m4_define([MAJOR_VERSION_MACRO], [2])
 m4_define([MINOR_VERSION_MACRO], [19])
-m4_define([MICRO_VERSION_MACRO], [0])
+m4_define([MICRO_VERSION_MACRO], [1])
 
 AC_INIT([SDL2_ttf],
         MAJOR_VERSION_MACRO.MINOR_VERSION_MACRO.MICRO_VERSION_MACRO,
@@ -108,6 +108,24 @@ AM_PATH_SDL2($SDL_VERSION,
 )
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
+
+CheckNoUndef()
+{
+AC_MSG_CHECKING(for linker option --no-undefined)
+    have_no_undefined=no
+    case "${host_os}" in
+dnl Skip this on platforms where it is just simply busted.
+    openbsd*) ;;
+    darwin*) have_no_undefined="-Wl,-undefined,error"
+       LDFLAGS="$LDFLAGS -Wl,-undefined,error" ;;
+    *) save_LDFLAGS="$LDFLAGS"
+       LDFLAGS="$LDFLAGS -Wl,--no-undefined"
+       AC_LINK_IFELSE([AC_LANG_PROGRAM],
+          [have_no_undefined=yes],[LDFLAGS="$save_LDFLAGS"])
+       ;;
+    esac
+    AC_MSG_RESULT($have_no_undefined)
+}
 
 dnl See if GCC's -Wall is supported.
 CheckWarnAll()
@@ -276,6 +294,9 @@ else
 fi
 AM_CONDITIONAL(OS_WIN32, test x$hb_os_win32 = xyes)
 AM_CONDITIONAL(USE_BUILTIN_HARFBUZZ, test x$enable_harfbuzz_builtin = xyes)
+
+dnl check for LD --no-undefined option
+CheckNoUndef
 
 dnl Check for OpenGL
 case "$host" in

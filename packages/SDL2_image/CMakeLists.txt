@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.16)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # See docs/release_checklist.md
 set(MAJOR_VERSION 2)
 set(MINOR_VERSION 5)
-set(MICRO_VERSION 0)
+set(MICRO_VERSION 1)
 set(SDL_REQUIRED_VERSION 2.0.9)
 
 # For historical reasons this is 3.0.0 rather than the expected 1.0.0
@@ -203,6 +203,7 @@ target_include_directories(SDL2_image PUBLIC
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/SDL2>"
 )
 target_compile_definitions(SDL2_image PRIVATE
+    BUILD_SDL
     SDL_BUILD_MAJOR_VERSION=${MAJOR_VERSION}
     SDL_BUILD_MINOR_VERSION=${MINOR_VERSION}
     SDL_BUILD_MICRO_VERSION=${MICRO_VERSION}
@@ -211,7 +212,7 @@ target_link_libraries(SDL2_image PRIVATE ${sdl2_target_name})
 if(WIN32 AND SDL2IMAGE_BUILD_SHARED_LIBS)
     target_sources(SDL2_image PRIVATE
         version.rc
-)
+    )
 endif()
 set_target_properties(SDL2_image PROPERTIES
     DEFINE_SYMBOL DLL_EXPORT
@@ -262,9 +263,18 @@ if(SDL2IMAGE_BUILD_SHARED_LIBS)
     endif()
 endif()
 
-# Use `Compatible Interface Properties` to ensure all SDL2 libraries are built with the same "sharedness".
+# Use `Compatible Interface Properties` to ensure all linked SDL2 libraries are built with the same "sharedness".
 set_property(TARGET SDL2_image PROPERTY INTERFACE_SDL2_SHARED ${SDL2IMAGE_BUILD_SHARED_LIBS})
 set_property(TARGET SDL2_image APPEND PROPERTY COMPATIBLE_INTERFACE_BOOL SDL2_SHARED)
+
+if(SDL2IMAGE_BUILD_SHARED_LIBS)
+    sdl_target_link_options_no_undefined(SDL2_image)
+endif()
+
+if(SDL2IMAGE_BUILD_SHARED_LIBS)
+    # Make sure static library dependencies are built with -fPIC when building a shared SDL2_image
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
 
 set(INSTALL_EXTRA_TARGETS)
 set(PC_LIBS)
@@ -272,11 +282,6 @@ set(PC_REQUIRES)
 
 if(SDL2IMAGE_BACKEND_STB)
     target_compile_definitions(SDL2_image PRIVATE USE_STBIMAGE)
-endif()
-
-if(SDL2IMAGE_BUILD_SHARED_LIBS)
-    # Make sure static library dependencies are built with -fPIC when building a shared SDL2_image
-    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
 if(APPLE)
@@ -703,8 +708,10 @@ if(SDL2IMAGE_INSTALL)
         endif()
         # Only install a SDL2_image.pc file in Release mode
         install(CODE "
-            file(COPY_FILE \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_image-$<CONFIG>.pc\"
-                \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_image.pc\" ONLY_IF_DIFFERENT)
+            # FIXME: use file(COPY_FILE) if minimum CMake version >= 3.21
+            execute_process(COMMAND \"\${CMAKE_COMMAND}\" -E copy_if_different
+                \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_image-$<CONFIG>.pc\"
+                \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_image.pc\")
             file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${PC_DESTDIR}\"
                 TYPE FILE
                 FILES \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_image.pc\")" CONFIG Release COMPONENT devel)
@@ -729,8 +736,10 @@ if(SDL2IMAGE_SAMPLES)
     add_executable(showanim showanim.c)
     add_executable(showimage showimage.c)
 
+    find_package(SDL2main)
+
     foreach(prog showanim showimage)
-        # FIXME: mingw should be handles by SDL2::SDL2(-static) target
+        # FIXME: mingw should be handled by SDL2::SDL2(-static) target
         if(MINGW)
             target_link_libraries(${prog} PRIVATE mingw32)
             target_link_options(${prog} PRIVATE -mwindows)

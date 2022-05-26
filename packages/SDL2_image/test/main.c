@@ -13,10 +13,6 @@
 
 #include "SDL_image.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-
 #include "SDL.h"
 #include "SDL_test.h"
 
@@ -277,7 +273,6 @@ static const Format formats[] =
         IMG_LoadLBM_RW,
     },
 #endif
-#if 0
     {
         "PCX",
         "sample.pcx",
@@ -295,7 +290,6 @@ static const Format formats[] =
         IMG_isPCX,
         IMG_LoadPCX_RW,
     },
-#endif
     {
         "PNG",
         "sample.png",
@@ -381,7 +375,6 @@ static const Format formats[] =
         IMG_isSVG,
         IMG_LoadSVG_RW,
     },
-#if 0
     {
         "TGA",
         "sample.tga",
@@ -399,7 +392,6 @@ static const Format formats[] =
         NULL,
         IMG_LoadTGA_RW,
     },
-#endif
     {
         "TIF",
         "sample.tif",
@@ -492,11 +484,11 @@ static const Format formats[] =
 static SDL_bool
 StrHasSuffix(const char *str, const char *suffix)
 {
-    size_t str_len = strlen(str);
-    size_t suffix_len = strlen(suffix);
+    size_t str_len = SDL_strlen(str);
+    size_t suffix_len = SDL_strlen(suffix);
 
     return (str_len >= suffix_len
-            && strcmp(str + (str_len - suffix_len), suffix) == 0);
+            && SDL_strcmp(str + (str_len - suffix_len), suffix) == 0);
 }
 
 typedef enum
@@ -536,7 +528,7 @@ DumpPixels(const char *filename, SDL_Surface *surface)
     size_t w, h, pitch;
     size_t i, j;
 
-    fprintf(stderr, "%s:\n", filename);
+    SDL_Log("%s:\n", filename);
 
     if (surface->format->palette) {
         size_t n = 0;
@@ -545,9 +537,9 @@ DumpPixels(const char *filename, SDL_Surface *surface)
             n = (size_t) surface->format->palette->ncolors;
         }
 
-        fprintf(stderr, "  Palette:\n");
+        SDL_Log("  Palette:\n");
         for (i = 0; i < n; i++) {
-            fprintf(stderr, "    RGBA[0x%02x] = %02x%02x%02x%02x\n",
+            SDL_Log("    RGBA[0x%02x] = %02x%02x%02x%02x\n",
                     (unsigned) i,
                     surface->format->palette->colors[i].r,
                     surface->format->palette->colors[i].g,
@@ -557,17 +549,17 @@ DumpPixels(const char *filename, SDL_Surface *surface)
     }
 
     if (surface->w < 0) {
-        fprintf(stderr, "    Invalid width %d\n", surface->w);
+        SDL_Log("    Invalid width %d\n", surface->w);
         return;
     }
 
     if (surface->h < 0) {
-        fprintf(stderr, "    Invalid height %d\n", surface->h);
+        SDL_Log("    Invalid height %d\n", surface->h);
         return;
     }
 
     if (surface->pitch < 0) {
-        fprintf(stderr, "    Invalid pitch %d\n", surface->pitch);
+        SDL_Log("    Invalid pitch %d\n", surface->pitch);
         return;
     }
 
@@ -575,10 +567,10 @@ DumpPixels(const char *filename, SDL_Surface *surface)
     h = (size_t) surface->h;
     pitch = (size_t) surface->pitch;
 
-    fprintf(stderr, "  Pixels:\n");
+    SDL_Log("  Pixels:\n");
 
     for (j = 0; j < h; j++) {
-        fprintf(stderr, "    ");
+        SDL_Log("    ");
 
         for (i = 0; i < w; i++) {
             p = pixels + (j * pitch) + (i * surface->format->BytesPerPixel);
@@ -587,32 +579,32 @@ DumpPixels(const char *filename, SDL_Surface *surface)
                 case 1:
                 case 4:
                 case 8:
-                    fprintf(stderr, "%02x ", *p);
+                    SDL_Log("%02x ", *p);
                     break;
 
                 case 12:
                 case 15:
                 case 16:
-                    fprintf(stderr, "%02x", *p++);
-                    fprintf(stderr, "%02x ", *p);
+                    SDL_Log("%02x", *p++);
+                    SDL_Log("%02x ", *p);
                     break;
 
                 case 24:
-                    fprintf(stderr, "%02x", *p++);
-                    fprintf(stderr, "%02x", *p++);
-                    fprintf(stderr, "%02x ", *p);
+                    SDL_Log("%02x", *p++);
+                    SDL_Log("%02x", *p++);
+                    SDL_Log("%02x ", *p);
                     break;
 
                 case 32:
-                    fprintf(stderr, "%02x", *p++);
-                    fprintf(stderr, "%02x", *p++);
-                    fprintf(stderr, "%02x", *p++);
-                    fprintf(stderr, "%02x ", *p);
+                    SDL_Log("%02x", *p++);
+                    SDL_Log("%02x", *p++);
+                    SDL_Log("%02x", *p++);
+                    SDL_Log("%02x ", *p);
                     break;
             }
         }
 
-        fprintf(stderr, "\n");
+        SDL_Log("\n");
     }
 }
 
@@ -724,7 +716,7 @@ FormatLoadTest(const Format *format,
             break;
 
         case LOAD_SIZED:
-            if (strcmp(format->name, "SVG-sized") == 0) {
+            if (SDL_strcmp(format->name, "SVG-sized") == 0) {
                 surface = IMG_LoadSizedSVG_RW(src, 64, 64);
             }
             break;
@@ -823,7 +815,7 @@ FormatSaveTest(const Format *format,
                             format->initFlag, initResult);
     }
 
-    if (strcmp (format->name, "PNG") == 0) {
+    if (SDL_strcmp (format->name, "PNG") == 0) {
         if (rw) {
             dest = SDL_RWFromFile(filename, "wb");
             result = IMG_SavePNG_RW(reference, dest, SDL_FALSE);
@@ -831,7 +823,7 @@ FormatSaveTest(const Format *format,
         } else {
             result = IMG_SavePNG(reference, filename);
         }
-    } else if (strcmp(format->name, "JPG") == 0) {
+    } else if (SDL_strcmp(format->name, "JPG") == 0) {
         if (rw) {
             dest = SDL_RWFromFile(filename, "wb");
             result = IMG_SaveJPG_RW(reference, dest, SDL_FALSE, 90);
@@ -907,11 +899,17 @@ FormatTest(const Format *format)
     if (format->canLoad || forced) {
         SDLTest_Log("Testing ability to load format %s", format->name);
 
-        if (strcmp(format->name, "SVG-sized") == 0) {
+        if (SDL_strcmp(format->name, "SVG-sized") == 0) {
             FormatLoadTest(format, LOAD_SIZED);
         } else {
             FormatLoadTest(format, LOAD_CONVENIENCE);
-            FormatLoadTest(format, LOAD_RW);
+
+            if (SDL_strcmp(format->name, "TGA") == 0) {
+                SDLTest_Log("SKIP: Recognising %s by magic number is not supported", format->name);
+            } else {
+                FormatLoadTest(format, LOAD_RW);
+            }
+
             FormatLoadTest(format, LOAD_TYPED_RW);
 
             if (format->loadFunction != NULL) {
@@ -1030,8 +1028,13 @@ main(int argc, char *argv[])
             }
         }
         if (consumed < 0) {
+
+#if SDL_VERSION_ATLEAST(2, 0, 10)
             static const char *options[] = { "[--iterations #]", "[--execKey #]", "[--seed string]", "[--filter suite_name|test_name]", NULL };
             SDLTest_CommonLogUsage(state, argv[0], options);
+#else
+            SDLTest_CommonUsage(state);
+#endif
             quit(1);
         }
 

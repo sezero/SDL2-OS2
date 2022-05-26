@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.14)
 # See docs/release_checklist.md
 set(MAJOR_VERSION 2)
 set(MINOR_VERSION 19)
-set(MICRO_VERSION 0)
+set(MICRO_VERSION 1)
 set(SDL_TTF_VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${MICRO_VERSION}")
 set(SDL_REQUIRED_VERSION 2.0.10)
 
@@ -289,7 +289,7 @@ if (NOT TTF_DISABLE_INSTALL)
         install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SDL2_ttf.pc
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
     endif ()
-    install(FILES "COPYING.txt" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/licenses/${PROJECT_NAME}")
+    install(FILES "LICENSE.txt" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/licenses/${PROJECT_NAME}")
     if (NOT (WIN32 OR CYGWIN OR MINGW))
         if(BUILD_SHARED_LIBS)
             if(NOT ANDROID)

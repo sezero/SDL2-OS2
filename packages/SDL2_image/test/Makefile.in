@@ -164,8 +164,9 @@ am__can_run_installinfo = \
   esac
 am__dist_testexec_DATA_DIST = palette.bmp palette.gif sample.avif \
 	sample.bmp sample.cur sample.ico sample.jpg sample.jxl \
-	sample.png sample.pnm sample.qoi sample.tif sample.webp \
-	sample.xcf sample.xpm svg.bmp svg.svg svg64.bmp
+	sample.pcx sample.png sample.pnm sample.qoi sample.tga \
+	sample.tif sample.webp sample.xcf sample.xpm svg.bmp svg.svg \
+	svg64.bmp
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -390,7 +391,7 @@ TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/test-driver
 TEST_LOG_COMPILE = $(TEST_LOG_COMPILER) $(AM_TEST_LOG_FLAGS) \
 	$(TEST_LOG_FLAGS)
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/depcomp \
-	$(top_srcdir)/test-driver
+	$(top_srcdir)/test-driver README.md
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -536,7 +537,6 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
-runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -577,9 +577,11 @@ EXTRA_DIST = \
 @INSTALL_TESTS_TRUE@	sample.ico \
 @INSTALL_TESTS_TRUE@	sample.jpg \
 @INSTALL_TESTS_TRUE@	sample.jxl \
+@INSTALL_TESTS_TRUE@	sample.pcx \
 @INSTALL_TESTS_TRUE@	sample.png \
 @INSTALL_TESTS_TRUE@	sample.pnm \
 @INSTALL_TESTS_TRUE@	sample.qoi \
+@INSTALL_TESTS_TRUE@	sample.tga \
 @INSTALL_TESTS_TRUE@	sample.tif \
 @INSTALL_TESTS_TRUE@	sample.webp \
 @INSTALL_TESTS_TRUE@	sample.xcf \
