@@ -695,6 +695,8 @@ static int IMG_SavePNG_RW_libpng(SDL_Surface *surface, SDL_RWops *dst, int freed
 #else
 #define MINIZ_LITTLE_ENDIAN 0
 #endif
+#define MINIZ_USE_UNALIGNED_LOADS_AND_STORES 0
+#define MINIZ_SDL_NOUNUSED
 #include "miniz.h"
 
 static int IMG_SavePNG_RW_miniz(SDL_Surface *surface, SDL_RWops *dst, int freedst)
@@ -718,7 +720,7 @@ static int IMG_SavePNG_RW_miniz(SDL_Surface *surface, SDL_RWops *dst, int freeds
             if (SDL_RWwrite(dst, png, size, 1)) {
                 result = 0;
             }
-            SDL_free(png);
+            mz_free(png); /* calls SDL_free() */
         } else {
             IMG_SetError("Failed to convert and save image");
         }

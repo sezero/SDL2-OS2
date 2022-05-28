@@ -76,8 +76,6 @@ NSVG_EXPORT void nsvgDeleteRasterizer(NSVGrasterizer*);
 #endif
 #endif
 
-#endif // NANOSVGRAST_H
-
 #ifdef NANOSVGRAST_IMPLEMENTATION
 
 /*
@@ -154,7 +152,7 @@ struct NSVGrasterizer
 	int width, height, stride;
 };
 
-NSVG_EXPORT NSVGrasterizer* nsvgCreateRasterizer()
+NSVG_EXPORT NSVGrasterizer* nsvgCreateRasterizer(void)
 {
 	NSVGrasterizer* r = (NSVGrasterizer*)malloc(sizeof(NSVGrasterizer));
 	if (r == NULL) goto error;
@@ -1463,3 +1461,5 @@ NSVG_EXPORT void nsvgRasterize(NSVGrasterizer* r,
 }
 
 #endif
+
+#endif // NANOSVGRAST_H

@@ -149,7 +149,7 @@ typedef enum {
     MUS_OPUS
 } Mix_MusicType;
 
-/* The internal format for a music chunk interpreted via mikmod */
+/* The internal format for a music chunk interpreted via codecs */
 typedef struct _Mix_Music Mix_Music;
 
 /* Open the mixer with a certain audio format */
@@ -590,8 +590,8 @@ extern DECLSPEC int SDLCALL Mix_VolumeMusic(int volume);
 /* Get the current volume value in the range of 0-128 of a music stream */
 extern DECLSPEC int SDLCALL Mix_GetMusicVolume(Mix_Music *music);
 
-/* Set the master volume.
-   This did not affect the member variables of music, channel or chunck volume.
+/* Set the master volume for all channels.
+   This did not affect the member variables of channel or chunk volume.
    If the specified volume is -1, just return the current master volume.
 */
 extern DECLSPEC int SDLCALL Mix_MasterVolume(int volume);
@@ -636,11 +636,11 @@ extern DECLSPEC int SDLCALL Mix_PausedMusic(void);
  */
 extern DECLSPEC int SDLCALL Mix_ModMusicJumpToOrder(int order);
 
-/* Set the current position in the music stream.
-   This returns 0 if successful, or -1 if it failed or isn't implemented.
+/* Set the current position in the music stream (in seconds).
+   This returns 0 if successful, or -1 if it failed or not implemented.
    This function is only implemented for MOD music formats (set pattern
-   order number) and for WAV, OGG, FLAC, MP3_MAD, MP3_MPG, and MODPLUG music
-   (set position in seconds), at the moment.
+   order number) and for WAV, OGG, FLAC, MP3, and MODPLUG music at the
+   moment.
 */
 extern DECLSPEC int SDLCALL Mix_SetMusicPosition(double position);
 
@@ -681,7 +681,7 @@ extern DECLSPEC int SDLCALL Mix_PlayingMusic(void);
 /* Stop music and set external music playback command */
 extern DECLSPEC int SDLCALL Mix_SetMusicCMD(const char *command);
 
-/* Synchro value is set by MikMod from modules while playing */
+/* Synchro value is set from modules while playing */
 extern DECLSPEC int SDLCALL Mix_SetSynchroValue(int value);
 extern DECLSPEC int SDLCALL Mix_GetSynchroValue(void);
 

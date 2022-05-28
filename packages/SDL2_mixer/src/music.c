@@ -28,7 +28,6 @@
 
 #include "music_cmd.h"
 #include "music_wav.h"
-#include "music_mikmod.h"
 #include "music_modplug.h"
 #include "music_xmp.h"
 #include "music_nativemidi.h"
@@ -38,7 +37,6 @@
 #include "music_opus.h"
 #include "music_drmp3.h"
 #include "music_mpg123.h"
-#include "music_mad.h"
 #include "music_drflac.h"
 #include "music_flac.h"
 #include "native_midi/native_midi.h"
@@ -93,7 +91,8 @@ void meta_tags_init(Mix_MusicMetaTags *tags)
 
 void meta_tags_clear(Mix_MusicMetaTags *tags)
 {
-    size_t i = 0;
+    size_t i;
+
     for (i = 0; i < MIX_META_LAST; i++) {
         if (tags->tags[i]) {
             SDL_free(tags->tags[i]);
@@ -183,17 +182,11 @@ static Mix_MusicInterface *s_music_interfaces[] =
 #ifdef MUSIC_MP3_MPG123
     &Mix_MusicInterface_MPG123,
 #endif
-#ifdef MUSIC_MP3_MAD
-    &Mix_MusicInterface_MAD,
-#endif
 #ifdef MUSIC_MOD_XMP
     &Mix_MusicInterface_XMP,
 #endif
 #ifdef MUSIC_MOD_MODPLUG
     &Mix_MusicInterface_MODPLUG,
-#endif
-#ifdef MUSIC_MOD_MIKMOD
-    &Mix_MusicInterface_MIKMOD,
 #endif
 #ifdef MUSIC_MID_FLUIDSYNTH
     &Mix_MusicInterface_FLUIDSYNTH,
@@ -288,6 +281,8 @@ int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
     Uint8 *snd = (Uint8 *)data;
     Uint8 *dst;
     int len = bytes;
+    int zero_cycles = 0;
+    const int MAX_ZERO_CYCLES = 10; /* just try to catch infinite loops */
     SDL_bool done = SDL_FALSE;
 
     if (volume == MIX_MAX_VOLUME) {
@@ -300,6 +295,15 @@ int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
         if (consumed < 0) {
             break;
         }
+        if (consumed == 0) {
+            ++zero_cycles;
+            if (zero_cycles > MAX_ZERO_CYCLES) {
+                /* We went too many cycles with no data, we're done */
+                done = SDL_TRUE;
+            }
+            continue;
+        }
+        zero_cycles = 0;
 
         if (volume == MIX_MAX_VOLUME) {
             dst += consumed;
@@ -318,20 +322,22 @@ int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
 /* Mixing function */
 void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
 {
+    SDL_bool done = SDL_FALSE;
+
     (void)udata;
 
-    while (music_playing && music_active && len > 0) {
+    while (music_playing && music_active && len > 0 && !done) {
         /* Handle fading */
         if (music_playing->fading != MIX_NO_FADING) {
             if (music_playing->fade_step++ < music_playing->fade_steps) {
-                int volume = Mix_MasterVolume(-1);
+                int volume;
                 int fade_step = music_playing->fade_step;
                 int fade_steps = music_playing->fade_steps;
 
                 if (music_playing->fading == MIX_FADING_OUT) {
-                    volume = (volume * (music_volume * (fade_steps-fade_step))) / (fade_steps * MIX_MAX_VOLUME);
+                    volume = (music_volume * (fade_steps-fade_step)) / fade_steps;
                 } else { /* Fading in */
-                    volume = (volume * (music_volume * fade_step)) / (fade_steps * MIX_MAX_VOLUME);
+                    volume = (music_volume * fade_step) / fade_steps;
                 }
                 music_internal_volume(volume);
             } else {
@@ -351,6 +357,7 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
             if (left != 0) {
                 /* Either an error or finished playing with data left */
                 music_playing->playing = SDL_FALSE;
+                done = SDL_TRUE;
             }
             if (left > 0) {
                 stream += (len - left);
@@ -559,8 +566,8 @@ Mix_MusicType detect_music_type(SDL_RWops *src)
     /* Assume MOD format.
      *
      * Apparently there is no way to check if the file is really a MOD,
-     * or there are too many formats supported by MikMod/ModPlug, or
-     * MikMod/ModPlug does this check by itself. */
+     * or there are too many formats supported by libmodplug or libxmp.
+     * The mod library does this check by itself. */
     return MUS_MOD;
 }
 

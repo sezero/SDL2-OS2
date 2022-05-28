@@ -109,13 +109,11 @@ target_sources(SDL2_mixer PRIVATE
         src/codecs/music_drflac.c
         src/codecs/music_flac.c
         src/codecs/music_drmp3.c
-        src/codecs/music_mad.c
         src/codecs/music_mpg123.c
         src/codecs/mp3utils.c
         src/codecs/music_ogg.c
         src/codecs/music_ogg_stb.c
         src/codecs/music_opus.c
-        src/codecs/music_mikmod.c
         src/codecs/music_modplug.c
         src/codecs/music_xmp.c
         src/codecs/music_fluidsynth.c
@@ -179,7 +177,7 @@ if(BUILD_SHARED_LIBS)
         set_target_properties(SDL2_mixer PROPERTIES PREFIX "")
     endif()
     if(APPLE)
-        # TODO: Use DYLIB_COMPATIBILITY_VERSION, DYLIB_CURRENT_VERSION here
+        # TODO: Handle DYLIB_COMPATIBILITY_VERSION, DYLIB_CURRENT_VERSION here
     endif()
     if(WIN32)
         target_compile_definitions(SDL2_mixer PRIVATE -DDLL_EXPORT)
