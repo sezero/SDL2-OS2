@@ -55,6 +55,7 @@ dnl AC_CANONICAL_HOST
 dnl Check for tools
 AC_PROG_CC
 AC_PROG_CXX
+AC_PROG_EGREP
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG
@@ -309,7 +310,8 @@ if test x$enable_libc = xyes; then
     AC_DEFINE(HAVE_LIBC, 1, [ ])
 
 dnl Check for C library headers
-    AC_HEADER_STDC
+dnl AC_CHECK_INCLUDES_DEFAULT is an autoconf-2.7x thing where AC_HEADER_STDC is deprecated.
+    m4_ifdef([AC_CHECK_INCLUDES_DEFAULT], [AC_CHECK_INCLUDES_DEFAULT], [AC_HEADER_STDC])
     AC_CHECK_HEADERS(sys/types.h stdio.h stdlib.h stddef.h stdarg.h malloc.h memory.h string.h strings.h wchar.h inttypes.h stdint.h limits.h ctype.h math.h float.h iconv.h signal.h)
 
 dnl Check for typedefs, structures, etc.
@@ -573,8 +575,6 @@ AC_ARG_ENABLE(assembly,
               , enable_assembly=yes)
 if test x$enable_assembly = xyes; then
     SUMMARY_modules="${SUMMARY_modules} assembly"
-
-    AC_DEFINE(SDL_ASSEMBLY_ROUTINES, 1, [ ])
 
     # Make sure that we don't generate floating point code that would
     # cause illegal instruction exceptions on older processors
