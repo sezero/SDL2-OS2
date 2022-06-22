@@ -472,8 +472,12 @@ ProcessHitTest(struct SDL_WaylandInput *input, uint32_t serial)
         };
 
 #ifdef HAVE_LIBDECOR_H
-        /* ditto for libdecor. */
-        const uint32_t *directions_libdecor = directions;
+        static const uint32_t directions_libdecor[] = {
+            LIBDECOR_RESIZE_EDGE_TOP_LEFT, LIBDECOR_RESIZE_EDGE_TOP,
+            LIBDECOR_RESIZE_EDGE_TOP_RIGHT, LIBDECOR_RESIZE_EDGE_RIGHT,
+            LIBDECOR_RESIZE_EDGE_BOTTOM_RIGHT, LIBDECOR_RESIZE_EDGE_BOTTOM,
+            LIBDECOR_RESIZE_EDGE_BOTTOM_LEFT, LIBDECOR_RESIZE_EDGE_LEFT
+        };
 #endif
 
         /* Hit tests shouldn't apply to xdg_popups, right? */

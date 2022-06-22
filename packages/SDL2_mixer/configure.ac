@@ -1,15 +1,21 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT
+
+dnl Set various version strings - taken gratefully from the GTk sources
+# See release_checklist.md
+m4_define([MAJOR_VERSION_MACRO], [2])
+m4_define([MINOR_VERSION_MACRO], [5])
+m4_define([MICRO_VERSION_MACRO], [2])
+
+AC_INIT([SDL2_mixer],
+        [MAJOR_VERSION_MACRO.MINOR_VERSION_MACRO.MICRO_VERSION_MACRO],
+        [https://github.com/libsdl-org/SDL_mixer/issues],
+        [SDL2_mixer])
 AC_CONFIG_SRCDIR([src/mixer.c])
 AC_CONFIG_AUX_DIR(build-scripts)
 
-dnl Set various version strings - taken gratefully from the GTk sources
-
-# See release_checklist.md
-MAJOR_VERSION=2
-MINOR_VERSION=5
-MICRO_VERSION=1
-VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION
+AC_SUBST([MAJOR_VERSION], MAJOR_VERSION_MACRO)
+AC_SUBST([MINOR_VERSION], MINOR_VERSION_MACRO)
+AC_SUBST([MICRO_VERSION], MICRO_VERSION_MACRO)
 
 BINARY_AGE=`expr $MINOR_VERSION \* 100 + $MICRO_VERSION`
 AS_CASE(["$MINOR_VERSION"],
@@ -43,8 +49,8 @@ LT_MAJOR=0
 LT_REVISION=$INTERFACE_AGE
 LT_AGE=`expr $BINARY_AGE - $INTERFACE_AGE`
 LT_CURRENT=`expr $LT_MAJOR + $LT_AGE`
+LT_EXTRA=""
 
-LT_EXTRA="" dnl for OS2 dll name
 m4_pattern_allow([^LT_])
 
 AC_SUBST(LT_RELEASE)
@@ -105,6 +111,7 @@ BUILD_CFLAGS="$CFLAGS $CPPFLAGS -I$srcdir/include -I$srcdir/src -I$srcdir/src/co
 EXTRA_CFLAGS="$INCLUDE $BASE_CFLAGS"
 BUILD_LDFLAGS="$LDFLAGS"
 EXTRA_LDFLAGS="$BASE_LDFLAGS"
+MIXER_LIBS=
 ## These are common directories to find software packages
 #for path in /usr/freeware /usr/pkg /usr/local; do
 #    if test -d $path/include; then
@@ -117,9 +124,6 @@ EXTRA_LDFLAGS="$BASE_LDFLAGS"
 CPPFLAGS="$CPPFLAGS $EXTRA_CFLAGS"
 CFLAGS="$CFLAGS $EXTRA_CFLAGS"
 LDFLAGS="$LDFLAGS $EXTRA_LDFLAGS"
-
-dnl Check for compiler characteristics
-AC_C_CONST
 
 dnl See whether we can use gcc style dependency tracking
 AC_ARG_ENABLE(dependency-tracking,
@@ -276,7 +280,6 @@ AM_PATH_SDL2($SDL_VERSION,
             AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
 )
 EXTRA_CFLAGS="$EXTRA_CFLAGS $SDL_CFLAGS"
-EXTRA_LDFLAGS="$EXTRA_LDFLAGS $SDL_LIBS"
 
 dnl check for GCC warning options
 CheckWarnAll
@@ -292,6 +295,7 @@ AC_CHECK_FUNCS(setbuf, [EXTRA_CFLAGS="$EXTRA_CFLAGS -DHAVE_SETBUF"])
 
 dnl Check command-line options
 
+SDL2MIXER_CMD=0
 AC_ARG_ENABLE([music-cmd],
 [AS_HELP_STRING([--enable-music-cmd], [support an external music player [default=yes]])],
               [], [enable_music_cmd=detect])
@@ -308,20 +312,24 @@ if test "x$enable_music_cmd" != xno; then
     fi
     if test "x$enable_music_cmd" != xno; then
         EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_CMD"
+        SDL2MIXER_CMD=1
     fi
 fi
 
+SDL2MIXER_WAVE=0
 AC_ARG_ENABLE([music-wave],
 [AS_HELP_STRING([--enable-music-wave], [enable streaming WAVE music [default=yes]])],
               [], [enable_music_wave=yes])
 if test x$enable_music_wave = xyes; then
     EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_WAV"
+    SDL2MIXER_WAVE=1
 fi
 
 AC_ARG_ENABLE([music-mod],
 [AS_HELP_STRING([--enable-music-mod], [enable MOD music [default=yes]])],
               [], [enable_music_mod=yes])
 
+SDL2MIXER_MOD_MODPLUG=0
 AC_ARG_ENABLE([music-mod-modplug],
 [AS_HELP_STRING([--enable-music-mod-modplug], [enable MOD music via modplug [default=yes]])],
               [], [enable_music_mod_modplug=yes])
@@ -359,18 +367,21 @@ if test x$enable_music_mod = xyes -a x$enable_music_mod_modplug = xyes; then
             echo "-- dynamic libmodplug -> $modplug_lib"
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DMODPLUG_DYNAMIC=\\\"$modplug_lib\\\""
         else
-            EXTRA_LDFLAGS="$EXTRA_LDFLAGS $MODPLUG_LIBS"
+            MIXER_LIBS="$MIXER_LIBS $MODPLUG_LIBS"
             if test x$have_libmodplug_pc = xyes; then
                 PC_REQUIRES="$PC_REQUIRES libmodplug"
             else
                 PC_LIBS="$PC_LIBS $MODPLUG_LIBS"
             fi
         fi
+        SDL2MIXER_MOD_MODPLUG=1
     else
         AC_MSG_WARN([*** Unable to find ModPlug library (http://modplug-xmms.sourceforge.net/)])
     fi
 fi
 
+SDL2MIXER_MOD_XMP=0
+SDL2MIXER_MOD_XMP_LITE=0
 AC_ARG_ENABLE([music-mod-xmp],
 [AS_HELP_STRING([--enable-music-mod-xmp], [enable MOD music via libxmp [default=no]])],
               [], [enable_music_mod_xmp=no])
@@ -415,12 +426,16 @@ if test x$enable_music_mod = xyes -a x$enable_music_mod_xmp = xyes; then
             echo "-- dynamic libxmp -> $xmp_lib"
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DXMP_DYNAMIC=\\\"$xmp_lib\\\""
         else
-            EXTRA_LDFLAGS="$EXTRA_LDFLAGS $XMP_LIBS"
+            MIXER_LIBS="$MIXER_LIBS $XMP_LIBS"
             if test x$have_libxmp_pc = xyes; then
                 PC_REQUIRES="$PC_REQUIRES lib$xmplib"
             else
                 PC_LIBS="$PC_LIBS $XMP_LIBS"
             fi
+        fi
+        SDL2MIXER_MOD_XMP=1
+        if test x$enable_music_mod_xmp_lite = xyes; then
+            SDL2MIXER_MOD_XMP_LITE=1
         fi
     else
         AC_MSG_WARN([*** Unable to find xmp library (http://xmp.sourceforge.net/)])
@@ -431,6 +446,9 @@ if test x$have_libmodplug != xyes -a x$have_libxmp != xyes; then
     AC_MSG_WARN([MOD support disabled])
 fi
 
+SDL2MIXER_MIDI_FLUIDSYNTH=0
+SDL2MIXER_MIDI_NATIVE=0
+SDL2MIXER_MIDI_TIMIDITY=0
 AC_ARG_ENABLE([music-midi],
 [AS_HELP_STRING([--enable-music-midi], [enable MIDI music [default=yes]])],
               [], [enable_music_midi=yes])
@@ -448,6 +466,7 @@ if test x$enable_music_midi = xyes; then
         if test x$timidity_cfg != xyes -a x$timidity_cfg != xno; then
                 EXTRA_CFLAGS="$EXTRA_CFLAGS -DTIMIDITY_CFG=\\\"$timidity_cfg\\\""
         fi
+        SDL2MIXER_MIDI_TIMIDITY=1
     fi
     AC_ARG_ENABLE([music-midi-native],
 [AS_HELP_STRING([--enable-music-midi-native], [enable native MIDI music output [default=yes]])],
@@ -457,27 +476,29 @@ if test x$enable_music_midi = xyes; then
         case "$host" in
             *-*-cygwin* | *-*-mingw*)
                 use_music_midi_native=yes
-                EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lwinmm"
+                MIXER_LIBS="$MIXER_LIBS -lwinmm"
                 PC_LIBS="$PC_LIBS -lwinmm"
                 ;;
             *-*-darwin*)
                 use_music_midi_native=yes
-                EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit -Wl,-framework,CoreServices"
+                MIXER_LIBS="$MIXER_LIBS -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit -Wl,-framework,CoreServices"
                 PC_LIBS="$PC_LIBS -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit -Wl,-framework,CoreServices"
                 ;;
             *-*-haiku*)
                 use_music_midi_native=yes_cpp
-                EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lmidi"
+                MIXER_LIBS="$MIXER_LIBS -lmidi"
                 PC_LIBS="$PC_LIBS -lmidi"
                 ;;
         esac
         if test x$use_music_midi_native = xyes; then
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_MID_NATIVE -I\$(srcdir)/src/codecs/native_midi"
             SOURCES="$SOURCES $srcdir/src/codecs/native_midi/*.c"
+            SDL2MIXER_MIDI_NATIVE=1
         elif test x$use_music_midi_native = xyes_cpp; then
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_MID_NATIVE -I\$(srcdir)/src/codecs/native_midi"
             SOURCES="$SOURCES $srcdir/src/codecs/native_midi/*.c"
             SOURCES_CXX="$SOURCES_CXX $srcdir/src/codecs/native_midi/*.cpp"
+            SDL2MIXER_MIDI_NATIVE=1
         fi
     fi
     AC_ARG_ENABLE([music-midi-fluidsynth],
@@ -519,13 +540,14 @@ if test x$enable_music_midi = xyes; then
                 echo "-- dynamic libfluidsynth -> $fluidsynth_lib"
                 EXTRA_CFLAGS="$EXTRA_CFLAGS -DFLUIDSYNTH_DYNAMIC=\\\"$fluidsynth_lib\\\""
             else
-                EXTRA_LDFLAGS="$EXTRA_LDFLAGS $FLUIDSYNTH_LIBS"
+                MIXER_LIBS="$MIXER_LIBS $FLUIDSYNTH_LIBS"
                 if test x$have_fluidsynth_pc = xyes; then
                     PC_REQUIRES="$PC_REQUIRES fluidsynth"
                 else
                     PC_LIBS="$PC_LIBS $FLUIDSYNTH_LIBS"
                 fi
             fi
+            SDL2MIXER_MIDI_FLUIDSYNTH=1
         else
             AC_MSG_WARN([*** Unable to find FluidSynth library (http://www.fluidsynth.org/)])
             AC_MSG_WARN([FluidSynth support disabled])
@@ -543,14 +565,17 @@ AC_ARG_ENABLE([music-ogg],
 [AS_HELP_STRING([--enable-music-ogg], [enable Ogg Vorbis music [default=yes]])],
               [], [enable_music_ogg=yes])
 
+SDL2MIXER_VORBIS_STB=0
 AC_ARG_ENABLE(music-ogg-stb,
 [AS_HELP_STRING([--enable-music-ogg-stb], [enable OGG Vorbis music via stb_vorbis [default=yes]])],
               [], enable_music_ogg_stb=yes)
 if test x$enable_music_ogg = xyes -a x$enable_music_ogg_stb = xyes; then
     have_stb_vorbis=yes
     EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_OGG -DOGG_USE_STB"
+    SDL2MIXER_VORBIS_STB=1
 fi
 
+SDL2MIXER_VORBIS_VORBISFILE=0
 AC_ARG_ENABLE(music-ogg-vorbis,
 [AS_HELP_STRING([--enable-music-ogg-vorbis], [enable OGG Vorbis music via libvorbis [default=no]])],
               [], enable_music_ogg_vorbis=no)
@@ -590,18 +615,20 @@ if test x$enable_music_ogg = xyes -a x$enable_music_ogg_vorbis = xyes; then
             echo "-- dynamic libvorbisfile -> $ogg_lib"
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DOGG_DYNAMIC=\\\"$ogg_lib\\\""
         else
-            EXTRA_LDFLAGS="$EXTRA_LDFLAGS $VORBIS_LIBS"
+            MIXER_LIBS="$MIXER_LIBS $VORBIS_LIBS"
             if test x$have_ogg_pc = xyes; then
                 PC_REQUIRES="$PC_REQUIRES vorbisfile"
             else
                 PC_LIBS="$PC_LIBS $VORBIS_LIBS"
             fi
         fi
+        SDL2MIXER_VORBIS_VORBISFILE=1
     else
         AC_MSG_WARN([*** Unable to find Ogg Vorbis library (http://www.xiph.org/)])
     fi
 fi
 
+SDL2MIXER_VORBIS_TREMOR=0
 AC_ARG_ENABLE(music-ogg-tremor,
 [AS_HELP_STRING([--enable-music-ogg-tremor], [enable OGG Vorbis music via Tremor [default=no]])],
               [], enable_music_ogg_tremor=no)
@@ -644,13 +671,14 @@ if test x$enable_music_ogg = xyes -a x$enable_music_ogg_tremor = xyes; then
             echo "-- dynamic libvorbisidec -> $ogg_lib"
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DOGG_DYNAMIC=\\\"$ogg_lib\\\""
         else
-            EXTRA_LDFLAGS="$EXTRA_LDFLAGS $TREMOR_LIBS"
+            MIXER_LIBS="$MIXER_LIBS $TREMOR_LIBS"
             if test x$have_tremor_pc = xyes; then
                 PC_REQUIRES="$PC_REQUIRES vorbisidec"
             else
                 PC_LIBS="$PC_LIBS $TREMOR_LIBS"
             fi
         fi
+        SDL2MIXER_VORBIS_TREMOR=1
     else
         AC_MSG_WARN([*** Unable to find Ogg Vorbis Tremor library (http://www.xiph.org/)])
     fi
@@ -661,6 +689,7 @@ if test x$enable_music_ogg = xyes -a \
     AC_MSG_WARN([Ogg Vorbis support disabled])
 fi
 
+SDL2MIXER_FLAC_DRFLAC=0
 AC_ARG_ENABLE([music-flac],
 [AS_HELP_STRING([--enable-music-flac], [enable FLAC music [default=yes]])],
               [], [enable_music_flac=yes])
@@ -671,8 +700,10 @@ AC_ARG_ENABLE(music-flac-drflac,
 if test x$enable_music_flac = xyes -a x$enable_music_flac_drflac = xyes; then
     have_drflac=yes
     EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_FLAC_DRFLAC"
+    SDL2MIXER_FLAC_DRFLAC=1
 fi
 
+SDL2MIXER_FLAC_LIBFLAC=0
 AC_ARG_ENABLE(music-flac-libflac,
 [AS_HELP_STRING([--enable-music-flac-libflac], [enable FLAC music via libFLAC [default=no]])],
                   [], [enable_music_flac_libflac=no])
@@ -727,13 +758,14 @@ if test x$enable_music_flac = xyes -a x$enable_music_flac_libflac = xyes; then
             echo "-- dynamic libFLAC -> $flac_lib"
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DFLAC_DYNAMIC=\\\"$flac_lib\\\""
         else
-            EXTRA_LDFLAGS="$EXTRA_LDFLAGS $FLAC_LIBS"
+            MIXER_LIBS="$MIXER_LIBS $FLAC_LIBS"
             if test x$have_flac_pc = xyes; then
                 PC_REQUIRES="$PC_REQUIRES flac"
             else
                 PC_LIBS="$PC_LIBS $FLAC_LIBS"
             fi
         fi
+        SDL2MIXER_FLAC_LIBFLAC=1
     else
         AC_MSG_WARN([*** Unable to find FLAC library (https://xiph.org/flac/)])
     fi
@@ -748,14 +780,17 @@ AC_ARG_ENABLE(music-mp3,
 [AS_HELP_STRING([--enable-music-mp3], [enable MP3 music [default=yes]])],
               [], enable_music_mp3=yes)
 
+SDL2MIXER_MP3_DRMP3=0
 AC_ARG_ENABLE(music-mp3-drmp3,
 [AS_HELP_STRING([--enable-music-mp3-drmp3], [enable MP3 music via dr_mp3 [default=yes]])],
               [], [enable_music_mp3_drmp3=yes])
 if test x$enable_music_mp3 = xyes -a x$enable_music_mp3_drmp3 = xyes; then
     have_drmp3=yes
     EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_MP3_DRMP3"
+    SDL2MIXER_MP3_DRMP3=1
 fi
 
+SDL2MIXER_MP3_MPG123=0
 AC_ARG_ENABLE(music-mp3-mpg123,
 [AS_HELP_STRING([--enable-music-mp3-mpg123], [enable MP3 music via mpg123 [default=no]])],
                   [], [enable_music_mp3_mpg123=no])
@@ -789,13 +824,14 @@ if test x$enable_music_mp3 = xyes -a x$enable_music_mp3_mpg123 = xyes; then
             echo "-- dynamic libmpg123 -> $mpg123_lib"
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DMPG123_DYNAMIC=\\\"$mpg123_lib\\\""
         else
-            EXTRA_LDFLAGS="$EXTRA_LDFLAGS $MPG123_LIBS"
+            MIXER_LIBS="$MIXER_LIBS $MPG123_LIBS"
             if test x$have_mpg123_pc = xyes; then
                 PC_REQUIRES="$PC_REQUIRES libmpg123"
             else
                 PC_LIBS="$PC_LIBS $MPG123_LIBS"
             fi
         fi
+        SDL2MIXER_MP3_MPG123=1
     else
         AC_MSG_WARN([*** Unable to find mpg123 library (https://www.mpg123.de)])
     fi
@@ -805,6 +841,7 @@ if test x$enable_music_mp3 = xyes -a x$have_drmp3 != xyes -a x$have_libmpg123 !=
     AC_MSG_WARN([MP3 support disabled])
 fi
 
+SDL2MIXER_OPUS=0
 AC_ARG_ENABLE([music-opus],
 [AS_HELP_STRING([--enable-music-opus], [enable Opus music [default=yes]])],
               [], [enable_music_opus=yes])
@@ -844,13 +881,14 @@ if test x$enable_music_opus = xyes; then
             echo "-- dynamic opusfile -> $opusfile_lib"
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DOPUS_DYNAMIC=\\\"$opusfile_lib\\\""
         else
-            EXTRA_LDFLAGS="$EXTRA_LDFLAGS $OPUSFILE_LIBS"
+            MIXER_LIBS="$MIXER_LIBS $OPUSFILE_LIBS"
             if test x$have_opusfile_pc = xyes; then
                 PC_REQUIRES="$PC_REQUIRES opusfile"
             else
                 PC_LIBS="$PC_LIBS $OPUSFILE_LIBS"
             fi
         fi
+        SDL2MIXER_OPUS=1
     else
         AC_MSG_WARN([*** Unable to find opusfile library (http://opus-codec.org/)])
         AC_MSG_WARN([Opus support disabled])
@@ -860,7 +898,7 @@ fi
 dnl check for LD --no-undefined option
 CheckNoUndef
 
-EXTRA_LDFLAGS="$EXTRA_LDFLAGS $LIBM"
+MIXER_LIBS="$MIXER_LIBS $LIBM"
 
 OBJECTS=`echo $SOURCES`
 DEPENDS=`echo $SOURCES`
@@ -905,6 +943,12 @@ $(objects)/\2.lo: \1/\2.c \$(objects)/.created\\
 	\$(LIBTOOL) --mode=compile \$(CC) \$(CFLAGS) \$(EXTRA_CFLAGS) '"$DEPENDENCY_TRACKING_OPTIONS"' -c \$< -o \$@,g'`
 PLAYMUS_DEPENDS=`echo "$PLAYMUS_DEPENDS" | sed 's,\\$,\\\\$,g'`
 
+dnl Calculate the location of the prefix, relative to the cmake folder
+eval pkg_prefix=$prefix
+eval pkg_cmakedir=$libdir/cmake/SDL2_mixer
+cmake_prefix_relpath="$(echo -n "$pkg_cmakedir" | sed -E "s#^$pkg_prefix##" | sed -E "s#[A-Za-z0-9_ .-]+#..#g")"
+AC_SUBST([cmake_prefix_relpath])
+
 dnl Expand the sources and objects needed to build the library
 AC_SUBST(ac_aux_dir)
 AC_SUBST(OBJECTS)
@@ -915,6 +959,7 @@ AC_SUBST(BUILD_CFLAGS)
 AC_SUBST(EXTRA_CFLAGS)
 AC_SUBST(BUILD_LDFLAGS)
 AC_SUBST(EXTRA_LDFLAGS)
+AC_SUBST(MIXER_LIBS)
 AC_SUBST(EXE)
 AC_SUBST(SDL_VERSION)
 AC_SUBST(SDL_CFLAGS)
@@ -922,8 +967,29 @@ AC_SUBST(SDL_LIBS)
 AC_SUBST(PC_REQUIRES)
 AC_SUBST(PC_LIBS)
 
+AC_SUBST(SDL2MIXER_CMD)
+AC_SUBST(SDL2MIXER_FLAC_DRFLAC)
+AC_SUBST(SDL2MIXER_FLAC_LIBFLAC)
+AC_SUBST(SDL2MIXER_MOD_MODPLUG)
+AC_SUBST(SDL2MIXER_MOD_XMP)
+AC_SUBST(SDL2MIXER_MOD_XMP_LITE)
+AC_SUBST(SDL2MIXER_MP3_DRMP3)
+AC_SUBST(SDL2MIXER_MP3_MPG123)
+AC_SUBST(SDL2MIXER_MIDI_FLUIDSYNTH)
+AC_SUBST(SDL2MIXER_MIDI_NATIVE)
+AC_SUBST(SDL2MIXER_MIDI_TIMIDITY)
+AC_SUBST(SDL2MIXER_OPUS)
+AC_SUBST(SDL2MIXER_VORBIS_STB)
+AC_SUBST(SDL2MIXER_VORBIS_TREMOR)
+AC_SUBST(SDL2MIXER_VORBIS_VORBISFILE)
+AC_SUBST(SDL2MIXER_WAVE)
+
 AC_CONFIG_FILES([
-    Makefile SDL2_mixer.spec SDL2_mixer.pc
+Makefile
+SDL2_mixer.spec
+SDL2_mixer.pc
+sdl2_mixer-config.cmake
+sdl2_mixer-config-version.cmake
 ])
 AC_CONFIG_COMMANDS([default],
                    [cat >>Makefile <<__EOF__

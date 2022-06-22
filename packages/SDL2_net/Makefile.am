@@ -15,7 +15,7 @@ libSDL2_net_la_SOURCES =		\
 	SDLnetselect.c		\
 	SDLnetsys.h
 
-EXTRA_DIST = CHANGES.txt COPYING.txt README.txt \
+EXTRA_DIST = CHANGES.txt LICENSE.txt README.txt \
 	Android.mk		\
 	debian			\
 	version.rc		\
@@ -23,12 +23,12 @@ EXTRA_DIST = CHANGES.txt COPYING.txt README.txt \
 	VisualC			\
 	Xcode			\
 	Xcode-iOS		\
-	quit.bmp		\
-	scroll_dn.bmp		\
-	scroll_up.bmp		\
 	SDL2_net.spec		\
 	SDL2_net.spec.in	\
-	autogen.sh
+	autogen.sh	\
+	CMakeLists.txt	\
+	cmake	\
+	SDL2_netConfig.cmake.in
 
 libSDL2_net_la_LDFLAGS = 	\
 	-no-undefined		\
@@ -42,17 +42,15 @@ endif
 .rc.o:
 	$(RC) $< $@
 
-if HAVE_GUI_LIB
+if ENABLE_EXAMPLES
 EXAMPLES = showinterfaces chat chatd
-else
-EXAMPLES = showinterfaces
-endif
 noinst_PROGRAMS = $(EXAMPLES)
+endif
 
 showinterfaces_SOURCES = showinterfaces.c
 showinterfaces_LDADD = libSDL2_net.la
-chat_SOURCES = chat.cpp chat.h
-chat_LDADD = libSDL2_net.la -lGUI
+chat_SOURCES = chat.c chat.h
+chat_LDADD = libSDL2_net.la -lSDL2_test
 chatd_SOURCES = chatd.c
 chatd_LDADD = libSDL2_net.la
 
@@ -65,3 +63,13 @@ rpm: $(PACKAGE)-$(VERSION).tar.gz
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = SDL2_net.pc
+
+install-data-local:
+	$(MKDIR_P) $(DESTDIR)$(libdir)/cmake/SDL2_net
+	$(INSTALL) -m 644 sdl2_net-config.cmake $(DESTDIR)$(libdir)/cmake/SDL2_net
+	$(INSTALL) -m 644 sdl2_net-config-version.cmake $(DESTDIR)$(libdir)/cmake/SDL2_net
+
+uninstall-hook:
+	rm $(DESTDIR)$(libdir)/cmake/SDL2_net/sdl2_net-config.cmake
+	rm $(DESTDIR)$(libdir)/cmake/SDL2_net/sdl2_net-config-version.cmake
+	rm -r $(DESTDIR)$(libdir)/cmake/SDL2_net

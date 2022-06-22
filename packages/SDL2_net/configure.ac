@@ -1,15 +1,21 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT
+
+dnl Set various version strings - taken gratefully from the GTk sources
+# See release_checklist.md
+m4_define([MAJOR_VERSION_MACRO], [2])
+m4_define([MINOR_VERSION_MACRO], [1])
+m4_define([MICRO_VERSION_MACRO], [0])
+
+AC_INIT([SDL2_net],
+        [MAJOR_VERSION_MACRO.MINOR_VERSION_MACRO.MICRO_VERSION_MACRO],
+        [https://github.com/libsdl-org/SDL_net/issues],
+        [SDL2_net])
 AC_CONFIG_MACRO_DIR([acinclude])
 AC_CONFIG_SRCDIR([SDLnet.c])
 
-dnl Set various version strings - taken gratefully from the GTk sources
-
-# See release_checklist.md
-MAJOR_VERSION=2
-MINOR_VERSION=1
-MICRO_VERSION=0
-VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION
+AC_SUBST([MAJOR_VERSION], MAJOR_VERSION_MACRO)
+AC_SUBST([MINOR_VERSION], MINOR_VERSION_MACRO)
+AC_SUBST([MICRO_VERSION], MICRO_VERSION_MACRO)
 
 BINARY_AGE=`expr $MINOR_VERSION \* 100 + $MICRO_VERSION`
 AS_CASE(["$MINOR_VERSION"],
@@ -43,9 +49,8 @@ LT_MAJOR=0
 LT_REVISION=$INTERFACE_AGE
 LT_AGE=`expr $BINARY_AGE - $INTERFACE_AGE`
 LT_CURRENT=`expr $LT_MAJOR + $LT_AGE`
-LT_EXTRA="" dnl for OS2 dll name
+LT_EXTRA=""
 m4_pattern_allow([^LT_MAJOR$])
-
 
 dnl For use in static assertions
 AC_DEFINE_UNQUOTED([SDL_BUILD_MAJOR_VERSION], $MAJOR_VERSION, [ ])
@@ -62,11 +67,10 @@ dnl Detect the canonical build and host environments
 AC_CANONICAL_HOST
 
 dnl Setup for automake
-AM_INIT_AUTOMAKE(SDL2_net, $VERSION)
+AM_INIT_AUTOMAKE([foreign subdir-objects tar-ustar])
 
 dnl Check for tools
 AC_PROG_CC
-AC_PROG_CXX
 AC_CHECK_TOOL(RC,[windres],[:])
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
@@ -180,8 +184,13 @@ CheckVisibilityHidden()
     fi
 }
 
+AC_ARG_ENABLE([examples],
+  AS_HELP_STRING([--disable-examples], [Do not build example programs]),,
+    enable_examples=yes)
+AM_CONDITIONAL(ENABLE_EXAMPLES, [test x$enable_examples = xyes])
+
 dnl Check for SDL
-SDL_VERSION=2.0.0
+SDL_VERSION=2.0.4
 AC_SUBST(SDL_VERSION)
 AM_PATH_SDL2($SDL_VERSION,
             :,
@@ -190,32 +199,17 @@ AM_PATH_SDL2($SDL_VERSION,
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
-dnl Check for GUI library for the chat client
-have_GUI=no
-AC_ARG_ENABLE(gui,
-[AS_HELP_STRING([--enable-gui],[Try to build the GUI test programs [default=yes]])],
-              , enable_gui=yes)
-if test x$enable_gui = xyes; then
-    AC_LANG_PUSH(C++)
-    AC_CHECK_LIB(GUI, GUI_Create, have_GUI=yes)
-    AC_LANG_POP(C++)
-    if test x$have_GUI != xyes; then
-        AC_MSG_WARN([*** Can't find the GUI library - not building test programs
-The GUI library can be found at:
-http://www.libsdl.org/projects/GUIlib/
-])
-    fi
-fi
-AM_CONDITIONAL(HAVE_GUI_LIB, test x$have_GUI = xyes)
+dnl Calculate the location of the prefix, relative to the cmake folder
+eval pkg_prefix=$prefix
+eval pkg_cmakedir=$libdir/cmake/SDL2_net
+cmake_prefix_relpath="$(echo -n "$pkg_cmakedir" | sed -E "s#^$pkg_prefix##" | sed -E "s#[A-Za-z0-9_ .-]+#..#g")"
+AC_SUBST([cmake_prefix_relpath])
 
 dnl check for GCC warning options
 CheckWarnAll
 
 dnl check for GCC visibility attributes
 CheckVisibilityHidden
-
-dnl C++ flags are the same as the C flags
-CXXFLAGS="$CXXFLAGS $CFLAGS"
 
 if test x$enable_shared = xyes; then
     ENABLE_SHARED_TRUE=
@@ -236,9 +230,12 @@ AC_SUBST(ENABLE_SHARED_FALSE)
 AC_SUBST(ENABLE_STATIC_TRUE)
 AC_SUBST(ENABLE_STATIC_FALSE)
 
-
 # Finally create all the generated files
 AC_CONFIG_FILES([
-Makefile SDL2_net.spec SDL2_net.pc
+Makefile
+sdl2_net-config.cmake
+sdl2_net-config-version.cmake
+SDL2_net.spec
+SDL2_net.pc
 ])
 AC_OUTPUT

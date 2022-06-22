@@ -140,12 +140,26 @@ pkgconfig_DATA = SDL2_ttf.pc
 .rc.o:
 	$(RC) $< $@
 
-EXTRA_DIST = CHANGES.txt LICENSE.txt README.txt \
-	Android.mk CMakeLists.txt Makefile.os2 version.rc	\
-	VisualC VisualC-WinRT Xcode external	\
-	SDL2_ttf.spec SDL2_ttf.spec.in		\
-	SDL2_ttfConfig.cmake.in		\
-	autogen.sh
+EXTRA_DIST = 			\
+	Android.mk 		\
+	CHANGES.txt 		\
+	CMakeLists.txt 		\
+	LICENSE.txt 		\
+	Makefile.os2 		\
+	README.txt 		\
+	SDL2_ttf.pc.in		\
+	SDL2_ttf.spec.in	\
+	SDL2_ttfConfig.cmake.in	\
+	VisualC 		\
+	VisualC-WinRT 		\
+	Xcode 			\
+	autogen.sh		\
+	cmake			\
+	external		\
+	mingw			\
+	sdl2_ttf-config-version.cmake.in \
+	sdl2_ttf-config.cmake.in \
+	version.rc
 
 noinst_PROGRAMS = showfont glfont
 
@@ -167,3 +181,13 @@ dist-hook:
 	-rm -rf `find $(distdir)/external -name '.ci*'`
 	-rm -rf `find $(distdir)/external -name .dirstamp`
 	-rm -rf $(distdir)/external/harfbuzz/test
+
+install-data-local:
+	$(MKDIR_P) $(DESTDIR)$(libdir)/cmake/SDL2_ttf
+	$(INSTALL) -m 644 sdl2_ttf-config.cmake $(DESTDIR)$(libdir)/cmake/SDL2_ttf
+	$(INSTALL) -m 644 sdl2_ttf-config-version.cmake $(DESTDIR)$(libdir)/cmake/SDL2_ttf
+
+uninstall-hook:
+	rm $(DESTDIR)$(libdir)/cmake/SDL2_ttf/sdl2_ttf-config.cmake
+	rm $(DESTDIR)$(libdir)/cmake/SDL2_ttf/sdl2_ttf-config-version.cmake
+	rm -r $(DESTDIR)$(libdir)/cmake/SDL2_ttf

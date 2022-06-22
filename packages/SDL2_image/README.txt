@@ -1,8 +1,8 @@
 
 SDL_image 2.0
 
-The latest version of this library is available from:
-http://www.libsdl.org/projects/SDL_image/
+The latest version of this library is available from GitHub:
+https://github.com/libsdl-org/SDL_image/releases
 
 This is a simple library to load images of various formats as SDL surfaces.
 It can load BMP, GIF, JPEG, LBM, PCX, PNG, PNM (PPM/PGM/PBM), QOI, TGA, XCF, XPM, and simple SVG format images. It can also load AVIF, JPEG-XL, TIFF, and WebP images, depending on build options (see the note below for details.)
@@ -24,6 +24,8 @@ To create a surface from an XPM image included in C source, use:
 	SDL_Surface *IMG_ReadXPMFromArray(char **xpm);
 
 An example program 'showimage' is included, with source in showimage.c
+
+Documentation is also available online at https://wiki.libsdl.org/SDL_image
 
 This library is under the zlib License, see the file "LICENSE.txt" for details.
 

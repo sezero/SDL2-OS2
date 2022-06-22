@@ -1,2 +1,2 @@
-#define SDL_REVISION "@117abecca5f845ea2e634f16fd24dd278939bbe0"
+#define SDL_REVISION "@56b8d8a9dd4ac5d701fcaf90a6220b82727c19eb"
 #define SDL_REVISION_NUMBER 0
