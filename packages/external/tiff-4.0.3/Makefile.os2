@@ -1,8 +1,6 @@
 LIBNAME = libtiff
 VERSION = 4.0.3
 
-TITLENAME = $(LIBNAME) $(VERSION)
-
 LIBFILE = $(LIBNAME).lib
 
 SRCS = tif_aux.c tif_close.c tif_codec.c tif_color.c tif_compress.c tif_dir.c &
@@ -16,7 +14,8 @@ SRCS = tif_aux.c tif_close.c tif_codec.c tif_color.c tif_compress.c tif_dir.c &
 
 OBJS = $(SRCS:.c=.obj)
 
-CFLAGS = -bt=os2 -ei -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier
+CFLAGS = -bt=os2 -ei -d0 -q -bm -5s -fp5 -fpi87 -sg -oeatxh
+CFLAGS+= -DNDEBUG
 CFLAGS+= -I"../zlib-1.2.8"
 
 .c: libtiff
@@ -32,7 +31,6 @@ tif_read.obj: tif_read.c
   wcc386 $(CFLAGS) -fo=$^@ $<
 
 clean: .SYMBOLIC
-  @echo * Clean: $(TITLENAME)
   @if exist *.obj rm *.obj
   @if exist *.err rm *.err
   @if exist $(LIBFILE) rm $(LIBFILE)

@@ -20,10 +20,12 @@ TIMISRCS = common.c instrum.c mix.c output.c playmidi.c readmidi.c &
 OBJS = $(SRCS:.c=.obj)
 TIMIOBJS = $(TIMISRCS:.c=.obj)
 
-CFLAGS_BASE = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei -j
+CFLAGS_BASE = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oeatxh -ei -j
 CFLAGS_BASE+= -DNDEBUG
 # warnings:
 CFLAGS_BASE+= -wx
+# newer OpenWatcom versions enable W303 by default
+CFLAGS_BASE+= -wcd=303
 # include paths:
 CFLAGS_BASE+= -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h -I. -I"$(INCPATH)" -I"$(INCPATH)/SDL2"
 CFLAGS = $(CFLAGS_BASE) -I"decoders/timidity"

@@ -31,15 +31,25 @@
 #define _ULS_CALLCONV_
 #define CALLCONV _System
 #include <uconv.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #ifdef ICONV_THREAD_SAFE
 #define INCL_DOSSEMAPHORES
 #define INCL_DOSERRORS
 #include <os2.h>
 #endif
+
 #include "os2cp.h"
+
+#ifndef GENICONV_STANDALONE
+#include "../../../SDL_internal.h"
+#include "SDL_stdinc.h"
+#else
+#define SDL_malloc malloc
+#define SDL_free free
+#define SDL_snprintf _snprintf
+#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #if !defined(min)
 #define min(a, b) (((a) < (b)) ? (a) : (b))
@@ -62,7 +72,8 @@ static int _createUconvObj(const char *code, UconvObject *uobj)
 {
     UniChar uc_code[MAX_CP_NAME_LEN];
     int i;
-    const char *ch = code;
+    const unsigned char *ch =
+         (const unsigned char *)code;
 
     if (code == NULL)
         uc_code[0] = 0;
@@ -91,27 +102,28 @@ static int uconv_open(const char *code, UconvObject *uobj)
     if (rc != ULS_SUCCESS) {
         unsigned long cp = os2cpFromName((char *)code);
         char cp_name[16];
-
-        if (cp != 0 && _snprintf(cp_name, sizeof(cp_name), "IBM-%u", cp) > 0)
+        if (cp != 0 && SDL_snprintf(cp_name, sizeof(cp_name), "IBM-%u", cp) > 0) {
             rc = _createUconvObj(cp_name, uobj);
+        }
     }
 
     return rc;
 }
 
 
-extern iconv_t _System os2_iconv_open(const char* tocode, const char* fromcode)
+iconv_t _System os2_iconv_open(const char* tocode, const char* fromcode)
 {
     UconvObject uo_tocode;
     UconvObject uo_fromcode;
     int rc;
     iuconv_obj *iuobj;
 
-    if (tocode == NULL)
+    if (tocode == NULL) {
         tocode = "";
-
-    if (fromcode == NULL)
+    }
+    if (fromcode == NULL) {
         fromcode = "";
+    }
 
     if (stricmp(tocode, fromcode) != 0) {
         rc = uconv_open(fromcode, &uo_fromcode);
@@ -119,7 +131,6 @@ extern iconv_t _System os2_iconv_open(const char* tocode, const char* fromcode)
             errno = EINVAL;
             return (iconv_t)(-1);
         }
-
         rc = uconv_open(tocode, &uo_tocode);
         if (rc != ULS_SUCCESS) {
             UniFreeUconvObject(uo_fromcode);
@@ -131,7 +142,7 @@ extern iconv_t _System os2_iconv_open(const char* tocode, const char* fromcode)
         uo_fromcode = NULL;
     }
 
-    iuobj = (iuconv_obj *) malloc(sizeof(iuconv_obj));
+    iuobj = (iuconv_obj *) SDL_malloc(sizeof(iuconv_obj));
     iuobj->uo_tocode = uo_tocode;
     iuobj->uo_fromcode = uo_fromcode;
     iuobj->buf_len = 0;
@@ -143,9 +154,9 @@ extern iconv_t _System os2_iconv_open(const char* tocode, const char* fromcode)
     return iuobj;
 }
 
-extern size_t _System os2_iconv(iconv_t cd, char* * inbuf,
-                                size_t *inbytesleft,
-                                char* * outbuf, size_t *outbytesleft)
+size_t _System os2_iconv(iconv_t cd,
+                         char **inbuf,  size_t *inbytesleft ,
+                         char **outbuf, size_t *outbytesleft)
 {
     UconvObject uo_tocode = ((iuconv_obj *)(cd))->uo_tocode;
     UconvObject uo_fromcode = ((iuconv_obj *)(cd))->uo_fromcode;
@@ -171,12 +182,12 @@ extern size_t _System os2_iconv(iconv_t cd, char* * inbuf,
     DosRequestMutexSem(((iuconv_obj *)(cd))->hMtx, SEM_INDEFINITE_WAIT);
 #endif
 
-    if (uo_tocode && uo_fromcode &&
-        (((iuconv_obj *)cd)->buf_len >> 1) < *inbytesleft) {
-        if (((iuconv_obj *)cd)->buf != NULL)
-            free(((iuconv_obj *)cd)->buf);
+    if (uo_tocode && uo_fromcode && (((iuconv_obj *)cd)->buf_len >> 1) < *inbytesleft) {
+        if (((iuconv_obj *)cd)->buf != NULL) {
+            SDL_free(((iuconv_obj *)cd)->buf);
+        }
         ((iuconv_obj *)cd)->buf_len = *inbytesleft << 1;
-        ((iuconv_obj *)cd)->buf = (UniChar *)malloc(((iuconv_obj *)cd)->buf_len);
+        ((iuconv_obj *)cd)->buf = (UniChar *) SDL_malloc(((iuconv_obj *)cd)->buf_len);
     }
 
     if (uo_fromcode) {
@@ -193,8 +204,9 @@ extern size_t _System os2_iconv(iconv_t cd, char* * inbuf,
         rc = UniUconvToUcs(uo_fromcode, (void **)inbuf, inbytesleft,
                            uc_str, uc_str_len, &nonIdenticalConv);
         uc_buf_len = uc_buf_len << 1;
-        if (!uo_tocode)
+        if (!uo_tocode) {
             *outbytesleft = uc_buf_len;
+        }
 
         if (rc != ULS_SUCCESS) {
             errno = EILSEQ;
@@ -204,8 +216,9 @@ extern size_t _System os2_iconv(iconv_t cd, char* * inbuf,
             goto done;
         }
 
-        if (!uo_tocode)
+        if (!uo_tocode) {
             return nonIdenticalConv;
+        }
 
         uc_buf = ((iuconv_obj *)cd)->buf;
         uc_buf_len = ((iuconv_obj *)cd)->buf_len - uc_buf_len;
@@ -254,15 +267,17 @@ int _System os2_iconv_close(iconv_t cd)
 #ifdef ICONV_THREAD_SAFE
     DosCloseMutexSem(((iuconv_obj *)cd)->hMtx);
 #endif
-    if (((iuconv_obj *)cd)->uo_tocode != NULL)
+    if (((iuconv_obj *)cd)->uo_tocode != NULL) {
         UniFreeUconvObject(((iuconv_obj *)cd)->uo_tocode);
-    if (((iuconv_obj *)cd)->uo_fromcode != NULL)
+    }
+    if (((iuconv_obj *)cd)->uo_fromcode != NULL) {
         UniFreeUconvObject(((iuconv_obj *)cd)->uo_fromcode);
+    }
 
-    if (((iuconv_obj *)cd)->buf != NULL)
-        free(((iuconv_obj *)cd)->buf);
-
-    free(cd);
+    if (((iuconv_obj *)cd)->buf != NULL) {
+        SDL_free(((iuconv_obj *)cd)->buf);
+    }
+    SDL_free(cd);
 
     return 0;
 }

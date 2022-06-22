@@ -33,8 +33,8 @@
 
 #define SDL_POWER_DISABLED  1
 #define SDL_HAPTIC_DISABLED 1
-#define SDL_JOYSTICK_DISABLED 1
-/*#undef SDL_JOYSTICK_OS2 */
+
+#define SDL_JOYSTICK_OS2 1
 
 #define SDL_VIDEO_DRIVER_DUMMY 1
 #define SDL_VIDEO_DRIVER_OS2 1
@@ -58,19 +58,20 @@
 
 #define HAVE_LIBC 1
 
+#define HAVE_STDARG_H 1
+#define HAVE_STDDEF_H 1
+#define HAVE_STDINT_H 1
+
 #define HAVE_SYS_TYPES_H 1
 #define HAVE_STDIO_H 1
 #define STDC_HEADERS 1
 #define HAVE_STDLIB_H 1
-#define HAVE_STDARG_H 1
-#define HAVE_STDDEF_H 1
 #define HAVE_MALLOC_H 1
 #define HAVE_MEMORY_H 1
 #define HAVE_STRING_H 1
 #define HAVE_STRINGS_H 1
 #define HAVE_WCHAR_H 1
 #define HAVE_INTTYPES_H 1
-#define HAVE_STDINT_H 1
 #define HAVE_LIMITS_H 1
 #define HAVE_CTYPE_H 1
 #define HAVE_MATH_H 1
@@ -89,7 +90,10 @@
 #define HAVE_GETENV 1
 #define HAVE_SETENV 1
 #define HAVE_PUTENV 1
+/* OpenWatcom requires specific calling conventions for qsort and bsearch */
+#ifndef __WATCOMC__
 #define HAVE_QSORT 1
+#endif
 #define HAVE_ABS 1
 #define HAVE_BCOPY 1
 #define HAVE_MEMSET 1

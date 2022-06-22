@@ -320,17 +320,16 @@ static VOID _wmChar(WINDATA *pWinData, MPARAM mp1, MPARAM mp2)
     }
 
     if ((ulFlags & KC_CHAR) != 0) {
-        CHAR    acUTF8[4];
-        LONG    lRC = StrUTF8(1, acUTF8, sizeof(acUTF8), (PSZ)&ulCharCode, 1);
-
-        SDL_SendKeyboardText((lRC > 0)? acUTF8 : (PSZ)&ulCharCode);
+        char utf8[4];
+        int rc = StrUTF8(1, utf8, sizeof(utf8), (char *)&ulCharCode, 1);
+        SDL_SendKeyboardText((rc > 0) ? utf8 : (char *) &ulCharCode);
     }
 }
 
 static VOID _wmMove(WINDATA *pWinData)
 {
     SDL_DisplayMode *pSDLDisplayMode = _getDisplayModeForSDLWindow(pWinData->window);
-    POINTL  pointl = { 0 };
+    POINTL  pointl = { 0,0 };
     RECTL   rectl;
 
     WinQueryWindowRect(pWinData->hwnd, &rectl);
@@ -389,7 +388,7 @@ static MRESULT _wmDrop(WINDATA *pWinData, PDRAGINFO pDragInfo)
 {
     ULONG       ulIdx;
     PDRAGITEM   pDragItem;
-    CHAR        acFName[_MAX_PATH];
+    CHAR        acFName[CCHMAXPATH];
     PCHAR       pcFName;
 
     if (!DrgAccessDraginfo(pDragInfo))
@@ -428,7 +427,7 @@ static MRESULT _wmDrop(WINDATA *pWinData, PDRAGINFO pDragInfo)
     return (MRESULT)FALSE;
 }
 
-MRESULT EXPENTRY wndFrameProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
+static MRESULT EXPENTRY wndFrameProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
 {
     HWND    hwndClient = WinQueryWindow(hwnd, QW_BOTTOM);
     WINDATA * pWinData = (WINDATA *)WinQueryWindowULong(hwndClient, 0);
@@ -535,7 +534,7 @@ MRESULT EXPENTRY wndFrameProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
     return pWinData->fnWndFrameProc(hwnd, msg, mp1, mp2);
 }
 
-MRESULT EXPENTRY wndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
+static MRESULT EXPENTRY wndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
 {
     WINDATA *pWinData = (WINDATA *)WinQueryWindowULong(hwnd, 0);
 
@@ -589,7 +588,7 @@ MRESULT EXPENTRY wndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
             WinQueryPointerPos(HWND_DESKTOP, &pointl);
             WinMapWindowPoints(HWND_DESKTOP, pWinData->hwnd, &pointl, 1);
             SDL_SendMouseMotion(pWinData->window, 0, 0,
-                                    pointl.x, pWinData->window->h - pointl.y - 1);
+                                pointl.x, pWinData->window->h - pointl.y - 1);
         } else {
             if (SDL_GetKeyboardFocus() == pWinData->window)
                 SDL_SetKeyboardFocus(NULL);
@@ -691,7 +690,7 @@ MRESULT EXPENTRY wndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
 }
 
 
-/*  SDL routnes.
+/*  SDL routines.
  *  ------------
  */
 
@@ -1214,7 +1213,7 @@ static int OS2_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape,
 {
     SDL_ShapeTree *pShapeTree;
     WINDATA       *pWinData;
-    SHAPERECTS     stShapeRects = { 0 };
+    SHAPERECTS     stShapeRects;
     HPS            hps;
 
     debug_os2("Enter");
@@ -1230,6 +1229,7 @@ static int OS2_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape,
     pShapeTree = SDL_CalculateShapeTree(*shape_mode, shape);
     shaper->driverdata = pShapeTree;
 
+    SDL_zero(stShapeRects);
     stShapeRects.ulWinHeight = shaper->window->h;
     SDL_TraverseShapeTree(pShapeTree, &_combineRectRegions, &stShapeRects);
 
@@ -1343,9 +1343,9 @@ static int OS2_SetClipboardText(_THIS, const char *text)
     debug_os2("Enter");
     if (pszText == NULL)
         return -1;
-    cbText = SDL_strlen(pszText);
+    cbText = SDL_strlen(pszText) + 1;
 
-    ulRC = DosAllocSharedMem((PPVOID)&pszClipboard, 0, cbText + 1,
+    ulRC = DosAllocSharedMem((PPVOID)&pszClipboard, 0, cbText,
                               PAG_COMMIT | PAG_READ | PAG_WRITE |
                               OBJ_GIVEABLE | OBJ_GETTABLE | OBJ_TILE);
     if (ulRC != NO_ERROR) {
@@ -1354,7 +1354,7 @@ static int OS2_SetClipboardText(_THIS, const char *text)
         return -1;
     }
 
-    strcpy(pszClipboard, pszText);
+    memcpy(pszClipboard, pszText, cbText);
     SDL_free(pszText);
 
     if (!WinOpenClipbrd(pVData->hab)) {
@@ -1396,18 +1396,19 @@ static char *OS2_GetClipboardText(_THIS)
 static SDL_bool OS2_HasClipboardText(_THIS)
 {
     SDL_VideoData *pVData = (SDL_VideoData *)_this->driverdata;
-    SDL_bool   fClipboard;
+    PSZ pszClipboard;
+    SDL_bool  result;
 
     if (!WinOpenClipbrd(pVData->hab)) {
         debug_os2("WinOpenClipbrd() failed");
         return SDL_FALSE;
     }
 
-    fClipboard = ((PSZ)WinQueryClipbrdData(pVData->hab, CF_TEXT) != NULL)?
-                   SDL_TRUE : SDL_FALSE;
+    pszClipboard = (PSZ)WinQueryClipbrdData(pVData->hab, CF_TEXT);
+    result = (pszClipboard && *pszClipboard) ? SDL_TRUE : SDL_FALSE;
     WinCloseClipbrd(pVData->hab);
 
-    return fClipboard;
+    return result;
 }
 
 
@@ -1562,8 +1563,14 @@ static int OS2_GetDisplayDPI(_THIS, SDL_VideoDisplay *display, float *ddpi,
 
 static void OS2_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
 {
+    SDL_DisplayMode mode;
+
     debug_os2("Enter");
-    SDL_AddDisplayMode(display, &display->current_mode);
+    SDL_memcpy(&mode, &display->current_mode, sizeof(SDL_DisplayMode));
+    mode.driverdata = (MODEDATA *) SDL_malloc(sizeof(MODEDATA));
+    if (!mode.driverdata) return; /* yikes.. */
+    SDL_memcpy(mode.driverdata, display->current_mode.driverdata, sizeof(MODEDATA));
+    SDL_AddDisplayMode(display, &mode);
 }
 
 static int OS2_SetDisplayMode(_THIS, SDL_VideoDisplay *display,

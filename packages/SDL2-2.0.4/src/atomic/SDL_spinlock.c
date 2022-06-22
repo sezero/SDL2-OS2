@@ -34,7 +34,7 @@
 
 #if defined(__WATCOMC__) && defined(__386__)
 SDL_COMPILE_TIME_ASSERT(locksize, 4==sizeof(SDL_SpinLock));
-extern _inline int _SDL_xchg_watcom(volatile int *a, int v);
+extern __inline int _SDL_xchg_watcom(volatile int *a, int v);
 #pragma aux _SDL_xchg_watcom = \
   "lock xchg [ecx], eax" \
   parm [ecx] [eax] \

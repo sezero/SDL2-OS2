@@ -6,7 +6,7 @@
 # wmake -f Makefile.os2 target=static
 # - builds the static library FLAC_static.lib
 
-OGG_SUPPORT=1
+OGG_SUPPORT=0
 METADATA_SUPPORT=0
 ENCODER_SUPPORT=0
 

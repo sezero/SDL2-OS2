@@ -13,18 +13,18 @@ LNKFILE = $(LIBNAME).lnk
 INCPATH = -I"$(%WATCOM)/h/os2" -I"$(%WATCOM)/h"
 INCPATH+= -I"$(LIBHOME)/h"
 INCPATH+= -Iinclude
-INCPATH+= -I"src/core/os2" -I"src/core/os2/geniconv"
 
-LIBM = libm.lib
-LIBS = mmpm2.lib libuls.lib libconv.lib $(LIBM)
-
-CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
+LIBM = SDL2libm.lib
+LIBS = mmpm2.lib $(LIBM)
+CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oeatxhn -ei
 # max warnings:
 CFLAGS+= -wx
 # newer OpenWatcom versions enable W303 by default
 CFLAGS+= -wcd=303
 # building dll:
 CFLAGS+= -bd
+# iconv:
+LIBS+= libuls.lib libconv.lib
 # the include paths :
 CFLAGS+= $(INCPATH)
 # building SDL itself (for DECLSPEC):
@@ -64,7 +64,8 @@ SRCS+= SDL_os2joystick.c SDL_syshaptic.c SDL_sysjoystick.c
 SRCS+= SDL_dummyaudio.c SDL_diskaudio.c
 SRCS+= SDL_nullvideo.c SDL_nullframebuffer.c SDL_nullevents.c
 
-SRCS+= SDL_os2.c geniconv.c os2cp.c os2iconv.c sys2utf8.c
+SRCS+= SDL_os2.c
+SRCS+= geniconv.c os2cp.c os2iconv.c sys2utf8.c
 SRCS+= SDL_os2audio.c
 SRCS+= SDL_os2video.c SDL_os2util.c SDL_os2dive.c SDL_os2vman.c &
        SDL_os2mouse.c SDL_os2messagebox.c
@@ -79,7 +80,8 @@ MOBJS= $(MSRCS:.c=.obj)
 
 .c: ./src;./src/dynapi;./src/audio;./src/cpuinfo;./src/events;./src/file;./src/haptic;./src/joystick;./src/power;./src/render;./src/render/software;./src/stdlib;./src/thread;./src/timer;./src/video;./src/video/yuv2rgb;./src/atomic;./src/audio/disk;
 .c: ./src/haptic/dummy;./src/joystick/dummy;./src/audio/dummy;./src/video/dummy;
-.c: ./src/core/os2;./src/core/os2/geniconv;./src/audio/os2;./src/loadso/os2;./src/filesystem/os2;./src/joystick/os2;./src/thread/os2;./src/timer/os2;./src/video/os2;
+.c: ./src/core/os2;./src/audio/os2;./src/loadso/os2;./src/filesystem/os2;./src/joystick/os2;./src/thread/os2;./src/timer/os2;./src/video/os2;
+.c: ./src/core/os2/geniconv;
 
 all: $(DLLFILE) $(LIBFILE) .symbolic
 
@@ -99,9 +101,6 @@ SDL_syscond.obj: "src/thread/generic/SDL_syscond.c"
 
 SDL_cpuinfo.obj: SDL_cpuinfo.c
     wcc386 $(CFLAGS) -wcd=200 -fo=$^@ $<
-
-SDL_rwops.obj: SDL_rwops.c
-    wcc386 $(CFLAGS) -wcd=136 -fo=$^@ $<
 
 SDL_blendfillrect.obj: SDL_blendfillrect.c
     wcc386 $(CFLAGS) -wcd=200 -fo=$^@ $<

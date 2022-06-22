@@ -188,9 +188,9 @@ windows_file_read(SDL_RWops * context, void *ptr, size_t size, size_t maxnum)
 
     total_need = size * maxnum;
 
-    if (!context || context->hidden.windowsio.h == INVALID_HANDLE_VALUE
-        || !total_need)
+    if (!context || context->hidden.windowsio.h == INVALID_HANDLE_VALUE || !total_need) {
         return 0;
+    }
 
     if (context->hidden.windowsio.buffer.left > 0) {
         void *data = (char *) context->hidden.windowsio.buffer.data +
@@ -243,9 +243,9 @@ windows_file_write(SDL_RWops * context, const void *ptr, size_t size,
 
     total_bytes = size * num;
 
-    if (!context || context->hidden.windowsio.h == INVALID_HANDLE_VALUE
-        || total_bytes <= 0 || !size)
+    if (!context || context->hidden.windowsio.h == INVALID_HANDLE_VALUE || !size || !total_bytes) {
         return 0;
+    }
 
     if (context->hidden.windowsio.buffer.left) {
         SetFilePointer(context->hidden.windowsio.h,
@@ -416,8 +416,7 @@ mem_read(SDL_RWops * context, void *ptr, size_t size, size_t maxnum)
     size_t mem_available;
 
     total_bytes = (maxnum * size);
-    if ((maxnum <= 0) || (size <= 0)
-        || ((total_bytes / maxnum) != (size_t) size)) {
+    if (!maxnum || !size || ((total_bytes / maxnum) != size)) {
         return 0;
     }
 

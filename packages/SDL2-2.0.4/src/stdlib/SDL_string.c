@@ -40,7 +40,7 @@
 #define UTF8_IsLeadByte(c) ((c) >= 0xC0 && (c) <= 0xF4)
 #define UTF8_IsTrailingByte(c) ((c) >= 0x80 && (c) <= 0xBF)
 
-static int UTF8_TrailingBytes(unsigned char c)
+static unsigned UTF8_TrailingBytes(unsigned char c)
 {
     if (c >= 0xC0 && c <= 0xDF)
         return 1;
@@ -486,7 +486,7 @@ size_t SDL_utf8strlcpy(SDL_OUT_Z_CAP(dst_bytes) char *dst, const char *src, size
     size_t src_bytes = SDL_strlen(src);
     size_t bytes = SDL_min(src_bytes, dst_bytes - 1);
     size_t i = 0;
-    char trailing_bytes = 0;
+    unsigned char trailing_bytes = 0;
     if (bytes)
     {
         unsigned char c = (unsigned char)src[bytes - 1];
@@ -769,7 +769,7 @@ int SDL_atoi(const char *string)
 #ifdef HAVE_ATOI
     return atoi(string);
 #else
-    return SDL_strtol(string, NULL, 0);
+    return SDL_strtol(string, NULL, 10);
 #endif /* HAVE_ATOI */
 }
 

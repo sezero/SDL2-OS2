@@ -209,7 +209,7 @@ SDL_CheckDeviceNotification(SDL_DeviceNotificationData *data)
 #endif /* __WINRT__ */
 
 /* Function/thread to scan the system for joysticks. */
-static int
+static int SDLCALL
 SDL_JoystickThread(void *_data)
 {
     SDL_DeviceNotificationData notification_data;
