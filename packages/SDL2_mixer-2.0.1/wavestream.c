@@ -91,7 +91,7 @@ typedef struct {
     Uint32  SMTPE_offset;
     Uint32  sample_loops;
     Uint32  sampler_data;
-    SampleLoop loops[];
+    SampleLoop loops[1];
 } SamplerChunk;
 
 /*********************************************/
@@ -195,6 +195,7 @@ static int PlaySome(Uint8 *stream, int len)
     pos = SDL_RWtell(music->src);
     stop = music->stop;
     loop = NULL;
+    loop_start = 0; /* silence warnings */
     for (i = 0; i < music->numloops; ++i) {
         loop = &music->loops[i];
         if (loop->active) {
@@ -211,9 +212,12 @@ static int PlaySome(Uint8 *stream, int len)
     }
 
     if (music->cvt.needed) {
-        int original_len;
+        const int bytes_per_sample = (SDL_AUDIO_BITSIZE(music->spec.format) / 8) * music->spec.channels;
+        const int alignment_mask = (bytes_per_sample - 1);
+        int original_len = (int)((double)len/music->cvt.len_ratio);
 
-        original_len = (int)((double)len/music->cvt.len_ratio);
+        /* Make sure the length is a multiple of the sample size */
+        original_len &= ~alignment_mask;
         if (music->cvt.len != original_len) {
             int worksize;
             if (music->cvt.buf != NULL) {
@@ -230,15 +234,6 @@ static int PlaySome(Uint8 *stream, int len)
             original_len = (int)(stop - pos);
         }
         original_len = SDL_RWread(music->src, music->cvt.buf, 1, original_len);
-        /* At least at the time of writing, SDL_ConvertAudio()
-           does byte-order swapping starting at the end of the
-           buffer. Thus, if we are reading 16-bit samples, we
-           had better make damn sure that we get an even
-           number of bytes, or we'll get garbage.
-         */
-        if ((music->cvt.src_format & 0x0010) && (original_len & 1)) {
-            original_len--;
-        }
         music->cvt.len = original_len;
         SDL_ConvertAudio(&music->cvt);
         SDL_MixAudio(stream, music->cvt.buf, music->cvt.len_cvt, wavestream_volume);
@@ -324,7 +319,6 @@ int WAVStream_Active(void)
 
 static SDL_bool ParseFMT(WAVStream *wave, Uint32 chunk_length)
 {
-    SDL_RWops *src = wave->src;
     SDL_AudioSpec *spec = &wave->spec;
     WaveFMT *format;
     Uint8 *data;

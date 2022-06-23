@@ -21,11 +21,12 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 #include <ctype.h>
-#include <assert.h>
 #include "SDL_endian.h"
 #include "SDL_audio.h"
 #include "SDL_timer.h"
+#include "SDL_version.h"
 
 #include "SDL_mixer.h"
 
@@ -46,7 +47,7 @@
 #    include "timidity/timidity.h"
 #  endif
 #  ifdef USE_FLUIDSYNTH_MIDI
-#    include "fluidsynth.h"
+#    include "music_fluidsynth.h"
 #  endif
 #  ifdef USE_NATIVE_MIDI
 #    include "native_midi.h"
@@ -335,7 +336,9 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
         }
     }
 
+#if defined(USE_NATIVE_MIDI)||defined(USE_FLUIDSYNTH_MIDI)
 skip:
+#endif
     /* Handle seamless music looping */
     if (left > 0 && left < len) {
         music_halt_or_loop();
@@ -344,9 +347,29 @@ skip:
     }
 }
 
+#ifdef USE_TIMIDITY_MIDI
+/* Config file should contain any other directory that needs
+ * to be added to the search path. The library adds the path
+ * of the config file to its search path, too. */
+#if defined(__WIN32__)
+# define TIMIDITY_CFG           "C:\\TIMIDITY\\TIMIDITY.CFG"
+#elif defined(__OS2__)
+# define TIMIDITY_CFG           "C:\\TIMIDITY\\TIMIDITY.CFG"
+# define TIMIDITY_CFG_ETC       "/@unixroot/etc/timidity/timidity.cfg"
+#else  /* unix: */
+# define TIMIDITY_CFG_ETC       "/etc/timidity.cfg"
+# define TIMIDITY_CFG_FREEPATS  "/etc/timidity/freepats.cfg"
+#endif
+#endif /**/
+
 /* Initialize the music players with a certain desired audio format */
 int open_music(SDL_AudioSpec *mixer)
 {
+#if defined(MID_MUSIC) && defined(USE_TIMIDITY_MIDI)
+    const char *cfg;
+    int rc = -1;
+#endif
+
 #ifdef WAV_MUSIC
     if ( WAVStream_Init(mixer) == 0 ) {
         add_music_decoder("WAVE");
@@ -364,13 +387,31 @@ int open_music(SDL_AudioSpec *mixer)
 #endif
 #ifdef MID_MUSIC
 #ifdef USE_TIMIDITY_MIDI
-    if ( Timidity_Init() == 0 ) {
+    cfg = SDL_getenv("TIMIDITY_CFG");
+    if (cfg) {
+        rc = Timidity_Init(cfg); /* env or user override: no other tries */
+        goto cfgdone;
+    }
+
+#if defined(TIMIDITY_CFG)
+    if (rc < 0) rc = Timidity_Init(TIMIDITY_CFG);
+#endif
+#if defined(TIMIDITY_CFG_ETC)
+    if (rc < 0) rc = Timidity_Init(TIMIDITY_CFG_ETC);
+#endif
+#if defined(TIMIDITY_CFG_FREEPATS)
+    if (rc < 0) rc = Timidity_Init(TIMIDITY_CFG_FREEPATS);
+#endif
+    if (rc < 0) rc = Timidity_Init(NULL); /* library's default cfg. */
+
+    cfgdone:
+    if (rc < 0) {
+        timidity_ok = 0;
+    } else {
         timidity_ok = 1;
         add_music_decoder("TIMIDITY");
         /* Keep a copy of the mixer */
         used_mixer = *mixer;
-    } else {
-        timidity_ok = 0;
     }
 #endif
 #ifdef USE_FLUIDSYNTH_MIDI
@@ -761,7 +802,7 @@ void Mix_FreeMusic(Mix_Music *music)
         SDL_LockAudio();
         if ( music == music_playing ) {
             /* Wait for any fade out to finish */
-            while ( music->fading == MIX_FADING_OUT ) {
+            while ( music_active && music->fading == MIX_FADING_OUT ) {
                 SDL_UnlockAudio();
                 SDL_Delay(100);
                 SDL_LockAudio();
@@ -1249,7 +1290,7 @@ static void music_internal_halt(void)
 #endif
 #ifdef USE_TIMIDITY_MIDI
         if ( timidity_ok ) {
-            music_playing->data.midi->playing = 0;
+            Timidity_Stop(music_playing->data.midi);
             goto skip;
         }
 #endif
@@ -1429,7 +1470,7 @@ static int music_internal_playing()
 #endif
 #ifdef USE_TIMIDITY_MIDI
         if ( timidity_ok ) {
-            if ( ! music_playing->data.midi->playing )
+            if ( ! Timidity_IsActive(music_playing->data.midi) )
                 playing = 0;
             goto skip;
         }
@@ -1563,6 +1604,77 @@ int Mix_SetSoundFonts(const char *paths)
 }
 
 #ifdef MID_MUSIC
+
+#if !SDL_VERSION_ATLEAST(2,0,12)
+/*
+ * Adapted from _PDCLIB_strtok() of PDClib library at
+ * https://github.com/DevSolar/pdclib.git
+ *
+ * The code was under CC0 license:
+ * https://creativecommons.org/publicdomain/zero/1.0/legalcode :
+ *
+ *                        No Copyright
+ *
+ * The person who associated a work with this deed has dedicated the
+ * work to the public domain by waiving all of his or her rights to
+ * the work worldwide under copyright law, including all related and
+ * neighboring rights, to the extent allowed by law.
+ *
+ * You can copy, modify, distribute and perform the work, even for
+ * commercial purposes, all without asking permission. See Other
+ * Information below.
+ */
+char *SDL_strtokr(char *s1, const char *s2, char **ptr)
+{
+    const char *p = s2;
+
+    if (!s2 || !ptr || (!s1 && !*ptr)) return NULL;
+
+    if (s1 != NULL) {  /* new string */
+        *ptr = s1;
+    } else { /* old string continued */
+        if (*ptr == NULL) {
+        /* No old string, no new string, nothing to do */
+            return NULL;
+        }
+        s1 = *ptr;
+    }
+
+    /* skip leading s2 characters */
+    while (*p && *s1) {
+        if (*s1 == *p) {
+        /* found separator; skip and start over */
+            ++s1;
+            p = s2;
+            continue;
+        }
+        ++p;
+    }
+
+    if (! *s1) { /* no more to parse */
+        *ptr = s1;
+        return NULL;
+    }
+
+    /* skipping non-s2 characters */
+    *ptr = s1;
+    while (**ptr) {
+        p = s2;
+        while (*p) {
+            if (**ptr == *p++) {
+            /* found separator; overwrite with '\0', position *ptr, return */
+                *((*ptr)++) = '\0';
+                return s1;
+            }
+        }
+        ++(*ptr);
+    }
+
+    /* parsed to end of string */
+    return s1;
+}
+#endif
+
 const char* Mix_GetSoundFonts(void)
 {
     const char* force = getenv("SDL_FORCE_SOUNDFONTS");
@@ -1589,13 +1701,13 @@ int Mix_EachSoundFont(int (SDLCALL *function)(const char*, void*), void *data)
         return 0;
     }
 
-#if defined(__MINGW32__) || defined(__MINGW64__) || defined(__WATCOMC__)
-    for (path = strtok(paths, ";"); path; path = strtok(NULL, ";")) {
-#elif defined(_WIN32)
-    for (path = strtok_s(paths, ";", &context); path; path = strtok_s(NULL, ";", &context)) {
+#if defined(_WIN32) || defined(__OS2__)
+#define PATHSEP ";"
 #else
-    for (path = strtok_r(paths, ":;", &context); path; path = strtok_r(NULL, ":;", &context)) {
+#define PATHSEP ":;"
 #endif
+    for (path = SDL_strtokr(paths, PATHSEP, &context); path;
+         path = SDL_strtokr(NULL,  PATHSEP, &context)) {
         if (!function(path, data)) {
             SDL_free(paths);
             return 0;
@@ -1605,4 +1717,5 @@ int Mix_EachSoundFont(int (SDLCALL *function)(const char*, void*), void *data)
     SDL_free(paths);
     return 1;
 }
+
 #endif

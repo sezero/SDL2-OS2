@@ -33,7 +33,7 @@
 
 /* Make sure that this isn't included by Visual C++ */
 #ifdef _MSC_VER
-#error You should run hg revert SDL_config.h 
+#error You should run hg revert SDL_config.h
 #endif
 
 /* C language features */
@@ -85,6 +85,7 @@
 #undef HAVE_IBUS_IBUS_H
 
 /* C library functions */
+#undef HAVE_DLOPEN
 #undef HAVE_MALLOC
 #undef HAVE_CALLOC
 #undef HAVE_REALLOC
@@ -362,5 +363,8 @@
 /* Enable assembly routines */
 #undef SDL_ASSEMBLY_ROUTINES
 #undef SDL_ALTIVEC_BLITTERS
+
+/* Whether SDL_DYNAMIC_API needs dlopen() */
+#undef DYNAPI_NEEDS_DLOPEN
 
 #endif /* _SDL_config_h */

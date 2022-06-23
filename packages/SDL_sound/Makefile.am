@@ -30,13 +30,13 @@ libSDL_sound_la_LDFLAGS = $(SDLSOUND_LDFLAGS)
 libSDL_sound_la_LIBADD = $(SDLSOUND_LIBADD)
 endif
 
-EXTRA_DIST =	\
+EXTRA_DIST =	autogen.sh \
+	filter_templates.h \
 	CREDITS \
 	COPYING \
 	CHANGELOG \
 	CWProject.sit \
 	PBProjects.tar.gz \
-	borland.zip \
 	Doxyfile \
 	Makefile.os2 \
 	VisualC

@@ -2,7 +2,7 @@ noinst_LTLIBRARIES = libdecoders.la
 
 SUBDIRS = timidity
 
-INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/decoders/timidity
+AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/decoders/timidity
 
 libdecoders_la_SOURCES =	\
 	aiff.c		\
@@ -19,3 +19,5 @@ libdecoders_la_SOURCES =	\
 	speex.c		\
 	quicktime.c \
 	wav.c
+
+EXTRA_DIST = skeleton.c

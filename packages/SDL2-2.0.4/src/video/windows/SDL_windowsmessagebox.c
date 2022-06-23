@@ -73,7 +73,7 @@ typedef struct
 } WIN_DialogData;
 
 
-static INT_PTR MessageBoxDialogProc(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK MessageBoxDialogProc(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
     switch ( iMessage ) {
     case WM_COMMAND:
@@ -470,7 +470,7 @@ WIN_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     }
 
     /* FIXME: If we have a parent window, get the Instance and HWND for them */
-    which = DialogBoxIndirect(NULL, (DLGTEMPLATE*)dialog->lpDialog, NULL, (DLGPROC)MessageBoxDialogProc);
+    which = DialogBoxIndirect(NULL, (DLGTEMPLATE*)dialog->lpDialog, NULL, MessageBoxDialogProc);
     *buttonid = buttons[which].buttonid;
 
     FreeDialogData(dialog);

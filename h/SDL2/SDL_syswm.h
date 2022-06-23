@@ -100,6 +100,10 @@ typedef struct ANativeWindow ANativeWindow;
 typedef void *EGLSurface;
 #endif
 
+#if defined(SDL_VIDEO_DRIVER_VIVANTE)
+#include "SDL_egl.h"
+#endif
+
 #if defined(SDL_VIDEO_DRIVER_OS2)
 #define INCL_WIN
 #include <os2.h>
@@ -176,6 +180,13 @@ struct SDL_SysWMmsg
             int dummy;
             /* No UIKit window events yet */
         } uikit;
+#endif
+#if defined(SDL_VIDEO_DRIVER_VIVANTE)
+        struct
+        {
+            int dummy;
+            /* No Vivante window events yet */
+        } vivante;
 #endif
 #if defined(SDL_VIDEO_DRIVER_OS2)
         struct
@@ -293,6 +304,14 @@ struct SDL_SysWMinfo
             HWND hwnd;                  /**< The window handle */
             HWND hwndFrame;             /**< The frame window handle */
         } os2;
+#endif
+
+#if defined(SDL_VIDEO_DRIVER_VIVANTE)
+        struct
+        {
+            EGLNativeDisplayType display;
+            EGLNativeWindowType window;
+        } vivante;
 #endif
 
         /* Can't have an empty union */

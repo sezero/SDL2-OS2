@@ -46,6 +46,7 @@
 #define HAVE_SIGNAL_H 1
 
 /* C library functions */
+#define HAVE_DLOPEN 1
 #define HAVE_MALLOC 1
 #define HAVE_CALLOC 1
 #define HAVE_REALLOC    1

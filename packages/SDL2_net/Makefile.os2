@@ -1,5 +1,5 @@
-LIBNAME = SDL2ttf
-VERSION = 2.0.15
+LIBNAME = SDL2net
+VERSION = 2.0.1a
 INCPATH = ../../h
 LIBPATH = ../../lib
 
@@ -9,26 +9,23 @@ LIBFILE = $(LIBNAME).lib
 DLLFILE = $(LIBNAME).dll
 LNKFILE = $(LIBNAME).lnk
 
-SRCS = SDL_ttf.c
+SRCS = SDLnetTCP.c SDLnetUDP.c SDLnetselect.c SDLnet.c
 
 OBJS = $(SRCS:.c=.obj)
 
-LIBS = freetype.lib  zlib.lib  SDL2.lib
+LIBS = SDL2.lib
 
-CFLAGS_BASE = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oeatxh -ei -j
+CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oeatxh -ei -j
 # warnings:
-CFLAGS_BASE+= -wx
+CFLAGS+= -wx
 # newer OpenWatcom versions enable W303 by default
-CFLAGS_BASE+= -wcd=303
-# include paths:
-CFLAGS_BASE+= -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h -I$(INCPATH) -I$(INCPATH)/SDL2
-CFLAGS =$(CFLAGS_BASE)
+CFLAGS+= -wcd=303
 # to build a dll:
 CFLAGS+= -bd
 # for DECLSPEC:
 CFLAGS+= -DBUILD_SDL
-
-all: $(LIBFILE) showfont.exe
+# include paths:
+CFLAGS+= -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h -I$(INCPATH)/SDL2
 
 $(LIBFILE): $(DLLFILE)
   @echo * Create library: $@...
@@ -44,11 +41,7 @@ $(LNKFILE):
   @%append $@ NAME $(LIBNAME)
   @for %i in ($(OBJS)) do @%append $@ FILE %i
   @%append $@ OPTION QUIET
-!ifdef %osdir
-  @$(%osdir)\KLIBC\BIN\date +"OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@$#$#1$#$# %F               $(%HOSTNAME)::::::@@Simple DirectMedia Layer truetype font library'" >>$^@
-!else
-  @%append $@ OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@Simple DirectMedia Layer truetype font library'
-!endif
+  @%append $@ OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@Simple DirectMedia Layer network library'
   @%append $@ LIBPATH $(LIBPATH)
   @for %i in ($(LIBS)) do @%append $@ LIB %i
   @%append $@ OPTION MAP=$*
@@ -60,18 +53,14 @@ $(LNKFILE):
 .c.obj:
   wcc386 $(CFLAGS) -fo=$^@ $<
 
-showfont.obj: showfont.c
-  wcc386 $(CFLAGS_BASE) -fo=$^@ $<
-
-showfont.exe: $(LIBFILE) showfont.obj
-  wlink SYS os2v2 OP q LIBPATH $(LIBPATH) LIBR {$(LIBFILE) SDL2.lib} F {showfont.obj}  N showfont.exe
-
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
   @if exist *.obj rm *.obj
   @if exist *.err rm *.err
-  @if exist *.map rm *.map
-  @if exist *.exe rm *.exe
   @if exist $(LNKFILE) rm $(LNKFILE)
+
+distclean: .SYMBOLIC clean
   @if exist $(DLLFILE) rm $(DLLFILE)
   @if exist $(LIBFILE) rm $(LIBFILE)
+  @if exist *.map rm *.map
+  @if exist *.exe rm *.exe

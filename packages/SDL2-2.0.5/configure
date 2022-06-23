@@ -667,7 +667,6 @@ ALSA_CFLAGS
 POW_LIB
 LIBOBJS
 ALLOCA
-WINDRES
 SET_MAKE
 INSTALL_DATA
 INSTALL_SCRIPT
@@ -680,6 +679,7 @@ LT_AGE
 LT_REVISION
 LT_CURRENT
 LT_RELEASE
+RC
 CPP
 OTOOL64
 OTOOL
@@ -818,6 +818,8 @@ enable_nas
 enable_nas_shared
 enable_sndio
 enable_sndio_shared
+enable_fusionsound
+enable_fusionsound_shared
 enable_diskaudio
 enable_dummyaudio
 enable_video_wayland
@@ -840,8 +842,6 @@ enable_video_vivante
 enable_video_cocoa
 enable_video_directfb
 enable_directfb_shared
-enable_fusionsound
-enable_fusionsound_shared
 enable_video_dummy
 enable_video_opengl
 enable_video_opengles
@@ -855,7 +855,6 @@ enable_fcitx
 enable_pthreads
 enable_pthread_sem
 enable_directx
-enable_sdl_dlopen
 enable_clock_gettime
 enable_rpath
 enable_render_d3d
@@ -1496,110 +1495,107 @@ Optional Features:
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-assertions     Enable internal sanity checks
                           (auto/disabled/release/enabled/paranoid)
-                          [[default=auto]]
+                          [default=auto]
   --enable-dependency-tracking
-                          Use gcc -MMD -MT dependency tracking [[default=yes]]
-  --enable-libc           Use the system C library [[default=yes]]
-  --enable-gcc-atomics    Use gcc builtin atomics [[default=yes]]
-  --enable-atomic         Enable the atomic operations subsystem
-                          [[default=yes]]
-  --enable-audio          Enable the audio subsystem [[default=yes]]
-  --enable-video          Enable the video subsystem [[default=yes]]
-  --enable-render         Enable the render subsystem [[default=yes]]
-  --enable-events         Enable the events subsystem [[default=yes]]
-  --enable-joystick       Enable the joystick subsystem [[default=yes]]
+                          Use gcc -MMD -MT dependency tracking [default=yes]
+  --enable-libc           Use the system C library [default=yes]
+  --enable-gcc-atomics    Use gcc builtin atomics [default=yes]
+  --enable-atomic         Enable the atomic operations subsystem [default=yes]
+  --enable-audio          Enable the audio subsystem [default=yes]
+  --enable-video          Enable the video subsystem [default=yes]
+  --enable-render         Enable the render subsystem [default=yes]
+  --enable-events         Enable the events subsystem [default=yes]
+  --enable-joystick       Enable the joystick subsystem [default=yes]
   --enable-haptic         Enable the haptic (force feedback) subsystem
-                          [[default=yes]]
-  --enable-power          Enable the power subsystem [[default=yes]]
-  --enable-filesystem     Enable the filesystem subsystem [[default=yes]]
-  --enable-threads        Enable the threading subsystem [[default=yes]]
-  --enable-timers         Enable the timer subsystem [[default=yes]]
-  --enable-file           Enable the file subsystem [[default=yes]]
+                          [default=yes]
+  --enable-power          Enable the power subsystem [default=yes]
+  --enable-filesystem     Enable the filesystem subsystem [default=yes]
+  --enable-threads        Enable the threading subsystem [default=yes]
+  --enable-timers         Enable the timer subsystem [default=yes]
+  --enable-file           Enable the file subsystem [default=yes]
   --enable-loadso         Enable the shared object loading subsystem
-                          [[default=yes]]
-  --enable-cpuinfo        Enable the cpuinfo subsystem [[default=yes]]
-  --enable-assembly       Enable assembly routines [[default=yes]]
+                          [default=yes]
+  --enable-cpuinfo        Enable the cpuinfo subsystem [default=yes]
+  --enable-assembly       Enable assembly routines [default=yes]
   --enable-ssemath        Allow GCC to use SSE floating point math
-                          [[default=no]]
-  --enable-mmx            use MMX assembly routines [[default=yes]]
-  --enable-3dnow          use 3DNow! assembly routines [[default=yes]]
-  --enable-sse            use SSE assembly routines [[default=yes]]
-  --enable-sse2           use SSE2 assembly routines [[default=no]]
-  --enable-altivec        use Altivec assembly routines [[default=yes]]
-  --enable-oss            support the OSS audio API [[default=maybe]]
-  --enable-alsa           support the ALSA audio API [[default=yes]]
+                          [default=no]
+  --enable-mmx            use MMX assembly routines [default=yes]
+  --enable-3dnow          use 3DNow! assembly routines [default=yes]
+  --enable-sse            use SSE assembly routines [default=yes]
+  --enable-sse2           use SSE2 assembly routines [default=no]
+  --enable-altivec        use Altivec assembly routines [default=yes]
+  --enable-oss            support the OSS audio API [default=maybe]
+  --enable-alsa           support the ALSA audio API [default=yes]
   --disable-alsatest      Do not try to compile and run a test Alsa program
-  --enable-alsa-shared    dynamically load ALSA audio support [[default=yes]]
-  --enable-esd            support the Enlightened Sound Daemon [[default=yes]]
+  --enable-alsa-shared    dynamically load ALSA audio support [default=yes]
+  --enable-esd            support the Enlightened Sound Daemon [default=yes]
   --disable-esdtest       Do not try to compile and run a test ESD program
-  --enable-esd-shared     dynamically load ESD audio support [[default=yes]]
-  --enable-pulseaudio     use PulseAudio [[default=yes]]
+  --enable-esd-shared     dynamically load ESD audio support [default=yes]
+  --enable-pulseaudio     use PulseAudio [default=yes]
   --enable-pulseaudio-shared
-                          dynamically load PulseAudio support [[default=yes]]
+                          dynamically load PulseAudio support [default=yes]
   --enable-arts           support the Analog Real Time Synthesizer
-                          [[default=yes]]
-  --enable-arts-shared    dynamically load aRts audio support [[default=yes]]
-  --enable-nas            support the NAS audio API [[default=yes]]
-  --enable-nas-shared     dynamically load NAS audio support [[default=yes]]
-  --enable-sndio          support the sndio audio API [[default=yes]]
-  --enable-sndio-shared   dynamically load sndio audio support [[default=yes]]
-  --enable-diskaudio      support the disk writer audio driver [[default=yes]]
-  --enable-dummyaudio     support the dummy audio driver [[default=yes]]
-  --enable-video-wayland  use Wayland video driver [[default=yes]]
-  --enable-video-wayland-qt-touch
-                          QtWayland server support for Wayland video driver
-                          [[default=yes]]
-  --enable-wayland-shared dynamically load Wayland support [[default=maybe]]
-  --enable-video-mir      use Mir video driver [[default=yes]]
-  --enable-mir-shared     dynamically load Mir support [[default=maybe]]
-  --enable-video-x11      use X11 video driver [[default=yes]]
-  --enable-x11-shared     dynamically load X11 support [[default=maybe]]
-  --enable-video-x11-xcursor
-                          enable X11 Xcursor support [[default=yes]]
-  --enable-video-x11-xdbe enable X11 Xdbe support [[default=yes]]
-  --enable-video-x11-xinerama
-                          enable X11 Xinerama support [[default=yes]]
-  --enable-video-x11-xinput
-                          enable X11 XInput extension for manymouse, tablets,
-                          etc [[default=yes]]
-  --enable-video-x11-xrandr
-                          enable X11 Xrandr extension for fullscreen
-                          [[default=yes]]
-  --enable-video-x11-scrnsaver
-                          enable X11 screensaver extension [[default=yes]]
-  --enable-video-x11-xshape
-                          enable X11 XShape support [[default=yes]]
-  --enable-video-x11-vm   use X11 VM extension for fullscreen [[default=yes]]
-  --enable-video-vivante  use Vivante EGL video driver [[default=yes]]
-  --enable-video-cocoa    use Cocoa video driver [[default=yes]]
-  --enable-video-directfb use DirectFB video driver [[default=no]]
-  --enable-directfb-shared
-                          dynamically load directfb support [[default=yes]]
-  --enable-fusionsound    use FusionSound audio driver [[default=no]]
+                          [default=yes]
+  --enable-arts-shared    dynamically load aRts audio support [default=yes]
+  --enable-nas            support the NAS audio API [default=yes]
+  --enable-nas-shared     dynamically load NAS audio support [default=yes]
+  --enable-sndio          support the sndio audio API [default=yes]
+  --enable-sndio-shared   dynamically load sndio audio support [default=yes]
+  --enable-fusionsound    use FusionSound audio driver [default=no]
   --enable-fusionsound-shared
                           dynamically load fusionsound audio support
-                          [[default=yes]]
-  --enable-video-dummy    use dummy video driver [[default=yes]]
-  --enable-video-opengl   include OpenGL support [[default=yes]]
-  --enable-video-opengles include OpenGL ES support [[default=yes]]
+                          [default=yes]
+  --enable-diskaudio      support the disk writer audio driver [default=yes]
+  --enable-dummyaudio     support the dummy audio driver [default=yes]
+  --enable-video-wayland  use Wayland video driver [default=yes]
+  --enable-video-wayland-qt-touch
+                          QtWayland server support for Wayland video driver
+                          [default=yes]
+  --enable-wayland-shared dynamically load Wayland support [default=maybe]
+  --enable-video-mir      use Mir video driver [[default=yes]]
+  --enable-mir-shared     dynamically load Mir support [[default=maybe]]
+  --enable-video-x11      use X11 video driver [default=yes]
+  --enable-x11-shared     dynamically load X11 support [default=maybe]
+  --enable-video-x11-xcursor
+                          enable X11 Xcursor support [default=yes]
+  --enable-video-x11-xdbe enable X11 Xdbe support [default=yes]
+  --enable-video-x11-xinerama
+                          enable X11 Xinerama support [default=yes]
+  --enable-video-x11-xinput
+                          enable X11 XInput extension for manymouse, tablets,
+                          etc [default=yes]
+  --enable-video-x11-xrandr
+                          enable X11 Xrandr extension for fullscreen
+                          [default=yes]
+  --enable-video-x11-scrnsaver
+                          enable X11 screensaver extension [default=yes]
+  --enable-video-x11-xshape
+                          enable X11 XShape support [default=yes]
+  --enable-video-x11-vm   use X11 VM extension for fullscreen [default=yes]
+  --enable-video-vivante  use Vivante EGL video driver [default=yes]
+  --enable-video-cocoa    use Cocoa video driver [default=yes]
+  --enable-video-directfb use DirectFB video driver [default=no]
+  --enable-directfb-shared
+                          dynamically load directfb support [default=yes]
+  --enable-video-dummy    use dummy video driver [default=yes]
+  --enable-video-opengl   include OpenGL support [default=yes]
+  --enable-video-opengles include OpenGL ES support [default=yes]
   --enable-video-opengles1
-                          include OpenGL ES 1.1 support [[default=yes]]
+                          include OpenGL ES 1.1 support [default=yes]
   --enable-video-opengles2
-                          include OpenGL ES 2.0 support [[default=yes]]
-  --enable-libudev        enable libudev support [[default=yes]]
-  --enable-dbus           enable D-Bus support [[default=yes]]
-  --enable-ime            enable IME support [[default=yes]]
-  --enable-ibus           enable IBus support [[default=yes]]
-  --enable-fcitx          enable fcitx support [[default=yes]]
-  --enable-pthreads       use POSIX threads for multi-threading
-                          [[default=yes]]
-  --enable-pthread-sem    use pthread semaphores [[default=yes]]
-  --enable-directx        use DirectX for Windows audio/video [[default=yes]]
-  --enable-sdl-dlopen     use dlopen for shared object loading [[default=yes]]
+                          include OpenGL ES 2.0 support [default=yes]
+  --enable-libudev        enable libudev support [default=yes]
+  --enable-dbus           enable D-Bus support [default=yes]
+  --enable-ime            enable IME support [default=yes]
+  --enable-ibus           enable IBus support [default=yes]
+  --enable-fcitx          enable fcitx support [default=yes]
+  --enable-pthreads       use POSIX threads for multi-threading [default=yes]
+  --enable-pthread-sem    use pthread semaphores [default=yes]
+  --enable-directx        use DirectX for Windows audio/video [default=yes]
   --enable-clock_gettime  use clock_gettime() instead of gettimeofday() on
-                          UNIX [[default=yes]]
-  --enable-rpath          use an rpath when linking SDL [[default=yes]]
-  --enable-render-d3d     enable the Direct3D render driver [[default=yes]]
+                          UNIX [default=yes]
+  --enable-rpath          use an rpath when linking SDL [default=yes]
+  --enable-render-d3d     enable the Direct3D render driver [default=yes]
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1863,8 +1859,8 @@ fi
 
 # ac_fn_c_try_run LINENO
 # ----------------------
-# Try to link conftest.$ac_ext, and return whether this succeeded. Assumes
-# that executables *can* be run.
+# Try to run conftest.$ac_ext, and return whether this succeeded. Assumes that
+# executables *can* be run.
 ac_fn_c_try_run ()
 {
   as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
@@ -2399,6 +2395,8 @@ done
 # WARNING: Use '\'' to represent an apostrophe within the trap.
 # WARNING: Do not start the trap code with a newline, due to a FreeBSD 4.0 bug.
 trap 'exit_status=$?
+  # Sanitize IFS.
+  IFS=" ""	$as_nl"
   # Save into config.log some information that might help in debugging.
   {
     echo
@@ -3351,7 +3349,9 @@ ac_clean_files="$ac_clean_files conftest.out"
 # the compiler is broken, or we cross compile.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether we are cross compiling" >&5
 $as_echo_n "checking whether we are cross compiling... " >&6; }
-if test "$cross_compiling" != yes; then
+if test "$cross_compiling" = maybe && test "x$build" != "x$host"; then
+  cross_compiling=yes
+elif test "$cross_compiling" != yes; then
   { { ac_try="$ac_link"
 case "(($ac_try" in
   *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
@@ -5974,7 +5974,10 @@ s390*-*linux*|s390*-*tpf*|sparc*-*linux*)
 	  x86_64-*linux*)
 	    LD="${LD-ld} -m elf_x86_64"
 	    ;;
-	  ppc*-*linux*|powerpc*-*linux*)
+	  powerpc64le-*linux*)
+	    LD="${LD-ld} -m elf64lppc"
+	    ;;
+	  powerpc64-*linux*)
 	    LD="${LD-ld} -m elf64ppc"
 	    ;;
 	  s390*-*linux*|s390*-*tpf*)
@@ -6791,16 +6794,11 @@ $as_echo "$lt_cv_ld_force_load" >&6; }
       _lt_dar_allow_undefined='${wl}-undefined ${wl}suppress' ;;
     darwin1.*)
       _lt_dar_allow_undefined='${wl}-flat_namespace ${wl}-undefined ${wl}suppress' ;;
-    darwin*) # darwin 5.x on
-      # if running on 10.5 or later, the deployment target defaults
-      # to the OS version, if on x86, and 10.4, the deployment
-      # target defaults to 10.4. Don't you love it?
-      case ${MACOSX_DEPLOYMENT_TARGET-10.0},$host in
-	10.0,*86*-darwin8*|10.0,*-darwin[91]*)
-	  _lt_dar_allow_undefined='${wl}-undefined ${wl}dynamic_lookup' ;;
-	10.[012]*)
+    darwin*)
+      case $MACOSX_DEPLOYMENT_TARGET,$host in
+	10.[012],*|,*powerpc*-darwin[5-8]*)
 	  _lt_dar_allow_undefined='${wl}-flat_namespace ${wl}-undefined ${wl}suppress' ;;
-	10.*)
+	*)
 	  _lt_dar_allow_undefined='${wl}-undefined ${wl}dynamic_lookup' ;;
       esac
     ;;
@@ -11416,12 +11414,188 @@ CC="$lt_save_CC"
 # Only expand once:
 
 
+if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}windres", so it can be a program name with args.
+set dummy ${ac_tool_prefix}windres; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_RC+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$RC"; then
+  ac_cv_prog_RC="$RC" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_RC="${ac_tool_prefix}windres"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+RC=$ac_cv_prog_RC
+if test -n "$RC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $RC" >&5
+$as_echo "$RC" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+fi
+if test -z "$ac_cv_prog_RC"; then
+  ac_ct_RC=$RC
+  # Extract the first word of "windres", so it can be a program name with args.
+set dummy windres; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_ac_ct_RC+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$ac_ct_RC"; then
+  ac_cv_prog_ac_ct_RC="$ac_ct_RC" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_ac_ct_RC="windres"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+ac_ct_RC=$ac_cv_prog_ac_ct_RC
+if test -n "$ac_ct_RC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_RC" >&5
+$as_echo "$ac_ct_RC" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+  if test "x$ac_ct_RC" = x; then
+    RC=""
+  else
+    case $cross_compiling:$ac_tool_warned in
+yes:)
+{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
+$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
+ac_tool_warned=yes ;;
+esac
+    RC=$ac_ct_RC
+  fi
+else
+  RC="$ac_cv_prog_RC"
+fi
+
+
+
+
+# Source file extension for RC test sources.
+ac_ext=rc
+
+# Object file extension for compiled RC test sources.
+objext=o
+objext_RC=$objext
+
+# Code to be used in simple compile tests
+lt_simple_compile_test_code='sample MENU { MENUITEM "&Soup", 100, CHECKED }'
+
+# Code to be used in simple link tests
+lt_simple_link_test_code="$lt_simple_compile_test_code"
+
+# ltmain only uses $CC for tagged configurations so make sure $CC is set.
+
+
+
+
+
+
+# If no C compiler was specified, use CC.
+LTCC=${LTCC-"$CC"}
+
+# If no C compiler flags were specified, use CFLAGS.
+LTCFLAGS=${LTCFLAGS-"$CFLAGS"}
+
+# Allow CC to be a program name with arguments.
+compiler=$CC
+
+
+# save warnings/boilerplate of simple test code
+ac_outfile=conftest.$ac_objext
+echo "$lt_simple_compile_test_code" >conftest.$ac_ext
+eval "$ac_compile" 2>&1 >/dev/null | $SED '/^$/d; /^ *+/d' >conftest.err
+_lt_compiler_boilerplate=`cat conftest.err`
+$RM conftest*
+
+ac_outfile=conftest.$ac_objext
+echo "$lt_simple_link_test_code" >conftest.$ac_ext
+eval "$ac_link" 2>&1 >/dev/null | $SED '/^$/d; /^ *+/d' >conftest.err
+_lt_linker_boilerplate=`cat conftest.err`
+$RM -r conftest*
+
+
+# Allow CC to be a program name with arguments.
+lt_save_CC="$CC"
+lt_save_CFLAGS=$CFLAGS
+lt_save_GCC=$GCC
+GCC=
+CC=${RC-"windres"}
+CFLAGS=
+compiler=$CC
+compiler_RC=$CC
+for cc_temp in $compiler""; do
+  case $cc_temp in
+    compile | *[\\/]compile | ccache | *[\\/]ccache ) ;;
+    distcc | *[\\/]distcc | purify | *[\\/]purify ) ;;
+    \-*) ;;
+    *) break;;
+  esac
+done
+cc_basename=`$ECHO "$cc_temp" | $SED "s%.*/%%; s%^$host_alias-%%"`
+
+lt_cv_prog_compiler_c_o_RC=yes
+
+if test -n "$compiler"; then
+  :
+
+
+
+fi
+
+GCC=$lt_save_GCC
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+CC=$lt_save_CC
+CFLAGS=$lt_save_CFLAGS
+
 
 LT_RELEASE=$SDL_MAJOR_VERSION.$SDL_MINOR_VERSION
 LT_CURRENT=`expr $SDL_MICRO_VERSION - $SDL_INTERFACE_AGE`
 LT_REVISION=$SDL_INTERFACE_AGE
 LT_AGE=`expr $SDL_BINARY_AGE - $SDL_INTERFACE_AGE`
-
 
 
 
@@ -15551,98 +15725,6 @@ $as_echo "no" >&6; }
   SET_MAKE="MAKE=${MAKE-make}"
 fi
 
-if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}windres", so it can be a program name with args.
-set dummy ${ac_tool_prefix}windres; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_WINDRES+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$WINDRES"; then
-  ac_cv_prog_WINDRES="$WINDRES" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_WINDRES="${ac_tool_prefix}windres"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-WINDRES=$ac_cv_prog_WINDRES
-if test -n "$WINDRES"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $WINDRES" >&5
-$as_echo "$WINDRES" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_prog_WINDRES"; then
-  ac_ct_WINDRES=$WINDRES
-  # Extract the first word of "windres", so it can be a program name with args.
-set dummy windres; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_ac_ct_WINDRES+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$ac_ct_WINDRES"; then
-  ac_cv_prog_ac_ct_WINDRES="$ac_ct_WINDRES" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_ac_ct_WINDRES="windres"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-ac_ct_WINDRES=$ac_cv_prog_ac_ct_WINDRES
-if test -n "$ac_ct_WINDRES"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_WINDRES" >&5
-$as_echo "$ac_ct_WINDRES" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-  if test "x$ac_ct_WINDRES" = x; then
-    WINDRES=":"
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    WINDRES=$ac_ct_WINDRES
-  fi
-else
-  WINDRES="$ac_cv_prog_WINDRES"
-fi
-
 
 case "$host" in
     *-*-mingw32*)
@@ -16204,11 +16286,7 @@ $as_echo "#define HAVE_M_PI /**/" >>confdefs.h
   fi
 
 
-        case "$host" in
-    *-*-cygwin* | *-*-mingw32*)
-        ;;
-    *)
-        # The Ultrix 4.2 mips builtin alloca declared by alloca.h only works
+    # The Ultrix 4.2 mips builtin alloca declared by alloca.h only works
 # for constant arguments.  Useless!
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working alloca.h" >&5
 $as_echo_n "checking for working alloca.h... " >&6; }
@@ -16248,26 +16326,26 @@ $as_echo_n "checking for alloca... " >&6; }
 if ${ac_cv_func_alloca_works+:} false; then :
   $as_echo_n "(cached) " >&6
 else
+  if test $ac_cv_working_alloca_h = yes; then
+  ac_cv_func_alloca_works=yes
+else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#ifdef __GNUC__
-# define alloca __builtin_alloca
-#else
-# ifdef _MSC_VER
+#if defined STDC_HEADERS || defined HAVE_STDLIB_H
+# include <stdlib.h>
+#endif
+#include <stddef.h>
+#ifndef alloca
+# ifdef __GNUC__
+#  define alloca __builtin_alloca
+# elif defined _MSC_VER
 #  include <malloc.h>
 #  define alloca _alloca
 # else
-#  ifdef HAVE_ALLOCA_H
-#   include <alloca.h>
-#  else
-#   ifdef _AIX
- #pragma alloca
-#   else
-#    ifndef alloca /* predefined by HP cc +Olibcalls */
-void *alloca (size_t);
-#    endif
-#   endif
+#  ifdef  __cplusplus
+extern "C"
 #  endif
+void *alloca (size_t);
 # endif
 #endif
 
@@ -16290,6 +16368,7 @@ rm -f core conftest.err conftest.$ac_objext \
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_func_alloca_works" >&5
 $as_echo "$ac_cv_func_alloca_works" >&6; }
+fi
 
 if test $ac_cv_func_alloca_works = yes; then
 
@@ -16394,10 +16473,8 @@ _ACEOF
 
 fi
 
-        ;;
-    esac
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working memcmp" >&5
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working memcmp" >&5
 $as_echo_n "checking for working memcmp... " >&6; }
 if ${ac_cv_func_memcmp_working+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -17903,6 +17980,12 @@ $as_echo_n "checking for ESD - version >= $min_esd_version... " >&6; }
     esd_micro_version=`$ESD_CONFIG $esd_config_args --version | \
            sed 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/\3/'`
     if test "x$enable_esdtest" = "xyes" ; then
+      ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
       ac_save_CFLAGS="$CFLAGS"
       ac_save_LIBS="$LIBS"
       CFLAGS="$CFLAGS $ESD_CFLAGS"
@@ -17916,35 +17999,16 @@ else
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <esd.h>
 
-char*
-my_strdup (char *str)
-{
-  char *new_str;
-
-  if (str)
-    {
-      new_str = malloc ((strlen (str) + 1) * sizeof(char));
-      strcpy (new_str, str);
-    }
-  else
-    new_str = NULL;
-
-  return new_str;
-}
-
-int main ()
+int main (void)
 {
   int major, minor, micro;
-  char *tmp_version;
+  FILE *fp = fopen("conf.esdtest", "w");
 
-  system ("touch conf.esdtest");
+  if (fp) fclose(fp);
 
-  /* HP/UX 9 (%@#!) writes to sscanf strings */
-  tmp_version = my_strdup("$min_esd_version");
-  if (sscanf(tmp_version, "%d.%d.%d", &major, &minor, &micro) != 3) {
+  if (sscanf("$min_esd_version", "%d.%d.%d", &major, &minor, &micro) != 3) {
      printf("%s, bad version string\n", "$min_esd_version");
      exit(1);
    }
@@ -17967,7 +18031,6 @@ int main ()
     }
 }
 
-
 _ACEOF
 if ac_fn_c_try_run "$LINENO"; then :
 
@@ -17980,6 +18043,12 @@ fi
 
        CFLAGS="$ac_save_CFLAGS"
        LIBS="$ac_save_LIBS"
+       ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
      fi
   fi
   if test "x$no_esd" = x ; then
@@ -18001,6 +18070,12 @@ $as_echo "no" >&6; }
           echo "*** Could not run ESD test program, checking why..."
           CFLAGS="$CFLAGS $ESD_CFLAGS"
           LIBS="$LIBS $ESD_LIBS"
+          ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
           cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -18035,6 +18110,12 @@ rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
           CFLAGS="$ac_save_CFLAGS"
           LIBS="$ac_save_LIBS"
+          ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
        fi
      fi
      ESD_CFLAGS=""
@@ -18541,6 +18622,116 @@ $as_echo "#define SDL_AUDIO_DRIVER_SNDIO 1" >>confdefs.h
     fi
 }
 
+CheckFusionSound()
+{
+    # Check whether --enable-fusionsound was given.
+if test "${enable_fusionsound+set}" = set; then :
+  enableval=$enable_fusionsound;
+else
+  enable_fusionsound=no
+fi
+
+    if test x$enable_audio = xyes -a x$enable_fusionsound = xyes; then
+        fusionsound=no
+
+        FUSIONSOUND_REQUIRED_VERSION=1.1.1
+
+        # Extract the first word of "pkg-config", so it can be a program name with args.
+set dummy pkg-config; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_PKG_CONFIG+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $PKG_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
+  ;;
+esac
+fi
+PKG_CONFIG=$ac_cv_path_PKG_CONFIG
+if test -n "$PKG_CONFIG"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PKG_CONFIG" >&5
+$as_echo "$PKG_CONFIG" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for FusionSound $FUSIONSOUND_REQUIRED_VERSION support" >&5
+$as_echo_n "checking for FusionSound $FUSIONSOUND_REQUIRED_VERSION support... " >&6; }
+        if test x$PKG_CONFIG != xno; then
+            if $PKG_CONFIG --atleast-pkgconfig-version 0.7 && $PKG_CONFIG --atleast-version $FUSIONSOUND_REQUIRED_VERSION fusionsound; then
+                FUSIONSOUND_CFLAGS=`$PKG_CONFIG --cflags fusionsound`
+                FUSIONSOUND_LIBS=`$PKG_CONFIG --libs fusionsound`
+                fusionsound=yes
+            fi
+        fi
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $fusionsound" >&5
+$as_echo "$fusionsound" >&6; }
+
+        if test x$fusionsound = xyes; then
+
+$as_echo "#define SDL_AUDIO_DRIVER_FUSIONSOUND 1" >>confdefs.h
+
+            SOURCES="$SOURCES $srcdir/src/audio/fusionsound/*.c"
+            EXTRA_CFLAGS="$EXTRA_CFLAGS $FUSIONSOUND_CFLAGS"
+
+            # Check whether --enable-fusionsound-shared was given.
+if test "${enable_fusionsound_shared+set}" = set; then :
+  enableval=$enable_fusionsound_shared;
+else
+  enable_fusionsound_shared=yes
+fi
+
+            fusionsound_shared=no
+            { $as_echo "$as_me:${as_lineno-$LINENO}: checking for FusionSound dynamic loading support" >&5
+$as_echo_n "checking for FusionSound dynamic loading support... " >&6; }
+            if test x$have_loadso != xyes && \
+               test x$enable_fusionsound_shared = xyes; then
+                { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: You must have SDL_LoadObject() support for dynamic fusionsound loading" >&5
+$as_echo "$as_me: WARNING: You must have SDL_LoadObject() support for dynamic fusionsound loading" >&2;}
+            fi
+            if test x$have_loadso = xyes && \
+               test x$enable_fusionsound_shared = xyes; then
+
+cat >>confdefs.h <<_ACEOF
+#define SDL_AUDIO_DRIVER_FUSIONSOUND_DYNAMIC "libfusionsound.so"
+_ACEOF
+
+                fusionsound_shared=yes
+                SUMMARY_audio="${SUMMARY_audio} fusionsound(dynamic)"
+            else
+                EXTRA_LDFLAGS="$EXTRA_LDFLAGS $FUSIONSOUND_LIBS"
+                SUMMARY_audio="${SUMMARY_audio} fusionsound"
+            fi
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: $fusionsound_shared" >&5
+$as_echo "$fusionsound_shared" >&6; }
+
+            have_audio=yes
+        fi
+    fi
+}
+
 CheckDiskAudio()
 {
     # Check whether --enable-diskaudio was given.
@@ -18614,6 +18805,43 @@ $as_echo "$have_gcc_fvisibility" >&6; }
 
     if test x$have_gcc_fvisibility = xyes; then
         EXTRA_CFLAGS="$EXTRA_CFLAGS $visibility_CFLAGS"
+    fi
+}
+
+CheckNoStrictAliasing()
+{
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GCC -fno-strict-aliasing option" >&5
+$as_echo_n "checking for GCC -fno-strict-aliasing option... " >&6; }
+    have_gcc_no_strict_aliasing=no
+
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$save_CFLAGS -fno-strict-aliasing"
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+    int x = 0;
+
+int
+main ()
+{
+
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+    have_gcc_no_strict_aliasing=yes
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_gcc_no_strict_aliasing" >&5
+$as_echo "$have_gcc_no_strict_aliasing" >&6; }
+    CFLAGS="$save_CFLAGS"
+
+    if test x$have_gcc_no_strict_aliasing = xyes; then
+        EXTRA_CFLAGS="$EXTRA_CFLAGS -fno-strict-aliasing"
     fi
 }
 
@@ -19144,8 +19372,34 @@ else
   $as_echo_n "(cached) " >&6
 else
   # One or both of the vars are not set, and there is no cached value.
-ac_x_includes=no ac_x_libraries=no
-rm -f -r conftest.dir
+ac_x_includes=no
+ac_x_libraries=no
+# Do we need to do anything special at all?
+ac_save_LIBS=$LIBS
+LIBS="-lX11 $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <X11/Xlib.h>
+int
+main ()
+{
+XrmInitialize ()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  # We can compile and link X programs with no special options.
+  ac_x_includes=
+  ac_x_libraries=
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS="$ac_save_LIBS"
+# If that didn't work, only try xmkmf and filesystem searches
+# for native compilation.
+if test x"$ac_x_includes" = xno && test "$cross_compiling" = no; then :
+  rm -f -r conftest.dir
 if mkdir conftest.dir; then
   cd conftest.dir
   cat >Imakefile <<'_ACEOF'
@@ -19184,7 +19438,7 @@ _ACEOF
   rm -f -r conftest.dir
 fi
 
-# Standard set of common directories for X headers.
+  # Standard set of common directories for X headers.
 # Check X11 before X11Rn because it is often a symlink to the current release.
 ac_x_header_dirs='
 /usr/X11/include
@@ -19210,6 +19464,8 @@ ac_x_header_dirs='
 /usr/local/include/X11R6
 /usr/local/include/X11R5
 /usr/local/include/X11R4
+
+/opt/X11/include
 
 /usr/X386/include
 /usr/x386/include
@@ -19284,15 +19540,17 @@ rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 fi # $ac_x_libraries = no
 
+fi
+# Record the results.
 case $ac_x_includes,$ac_x_libraries in #(
-  no,* | *,no | *\'*)
+  no,* | *,no | *\'*) :
     # Didn't find X, or a directory has "'" in its name.
-    ac_cv_have_x="have_x=no";; #(
-  *)
+    ac_cv_have_x="have_x=no" ;; #(
+  *) :
     # Record where we found X for the cache.
     ac_cv_have_x="have_x=yes\
 	ac_x_includes='$ac_x_includes'\
-	ac_x_libraries='$ac_x_libraries'"
+	ac_x_libraries='$ac_x_libraries'" ;;
 esac
 fi
 ;; #(
@@ -20953,116 +21211,6 @@ $as_echo "$directfb_shared" >&6; }
     fi
 }
 
-CheckFusionSound()
-{
-    # Check whether --enable-fusionsound was given.
-if test "${enable_fusionsound+set}" = set; then :
-  enableval=$enable_fusionsound;
-else
-  enable_fusionsound=no
-fi
-
-    if test x$enable_audio = xyes -a x$enable_fusionsound = xyes; then
-        fusionsound=no
-
-        FUSIONSOUND_REQUIRED_VERSION=1.1.1
-
-        # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_PKG_CONFIG+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
-if test -n "$PKG_CONFIG"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PKG_CONFIG" >&5
-$as_echo "$PKG_CONFIG" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for FusionSound $FUSIONSOUND_REQUIRED_VERSION support" >&5
-$as_echo_n "checking for FusionSound $FUSIONSOUND_REQUIRED_VERSION support... " >&6; }
-        if test x$PKG_CONFIG != xno; then
-            if $PKG_CONFIG --atleast-pkgconfig-version 0.7 && $PKG_CONFIG --atleast-version $FUSIONSOUND_REQUIRED_VERSION fusionsound; then
-                FUSIONSOUND_CFLAGS=`$PKG_CONFIG --cflags fusionsound`
-                FUSIONSOUND_LIBS=`$PKG_CONFIG --libs fusionsound`
-                fusionsound=yes
-            fi
-        fi
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $fusionsound" >&5
-$as_echo "$fusionsound" >&6; }
-
-        if test x$fusionsound = xyes; then
-
-$as_echo "#define SDL_AUDIO_DRIVER_FUSIONSOUND 1" >>confdefs.h
-
-            SOURCES="$SOURCES $srcdir/src/audio/fusionsound/*.c"
-            EXTRA_CFLAGS="$EXTRA_CFLAGS $FUSIONSOUND_CFLAGS"
-
-            # Check whether --enable-fusionsound-shared was given.
-if test "${enable_fusionsound_shared+set}" = set; then :
-  enableval=$enable_fusionsound_shared;
-else
-  enable_fusionsound_shared=yes
-fi
-
-            fusionsound_shared=no
-            { $as_echo "$as_me:${as_lineno-$LINENO}: checking for FusionSound dynamic loading support" >&5
-$as_echo_n "checking for FusionSound dynamic loading support... " >&6; }
-            if test x$have_loadso != xyes && \
-               test x$enable_fusionsound_shared = xyes; then
-                { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: You must have SDL_LoadObject() support for dynamic fusionsound loading" >&5
-$as_echo "$as_me: WARNING: You must have SDL_LoadObject() support for dynamic fusionsound loading" >&2;}
-            fi
-            if test x$have_loadso = xyes && \
-               test x$enable_fusionsound_shared = xyes; then
-
-cat >>confdefs.h <<_ACEOF
-#define SDL_AUDIO_DRIVER_FUSIONSOUND_DYNAMIC "libfusionsound.so"
-_ACEOF
-
-                fusionsound_shared=yes
-                SUMMARY_audio="${SUMMARY_audio} fusionsound(dynamic)"
-            else
-                EXTRA_LDFLAGS="$EXTRA_LDFLAGS $FUSIONSOUND_LIBS"
-                SUMMARY_audio="${SUMMARY_audio} fusionsound"
-            fi
-            { $as_echo "$as_me:${as_lineno-$LINENO}: result: $fusionsound_shared" >&5
-$as_echo "$fusionsound_shared" >&6; }
-
-            have_audio=yes
-        fi
-    fi
-}
-
 CheckDummyVideo()
 {
     # Check whether --enable-video-dummy was given.
@@ -22397,44 +22545,20 @@ $as_echo "#define HAVE_XINPUT_H 1" >>confdefs.h
 
 CheckDLOPEN()
 {
-    # Check whether --enable-sdl-dlopen was given.
-if test "${enable_sdl_dlopen+set}" = set; then :
-  enableval=$enable_sdl_dlopen;
+    $as_echo "#define DYNAPI_NEEDS_DLOPEN 1" >>confdefs.h
+
+
+    ac_fn_c_check_header_mongrel "$LINENO" "dlfcn.h" "ac_cv_header_dlfcn_h" "$ac_includes_default"
+if test "x$ac_cv_header_dlfcn_h" = xyes; then :
+  have_dlfcn_h=yes
 else
-  enable_sdl_dlopen=yes
+  have_dlfcn_h=no
 fi
 
-    if test x$enable_sdl_dlopen = xyes; then
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dlopen" >&5
-$as_echo_n "checking for dlopen... " >&6; }
-        have_dlopen=no
-        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
 
-         #include <dlfcn.h>
 
-int
-main ()
-{
-
-         void *handle = dlopen("", RTLD_NOW);
-         const char *loaderror = (char *) dlerror();
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-
-        have_dlopen=yes
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_dlopen" >&5
-$as_echo "$have_dlopen" >&6; }
-
-        if test x$have_dlopen = xyes; then
-            { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dlopen in -lc" >&5
+    have_dlopen=no
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dlopen in -lc" >&5
 $as_echo_n "checking for dlopen in -lc... " >&6; }
 if ${ac_cv_lib_c_dlopen+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -22471,7 +22595,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_c_dlopen" >&5
 $as_echo "$ac_cv_lib_c_dlopen" >&6; }
 if test "x$ac_cv_lib_c_dlopen" = xyes; then :
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS"
+  have_dlopen=yes
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dlopen in -ldl" >&5
 $as_echo_n "checking for dlopen in -ldl... " >&6; }
@@ -22510,58 +22634,25 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_dl_dlopen" >&5
 $as_echo "$ac_cv_lib_dl_dlopen" >&6; }
 if test "x$ac_cv_lib_dl_dlopen" = xyes; then :
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -ldl"
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dlopen in -lltdl" >&5
-$as_echo_n "checking for dlopen in -lltdl... " >&6; }
-if ${ac_cv_lib_ltdl_dlopen+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lltdl  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char dlopen ();
-int
-main ()
-{
-return dlopen ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_ltdl_dlopen=yes
-else
-  ac_cv_lib_ltdl_dlopen=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ltdl_dlopen" >&5
-$as_echo "$ac_cv_lib_ltdl_dlopen" >&6; }
-if test "x$ac_cv_lib_ltdl_dlopen" = xyes; then :
-  EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lltdl"
+  have_dlopen=yes; EXTRA_LDFLAGS="$EXTRA_LDFLAGS -ldl"
 fi
 
 fi
 
-fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dlopen" >&5
+$as_echo_n "checking for dlopen... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_dlopen" >&5
+$as_echo "$have_dlopen" >&6; }
 
+    if test x$have_dlfcn_h = xyes -a x$have_dlopen = xyes; then
+       $as_echo "#define HAVE_DLOPEN 1" >>confdefs.h
 
-$as_echo "#define SDL_LOADSO_DLOPEN 1" >>confdefs.h
+       if test x$enable_loadso = xyes; then
+          $as_echo "#define SDL_LOADSO_DLOPEN 1" >>confdefs.h
 
-            SOURCES="$SOURCES $srcdir/src/loadso/dlopen/*.c"
-            have_loadso=yes
-        fi
+          SOURCES="$SOURCES $srcdir/src/loadso/dlopen/*.c"
+          have_loadso=yes
+       fi
     fi
 }
 
@@ -23003,6 +23094,7 @@ fi
 }
 
 CheckWarnAll
+CheckNoStrictAliasing
 
 case "$host" in
     *-*-linux*|*-*-uclinux*|*-*-gnu*|*-*-k*bsd*-gnu|*-*-bsdi*|*-*-freebsd*|*-*-dragonfly*|*-*-netbsd*|*-*-openbsd*|*-*-sysv5*|*-*-solaris*|*-*-hpux*|*-*-aix*|*-*-minix*)
@@ -23853,7 +23945,7 @@ DEPENDS=`echo $SOURCES | tr ' ' '\n'`
 for EXT in asm cc m c S; do
     OBJECTS=`echo "$OBJECTS" | sed 's,[^ ]*/\([^ ]*\)\.'$EXT',$(objects)/\1.lo,g'`
     DEPENDS=`echo "$DEPENDS" | sed "s,^\\([^ ]*\\)/\\([^ ]*\\)\\.$EXT\\$,\\\\
-\\$(objects)/\\2.lo: \\1/\\2.$EXT\\\\
+\\$(objects)/\\2.lo: \\1/\\2.$EXT \\$(objects)/.created\\\\
 	\\$(RUN_CMD_CC)\\$(LIBTOOL) --tag=CC --mode=compile \\$(CC) \\$(CFLAGS) \\$(EXTRA_CFLAGS) $DEPENDENCY_TRACKING_OPTIONS -c \\$< -o \\$@,g"`
 done
 
@@ -23861,23 +23953,23 @@ GEN_OBJECTS=`echo "$GEN_SOURCES" | sed 's,[^ ]*/\([^ ]*\)\.c,$(objects)/\1.lo,g'
 
 VERSION_OBJECTS=`echo $VERSION_SOURCES`
 VERSION_DEPENDS=`echo $VERSION_SOURCES`
-VERSION_OBJECTS=`echo "$VERSION_OBJECTS" | sed 's,[^ ]*/\([^ ]*\)\.rc,$(objects)/\1.o,g'`
+VERSION_OBJECTS=`echo "$VERSION_OBJECTS" | sed 's,[^ ]*/\([^ ]*\)\.rc,$(objects)/\1.lo,g'`
 VERSION_DEPENDS=`echo "$VERSION_DEPENDS" | sed "s,\\([^ ]*\\)/\\([^ ]*\\)\\.rc,\\\\
-\\$(objects)/\\2.o: \\1/\\2.rc\\\\
-	\\$(WINDRES) \\$< \\$@,g"`
+\\$(objects)/\\2.lo: \\1/\\2.rc \\$(objects)/.created\\\\
+	\\$(RUN_CMD_RC)\\$(LIBTOOL) --mode=compile --tag=RC \\$(RC) -i \\$< -o \\$@,g"`
 
 SDLMAIN_OBJECTS=`echo $SDLMAIN_SOURCES`
 SDLMAIN_DEPENDS=`echo $SDLMAIN_SOURCES`
-SDLMAIN_OBJECTS=`echo "$SDLMAIN_OBJECTS" | sed 's,[^ ]*/\([^ ]*\)\.c,$(objects)/\1.o,g'`
+SDLMAIN_OBJECTS=`echo "$SDLMAIN_OBJECTS" | sed 's,[^ ]*/\([^ ]*\)\.c,$(objects)/\1.lo,g'`
 SDLMAIN_DEPENDS=`echo "$SDLMAIN_DEPENDS" | sed "s,\\([^ ]*\\)/\\([^ ]*\\)\\.c,\\\\
-\\$(objects)/\\2.o: \\1/\\2.c\\\\
+\\$(objects)/\\2.lo: \\1/\\2.c \\$(objects)/.created\\\\
 	\\$(RUN_CMD_CC)\\$(LIBTOOL) --tag=CC --mode=compile \\$(CC) \\$(CFLAGS) \\$(EXTRA_CFLAGS) $DEPENDENCY_TRACKING_OPTIONS -c \\$< -o \\$@,g"`
 
 SDLTEST_OBJECTS=`echo $SDLTEST_SOURCES`
 SDLTEST_DEPENDS=`echo $SDLTEST_SOURCES`
-SDLTEST_OBJECTS=`echo "$SDLTEST_OBJECTS" | sed 's,[^ ]*/\([^ ]*\)\.c,$(objects)/\1.o,g'`
+SDLTEST_OBJECTS=`echo "$SDLTEST_OBJECTS" | sed 's,[^ ]*/\([^ ]*\)\.c,$(objects)/\1.lo,g'`
 SDLTEST_DEPENDS=`echo "$SDLTEST_DEPENDS" | sed "s,\\([^ ]*\\)/\\([^ ]*\\)\\.c,\\\\
-\\$(objects)/\\2.o: \\1/\\2.c\\\\
+\\$(objects)/\\2.lo: \\1/\\2.c \\$(objects)/.created\\\\
 	\\$(RUN_CMD_CC)\\$(LIBTOOL) --tag=CC --mode=compile \\$(CC) \\$(CFLAGS) \\$(EXTRA_CFLAGS) $DEPENDENCY_TRACKING_OPTIONS -c \\$< -o \\$@,g"`
 
 # Set runtime shared library paths as needed
@@ -23943,7 +24035,6 @@ else
     ENABLE_STATIC_TRUE="#"
     ENABLE_STATIC_FALSE=
 fi
-
 
 
 
@@ -24861,53 +24952,101 @@ postdep_objects='`$ECHO "$postdep_objects" | $SED "$delay_single_quote_subst"`'
 predeps='`$ECHO "$predeps" | $SED "$delay_single_quote_subst"`'
 postdeps='`$ECHO "$postdeps" | $SED "$delay_single_quote_subst"`'
 compiler_lib_search_path='`$ECHO "$compiler_lib_search_path" | $SED "$delay_single_quote_subst"`'
+LD_RC='`$ECHO "$LD_RC" | $SED "$delay_single_quote_subst"`'
 LD_CXX='`$ECHO "$LD_CXX" | $SED "$delay_single_quote_subst"`'
+reload_flag_RC='`$ECHO "$reload_flag_RC" | $SED "$delay_single_quote_subst"`'
 reload_flag_CXX='`$ECHO "$reload_flag_CXX" | $SED "$delay_single_quote_subst"`'
+reload_cmds_RC='`$ECHO "$reload_cmds_RC" | $SED "$delay_single_quote_subst"`'
 reload_cmds_CXX='`$ECHO "$reload_cmds_CXX" | $SED "$delay_single_quote_subst"`'
+old_archive_cmds_RC='`$ECHO "$old_archive_cmds_RC" | $SED "$delay_single_quote_subst"`'
 old_archive_cmds_CXX='`$ECHO "$old_archive_cmds_CXX" | $SED "$delay_single_quote_subst"`'
+compiler_RC='`$ECHO "$compiler_RC" | $SED "$delay_single_quote_subst"`'
 compiler_CXX='`$ECHO "$compiler_CXX" | $SED "$delay_single_quote_subst"`'
+GCC_RC='`$ECHO "$GCC_RC" | $SED "$delay_single_quote_subst"`'
 GCC_CXX='`$ECHO "$GCC_CXX" | $SED "$delay_single_quote_subst"`'
+lt_prog_compiler_no_builtin_flag_RC='`$ECHO "$lt_prog_compiler_no_builtin_flag_RC" | $SED "$delay_single_quote_subst"`'
 lt_prog_compiler_no_builtin_flag_CXX='`$ECHO "$lt_prog_compiler_no_builtin_flag_CXX" | $SED "$delay_single_quote_subst"`'
+lt_prog_compiler_pic_RC='`$ECHO "$lt_prog_compiler_pic_RC" | $SED "$delay_single_quote_subst"`'
 lt_prog_compiler_pic_CXX='`$ECHO "$lt_prog_compiler_pic_CXX" | $SED "$delay_single_quote_subst"`'
+lt_prog_compiler_wl_RC='`$ECHO "$lt_prog_compiler_wl_RC" | $SED "$delay_single_quote_subst"`'
 lt_prog_compiler_wl_CXX='`$ECHO "$lt_prog_compiler_wl_CXX" | $SED "$delay_single_quote_subst"`'
+lt_prog_compiler_static_RC='`$ECHO "$lt_prog_compiler_static_RC" | $SED "$delay_single_quote_subst"`'
 lt_prog_compiler_static_CXX='`$ECHO "$lt_prog_compiler_static_CXX" | $SED "$delay_single_quote_subst"`'
+lt_cv_prog_compiler_c_o_RC='`$ECHO "$lt_cv_prog_compiler_c_o_RC" | $SED "$delay_single_quote_subst"`'
 lt_cv_prog_compiler_c_o_CXX='`$ECHO "$lt_cv_prog_compiler_c_o_CXX" | $SED "$delay_single_quote_subst"`'
+archive_cmds_need_lc_RC='`$ECHO "$archive_cmds_need_lc_RC" | $SED "$delay_single_quote_subst"`'
 archive_cmds_need_lc_CXX='`$ECHO "$archive_cmds_need_lc_CXX" | $SED "$delay_single_quote_subst"`'
+enable_shared_with_static_runtimes_RC='`$ECHO "$enable_shared_with_static_runtimes_RC" | $SED "$delay_single_quote_subst"`'
 enable_shared_with_static_runtimes_CXX='`$ECHO "$enable_shared_with_static_runtimes_CXX" | $SED "$delay_single_quote_subst"`'
+export_dynamic_flag_spec_RC='`$ECHO "$export_dynamic_flag_spec_RC" | $SED "$delay_single_quote_subst"`'
 export_dynamic_flag_spec_CXX='`$ECHO "$export_dynamic_flag_spec_CXX" | $SED "$delay_single_quote_subst"`'
+whole_archive_flag_spec_RC='`$ECHO "$whole_archive_flag_spec_RC" | $SED "$delay_single_quote_subst"`'
 whole_archive_flag_spec_CXX='`$ECHO "$whole_archive_flag_spec_CXX" | $SED "$delay_single_quote_subst"`'
+compiler_needs_object_RC='`$ECHO "$compiler_needs_object_RC" | $SED "$delay_single_quote_subst"`'
 compiler_needs_object_CXX='`$ECHO "$compiler_needs_object_CXX" | $SED "$delay_single_quote_subst"`'
+old_archive_from_new_cmds_RC='`$ECHO "$old_archive_from_new_cmds_RC" | $SED "$delay_single_quote_subst"`'
 old_archive_from_new_cmds_CXX='`$ECHO "$old_archive_from_new_cmds_CXX" | $SED "$delay_single_quote_subst"`'
+old_archive_from_expsyms_cmds_RC='`$ECHO "$old_archive_from_expsyms_cmds_RC" | $SED "$delay_single_quote_subst"`'
 old_archive_from_expsyms_cmds_CXX='`$ECHO "$old_archive_from_expsyms_cmds_CXX" | $SED "$delay_single_quote_subst"`'
+archive_cmds_RC='`$ECHO "$archive_cmds_RC" | $SED "$delay_single_quote_subst"`'
 archive_cmds_CXX='`$ECHO "$archive_cmds_CXX" | $SED "$delay_single_quote_subst"`'
+archive_expsym_cmds_RC='`$ECHO "$archive_expsym_cmds_RC" | $SED "$delay_single_quote_subst"`'
 archive_expsym_cmds_CXX='`$ECHO "$archive_expsym_cmds_CXX" | $SED "$delay_single_quote_subst"`'
+module_cmds_RC='`$ECHO "$module_cmds_RC" | $SED "$delay_single_quote_subst"`'
 module_cmds_CXX='`$ECHO "$module_cmds_CXX" | $SED "$delay_single_quote_subst"`'
+module_expsym_cmds_RC='`$ECHO "$module_expsym_cmds_RC" | $SED "$delay_single_quote_subst"`'
 module_expsym_cmds_CXX='`$ECHO "$module_expsym_cmds_CXX" | $SED "$delay_single_quote_subst"`'
+with_gnu_ld_RC='`$ECHO "$with_gnu_ld_RC" | $SED "$delay_single_quote_subst"`'
 with_gnu_ld_CXX='`$ECHO "$with_gnu_ld_CXX" | $SED "$delay_single_quote_subst"`'
+allow_undefined_flag_RC='`$ECHO "$allow_undefined_flag_RC" | $SED "$delay_single_quote_subst"`'
 allow_undefined_flag_CXX='`$ECHO "$allow_undefined_flag_CXX" | $SED "$delay_single_quote_subst"`'
+no_undefined_flag_RC='`$ECHO "$no_undefined_flag_RC" | $SED "$delay_single_quote_subst"`'
 no_undefined_flag_CXX='`$ECHO "$no_undefined_flag_CXX" | $SED "$delay_single_quote_subst"`'
+hardcode_libdir_flag_spec_RC='`$ECHO "$hardcode_libdir_flag_spec_RC" | $SED "$delay_single_quote_subst"`'
 hardcode_libdir_flag_spec_CXX='`$ECHO "$hardcode_libdir_flag_spec_CXX" | $SED "$delay_single_quote_subst"`'
+hardcode_libdir_separator_RC='`$ECHO "$hardcode_libdir_separator_RC" | $SED "$delay_single_quote_subst"`'
 hardcode_libdir_separator_CXX='`$ECHO "$hardcode_libdir_separator_CXX" | $SED "$delay_single_quote_subst"`'
+hardcode_direct_RC='`$ECHO "$hardcode_direct_RC" | $SED "$delay_single_quote_subst"`'
 hardcode_direct_CXX='`$ECHO "$hardcode_direct_CXX" | $SED "$delay_single_quote_subst"`'
+hardcode_direct_absolute_RC='`$ECHO "$hardcode_direct_absolute_RC" | $SED "$delay_single_quote_subst"`'
 hardcode_direct_absolute_CXX='`$ECHO "$hardcode_direct_absolute_CXX" | $SED "$delay_single_quote_subst"`'
+hardcode_minus_L_RC='`$ECHO "$hardcode_minus_L_RC" | $SED "$delay_single_quote_subst"`'
 hardcode_minus_L_CXX='`$ECHO "$hardcode_minus_L_CXX" | $SED "$delay_single_quote_subst"`'
+hardcode_shlibpath_var_RC='`$ECHO "$hardcode_shlibpath_var_RC" | $SED "$delay_single_quote_subst"`'
 hardcode_shlibpath_var_CXX='`$ECHO "$hardcode_shlibpath_var_CXX" | $SED "$delay_single_quote_subst"`'
+hardcode_automatic_RC='`$ECHO "$hardcode_automatic_RC" | $SED "$delay_single_quote_subst"`'
 hardcode_automatic_CXX='`$ECHO "$hardcode_automatic_CXX" | $SED "$delay_single_quote_subst"`'
+inherit_rpath_RC='`$ECHO "$inherit_rpath_RC" | $SED "$delay_single_quote_subst"`'
 inherit_rpath_CXX='`$ECHO "$inherit_rpath_CXX" | $SED "$delay_single_quote_subst"`'
+link_all_deplibs_RC='`$ECHO "$link_all_deplibs_RC" | $SED "$delay_single_quote_subst"`'
 link_all_deplibs_CXX='`$ECHO "$link_all_deplibs_CXX" | $SED "$delay_single_quote_subst"`'
+always_export_symbols_RC='`$ECHO "$always_export_symbols_RC" | $SED "$delay_single_quote_subst"`'
 always_export_symbols_CXX='`$ECHO "$always_export_symbols_CXX" | $SED "$delay_single_quote_subst"`'
+export_symbols_cmds_RC='`$ECHO "$export_symbols_cmds_RC" | $SED "$delay_single_quote_subst"`'
 export_symbols_cmds_CXX='`$ECHO "$export_symbols_cmds_CXX" | $SED "$delay_single_quote_subst"`'
+exclude_expsyms_RC='`$ECHO "$exclude_expsyms_RC" | $SED "$delay_single_quote_subst"`'
 exclude_expsyms_CXX='`$ECHO "$exclude_expsyms_CXX" | $SED "$delay_single_quote_subst"`'
+include_expsyms_RC='`$ECHO "$include_expsyms_RC" | $SED "$delay_single_quote_subst"`'
 include_expsyms_CXX='`$ECHO "$include_expsyms_CXX" | $SED "$delay_single_quote_subst"`'
+prelink_cmds_RC='`$ECHO "$prelink_cmds_RC" | $SED "$delay_single_quote_subst"`'
 prelink_cmds_CXX='`$ECHO "$prelink_cmds_CXX" | $SED "$delay_single_quote_subst"`'
+postlink_cmds_RC='`$ECHO "$postlink_cmds_RC" | $SED "$delay_single_quote_subst"`'
 postlink_cmds_CXX='`$ECHO "$postlink_cmds_CXX" | $SED "$delay_single_quote_subst"`'
+file_list_spec_RC='`$ECHO "$file_list_spec_RC" | $SED "$delay_single_quote_subst"`'
 file_list_spec_CXX='`$ECHO "$file_list_spec_CXX" | $SED "$delay_single_quote_subst"`'
+hardcode_action_RC='`$ECHO "$hardcode_action_RC" | $SED "$delay_single_quote_subst"`'
 hardcode_action_CXX='`$ECHO "$hardcode_action_CXX" | $SED "$delay_single_quote_subst"`'
+compiler_lib_search_dirs_RC='`$ECHO "$compiler_lib_search_dirs_RC" | $SED "$delay_single_quote_subst"`'
 compiler_lib_search_dirs_CXX='`$ECHO "$compiler_lib_search_dirs_CXX" | $SED "$delay_single_quote_subst"`'
+predep_objects_RC='`$ECHO "$predep_objects_RC" | $SED "$delay_single_quote_subst"`'
 predep_objects_CXX='`$ECHO "$predep_objects_CXX" | $SED "$delay_single_quote_subst"`'
+postdep_objects_RC='`$ECHO "$postdep_objects_RC" | $SED "$delay_single_quote_subst"`'
 postdep_objects_CXX='`$ECHO "$postdep_objects_CXX" | $SED "$delay_single_quote_subst"`'
+predeps_RC='`$ECHO "$predeps_RC" | $SED "$delay_single_quote_subst"`'
 predeps_CXX='`$ECHO "$predeps_CXX" | $SED "$delay_single_quote_subst"`'
+postdeps_RC='`$ECHO "$postdeps_RC" | $SED "$delay_single_quote_subst"`'
 postdeps_CXX='`$ECHO "$postdeps_CXX" | $SED "$delay_single_quote_subst"`'
+compiler_lib_search_path_RC='`$ECHO "$compiler_lib_search_path_RC" | $SED "$delay_single_quote_subst"`'
 compiler_lib_search_path_CXX='`$ECHO "$compiler_lib_search_path_CXX" | $SED "$delay_single_quote_subst"`'
 
 LTCC='$LTCC'
@@ -24995,30 +25134,55 @@ postdep_objects \
 predeps \
 postdeps \
 compiler_lib_search_path \
+LD_RC \
 LD_CXX \
+reload_flag_RC \
 reload_flag_CXX \
+compiler_RC \
 compiler_CXX \
+lt_prog_compiler_no_builtin_flag_RC \
 lt_prog_compiler_no_builtin_flag_CXX \
+lt_prog_compiler_pic_RC \
 lt_prog_compiler_pic_CXX \
+lt_prog_compiler_wl_RC \
 lt_prog_compiler_wl_CXX \
+lt_prog_compiler_static_RC \
 lt_prog_compiler_static_CXX \
+lt_cv_prog_compiler_c_o_RC \
 lt_cv_prog_compiler_c_o_CXX \
+export_dynamic_flag_spec_RC \
 export_dynamic_flag_spec_CXX \
+whole_archive_flag_spec_RC \
 whole_archive_flag_spec_CXX \
+compiler_needs_object_RC \
 compiler_needs_object_CXX \
+with_gnu_ld_RC \
 with_gnu_ld_CXX \
+allow_undefined_flag_RC \
 allow_undefined_flag_CXX \
+no_undefined_flag_RC \
 no_undefined_flag_CXX \
+hardcode_libdir_flag_spec_RC \
 hardcode_libdir_flag_spec_CXX \
+hardcode_libdir_separator_RC \
 hardcode_libdir_separator_CXX \
+exclude_expsyms_RC \
 exclude_expsyms_CXX \
+include_expsyms_RC \
 include_expsyms_CXX \
+file_list_spec_RC \
 file_list_spec_CXX \
+compiler_lib_search_dirs_RC \
 compiler_lib_search_dirs_CXX \
+predep_objects_RC \
 predep_objects_CXX \
+postdep_objects_RC \
 postdep_objects_CXX \
+predeps_RC \
 predeps_CXX \
+postdeps_RC \
 postdeps_CXX \
+compiler_lib_search_path_RC \
 compiler_lib_search_path_CXX; do
     case \`eval \\\\\$ECHO \\\\""\\\\\$\$var"\\\\"\` in
     *[\\\\\\\`\\"\\\$]*)
@@ -25050,16 +25214,27 @@ postuninstall_cmds \
 finish_cmds \
 sys_lib_search_path_spec \
 sys_lib_dlsearch_path_spec \
+reload_cmds_RC \
 reload_cmds_CXX \
+old_archive_cmds_RC \
 old_archive_cmds_CXX \
+old_archive_from_new_cmds_RC \
 old_archive_from_new_cmds_CXX \
+old_archive_from_expsyms_cmds_RC \
 old_archive_from_expsyms_cmds_CXX \
+archive_cmds_RC \
 archive_cmds_CXX \
+archive_expsym_cmds_RC \
 archive_expsym_cmds_CXX \
+module_cmds_RC \
 module_cmds_CXX \
+module_expsym_cmds_RC \
 module_expsym_cmds_CXX \
+export_symbols_cmds_RC \
 export_symbols_cmds_CXX \
+prelink_cmds_RC \
 prelink_cmds_CXX \
+postlink_cmds_RC \
 postlink_cmds_CXX; do
     case \`eval \\\\\$ECHO \\\\""\\\\\$\$var"\\\\"\` in
     *[\\\\\\\`\\"\\\$]*)
@@ -25087,6 +25262,8 @@ fi
     TIMESTAMP='$TIMESTAMP'
     RM='$RM'
     ofile='$ofile'
+
+
 
 
 
@@ -25716,7 +25893,7 @@ $as_echo "$as_me: executing $ac_file commands" >&6;}
 
 
 # The names of the tagged configurations supported by this script.
-available_tags="CXX "
+available_tags="RC CXX "
 
 # ### BEGIN LIBTOOL CONFIG
 
@@ -26311,6 +26488,159 @@ fi
    mv -f "$cfgfile" "$ofile" ||
     (rm -f "$ofile" && cp "$cfgfile" "$ofile" && rm -f "$cfgfile")
   chmod +x "$ofile"
+
+
+    cat <<_LT_EOF >> "$ofile"
+
+# ### BEGIN LIBTOOL TAG CONFIG: RC
+
+# The linker used to build libraries.
+LD=$lt_LD_RC
+
+# How to create reloadable object files.
+reload_flag=$lt_reload_flag_RC
+reload_cmds=$lt_reload_cmds_RC
+
+# Commands used to build an old-style archive.
+old_archive_cmds=$lt_old_archive_cmds_RC
+
+# A language specific compiler.
+CC=$lt_compiler_RC
+
+# Is the compiler the GNU compiler?
+with_gcc=$GCC_RC
+
+# Compiler flag to turn off builtin functions.
+no_builtin_flag=$lt_lt_prog_compiler_no_builtin_flag_RC
+
+# Additional compiler flags for building library objects.
+pic_flag=$lt_lt_prog_compiler_pic_RC
+
+# How to pass a linker flag through the compiler.
+wl=$lt_lt_prog_compiler_wl_RC
+
+# Compiler flag to prevent dynamic linking.
+link_static_flag=$lt_lt_prog_compiler_static_RC
+
+# Does compiler simultaneously support -c and -o options?
+compiler_c_o=$lt_lt_cv_prog_compiler_c_o_RC
+
+# Whether or not to add -lc for building shared libraries.
+build_libtool_need_lc=$archive_cmds_need_lc_RC
+
+# Whether or not to disallow shared libs when runtime libs are static.
+allow_libtool_libs_with_static_runtimes=$enable_shared_with_static_runtimes_RC
+
+# Compiler flag to allow reflexive dlopens.
+export_dynamic_flag_spec=$lt_export_dynamic_flag_spec_RC
+
+# Compiler flag to generate shared objects directly from archives.
+whole_archive_flag_spec=$lt_whole_archive_flag_spec_RC
+
+# Whether the compiler copes with passing no objects directly.
+compiler_needs_object=$lt_compiler_needs_object_RC
+
+# Create an old-style archive from a shared archive.
+old_archive_from_new_cmds=$lt_old_archive_from_new_cmds_RC
+
+# Create a temporary old-style archive to link instead of a shared archive.
+old_archive_from_expsyms_cmds=$lt_old_archive_from_expsyms_cmds_RC
+
+# Commands used to build a shared archive.
+archive_cmds=$lt_archive_cmds_RC
+archive_expsym_cmds=$lt_archive_expsym_cmds_RC
+
+# Commands used to build a loadable module if different from building
+# a shared archive.
+module_cmds=$lt_module_cmds_RC
+module_expsym_cmds=$lt_module_expsym_cmds_RC
+
+# Whether we are building with GNU ld or not.
+with_gnu_ld=$lt_with_gnu_ld_RC
+
+# Flag that allows shared libraries with undefined symbols to be built.
+allow_undefined_flag=$lt_allow_undefined_flag_RC
+
+# Flag that enforces no undefined symbols.
+no_undefined_flag=$lt_no_undefined_flag_RC
+
+# Flag to hardcode \$libdir into a binary during linking.
+# This must work even if \$libdir does not exist
+hardcode_libdir_flag_spec=$lt_hardcode_libdir_flag_spec_RC
+
+# Whether we need a single "-rpath" flag with a separated argument.
+hardcode_libdir_separator=$lt_hardcode_libdir_separator_RC
+
+# Set to "yes" if using DIR/libNAME\${shared_ext} during linking hardcodes
+# DIR into the resulting binary.
+hardcode_direct=$hardcode_direct_RC
+
+# Set to "yes" if using DIR/libNAME\${shared_ext} during linking hardcodes
+# DIR into the resulting binary and the resulting library dependency is
+# "absolute",i.e impossible to change by setting \${shlibpath_var} if the
+# library is relocated.
+hardcode_direct_absolute=$hardcode_direct_absolute_RC
+
+# Set to "yes" if using the -LDIR flag during linking hardcodes DIR
+# into the resulting binary.
+hardcode_minus_L=$hardcode_minus_L_RC
+
+# Set to "yes" if using SHLIBPATH_VAR=DIR during linking hardcodes DIR
+# into the resulting binary.
+hardcode_shlibpath_var=$hardcode_shlibpath_var_RC
+
+# Set to "yes" if building a shared library automatically hardcodes DIR
+# into the library and all subsequent libraries and executables linked
+# against it.
+hardcode_automatic=$hardcode_automatic_RC
+
+# Set to yes if linker adds runtime paths of dependent libraries
+# to runtime path list.
+inherit_rpath=$inherit_rpath_RC
+
+# Whether libtool must link a program against all its dependency libraries.
+link_all_deplibs=$link_all_deplibs_RC
+
+# Set to "yes" if exported symbols are required.
+always_export_symbols=$always_export_symbols_RC
+
+# The commands to list exported symbols.
+export_symbols_cmds=$lt_export_symbols_cmds_RC
+
+# Symbols that should not be listed in the preloaded symbols.
+exclude_expsyms=$lt_exclude_expsyms_RC
+
+# Symbols that must always be exported.
+include_expsyms=$lt_include_expsyms_RC
+
+# Commands necessary for linking programs (against libraries) with templates.
+prelink_cmds=$lt_prelink_cmds_RC
+
+# Commands necessary for finishing linking programs.
+postlink_cmds=$lt_postlink_cmds_RC
+
+# Specify filename containing input files.
+file_list_spec=$lt_file_list_spec_RC
+
+# How to hardcode a shared library path into an executable.
+hardcode_action=$hardcode_action_RC
+
+# The directories searched by this compiler when creating a shared library.
+compiler_lib_search_dirs=$lt_compiler_lib_search_dirs_RC
+
+# Dependencies to place before and after the objects being linked to
+# create a shared library.
+predep_objects=$lt_predep_objects_RC
+postdep_objects=$lt_postdep_objects_RC
+predeps=$lt_predeps_RC
+postdeps=$lt_postdeps_RC
+
+# The library search path used internally by the compiler when linking
+# a shared library.
+compiler_lib_search_path=$lt_compiler_lib_search_path_RC
+
+# ### END LIBTOOL TAG CONFIG: RC
+_LT_EOF
 
 
     cat <<_LT_EOF >> "$ofile"

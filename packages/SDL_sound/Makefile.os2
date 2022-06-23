@@ -37,6 +37,7 @@ CFLAGS+= -DBUILD_SDL -DSDL_SOUND_DLL_EXPORTS
 #this is noted as experimental:
 #CFLAGS+= -DSOUND_USE_ALTCVT=1
 
+CFLAGS+= -DHAVE_ASSERT_H=1
 CFLAGS+= -DSOUND_SUPPORTS_MPG123 &
          -DSOUND_SUPPORTS_MIKMOD &
          -DSOUND_SUPPORTS_WAV &
@@ -44,6 +45,7 @@ CFLAGS+= -DSOUND_SUPPORTS_MPG123 &
          -DSOUND_SUPPORTS_AU &
          -DSOUND_SUPPORTS_OGG &
          -DSOUND_SUPPORTS_VOC &
+         -DSOUND_SUPPORTS_SHN &
          -DSOUND_SUPPORTS_RAW &
          -DSOUND_SUPPORTS_FLAC &
          -DSOUND_SUPPORTS_MIDI
@@ -109,9 +111,10 @@ clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
   @if exist *.obj rm *.obj
   @if exist *.err rm *.err
-  @if exist *.map rm *.map
-  @if exist *.exe rm *.exe
   @if exist $(TIMILIB) rm $(TIMILIB)
   @if exist $(LNKFILE) rm $(LNKFILE)
+distclean: .SYMBOLIC clean
   @if exist $(DLLFILE) rm $(DLLFILE)
   @if exist $(LIBFILE) rm $(LIBFILE)
+  @if exist *.map rm *.map
+  @if exist *.exe rm *.exe

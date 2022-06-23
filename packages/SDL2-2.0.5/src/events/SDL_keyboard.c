@@ -597,6 +597,9 @@ SDL_SetKeymap(int start, SDL_Keycode * keys, int length)
 void
 SDL_SetScancodeName(SDL_Scancode scancode, const char *name)
 {
+    if (scancode >= SDL_NUM_SCANCODES) {
+        return;
+    }
     SDL_scancode_names[scancode] = name;
 }
 
@@ -668,7 +671,7 @@ SDL_SendKeyboardKey(Uint8 state, SDL_Scancode scancode)
     Uint32 type;
     Uint8 repeat;
 
-    if (!scancode) {
+    if (!scancode || scancode >= SDL_NUM_SCANCODES) {
         return 0;
     }
 #ifdef DEBUG_KEYBOARD

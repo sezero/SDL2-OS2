@@ -1,5 +1,5 @@
 LIBNAME = SDL2mix
-VERSION = 2.0.1a
+VERSION = 2.0.1c
 INCPATH = ../../h
 LIBPATH = ../../lib
 
@@ -13,8 +13,8 @@ USE_OGG=yes
 USE_TREMOR=no
 # flac music support
 USE_FLAC=yes
-# mp3 music support (using libmad)
-#USE_MP3=yes
+# mp3 music support (using libmad - Note: GPL license!)
+USE_LIBMAD=no
 # mp3 music support (using mpg123)
 USE_MPG123=yes
 # midi music support (using timidity)
@@ -22,7 +22,7 @@ USE_TIMIDITY=yes
 # midi music support (using fluidsynth)
 USE_FLUIDSYNTH=no
 # tracker music support (using libmikmod)
-USE_MOD=yes
+USE_MIKMOD=yes
 # tracker music support (using libmodplug)
 USE_MODPLUG=no
 
@@ -33,9 +33,10 @@ TIMILIB = timidity.lib
 
 SRCS = dynamic_flac.c dynamic_fluidsynth.c dynamic_mod.c dynamic_modplug.c &
        dynamic_mp3.c dynamic_ogg.c effects_internal.c effect_position.c &
-       effect_stereoreverse.c fluidsynth.c load_aiff.c load_flac.c load_mp3.c &
-       load_ogg.c load_voc.c mixer.c music.c mp3utils.c music_cmd.c music_flac.c &
-       music_mpg.c music_mad.c music_mod.c music_modplug.c music_ogg.c wavestream.c
+       effect_stereoreverse.c music_fluidsynth.c load_aiff.c load_flac.c &
+       load_mp3.c load_ogg.c load_voc.c mixer.c music.c mp3utils.c music_cmd.c &
+       music_flac.c music_mad.c music_mpg.c music_mod.c music_modplug.c &
+       music_ogg.c wavestream.c
 # timidity sources:
 TIMISRCS = common.c instrum.c mix.c output.c playmidi.c readmidi.c resample.c tables.c timidity.c
 
@@ -88,7 +89,7 @@ CFLAGS+= -DFLAC_MUSIC
 LIBS+= FLAC.lib
 !endif
 
-!ifeq USE_MP3 yes
+!ifeq USE_LIBMAD yes
 CFLAGS+= -DMP3_MAD_MUSIC
 LIBS+= mad.lib
 !endif
@@ -96,8 +97,7 @@ LIBS+= mad.lib
 CFLAGS+= -DMP3_MPG_MUSIC
 LIBS+= mpg123.lib
 !endif
-
-!ifeq USE_MOD yes
+!ifeq USE_MIKMOD yes
 CFLAGS+= -DMOD_MUSIC
 LIBS+= mikmod.lib
 !endif
@@ -122,11 +122,7 @@ $(LNKFILE):
   @%append $@ NAME $(LIBNAME)
   @for %i in ($(OBJS)) do @%append $@ FILE %i
   @%append $@ OPTION QUIET
-!ifdef %osdir
-  @$(%osdir)\KLIBC\BIN\date +"OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@$#$#1$#$# %F               $(%HOSTNAME)::::::@@Simple DirectMedia Layer Mixer'" >>$^@
-!else
-  @%append $@ OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@Simple DirectMedia Layer Mixer'
-!endif
+  @%append $@ OPTION DESCRIPTION '@$#libsdl org:$(VERSION)$#@Simple DirectMedia Layer Mixer Library'
   @%append $@ LIBPATH $(LIBPATH)
   @for %i in ($(LIBS)) do @%append $@ LIB %i
   @%append $@ OPTION MAP=$*
@@ -158,9 +154,11 @@ clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
   @if exist *.obj rm *.obj
   @if exist *.err rm *.err
-  @if exist *.map rm *.map
-  @if exist *.exe rm *.exe
   @if exist $(TIMILIB) rm $(TIMILIB)
   @if exist $(LNKFILE) rm $(LNKFILE)
+
+distclean: .SYMBOLIC clean
   @if exist $(DLLFILE) rm $(DLLFILE)
   @if exist $(LIBFILE) rm $(LIBFILE)
+  @if exist *.map rm *.map
+  @if exist *.exe rm *.exe
