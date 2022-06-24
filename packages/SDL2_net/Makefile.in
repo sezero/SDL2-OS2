@@ -57,7 +57,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @USE_VERSION_RC_FALSE@libSDL2_net_la_DEPENDENCIES =
-noinst_PROGRAMS = $(am__EXEEXT_1)
+@ENABLE_EXAMPLES_TRUE@noinst_PROGRAMS = $(am__EXEEXT_1)
 subdir = .
 DIST_COMMON = $(am__configure_deps) $(libSDL2_netinclude_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -115,9 +115,8 @@ libSDL2_net_la_OBJECTS = $(am_libSDL2_net_la_OBJECTS)
 libSDL2_net_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libSDL2_net_la_LDFLAGS) $(LDFLAGS) -o $@
-@HAVE_GUI_LIB_FALSE@am__EXEEXT_1 = showinterfaces$(EXEEXT)
-@HAVE_GUI_LIB_TRUE@am__EXEEXT_1 = showinterfaces$(EXEEXT) \
-@HAVE_GUI_LIB_TRUE@	chat$(EXEEXT) chatd$(EXEEXT)
+@ENABLE_EXAMPLES_TRUE@am__EXEEXT_1 = showinterfaces$(EXEEXT) \
+@ENABLE_EXAMPLES_TRUE@	chat$(EXEEXT) chatd$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am_chat_OBJECTS = chat.$(OBJEXT)
 chat_OBJECTS = $(am_chat_OBJECTS)
@@ -140,15 +139,6 @@ LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
-CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-LTCXXCOMPILE = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-CXXLD = $(CXX)
-CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libSDL2_net_la_SOURCES) $(chat_SOURCES) $(chatd_SOURCES) \
 	$(showinterfaces_SOURCES)
@@ -192,10 +182,6 @@ CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CXX = @CXX@
-CXXCPP = @CXXCPP@
-CXXDEPMODE = @CXXDEPMODE@
-CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -266,7 +252,6 @@ abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
-ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
@@ -333,9 +318,6 @@ EXTRA_DIST = \
 	VisualC			\
 	Xcode			\
 	Xcode-iOS		\
-	quit.bmp		\
-	scroll_dn.bmp		\
-	scroll_up.bmp		\
 	SDL2_net.spec		\
 	SDL2_net.spec.in		\
 	gcc-fat.sh		\
@@ -355,12 +337,11 @@ EXTRA_DIST = \
 @USE_VERSION_RC_FALSE@libSDL2_net_la_LIBADD = @INETLIB@
 @USE_VERSION_RC_TRUE@libSDL2_net_la_LIBADD = @INETLIB@
 @USE_VERSION_RC_TRUE@libSDL2_net_la_DEPENDENCIES = version.o
-@HAVE_GUI_LIB_FALSE@EXAMPLES = showinterfaces
-@HAVE_GUI_LIB_TRUE@EXAMPLES = showinterfaces chat chatd
+@ENABLE_EXAMPLES_TRUE@EXAMPLES = showinterfaces chat chatd
 showinterfaces_SOURCES = showinterfaces.c
 showinterfaces_LDADD = libSDL2_net.la
-chat_SOURCES = chat.cpp chat.h
-chat_LDADD = libSDL2_net.la -lGUI
+chat_SOURCES = chat.c chat.h
+chat_LDADD = libSDL2_net.la -lSDL2_test
 chatd_SOURCES = chatd.c
 chatd_LDADD = libSDL2_net.la
 pkgconfigdir = $(libdir)/pkgconfig
@@ -368,7 +349,7 @@ pkgconfig_DATA = SDL2_net.pc
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .lo .o .obj
+.SUFFIXES: .c .lo .o .obj
 am--refresh: Makefile
 	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -452,7 +433,7 @@ clean-noinstPROGRAMS:
 	rm -f $$list
 chat$(EXEEXT): $(chat_OBJECTS) $(chat_DEPENDENCIES) $(EXTRA_chat_DEPENDENCIES) 
 	@rm -f chat$(EXEEXT)
-	$(CXXLINK) $(chat_OBJECTS) $(chat_LDADD) $(LIBS)
+	$(LINK) $(chat_OBJECTS) $(chat_LDADD) $(LIBS)
 chatd$(EXEEXT): $(chatd_OBJECTS) $(chatd_DEPENDENCIES) $(EXTRA_chatd_DEPENDENCIES) 
 	@rm -f chatd$(EXEEXT)
 	$(LINK) $(chatd_OBJECTS) $(chatd_LDADD) $(LIBS)
@@ -494,27 +475,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
-
-.cpp.o:
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ $<
-
-.cpp.obj:
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-.cpp.lo:
-@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
 
 mostlyclean-libtool:
 	-rm -f *.lo

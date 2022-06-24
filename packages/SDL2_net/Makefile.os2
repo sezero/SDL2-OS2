@@ -1,5 +1,6 @@
 LIBNAME = SDL2net
 VERSION = 2.0.1a
+
 INCPATH = ../../h
 LIBPATH = ../../lib
 
@@ -15,17 +16,21 @@ OBJS = $(SRCS:.c=.obj)
 
 LIBS = SDL2.lib
 
-CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oeatxh -ei -j
+CFLAGS_BASE = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oeatxh -ei -j
 # warnings:
-CFLAGS+= -wx
+CFLAGS_BASE+= -wx
 # newer OpenWatcom versions enable W303 by default
-CFLAGS+= -wcd=303
+CFLAGS_BASE+= -wcd=303
+# include paths:
+CFLAGS_BASE+= -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h -I$(INCPATH)/SDL2
+
+CFLAGS =$(CFLAGS_BASE)
 # to build a dll:
 CFLAGS+= -bd
 # for DECLSPEC:
 CFLAGS+= -DBUILD_SDL
-# include paths:
-CFLAGS+= -I$(%WATCOM)/h/os2 -I$(%WATCOM)/h -I$(INCPATH)/SDL2
+
+all: $(LIBFILE) showinterfaces.exe chat.exe chatd.exe
 
 $(LIBFILE): $(DLLFILE)
   @echo * Create library: $@...
@@ -52,6 +57,20 @@ $(LNKFILE):
 
 .c.obj:
   wcc386 $(CFLAGS) -fo=$^@ $<
+
+showinterfaces.obj: showinterfaces.c
+  wcc386 $(CFLAGS_BASE) -fo=$^@ $<
+chat.obj: chat.c
+  wcc386 $(CFLAGS_BASE) -fo=$^@ $<
+chatd.obj: chatd.c
+  wcc386 $(CFLAGS_BASE) -fo=$^@ $<
+
+showinterfaces.exe: $(LIBFILE) showinterfaces.obj
+  wlink SYS os2v2 OP q LIBPATH $(LIBPATH) LIBR {$(LIBFILE) SDL2.lib} F {showinterfaces.obj} N showinterfaces.exe
+chat.exe: $(LIBFILE) chat.obj
+  wlink SYS os2v2 OP q LIBPATH $(LIBPATH) LIBR {$(LIBFILE) SDL2test.lib SDL2.lib} F {chat.obj} N chat.exe
+chatd.exe: $(LIBFILE) chatd.obj
+  wlink SYS os2v2 OP q LIBPATH $(LIBPATH) LIBR {$(LIBFILE) SDL2.lib} F {chatd.obj} N chatd.exe
 
 clean: .SYMBOLIC
   @echo * Clean: $(TITLENAME)
