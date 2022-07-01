@@ -44,6 +44,7 @@ SDL_Surface *
 SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
                                Uint32 format)
 {
+    Sint64 pitch;
     SDL_Surface *surface;
 
     /* The flags are no longer used, make the compiler happy */
@@ -61,9 +62,18 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
         SDL_FreeSurface(surface);
         return NULL;
     }
+
     surface->w = width;
     surface->h = height;
-    surface->pitch = SDL_CalculatePitch(surface);
+
+    pitch = SDL_CalculatePitch(surface);
+    if (pitch < 0 || pitch > SDL_MAX_SINT32) {
+        /* Overflow... */
+        SDL_OutOfMemory();
+        return NULL;
+    }
+    surface->pitch = (int)pitch;
+
     SDL_SetClipRect(surface, NULL);
 
     if (SDL_ISPIXELFORMAT_INDEXED(surface->format->format)) {

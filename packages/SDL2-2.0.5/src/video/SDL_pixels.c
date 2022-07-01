@@ -744,13 +744,13 @@ SDL_DitherColors(SDL_Color * colors, int bpp)
 /*
  * Calculate the pad-aligned scanline width of a surface
  */
-int
+Sint64
 SDL_CalculatePitch(SDL_Surface * surface)
 {
-    int pitch;
+    Sint64 pitch;
 
     /* Surface should be 4-byte aligned for speed */
-    pitch = surface->w * surface->format->BytesPerPixel;
+    pitch = (Sint64)surface->w * surface->format->BytesPerPixel;
     switch (surface->format->BitsPerPixel) {
     case 1:
         pitch = (pitch + 7) / 8;
