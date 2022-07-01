@@ -240,11 +240,12 @@ static struct IMA_ADPCM_decoder
 } IMA_ADPCM_state;
 
 static int
-InitIMA_ADPCM(WaveFMT * format)
+InitIMA_ADPCM(WaveFMT * format, int length)
 {
-    Uint8 *rogue_feel;
+    Uint8 *rogue_feel, *rogue_feel_end;
 
     /* Set the rogue pointer to the IMA_ADPCM specific data */
+    if (length < sizeof(*format)) goto too_short;
     IMA_ADPCM_state.wavefmt.encoding = SDL_SwapLE16(format->encoding);
     IMA_ADPCM_state.wavefmt.channels = SDL_SwapLE16(format->channels);
     IMA_ADPCM_state.wavefmt.frequency = SDL_SwapLE32(format->frequency);
@@ -253,12 +254,17 @@ InitIMA_ADPCM(WaveFMT * format)
     IMA_ADPCM_state.wavefmt.bitspersample =
         SDL_SwapLE16(format->bitspersample);
     rogue_feel = (Uint8 *) format + sizeof(*format);
+    rogue_feel_end = (Uint8 *)format + length;
     if (sizeof(*format) == 16) {
         /* const Uint16 extra_info = ((rogue_feel[1] << 8) | rogue_feel[0]); */
         rogue_feel += sizeof(Uint16);
     }
+    if (rogue_feel + 2 > rogue_feel_end) goto too_short;
     IMA_ADPCM_state.wSamplesPerBlock = ((rogue_feel[1] << 8) | rogue_feel[0]);
     return (0);
+too_short:
+    SDL_SetError("Unexpected length of a chunk with an IMA ADPCM format");
+    return(-1);
 }
 
 static Sint32
@@ -499,7 +505,7 @@ SDL_LoadWAV_RW(SDL_RWops * src, int freesrc,
         break;
     case IMA_ADPCM_CODE:
         /* Try to understand this */
-        if (InitIMA_ADPCM(format) < 0) {
+        if (InitIMA_ADPCM(format,lenread) < 0) {
             was_error = 1;
             goto done;
         }
