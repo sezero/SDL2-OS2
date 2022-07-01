@@ -846,6 +846,12 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
     return(chunk);
 }
 
+Mix_Chunk *Mix_LoadWAV(const char *file)
+{
+    return Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1);
+}
+
+
 /* Load a wave file of the mixer format from a memory buffer */
 Mix_Chunk *Mix_QuickLoad_WAV(Uint8 *mem)
 {
@@ -1071,6 +1077,11 @@ int Mix_PlayChannelTimed(int which, Mix_Chunk *chunk, int loops, int ticks)
     return(which);
 }
 
+int Mix_PlayChannel(int channel, Mix_Chunk *chunk, int loops)
+{
+    return Mix_PlayChannelTimed(channel, chunk, loops, -1);
+}
+
 /* Change the expiration delay for a channel */
 int Mix_ExpireChannel(int which, int ticks)
 {
@@ -1147,6 +1158,12 @@ int Mix_FadeInChannelTimed(int which, Mix_Chunk *chunk, int loops, int ms, int t
     /* Return the channel on which the sound is being played */
     return(which);
 }
+
+int Mix_FadeInChannel(int channel, Mix_Chunk *chunk, int loops, int ms)
+{
+    return Mix_FadeInChannelTimed(channel, chunk, loops, ms, -1);
+}
+
 
 /* Set volume of a particular channel */
 int Mix_Volume(int which, int volume)
@@ -1446,8 +1463,13 @@ int Mix_GroupCount(int tag)
 {
     int count = 0;
     int i;
+
+    if (tag == -1) {
+        return num_channels;  /* minor optimization; no need to go through the loop. */
+    }
+
     for(i=0; i < num_channels; i ++) {
-        if (mix_channel[i].tag==tag || tag==-1)
+        if (mix_channel[i].tag == tag)
             ++ count;
     }
     return(count);
