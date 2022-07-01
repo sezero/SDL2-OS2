@@ -152,6 +152,9 @@ MS_ADPCM_decode(Uint8 ** audio_buf, Uint32 * audio_len)
         if (stereo) {
             state[1]->hPredictor = *encoded++;
         }
+        if (state[0]->hPredictor >= 7 || state[1]->hPredictor >= 7) {
+            goto invalid_predictor;
+        }
         state[0]->iDelta = ((encoded[1] << 8) | encoded[0]);
         encoded += sizeof(Sint16);
         if (stereo) {
@@ -222,6 +225,10 @@ MS_ADPCM_decode(Uint8 ** audio_buf, Uint32 * audio_len)
     return (0);
 invalid_size:
     SDL_SetError("Unexpected chunk length for a MS ADPCM decoder");
+    SDL_free(freeable);
+    return(-1);
+invalid_predictor:
+    SDL_SetError("Invalid predictor value for a MS ADPCM decoder");
     SDL_free(freeable);
     return(-1);
 }
