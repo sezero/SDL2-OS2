@@ -1,0 +1,32 @@
+From 6fc77cee03e078e97afcee0c0e06a2d3274b9a29 Mon Sep 17 00:00:00 2001
+From: Ben Wagner <bungeman@chromium.org>
+Date: Thu, 26 May 2022 20:27:53 -0400
+Subject: [PATCH] [svg] Clear correct flags for doc ownership
+
+This issue was discovered with an SVG based font with some documents
+compressed and other uncompressed. After loading the first compressed
+document the ownership flag on the glyph slot was set to true but never
+set to false. As a result after loading a compressed document a glyph
+from an uncompressed document would load fine, but when this glyph slot
+was cleared it would try to free its document resulting in a wild free.
+
+* src/base/ftobjs.c (ft_glyphslot_clear): clear correct flags
+
+Fixes: #1162
+---
+ src/base/ftobjs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/base/ftobjs.c b/src/base/ftobjs.c
+index eeda69c3e..f66273f3d 100644
+--- a/src/base/ftobjs.c
++++ b/src/base/ftobjs.c
+@@ -605,7 +605,7 @@
+ 
+ 
+         FT_FREE( doc->svg_document );
+-        slot->internal->load_flags &= ~FT_GLYPH_OWN_GZIP_SVG;
++        slot->internal->flags &= ~FT_GLYPH_OWN_GZIP_SVG;
+       }
+     }
+ #endif
