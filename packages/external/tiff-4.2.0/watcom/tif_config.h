@@ -1,9 +1,6 @@
 /* libtiff/tif_config.h.  Generated from tif_config.h.in by configure.  */
 /* libtiff/tif_config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define if building universal (internal helper macro) */
-/* #undef AC_APPLE_UNIVERSAL_BUILD */
-
 /* Support CCITT Group 3 & 4 algorithms */
 #define CCITT_SUPPORT 1
 
@@ -322,11 +319,8 @@
    significant byte first (like Motorola and SPARC, unlike Intel). */
 /* #undef WORDS_BIGENDIAN */
 
-/* Define to 1 if the X Window System is missing or not being used. */
-/* #undef X_DISPLAY_MISSING */
-
 /* Support Deflate compression */
-/* #undef ZIP_SUPPORT */
+#define ZIP_SUPPORT 1
 
 /* Support zstd compression */
 /* #undef ZSTD_SUPPORT */

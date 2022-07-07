@@ -83,7 +83,7 @@
 #define THUNDER_SUPPORT 1
 
 /* Support Deflate compression */
-/* #undef ZIP_SUPPORT */
+#define ZIP_SUPPORT 1
 
 /* Support libdeflate enhanced compression */
 /* #undef LIBDEFLATE_SUPPORT */
