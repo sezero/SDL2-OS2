@@ -40,6 +40,10 @@
 #include <xmmintrin.h>
 #endif
 
+#if !defined(HAVE_GCC_ATOMICS) && defined(__MACOSX__)
+#include <libkern/OSAtomic.h>
+#endif
+
 #if defined(__WATCOMC__) && defined(__386__)
 SDL_COMPILE_TIME_ASSERT(locksize, 4==sizeof(SDL_SpinLock));
 extern __inline int _SDL_xchg_watcom(volatile int *a, int v);
@@ -141,7 +145,7 @@ SDL_AtomicTryLock(SDL_SpinLock *lock)
 /* "REP NOP" is PAUSE, coded for tools that don't know it by that name. */
 #if (defined(__GNUC__) || defined(__clang__)) && (defined(__i386__) || defined(__x86_64__))
     #define PAUSE_INSTRUCTION() __asm__ __volatile__("pause\n")  /* Some assemblers can't do REP NOP, so go with PAUSE. */
-#elif (defined(__arm__) && __ARM_ARCH__ >= 7) || defined(__aarch64__)
+#elif (defined(__arm__) && __ARM_ARCH >= 7) || defined(__aarch64__)
     #define PAUSE_INSTRUCTION() __asm__ __volatile__("yield" ::: "memory")
 #elif (defined(__powerpc__) || defined(__powerpc64__))
     #define PAUSE_INSTRUCTION() __asm__ __volatile__("or 27,27,27");

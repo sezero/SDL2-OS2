@@ -23866,6 +23866,7 @@ $as_echo_n "checking for Linux kd.h... " >&6; }
 
       #include <linux/kd.h>
       #include <linux/keyboard.h>
+      #include <sys/ioctl.h>
 
 int
 main ()
@@ -25699,6 +25700,8 @@ fi
 
         if test x$hidapi_support = xyes; then
             if test x$have_libusb_h = xyes; then
+                $as_echo "#define HAVE_LIBUSB 1" >>confdefs.h
+
                 EXTRA_CFLAGS="$EXTRA_CFLAGS $LIBUSB_CFLAGS"
                 if test x$require_hidapi_libusb = xyes; then
                     EXTRA_LDFLAGS="$EXTRA_LDFLAGS $LIBUSB_LIBS"

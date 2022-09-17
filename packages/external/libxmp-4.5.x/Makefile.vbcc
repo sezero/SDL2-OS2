@@ -17,15 +17,21 @@ CFLAGS  = -Iinclude -O2 -speed -maxoptpasses=32 -c99 -cpu=68060 -fpu=68060 -D__A
 #CFLAGS += -DDEBUG
 #CFLAGS += -DHAVE_PROTO_XFDMASTER_H
 
-# vbcc_PosixLib is needed:
-CFLAGS += -I/opt/vbcc68k-posix/include
-CFLAGS += -DHAVE_UNISTD_H -DHAVE_MKSTEMP -DHAVE_FNMATCH -DHAVE_POPEN -DHAVE_UMASK -DHAVE_SYS_STAT_H
-
 ifeq ($(USE_PROWIZARD),0)
 CFLAGS += -DLIBXMP_NO_PROWIZARD
+else
+NEED_POSIXLIB = 1
 endif
 ifeq ($(USE_DEPACKERS),0)
 CFLAGS += -DLIBXMP_NO_DEPACKERS
+else
+NEED_POSIXLIB = 1
+endif
+
+# vbcc_PosixLib needed in tempfile.c / mkstemp.c:
+ifeq ($(NEED_POSIXLIB),1)
+CFLAGS += -I/opt/vbcc68k-posix/include
+CFLAGS += -DHAVE_UNISTD_H -DHAVE_MKSTEMP -DHAVE_FNMATCH -DHAVE_POPEN -DHAVE_UMASK -DHAVE_SYS_STAT_H
 endif
 
 OBJS	= \
@@ -57,6 +63,7 @@ OBJS	= \
  src/memio.o \
  src/tempfile.o \
  src/mix_paula.o \
+ src/miniz_tinfl.o \
  src/win32.o \
  src/loaders/common.o \
  src/loaders/iff.o \
@@ -112,6 +119,7 @@ OBJS	= \
  src/loaders/gal4_load.o \
  src/loaders/mfp_load.o \
  src/loaders/asylum_load.o \
+ src/loaders/muse_load.o \
  src/loaders/hmn_load.o \
  src/loaders/mgt_load.o \
  src/loaders/chip_load.o \
@@ -171,8 +179,6 @@ DEPACKER_OBJS	= \
  src/depackers/arc_unpack.o \
  src/depackers/lzx.o \
  src/depackers/lzx_unpack.o \
- src/depackers/muse.o \
- src/depackers/miniz_tinfl.o \
  src/depackers/miniz_zip.o \
  src/depackers/unzip.o \
  src/depackers/gunzip.o \

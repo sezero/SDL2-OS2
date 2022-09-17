@@ -95,7 +95,11 @@ host_triplet = @host@
 @ENABLE_EXAMPLES_TRUE@noinst_PROGRAMS = $(am__EXEEXT_1)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/acinclude/libtool.m4 \
+am__aclocal_m4_deps =  \
+	$(top_srcdir)/acinclude/ax_compute_relative_paths.m4 \
+	$(top_srcdir)/acinclude/ax_normalize_path.m4 \
+	$(top_srcdir)/acinclude/ax_recursive_eval.m4 \
+	$(top_srcdir)/acinclude/libtool.m4 \
 	$(top_srcdir)/acinclude/ltoptions.m4 \
 	$(top_srcdir)/acinclude/ltsugar.m4 \
 	$(top_srcdir)/acinclude/ltversion.m4 \
@@ -414,20 +418,21 @@ libSDL2_net_la_SOURCES = \
 	SDLnetselect.c		\
 	SDLnetsys.h
 
-EXTRA_DIST = CHANGES.txt LICENSE.txt README.txt \
+EXTRA_DIST = \
 	Android.mk		\
-	debian			\
-	version.rc		\
+	CHANGES.txt 		\
+	CMakeLists.txt		\
+	LICENSE.txt 		\
 	Makefile.os2		\
+	README.txt 		\
+	SDL2_net.spec		\
+	SDL2_netConfig.cmake.in	\
 	VisualC			\
 	Xcode			\
-	Xcode-iOS		\
-	SDL2_net.spec		\
-	SDL2_net.spec.in	\
-	autogen.sh	\
-	CMakeLists.txt	\
-	cmake	\
-	SDL2_netConfig.cmake.in
+	autogen.sh		\
+	cmake			\
+	mingw			\
+	version.rc
 
 libSDL2_net_la_LDFLAGS = \
 	-no-undefined		\

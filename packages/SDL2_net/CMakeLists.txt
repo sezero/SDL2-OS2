@@ -4,7 +4,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # See release_checklist.md
 set(MAJOR_VERSION 2)
-set(MINOR_VERSION 1)
+set(MINOR_VERSION 2)
 set(MICRO_VERSION 0)
 set(SDL_REQUIRED_VERSION 2.0.4)
 
@@ -22,22 +22,35 @@ project(SDL2_net
     VERSION "${FULL_VERSION}"
 )
 
-find_package(SDL2test)
+message(STATUS "Configuring ${PROJECT_NAME} ${PROJECT_VERSION}")
+
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    set(SDL2NET_ROOTPROJECT ON)
+else()
+    set(SDL2NET_ROOTPROJECT OFF)
+endif()
+
+if(TARGET SDL2::SDL2test)
+    set(SDL2test_FOUND ON)
+else()
+    find_package(SDL2test)
+endif()
 
 # Set defaults preventing destination file conflicts
 set(SDL2NET_DEBUG_POSTFIX "d"
     CACHE STRING "Name suffix for debug builds")
 mark_as_advanced(SDL2NET_DEBUG_POSTFIX)
 
+include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 option(CMAKE_POSITION_INDEPENDENT_CODE "Build static libraries with -fPIC" ON)
 option(BUILD_SHARED_LIBS "Build the library as a shared library" ON)
 
-option(SDL2NET_INSTALL "Enable SDL2_net install target" ON)
+option(SDL2NET_INSTALL "Enable SDL2_net install target" ${SDL2NET_ROOTPROJECT})
 
-option(SDL2NET_SAMPLES "Build SDL2_net samples" "${SDL2test_FOUND}")
+cmake_dependent_option(SDL2NET_SAMPLES "Build SDL2_net samples" ${SDL2NET_ROOTPROJECT} "${SDL2test_FOUND}" OFF)
 
 if(SDL2NET_SAMPLES)
     find_package(SDL2test REQUIRED)
@@ -88,7 +101,6 @@ if(WIN32)
 endif()
 set_target_properties(SDL2_net PROPERTIES
     DEFINE_SYMBOL DLL_EXPORT
-    PUBLIC_HEADER SDL_net.h
     EXPORT_NAME ${sdl2_net_export_name}
     C_VISIBILITY_PRESET "hidden"
 )
@@ -159,7 +171,10 @@ if(SDL2NET_INSTALL)
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT devel
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT library
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT library
-        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/SDL2" COMPONENT devel
+    )
+    install(FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/SDL_net.h"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/SDL2" COMPONENT devel
     )
 
     if(WIN32 AND NOT MINGW)
@@ -212,13 +227,15 @@ if(SDL2NET_INSTALL)
         endif()
         # Only install a SDL2_net.pc file in Release mode
         install(CODE "
-            # FIXME: use file(COPY_FILE) if minimum CMake version >= 3.21
-            execute_process(COMMAND \"\${CMAKE_COMMAND}\" -E copy_if_different
-                \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_net-$<CONFIG>.pc\"
-                \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_net.pc\")
-            file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${PC_DESTDIR}\"
-                TYPE FILE
-                FILES \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_net.pc\")" CONFIG Release COMPONENT devel)
+            if(CMAKE_INSTALL_CONFIG_NAME MATCHES \"Release\")
+                # FIXME: use file(COPY_FILE) if minimum CMake version >= 3.21
+                execute_process(COMMAND \"\${CMAKE_COMMAND}\" -E copy_if_different
+                    \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_net-$<CONFIG>.pc\"
+                    \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_net.pc\")
+                file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${PC_DESTDIR}\"
+                    TYPE FILE
+                    FILES \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_net.pc\")
+            endif()" COMPONENT devel)
     endif()
 
     if(SDL2NET_BUILD_SHARED_LIBS AND (APPLE OR (UNIX AND NOT ANDROID)))

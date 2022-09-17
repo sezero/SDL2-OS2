@@ -287,12 +287,14 @@ GetHintCtrlClickEmulateRightClick()
 static NSUInteger
 GetWindowWindowedStyle(SDL_Window * window)
 {
-    NSUInteger style = 0;
+    /* always allow miniaturization, otherwise you can't programatically
+       minimize the window, whether there's a title bar or not */
+    NSUInteger style = NSWindowStyleMaskMiniaturizable;
 
     if (window->flags & SDL_WINDOW_BORDERLESS) {
-        style = NSWindowStyleMaskBorderless;
+        style |= NSWindowStyleMaskBorderless;
     } else {
-        style = (NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable);
+        style |= (NSWindowStyleMaskTitled|NSWindowStyleMaskClosable);
     }
     if (window->flags & SDL_WINDOW_RESIZABLE) {
         style |= NSWindowStyleMaskResizable;
@@ -927,11 +929,6 @@ Cocoa_UpdateClipCursor(SDL_Window * window)
         pendingWindowOperation = PENDING_OPERATION_NONE;
         [self setFullscreenSpace:NO];
     } else {
-        /* Unset the resizable flag. 
-           This is a workaround for https://bugzilla.libsdl.org/show_bug.cgi?id=3697
-         */
-        SetWindowStyle(window, [nswindow styleMask] & (~NSWindowStyleMaskResizable));
-
         if ((window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
             [NSMenu setMenuBarVisible:NO];
         }

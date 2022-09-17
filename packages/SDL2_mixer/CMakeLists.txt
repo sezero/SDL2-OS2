@@ -5,7 +5,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 # See docs/release_checklist.md
 set(MAJOR_VERSION 2)
 set(MINOR_VERSION 6)
-set(MICRO_VERSION 0)
+set(MICRO_VERSION 2)
 set(SDL_REQUIRED_VERSION 2.0.9)
 
 # For historical reasons this is 3.0.0 rather than the expected 1.0.0
@@ -550,7 +550,7 @@ if(SDL2MIXER_MOD_MODPLUG)
             # <modplug.h> is not escaped properly for windres when using MinGW + "Unix Makefiles" ==> limit it to C sources
             target_compile_definitions(SDL2_mixer PRIVATE $<$<COMPILE_LANGUAGE:C>:MODPLUG_HEADER=<modplug.h$<ANGLE-R>>)
         endif()
-        if(SDL2MIXER_FLAC_LIBFLAC_SHARED OR NOT SDL2MIXER_BUILD_SHARED_LIBS)
+        if(SDL2MIXER_MOD_MODPLUG_SHARED OR NOT SDL2MIXER_BUILD_SHARED_LIBS)
             list(APPEND INSTALL_EXTRA_TARGETS modplug)
         endif()
         if(NOT SDL2MIXER_MOD_MODPLUG_SHARED)

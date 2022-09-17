@@ -4,7 +4,7 @@ dnl Set various version strings - taken gratefully from the GTk sources
 # See docs/release_checklist.md
 m4_define([MAJOR_VERSION_MACRO], [2])
 m4_define([MINOR_VERSION_MACRO], [20])
-m4_define([MICRO_VERSION_MACRO], [0])
+m4_define([MICRO_VERSION_MACRO], [1])
 
 AC_INIT([SDL2_ttf],
         [MAJOR_VERSION_MACRO.MINOR_VERSION_MACRO.MICRO_VERSION_MACRO],
@@ -361,9 +361,8 @@ AC_SUBST([PC_REQUIRES])
 AC_SUBST([PC_LIBS])
 
 dnl Calculate the location of the prefix, relative to the cmake folder
-eval pkg_prefix=$prefix
-eval pkg_cmakedir=$libdir/cmake/SDL2_ttf
-cmake_prefix_relpath="$(echo -n "$pkg_cmakedir" | sed -E "s#^$pkg_prefix##" | sed -E "s#[A-Za-z0-9_ .-]+#..#g")"
+pkg_cmakedir='$libdir/cmake/SDL2_ttf'
+AX_COMPUTE_RELATIVE_PATHS([pkg_cmakedir:prefix:cmake_prefix_relpath])
 AC_SUBST([cmake_prefix_relpath])
 
 # Finally create all the generated files

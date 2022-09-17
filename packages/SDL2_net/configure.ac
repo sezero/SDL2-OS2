@@ -3,7 +3,7 @@ dnl Process this file with autoconf to produce a configure script.
 dnl Set various version strings - taken gratefully from the GTk sources
 # See release_checklist.md
 m4_define([MAJOR_VERSION_MACRO], [2])
-m4_define([MINOR_VERSION_MACRO], [1])
+m4_define([MINOR_VERSION_MACRO], [2])
 m4_define([MICRO_VERSION_MACRO], [0])
 
 AC_INIT([SDL2_net],
@@ -200,9 +200,8 @@ CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
 dnl Calculate the location of the prefix, relative to the cmake folder
-eval pkg_prefix=$prefix
-eval pkg_cmakedir=$libdir/cmake/SDL2_net
-cmake_prefix_relpath="$(echo -n "$pkg_cmakedir" | sed -E "s#^$pkg_prefix##" | sed -E "s#[A-Za-z0-9_ .-]+#..#g")"
+pkg_cmakedir='$libdir/cmake/SDL2_net'
+AX_COMPUTE_RELATIVE_PATHS([pkg_cmakedir:prefix:cmake_prefix_relpath])
 AC_SUBST([cmake_prefix_relpath])
 
 dnl check for GCC warning options

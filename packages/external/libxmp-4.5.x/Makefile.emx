@@ -58,6 +58,7 @@ OBJS	= \
  src/memio.o \
  src/tempfile.o \
  src/mix_paula.o \
+ src/miniz_tinfl.o \
  src/win32.o \
  src/loaders/common.o \
  src/loaders/iff.o \
@@ -113,6 +114,7 @@ OBJS	= \
  src/loaders/gal4_load.o \
  src/loaders/mfp_load.o \
  src/loaders/asylum_load.o \
+ src/loaders/muse_load.o \
  src/loaders/hmn_load.o \
  src/loaders/mgt_load.o \
  src/loaders/chip_load.o \
@@ -172,8 +174,6 @@ DEPACKER_OBJS	= \
  src/depackers/arc_unpack.o \
  src/depackers/lzx.o \
  src/depackers/lzx_unpack.o \
- src/depackers/muse.o \
- src/depackers/miniz_tinfl.o \
  src/depackers/miniz_zip.o \
  src/depackers/unzip.o \
  src/depackers/gunzip.o \

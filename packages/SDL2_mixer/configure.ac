@@ -4,7 +4,7 @@ dnl Set various version strings - taken gratefully from the GTk sources
 # See release_checklist.md
 m4_define([MAJOR_VERSION_MACRO], [2])
 m4_define([MINOR_VERSION_MACRO], [6])
-m4_define([MICRO_VERSION_MACRO], [0])
+m4_define([MICRO_VERSION_MACRO], [2])
 
 AC_INIT([SDL2_mixer],
         [MAJOR_VERSION_MACRO.MINOR_VERSION_MACRO.MICRO_VERSION_MACRO],
@@ -31,7 +31,10 @@ AC_SUBST(MINOR_VERSION)
 AC_SUBST(MICRO_VERSION)
 AC_SUBST(INTERFACE_AGE)
 AC_SUBST(BINARY_AGE)
-AC_SUBST(VERSION)
+# Automake defines VERSION to be the same as PACKAGE_VERSION, but we're
+# not using Automake in SDL_mixer, so we need to set up the @VERSION@
+# substitution for SDL2_mixer.pc ourselves
+AC_SUBST([VERSION], [$PACKAGE_VERSION])
 
 dnl libtool versioning
 LT_INIT([win32-dll])
@@ -942,9 +945,9 @@ $(objects)/\2.lo: \1/\2.c \$(objects)/.created\\
 PLAYMUS_DEPENDS=`echo "$PLAYMUS_DEPENDS" | sed 's,\\$,\\\\$,g'`
 
 dnl Calculate the location of the prefix, relative to the cmake folder
-eval pkg_prefix=$prefix
-eval pkg_cmakedir=$libdir/cmake/SDL2_mixer
-cmake_prefix_relpath="$(echo -n "$pkg_cmakedir" | sed -E "s#^$pkg_prefix##" | sed -E "s#[A-Za-z0-9_ .-]+#..#g")"
+pkg_cmakedir='$libdir/cmake/SDL2_mixer'
+AX_COMPUTE_RELATIVE_PATHS([pkg_cmakedir:prefix:cmake_prefix_relpath])
+AC_SUBST([cmake_prefix_relpath])
 AC_SUBST([cmake_prefix_relpath])
 
 dnl Expand the sources and objects needed to build the library
