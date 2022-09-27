@@ -630,6 +630,7 @@ ac_includes_default="\
 #endif"
 
 ac_subst_vars='LTLIBOBJS
+LIBOBJS
 WAYLAND_SCANNER_CODE_MODE
 WAYLAND_SCANNER
 EXTRA_LDFLAGS
@@ -682,15 +683,13 @@ PULSEAUDIO_LIBS
 PULSEAUDIO_CFLAGS
 PIPEWIRE_LIBS
 PIPEWIRE_CFLAGS
+ESD_CONFIG
 ESD_LIBS
 ESD_CFLAGS
-ESD_CONFIG
 JACK_LIBS
 JACK_CFLAGS
 ALSA_LIBS
 ALSA_CFLAGS
-POW_LIB
-LIBOBJS
 ALLOCA
 LIBTOOLLINKERTAG
 LINKER
@@ -940,6 +939,8 @@ PKG_CONFIG_PATH
 PKG_CONFIG_LIBDIR
 JACK_CFLAGS
 JACK_LIBS
+ESD_CFLAGS
+ESD_LIBS
 PIPEWIRE_CFLAGS
 PIPEWIRE_LIBS
 PULSEAUDIO_CFLAGS
@@ -1771,6 +1772,8 @@ Some influential environment variables:
               path overriding pkg-config's built-in search path
   JACK_CFLAGS C compiler flags for JACK, overriding pkg-config
   JACK_LIBS   linker flags for JACK, overriding pkg-config
+  ESD_CFLAGS  C compiler flags for ESD, overriding pkg-config
+  ESD_LIBS    linker flags for ESD, overriding pkg-config
   PIPEWIRE_CFLAGS
               C compiler flags for PIPEWIRE, overriding pkg-config
   PIPEWIRE_LIBS
@@ -17580,191 +17583,6 @@ _ACEOF
 fi
 
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working memcmp" >&5
-$as_echo_n "checking for working memcmp... " >&6; }
-if ${ac_cv_func_memcmp_working+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test "$cross_compiling" = yes; then :
-  ac_cv_func_memcmp_working=no
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$ac_includes_default
-int
-main ()
-{
-
-  /* Some versions of memcmp are not 8-bit clean.  */
-  char c0 = '\100', c1 = '\200', c2 = '\201';
-  if (memcmp(&c0, &c2, 1) >= 0 || memcmp(&c1, &c2, 1) >= 0)
-    return 1;
-
-  /* The Next x86 OpenStep bug shows up only when comparing 16 bytes
-     or more and with at least one buffer not starting on a 4-byte boundary.
-     William Lewis provided this test program.   */
-  {
-    char foo[21];
-    char bar[21];
-    int i;
-    for (i = 0; i < 4; i++)
-      {
-	char *a = foo + i;
-	char *b = bar + i;
-	strcpy (a, "--------01111111");
-	strcpy (b, "--------10000000");
-	if (memcmp (a, b, 16) >= 0)
-	  return 1;
-      }
-    return 0;
-  }
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
-  ac_cv_func_memcmp_working=yes
-else
-  ac_cv_func_memcmp_working=no
-fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_func_memcmp_working" >&5
-$as_echo "$ac_cv_func_memcmp_working" >&6; }
-test $ac_cv_func_memcmp_working = no && case " $LIBOBJS " in
-  *" memcmp.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS memcmp.$ac_objext"
- ;;
-esac
-
-
-    if test x$ac_cv_func_memcmp_working = xyes; then
-
-$as_echo "#define HAVE_MEMCMP 1" >>confdefs.h
-
-    fi
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working strtod" >&5
-$as_echo_n "checking for working strtod... " >&6; }
-if ${ac_cv_func_strtod+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test "$cross_compiling" = yes; then :
-  ac_cv_func_strtod=no
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-$ac_includes_default
-#ifndef strtod
-double strtod ();
-#endif
-int
-main()
-{
-  {
-    /* Some versions of Linux strtod mis-parse strings with leading '+'.  */
-    char *string = " +69";
-    char *term;
-    double value;
-    value = strtod (string, &term);
-    if (value != 69 || term != (string + 4))
-      return 1;
-  }
-
-  {
-    /* Under Solaris 2.4, strtod returns the wrong value for the
-       terminating character under some conditions.  */
-    char *string = "NaN";
-    char *term;
-    strtod (string, &term);
-    if (term != string && *(term - 1) == 0)
-      return 1;
-  }
-  return 0;
-}
-
-_ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
-  ac_cv_func_strtod=yes
-else
-  ac_cv_func_strtod=no
-fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_func_strtod" >&5
-$as_echo "$ac_cv_func_strtod" >&6; }
-if test $ac_cv_func_strtod = no; then
-  case " $LIBOBJS " in
-  *" strtod.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS strtod.$ac_objext"
- ;;
-esac
-
-ac_fn_c_check_func "$LINENO" "pow" "ac_cv_func_pow"
-if test "x$ac_cv_func_pow" = xyes; then :
-
-fi
-
-if test $ac_cv_func_pow = no; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pow in -lm" >&5
-$as_echo_n "checking for pow in -lm... " >&6; }
-if ${ac_cv_lib_m_pow+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lm  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char pow ();
-int
-main ()
-{
-return pow ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_m_pow=yes
-else
-  ac_cv_lib_m_pow=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_m_pow" >&5
-$as_echo "$ac_cv_lib_m_pow" >&6; }
-if test "x$ac_cv_lib_m_pow" = xyes; then :
-  POW_LIB=-lm
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: cannot find library containing definition of pow" >&5
-$as_echo "$as_me: WARNING: cannot find library containing definition of pow" >&2;}
-fi
-
-fi
-
-fi
-
-    if test x$ac_cv_func_strtod = xyes; then
-
-$as_echo "#define HAVE_STRTOD 1" >>confdefs.h
-
-    fi
     ac_fn_c_check_func "$LINENO" "mprotect" "ac_cv_func_mprotect"
 if test "x$ac_cv_func_mprotect" = xyes; then :
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -17791,7 +17609,7 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
 
-    for ac_func in malloc calloc realloc free getenv setenv putenv unsetenv qsort abs bcopy memset memcpy memmove wcslen wcslcpy wcslcat _wcsdup wcsdup wcsstr wcscmp wcsncmp wcscasecmp _wcsicmp wcsncasecmp _wcsnicmp strlen strlcpy strlcat _strrev _strupr _strlwr index rindex strchr strrchr strstr strtok_r itoa _ltoa _uitoa _ultoa strtol strtoul _i64toa _ui64toa strtoll strtoull atoi atof strcmp strncmp _stricmp strcasecmp _strnicmp strncasecmp vsscanf vsnprintf fopen64 fseeko fseeko64 sigaction setjmp nanosleep sysconf sysctlbyname getauxval elf_aux_info poll _Exit
+    for ac_func in malloc calloc realloc free getenv setenv putenv unsetenv qsort abs bcopy memset memcmp memcpy memmove wcslen wcslcpy wcslcat _wcsdup wcsdup wcsstr wcscmp wcsncmp wcscasecmp _wcsicmp wcsncasecmp _wcsnicmp strlen strlcpy strlcat _strrev _strupr _strlwr index rindex strchr strrchr strstr strtok_r itoa _ltoa _uitoa _ultoa strtod strtol strtoul _i64toa _ui64toa strtoll strtoull atoi atof strcmp strncmp _stricmp strcasecmp _strnicmp strncasecmp vsscanf vsnprintf fopen64 fseeko fseeko64 sigaction setjmp nanosleep sysconf sysctlbyname getauxval elf_aux_info poll _Exit
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -19252,6 +19070,78 @@ fi
 
     if test x$enable_audio = xyes -a x$enable_esd = xyes; then
 
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for esound >= 0.2.8" >&5
+$as_echo_n "checking for esound >= 0.2.8... " >&6; }
+
+if test -n "$ESD_CFLAGS"; then
+    pkg_cv_ESD_CFLAGS="$ESD_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"esound >= 0.2.8\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "esound >= 0.2.8") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_ESD_CFLAGS=`$PKG_CONFIG --cflags "esound >= 0.2.8" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$ESD_LIBS"; then
+    pkg_cv_ESD_LIBS="$ESD_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"esound >= 0.2.8\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "esound >= 0.2.8") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_ESD_LIBS=`$PKG_CONFIG --libs "esound >= 0.2.8" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        ESD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "esound >= 0.2.8" 2>&1`
+        else
+	        ESD_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "esound >= 0.2.8" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$ESD_PKG_ERRORS" >&5
+
+	have_esd=no
+elif test $pkg_failed = untried; then
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_esd=no
+else
+	ESD_CFLAGS=$pkg_cv_ESD_CFLAGS
+	ESD_LIBS=$pkg_cv_ESD_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_esd=yes
+fi
+        if test x$have_esd = xno; then
+
 # Check whether --with-esd-prefix was given.
 if test "${with_esd_prefix+set}" = set; then :
   withval=$with_esd_prefix; esd_prefix="$withval"
@@ -19425,10 +19315,7 @@ $as_echo "yes" >&6; }
      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
      if test "$ESD_CONFIG" = "no" ; then
-       echo "*** The esd-config script installed by ESD could not be found"
-       echo "*** If ESD was installed in PREFIX, make sure PREFIX/bin is in"
-       echo "*** your path, or set the ESD_CONFIG environment variable to the"
-       echo "*** full path to esd-config."
+      :
      else
        if test -f conf.esdtest ; then
         :
@@ -19492,6 +19379,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
   rm -f conf.esdtest
 
+        fi
         if test x$have_esd = xyes; then
             # Check whether --enable-esd-shared was given.
 if test "${enable_esd_shared+set}" = set; then :
