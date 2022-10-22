@@ -782,6 +782,11 @@ Cocoa_UpdateClipCursor(SDL_Window * window)
         return;
     }
 
+    if (focusClickPending) {
+        focusClickPending = 0;
+        [self onMovingOrFocusClickPendingStateCleared];
+    }
+
     window = _data->window;
     nswindow = _data->nswindow;
     rect = [nswindow contentRectForFrameRect:[nswindow frame]];

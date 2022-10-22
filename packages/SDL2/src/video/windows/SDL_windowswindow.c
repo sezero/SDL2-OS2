@@ -28,6 +28,7 @@
 #include "../SDL_pixels_c.h"
 #include "../../events/SDL_keyboard_c.h"
 #include "../../events/SDL_mouse_c.h"
+#include "../../events/SDL_windowevents_c.h"
 #include "../../SDL_hints_c.h"
 
 #include "SDL_windowsvideo.h"
@@ -256,6 +257,7 @@ SetupWindowData(_THIS, SDL_Window * window, HWND hwnd, HWND parent, SDL_bool cre
             window->y = point.y;
         }
     }
+    WIN_UpdateWindowICCProfile(window, SDL_FALSE);
     {
         DWORD style = GetWindowLong(hwnd, GWL_STYLE);
         if (style & WS_VISIBLE) {
@@ -314,6 +316,9 @@ static void CleanupWindowData(_THIS, SDL_Window * window)
     if (data) {
         SDL_DelHintCallback(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, WIN_MouseRelativeModeCenterChanged, data);
 
+        if (data->ICMFileName) {
+            SDL_free(data->ICMFileName);
+        }
         if (data->keyboard_hook) {
             UnhookWindowsHookEx(data->keyboard_hook);
         }
@@ -808,29 +813,53 @@ WIN_SetWindowGammaRamp(_THIS, SDL_Window * window, const Uint16 * ramp)
     return succeeded ? 0 : -1;
 }
 
-void*
+void
+WIN_UpdateWindowICCProfile(SDL_Window * window, SDL_bool send_event)
+{
+    SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
+    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
+    SDL_DisplayData *displaydata = display ? (SDL_DisplayData*)display->driverdata : NULL;
+
+    if (displaydata) {
+        HDC hdc = CreateDCW(displaydata->DeviceName, NULL, NULL, NULL);
+        if (hdc) {
+            WCHAR fileName[MAX_PATH];
+            DWORD fileNameSize = SDL_arraysize(fileName);
+            if (GetICMProfileW(hdc, &fileNameSize, fileName)) {
+                /* fileNameSize includes '\0' on return */
+                if (!data->ICMFileName ||
+                    SDL_wcscmp(data->ICMFileName, fileName) != 0) {
+                    if (data->ICMFileName) {
+                        SDL_free(data->ICMFileName);
+                    }
+                    data->ICMFileName = SDL_wcsdup(fileName);
+                    if (send_event) {
+                        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_ICCPROF_CHANGED, 0, 0);
+                    }
+                }
+            }
+            DeleteDC(hdc);
+        }
+    }
+}
+
+void *
 WIN_GetWindowICCProfile(_THIS, SDL_Window * window, size_t * size)
 {
-    SDL_VideoDisplay* display = SDL_GetDisplayForWindow(window);
-    SDL_DisplayData* data = (SDL_DisplayData*)display->driverdata;
-    HDC hdc;
-    BOOL succeeded = FALSE;
-    WCHAR filename[MAX_PATH];
-    DWORD fileNameSize = MAX_PATH;
-    void* iccProfileData = NULL;
+    SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
+    char *filename_utf8;
+    void *iccProfileData = NULL;
 
-    hdc = CreateDCW(data->DeviceName, NULL, NULL, NULL);
-    if (hdc) {
-        succeeded = GetICMProfileW(hdc, &fileNameSize, filename);
-        DeleteDC(hdc);
-    }
-
-    if (succeeded) {
-        iccProfileData = SDL_LoadFile(WIN_StringToUTF8(filename), size);
-        if (!iccProfileData)
+    filename_utf8 = WIN_StringToUTF8(data->ICMFileName);
+    if (filename_utf8) {
+        iccProfileData = SDL_LoadFile(filename_utf8, size);
+        if (!iccProfileData) {
             SDL_SetError("Could not open ICC profile");
+        }
+        SDL_free(filename_utf8);
+    } else {
+        SDL_OutOfMemory();
     }
-
     return iccProfileData;
 }
 

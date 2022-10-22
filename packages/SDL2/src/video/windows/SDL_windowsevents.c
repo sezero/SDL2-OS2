@@ -431,6 +431,7 @@ WIN_UpdateFocus(SDL_Window *window, SDL_bool expect_focus)
         SDL_ToggleModState(KMOD_NUM, (GetKeyState(VK_NUMLOCK) & 0x0001) != 0);
         SDL_ToggleModState(KMOD_SCROLL, (GetKeyState(VK_SCROLL) & 0x0001) != 0);
 
+        WIN_UpdateWindowICCProfile(data->window, SDL_TRUE);
     } else {
         RECT rect;
 
@@ -599,29 +600,6 @@ WIN_KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam)
     return 1;
 }
 
-static void WIN_CheckICMProfileChanged(SDL_Window* window)
-{
-    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-    SDL_DisplayData *data = display ? (SDL_DisplayData*)display->driverdata : NULL;
-
-    if (data) {
-        HDC hdc = CreateDCW(data->DeviceName, NULL, NULL, NULL);
-        if (hdc) {
-            static WCHAR currentIcmFileName[MAX_PATH];
-            WCHAR icmFileName[MAX_PATH];
-            DWORD fileNameSize = SDL_arraysize(icmFileName);
-            if (GetICMProfileW(hdc, &fileNameSize, icmFileName)) {
-                /* fileNameSize includes '\0' on return */
-                fileNameSize *= sizeof(icmFileName[0]);
-                if (SDL_memcmp(currentIcmFileName, icmFileName, fileNameSize) != 0) {
-                    SDL_memcpy(currentIcmFileName, icmFileName, fileNameSize);
-                    SDL_SendWindowEvent(window, SDL_WINDOWEVENT_ICCPROF_CHANGED, 0, 0);
-                }
-            }
-            DeleteDC(hdc);
-        }
-    }
-}
 
 LRESULT CALLBACK
 WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -688,7 +666,6 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                actually being the foreground window, but this appears to get called in all cases where
                the global foreground window changes to and from this window. */
             WIN_UpdateFocus(data->window, !!wParam);
-            WIN_CheckICMProfileChanged(data->window);
         }
         break;
 
@@ -1133,6 +1110,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             RECT rect;
             int x, y;
             int w, h;
+            int display_index = data->window->display_index;
 
             if (data->initializing || data->in_border_change) {
                 break;
@@ -1157,7 +1135,10 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             /* Forces a WM_PAINT event */
             InvalidateRect(hwnd, NULL, FALSE);
 
-            WIN_CheckICMProfileChanged(data->window);
+            if (data->window->display_index != display_index) {
+                /* Display changed, check ICC profile */
+                WIN_UpdateWindowICCProfile(data->window, SDL_TRUE);
+            }
         }
         break;
 
