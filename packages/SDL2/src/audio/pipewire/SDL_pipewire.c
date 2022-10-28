@@ -76,7 +76,7 @@ enum PW_READY_FLAGS
 static SDL_bool pipewire_initialized = SDL_FALSE;
 
 /* Pipewire entry points */
-static void (*PIPEWIRE_pw_init)(int *, char **);
+static void (*PIPEWIRE_pw_init)(int *, char ***);
 static void (*PIPEWIRE_pw_deinit)(void);
 static struct pw_thread_loop *(*PIPEWIRE_pw_thread_loop_new)(const char *, const struct spa_dict *);
 static void (*PIPEWIRE_pw_thread_loop_destroy)(struct pw_thread_loop *);

@@ -2302,6 +2302,12 @@ Cocoa_DestroyWindow(_THIS, SDL_Window * window)
         [data->nscontexts release];
 
         SDL_free(data);
+
+        if (window->shaper) {
+            SDL_free(window->shaper->driverdata);
+            SDL_free(window->shaper);
+            window->shaper = NULL;
+        }
     }
     window->driverdata = NULL;
 }}
