@@ -53,6 +53,7 @@ him for his work.
 #if defined(__WATCOMC__)
 /* FIXME: Watcom doesn't support align directive in inline asm:
  * https://github.com/open-watcom/open-watcom-v2/issues/521  */
+#undef USE_MMX
 #pragma message("FIXME: do something about MMX code.")
 #endif
 
@@ -78,12 +79,15 @@ static int SDL_imageFilterUseMMX = 1;
 */
 int SDL_imageFilterMMXdetect(void)
 {
+	#ifndef USE_MMX
+	return (0);
+	#else
 	/* Check override flag */
 	if (SDL_imageFilterUseMMX == 0) {
 		return (0);
 	}
-
 	return SDL_HasMMX();
+	#endif
 }
 
 /*!
@@ -185,7 +189,9 @@ int SDL_imageFilterAdd(unsigned char *Src1, unsigned char *Src2, unsigned char *
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 
 		/* Use MMX assembly routine */
-		SDL_imageFilterAddMMX(Src1, Src2, Dest, length);
+		if (SDL_imageFilterAddMMX(Src1, Src2, Dest, length) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -199,6 +205,7 @@ int SDL_imageFilterAdd(unsigned char *Src1, unsigned char *Src2, unsigned char *
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -321,7 +328,9 @@ int SDL_imageFilterMean(unsigned char *Src1, unsigned char *Src2, unsigned char 
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 		/* MMX routine */
-		SDL_imageFilterMeanMMX(Src1, Src2, Dest, length, Mask);
+		if (SDL_imageFilterMeanMMX(Src1, Src2, Dest, length, Mask) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -335,6 +344,7 @@ int SDL_imageFilterMean(unsigned char *Src1, unsigned char *Src2, unsigned char 
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -435,7 +445,9 @@ int SDL_imageFilterSub(unsigned char *Src1, unsigned char *Src2, unsigned char *
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 		/* MMX routine */
-		SDL_imageFilterSubMMX(Src1, Src2, Dest, length);
+		if (SDL_imageFilterSubMMX(Src1, Src2, Dest, length) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -449,6 +461,7 @@ int SDL_imageFilterSub(unsigned char *Src1, unsigned char *Src2, unsigned char *
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -556,7 +569,9 @@ int SDL_imageFilterAbsDiff(unsigned char *Src1, unsigned char *Src2, unsigned ch
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 		/* MMX routine */
-		SDL_imageFilterAbsDiffMMX(Src1, Src2, Dest, length);
+		if (SDL_imageFilterAbsDiffMMX(Src1, Src2, Dest, length) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -570,6 +585,7 @@ int SDL_imageFilterAbsDiff(unsigned char *Src1, unsigned char *Src2, unsigned ch
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -744,7 +760,9 @@ int SDL_imageFilterMult(unsigned char *Src1, unsigned char *Src2, unsigned char 
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 		/* MMX routine */
-		SDL_imageFilterMultMMX(Src1, Src2, Dest, length);
+		if (SDL_imageFilterMultMMX(Src1, Src2, Dest, length) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -758,6 +776,7 @@ int SDL_imageFilterMult(unsigned char *Src1, unsigned char *Src2, unsigned char 
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -874,26 +893,24 @@ int SDL_imageFilterMultNor(unsigned char *Src1, unsigned char *Src2, unsigned ch
 		return (0);
 
 	if (SDL_imageFilterMMXdetect()) {
-		if (length > 0) {
-			/* ASM routine */
-			SDL_imageFilterMultNorASM(Src1, Src2, Dest, length);
+		/* ASM routine */
+		if (SDL_imageFilterMultNorASM(Src1, Src2, Dest, length) < 0) {
+			goto no_mmx;
+		}
 
-			/* Check for unaligned bytes */
-			if ((length & 7) > 0) {
-				/* Setup to process unaligned bytes */
-				istart = length & 0xfffffff8;
-				cursrc1 = &Src1[istart];
-				cursrc2 = &Src2[istart];
-				curdst = &Dest[istart];
-			} else {
-				/* No unaligned bytes - we are done */
-				return (0);
-			}
+		/* Check for unaligned bytes */
+		if ((length & 7) > 0) {
+			/* Setup to process unaligned bytes */
+			istart = length & 0xfffffff8;
+			cursrc1 = &Src1[istart];
+			cursrc2 = &Src2[istart];
+			curdst = &Dest[istart];
 		} else {
-			/* No bytes - we are done */
+			/* No unaligned bytes - we are done */
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -1015,7 +1032,9 @@ int SDL_imageFilterMultDivby2(unsigned char *Src1, unsigned char *Src2, unsigned
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 		/* MMX routine */
-		SDL_imageFilterMultDivby2MMX(Src1, Src2, Dest, length);
+		if (SDL_imageFilterMultDivby2MMX(Src1, Src2, Dest, length) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -1029,6 +1048,7 @@ int SDL_imageFilterMultDivby2(unsigned char *Src1, unsigned char *Src2, unsigned
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -1157,7 +1177,9 @@ int SDL_imageFilterMultDivby4(unsigned char *Src1, unsigned char *Src2, unsigned
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 		/* MMX routine */
-		SDL_imageFilterMultDivby4MMX(Src1, Src2, Dest, length);
+		if (SDL_imageFilterMultDivby4MMX(Src1, Src2, Dest, length) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -1171,6 +1193,7 @@ int SDL_imageFilterMultDivby4(unsigned char *Src1, unsigned char *Src2, unsigned
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -1293,10 +1316,10 @@ int SDL_imageFilterBitAnd(unsigned char *Src1, unsigned char *Src2, unsigned cha
 		return (0);
 
 	if ((SDL_imageFilterMMXdetect()>0) && (length>7)) {
-		/*  if (length > 7) { */
 		/* Call MMX routine */
-
-		SDL_imageFilterBitAndMMX(Src1, Src2, Dest, length);
+		if (SDL_imageFilterBitAndMMX(Src1, Src2, Dest, length) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -1310,6 +1333,7 @@ int SDL_imageFilterBitAnd(unsigned char *Src1, unsigned char *Src2, unsigned cha
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -1407,9 +1431,10 @@ int SDL_imageFilterBitOr(unsigned char *Src1, unsigned char *Src2, unsigned char
 		return (0);
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
-
 		/* MMX routine */
-		SDL_imageFilterBitOrMMX(Src1, Src2, Dest, length);
+		if (SDL_imageFilterBitOrMMX(Src1, Src2, Dest, length) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -1423,6 +1448,7 @@ int SDL_imageFilterBitOr(unsigned char *Src1, unsigned char *Src2, unsigned char
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -1565,17 +1591,15 @@ int SDL_imageFilterDiv(unsigned char *Src1, unsigned char *Src2, unsigned char *
 		return (0);
 
 	if (SDL_imageFilterMMXdetect()) {
-		if (length > 0) {
-			/* Call ASM routine */
-			SDL_imageFilterDivASM(Src1, Src2, Dest, length);
-
-			/* Never unaligned bytes - we are done */
-			return (0);
-		} else {
-			return (-1);
+		/* Call ASM routine */
+		if (SDL_imageFilterDivASM(Src1, Src2, Dest, length) < 0) {
+			goto no_mmx;
 		}
-	} 
-	
+
+		/* Never unaligned bytes - we are done */
+		return (0);
+	}
+	no_mmx:
 	/* Setup to process whole image */
 	istart = 0;
 	cursrc1 = Src1;
@@ -1688,7 +1712,9 @@ int SDL_imageFilterBitNegation(unsigned char *Src1, unsigned char *Dest, unsigne
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 		/* MMX routine */
-		SDL_imageFilterBitNegationMMX(Src1, Dest, length);
+		if (SDL_imageFilterBitNegationMMX(Src1, Dest, length) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -1701,6 +1727,7 @@ int SDL_imageFilterBitNegation(unsigned char *Src1, unsigned char *Dest, unsigne
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -1818,7 +1845,9 @@ int SDL_imageFilterAddByte(unsigned char *Src1, unsigned char *Dest, unsigned in
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 		/* MMX routine */
-		SDL_imageFilterAddByteMMX(Src1, Dest, length, C);
+		if (SDL_imageFilterAddByteMMX(Src1, Dest, length, C) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -1831,6 +1860,7 @@ int SDL_imageFilterAddByte(unsigned char *Src1, unsigned char *Dest, unsigned in
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -1927,7 +1957,7 @@ L11023:
 */
 int SDL_imageFilterAddUint(unsigned char *Src1, unsigned char *Dest, unsigned int length, unsigned int C)
 {
-	unsigned int i, j, istart, D;
+	unsigned int i, j, istart;
 	int iC[4];
 	unsigned char *cursrc1;
 	unsigned char *curdest;
@@ -1947,8 +1977,10 @@ int SDL_imageFilterAddUint(unsigned char *Src1, unsigned char *Dest, unsigned in
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 		/* MMX routine */
-		D=SWAP_32(C);
-		SDL_imageFilterAddUintMMX(Src1, Dest, length, C, D);
+		unsigned int D = SWAP_32(C);
+		if (SDL_imageFilterAddUintMMX(Src1, Dest, length, C, D) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -1961,6 +1993,7 @@ int SDL_imageFilterAddUint(unsigned char *Src1, unsigned char *Dest, unsigned in
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -2092,7 +2125,9 @@ int SDL_imageFilterAddByteToHalf(unsigned char *Src1, unsigned char *Dest, unsig
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 		/* MMX routine */
-		SDL_imageFilterAddByteToHalfMMX(Src1, Dest, length, C, Mask);
+		if (SDL_imageFilterAddByteToHalfMMX(Src1, Dest, length, C, Mask) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -2105,6 +2140,7 @@ int SDL_imageFilterAddByteToHalf(unsigned char *Src1, unsigned char *Dest, unsig
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -2226,7 +2262,9 @@ int SDL_imageFilterSubByte(unsigned char *Src1, unsigned char *Dest, unsigned in
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 		/* MMX routine */
-		SDL_imageFilterSubByteMMX(Src1, Dest, length, C);
+		if (SDL_imageFilterSubByteMMX(Src1, Dest, length, C) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -2239,6 +2277,7 @@ int SDL_imageFilterSubByte(unsigned char *Src1, unsigned char *Dest, unsigned in
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -2335,7 +2374,7 @@ L11024:
 */
 int SDL_imageFilterSubUint(unsigned char *Src1, unsigned char *Dest, unsigned int length, unsigned int C)
 {
-	unsigned int i, j, istart, D;
+	unsigned int i, j, istart;
 	int iC[4];
 	unsigned char *cursrc1;
 	unsigned char *curdest;
@@ -2355,8 +2394,10 @@ int SDL_imageFilterSubUint(unsigned char *Src1, unsigned char *Dest, unsigned in
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 		/* MMX routine */
-		D=SWAP_32(C);
-		SDL_imageFilterSubUintMMX(Src1, Dest, length, C, D);
+		unsigned int D = SWAP_32(C);
+		if (SDL_imageFilterSubUintMMX(Src1, Dest, length, C, D) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -2369,6 +2410,7 @@ int SDL_imageFilterSubUint(unsigned char *Src1, unsigned char *Dest, unsigned in
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -2509,7 +2551,9 @@ int SDL_imageFilterShiftRight(unsigned char *Src1, unsigned char *Dest, unsigned
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
 		/* MMX routine */
-		SDL_imageFilterShiftRightMMX(Src1, Dest, length, N, Mask);
+		if (SDL_imageFilterShiftRightMMX(Src1, Dest, length, N, Mask) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -2522,6 +2566,7 @@ int SDL_imageFilterShiftRight(unsigned char *Src1, unsigned char *Dest, unsigned
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -2625,7 +2670,9 @@ int SDL_imageFilterShiftRightUint(unsigned char *Src1, unsigned char *Dest, unsi
 	}
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
-		SDL_imageFilterShiftRightUintMMX(Src1, Dest, length, N);
+		if (SDL_imageFilterShiftRightUintMMX(Src1, Dest, length, N) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -2638,6 +2685,7 @@ int SDL_imageFilterShiftRightUint(unsigned char *Src1, unsigned char *Dest, unsi
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -2817,7 +2865,9 @@ int SDL_imageFilterMultByByte(unsigned char *Src1, unsigned char *Dest, unsigned
 	}
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
-		SDL_imageFilterMultByByteMMX(Src1, Dest, length, C);
+		if (SDL_imageFilterMultByByteMMX(Src1, Dest, length, C) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -2830,6 +2880,7 @@ int SDL_imageFilterMultByByte(unsigned char *Src1, unsigned char *Dest, unsigned
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -2975,7 +3026,9 @@ int SDL_imageFilterShiftRightAndMultByByte(unsigned char *Src1, unsigned char *D
 	}
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
-		SDL_imageFilterShiftRightAndMultByByteMMX(Src1, Dest, length, N, C);
+		if (SDL_imageFilterShiftRightAndMultByByteMMX(Src1, Dest, length, N, C) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -2988,6 +3041,7 @@ int SDL_imageFilterShiftRightAndMultByByte(unsigned char *Src1, unsigned char *D
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -3122,7 +3176,9 @@ int SDL_imageFilterShiftLeftByte(unsigned char *Src1, unsigned char *Dest, unsig
 	}
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
-		SDL_imageFilterShiftLeftByteMMX(Src1, Dest, length, N, Mask);
+		if (SDL_imageFilterShiftLeftByteMMX(Src1, Dest, length, N, Mask) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -3135,6 +3191,7 @@ int SDL_imageFilterShiftLeftByte(unsigned char *Src1, unsigned char *Dest, unsig
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -3239,7 +3296,9 @@ int SDL_imageFilterShiftLeftUint(unsigned char *Src1, unsigned char *Dest, unsig
 	}
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
-		SDL_imageFilterShiftLeftUintMMX(Src1, Dest, length, N);
+		if (SDL_imageFilterShiftLeftUintMMX(Src1, Dest, length, N) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -3252,6 +3311,7 @@ int SDL_imageFilterShiftLeftUint(unsigned char *Src1, unsigned char *Dest, unsig
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -3421,7 +3481,9 @@ int SDL_imageFilterShiftLeft(unsigned char *Src1, unsigned char *Dest, unsigned 
 	}
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
-		SDL_imageFilterShiftLeftMMX(Src1, Dest, length, N);
+		if (SDL_imageFilterShiftLeftMMX(Src1, Dest, length, N) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -3434,6 +3496,7 @@ int SDL_imageFilterShiftLeft(unsigned char *Src1, unsigned char *Dest, unsigned 
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -3559,7 +3622,9 @@ int SDL_imageFilterBinarizeUsingThreshold(unsigned char *Src1, unsigned char *De
 	}
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
-		SDL_imageFilterBinarizeUsingThresholdMMX(Src1, Dest, length, T);
+		if (SDL_imageFilterBinarizeUsingThresholdMMX(Src1, Dest, length, T) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -3572,6 +3637,7 @@ int SDL_imageFilterBinarizeUsingThreshold(unsigned char *Src1, unsigned char *De
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -3717,7 +3783,9 @@ int SDL_imageFilterClipToRange(unsigned char *Src1, unsigned char *Dest, unsigne
 	}
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
-		SDL_imageFilterClipToRangeMMX(Src1, Dest, length, Tmin, Tmax);
+		if (SDL_imageFilterClipToRangeMMX(Src1, Dest, length, Tmin, Tmax) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -3730,6 +3798,7 @@ int SDL_imageFilterClipToRange(unsigned char *Src1, unsigned char *Dest, unsigne
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc1 = Src1;
@@ -3932,7 +4001,9 @@ int SDL_imageFilterNormalizeLinear(unsigned char *Src, unsigned char *Dest, unsi
 		return (0);
 
 	if ((SDL_imageFilterMMXdetect()) && (length > 7)) {
-		SDL_imageFilterNormalizeLinearMMX(Src, Dest, length, Cmin, Cmax, Nmin, Nmax);
+		if (SDL_imageFilterNormalizeLinearMMX(Src, Dest, length, Cmin, Cmax, Nmin, Nmax) < 0) {
+			goto no_mmx;
+		}
 
 		/* Check for unaligned bytes */
 		if ((length & 7) > 0) {
@@ -3945,6 +4016,7 @@ int SDL_imageFilterNormalizeLinear(unsigned char *Src, unsigned char *Dest, unsi
 			return (0);
 		}
 	} else {
+	no_mmx:
 		/* Setup to process whole image */
 		istart = 0;
 		cursrc = Src;
@@ -3975,7 +4047,7 @@ int SDL_imageFilterNormalizeLinear(unsigned char *Src, unsigned char *Dest, unsi
 #if 0  /* These are not exported in SDL2_gfx */
 
 /*!
-\brief Filter using ConvolveKernel3x3Divide: Dij = saturation0and255( ... ) 
+\brief Filter using ConvolveKernel3x3Divide: Dij = saturation0and255( ... )
 
 \param Src The source 2D byte array to convolve. Should be different from destination.
 \param Dest The destination 2D byte array to store the result in. Should be different from source.
@@ -4163,7 +4235,7 @@ L10322:
 }
 
 /*!
-\brief Filter using ConvolveKernel5x5Divide: Dij = saturation0and255( ... ) 
+\brief Filter using ConvolveKernel5x5Divide: Dij = saturation0and255( ... )
 
 \param Src The source 2D byte array to convolve. Should be different from destination.
 \param Dest The destination 2D byte array to store the result in. Should be different from source.
@@ -4464,7 +4536,7 @@ L10332:
 }
 
 /*!
-\brief Filter using ConvolveKernel7x7Divide: Dij = saturation0and255( ... ) 
+\brief Filter using ConvolveKernel7x7Divide: Dij = saturation0and255( ... )
 
 \param Src The source 2D byte array to convolve. Should be different from destination.
 \param Dest The destination 2D byte array to store the result in. Should be different from source.
@@ -4819,7 +4891,7 @@ L10342:
 }
 
 /*!
-\brief Filter using ConvolveKernel9x9Divide: Dij = saturation0and255( ... ) 
+\brief Filter using ConvolveKernel9x9Divide: Dij = saturation0and255( ... )
 
 \param Src The source 2D byte array to convolve. Should be different from destination.
 \param Dest The destination 2D byte array to store the result in. Should be different from source.
@@ -5365,7 +5437,7 @@ L10352:
 }
 
 /*!
-\brief Filter using ConvolveKernel3x3ShiftRight: Dij = saturation0and255( ... ) 
+\brief Filter using ConvolveKernel3x3ShiftRight: Dij = saturation0and255( ... )
 
 \param Src The source 2D byte array to convolve. Should be different from destination.
 \param Dest The destination 2D byte array to store the result in. Should be different from source.
@@ -5540,7 +5612,7 @@ L10362:
 }
 
 /*!
-\brief Filter using ConvolveKernel5x5ShiftRight: Dij = saturation0and255( ... ) 
+\brief Filter using ConvolveKernel5x5ShiftRight: Dij = saturation0and255( ... )
 
 \param Src The source 2D byte array to convolve. Should be different from destination.
 \param Dest The destination 2D byte array to store the result in. Should be different from source.
@@ -5839,7 +5911,7 @@ L10372:
 }
 
 /*!
-\brief Filter using ConvolveKernel7x7ShiftRight: Dij = saturation0and255( ... ) 
+\brief Filter using ConvolveKernel7x7ShiftRight: Dij = saturation0and255( ... )
 
 \param Src The source 2D byte array to convolve. Should be different from destination.
 \param Dest The destination 2D byte array to store the result in. Should be different from source.
@@ -6200,7 +6272,7 @@ L10382:
 }
 
 /*!
-\brief Filter using ConvolveKernel9x9ShiftRight: Dij = saturation255( ... ) 
+\brief Filter using ConvolveKernel9x9ShiftRight: Dij = saturation255( ... )
 
 \param Src The source 2D byte array to convolve. Should be different from destination.
 \param Dest The destination 2D byte array to store the result in. Should be different from source.
@@ -6780,7 +6852,7 @@ L10392:
 /* ------------------------------------------------------------------------------------ */
 
 /*!
-\brief Filter using SobelX: Dij = saturation255( ... ) 
+\brief Filter using SobelX: Dij = saturation255( ... )
 
 \param Src The source 2D byte array to sobel-filter. Should be different from destination.
 \param Dest The destination 2D byte array to store the result in. Should be different from source.
@@ -7030,7 +7102,7 @@ L10402:
 }
 
 /*!
-\brief Filter using SobelXShiftRight: Dij = saturation255( ... ) 
+\brief Filter using SobelXShiftRight: Dij = saturation255( ... )
 
 \param Src The source 2D byte array to sobel-filter. Should be different from destination.
 \param Dest The destination 2D byte array to store the result in. Should be different from source.
