@@ -3,8 +3,8 @@ dnl Process this file with autoconf to produce a configure script.
 dnl Set various version strings - taken gratefully from the GTk sources
 # See release_checklist.md
 m4_define([MAJOR_VERSION_MACRO], [2])
-m4_define([MINOR_VERSION_MACRO], [6])
-m4_define([MICRO_VERSION_MACRO], [2])
+m4_define([MINOR_VERSION_MACRO], [7])
+m4_define([MICRO_VERSION_MACRO], [0])
 
 AC_INIT([SDL2_mixer],
         [MAJOR_VERSION_MACRO.MINOR_VERSION_MACRO.MICRO_VERSION_MACRO],
@@ -66,12 +66,21 @@ dnl Detect the canonical build and host environments
 dnl AC_CANONICAL_HOST
 
 dnl Check for tools
+AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
+AC_PROG_FGREP
 AC_PROG_MAKE_SET
 LT_PROG_RC
 PKG_PROG_PKG_CONFIG
+
+if [ test -z "$AWK" ]; then
+    AC_MSG_ERROR([*** awk not found, aborting])
+fi
+
+AC_CHECK_PROGS([SORT], [gsort sort], [false])
+AS_IF([! "$SORT" -V </dev/null >/dev/null], [AC_MSG_WARN([sort(1) that supports the -V option is required to find dynamic libraries])])
 
 dnl Set up the compiler and linker flags
 case "$host" in
@@ -254,8 +263,8 @@ CheckVisibilityHidden()
 dnl Function to find a library in the compiler search path
 find_lib()
 {
-    gcc_bin_path=[`$CC -print-search-dirs 2>/dev/null | fgrep programs: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
-    gcc_lib_path=[`$CC -print-search-dirs 2>/dev/null | fgrep libraries: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
+    gcc_bin_path=[`$CC -print-search-dirs 2>/dev/null | $FGREP programs: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
+    gcc_lib_path=[`$CC -print-search-dirs 2>/dev/null | $FGREP libraries: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
     env_lib_path=[`echo $LIBS $LDFLAGS $* | sed 's/-L[ ]*//g'`]
     if test "$cross_compiling" = yes; then
         host_lib_path=""
@@ -263,7 +272,7 @@ find_lib()
         host_lib_path="$ac_default_prefix/$base_libdir $ac_default_prefix/$base_bindir /usr/$base_libdir /usr/local/$base_libdir"
     fi
     for path in $env_lib_path $gcc_bin_path $gcc_lib_path $host_lib_path; do
-        lib=[`ls -- $path/$1 2>/dev/null | sed -e '/\.so\..*\./d' -e 's,.*/,,' | sort | tail -1`]
+        lib=[`ls -- $path/$1 2>/dev/null | sed 's,.*/,,' | $SORT -V -r | $AWK 'BEGIN{FS="."}{ print NF, $0 }' | $SORT -n -s | sed 's,[0-9]* ,,' | head -1`]
         if test x$lib != x; then
             echo $lib
             return
@@ -332,8 +341,8 @@ AC_ARG_ENABLE([music-mod],
 
 SDL2MIXER_MOD_MODPLUG=0
 AC_ARG_ENABLE([music-mod-modplug],
-[AS_HELP_STRING([--enable-music-mod-modplug], [enable MOD music via modplug [default=yes]])],
-              [], [enable_music_mod_modplug=yes])
+[AS_HELP_STRING([--enable-music-mod-modplug], [enable MOD music via modplug [default=no]])],
+              [], [enable_music_mod_modplug=no])
 AC_ARG_ENABLE([music-mod-modplug-shared],
 [AS_HELP_STRING([--enable-music-mod-modplug-shared], [dynamically load modplug library [default=yes]])],
               [], [enable_music_mod_modplug_shared=yes])
@@ -384,8 +393,8 @@ fi
 SDL2MIXER_MOD_XMP=0
 SDL2MIXER_MOD_XMP_LITE=0
 AC_ARG_ENABLE([music-mod-xmp],
-[AS_HELP_STRING([--enable-music-mod-xmp], [enable MOD music via libxmp [default=no]])],
-              [], [enable_music_mod_xmp=no])
+[AS_HELP_STRING([--enable-music-mod-xmp], [enable MOD music via libxmp [default=yes]])],
+              [], [enable_music_mod_xmp=yes])
 AC_ARG_ENABLE([music-mod-xmp-lite],
 [AS_HELP_STRING([--enable-music-mod-xmp-lite], [use libxmp-lite instead of libxmp [default=no]])],
               [], [enable_music_mod_xmp_lite=no])
@@ -560,6 +569,54 @@ if test x$enable_music_midi_timidity != xyes -a \
         x$use_music_midi_native != xyes -a x$use_music_midi_native != xyes_cpp -a \
         x$have_fluidsynth != xyes; then
     AC_MSG_WARN([MIDI support disabled])
+fi
+
+SDL2MIXER_GME=0
+AC_ARG_ENABLE([music-gme],
+[AS_HELP_STRING([--enable-music-gme], [enable Game Music Emu support [default=no]])],
+              [], [enable_music_gme=no])
+AC_ARG_ENABLE([music-gme-shared],
+[AS_HELP_STRING([--enable-music-gme-shared], [dynamically load libgme library [default=yes]])],
+              [], [enable_music_gme_shared=yes])
+if test x$enable_music_gme = xyes; then
+    PKG_CHECK_MODULES([GME], [libgme], [dnl
+            have_gme_hdr=yes
+            have_gme_lib=yes
+            have_gme_pc=yes
+        ], [dnl
+            AC_CHECK_HEADER([gme/gme.h], [have_gme_hdr=yes])
+            AC_CHECK_LIB([gme], [gme_open_data], [have_gme_lib=yes;GME_LIBS="-lgme"])
+        ])
+    if test x$have_gme_hdr = xyes -a x$have_gme_lib = xyes; then
+        have_gme=yes
+        case "$host" in
+            *-*-darwin*)
+                gme_lib=[`find_lib libgme.dylib`]
+                ;;
+            *-*-cygwin* | *-*-mingw*)
+                gme_lib=[`find_lib "libgme*.dll"`]
+                ;;
+            *)
+                gme_lib=[`find_lib "libgme.so.*"`]
+                ;;
+        esac
+        EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_GME $GME_CFLAGS"
+        if test x$enable_music_gme_shared = xyes && test x$gme_lib != x; then
+            echo "-- dynamic libgme -> $gme_lib"
+            EXTRA_CFLAGS="$EXTRA_CFLAGS -DGME_DYNAMIC=\\\"$gme_lib\\\""
+        else
+            EXTRA_LDFLAGS="$EXTRA_LDFLAGS $GME_LIBS"
+            if test x$have_gme_pc = xyes; then
+                PC_REQUIRES="$PC_REQUIRES libgme"
+            else
+                PC_LIBS="$PC_LIBS $GME_LIBS"
+            fi
+        fi
+        SDL2MIXER_GME=1
+    else
+        AC_MSG_WARN([*** Unable to find GME library (https://bitbucket.org/mpyne/game-music-emu)])
+        AC_MSG_WARN([Game Music Emu support disabled.])
+    fi
 fi
 
 AC_ARG_ENABLE([music-ogg],
@@ -896,6 +953,70 @@ if test x$enable_music_opus = xyes; then
     fi
 fi
 
+SDL2MIXER_WAVPACK=0
+AC_ARG_ENABLE([music-wavpack],
+[AS_HELP_STRING([--enable-music-wavpack], [enable WavPack music [default=yes]])],
+              [], [enable_music_wavpack=yes])
+AC_ARG_ENABLE([music-wavpack-shared],
+[AS_HELP_STRING([--enable-music-wavpack-shared], [dynamically load WavPack library [default=yes]])],
+              [], [enable_music_wavpack_shared=yes])
+if test x$enable_music_wavpack = xyes; then
+    LIBS_SAVED="$LIBS"
+    PKG_CHECK_MODULES([WAVPACK], [wavpack >= 4.0], [dnl
+            have_wavpack_hdr=yes
+            have_wavpack_lib=yes
+            have_wavpack_pc=yes
+        ], [dnl
+            AC_CHECK_HEADER([wavpack.h], [have_wavpack_hdr=yes;have_wavpack_hdr2=yes])
+            AC_CHECK_HEADER([wavpack/wavpack.h], [have_wavpack_hdr=yes])
+            AC_CHECK_LIB([wavpack], [WavpackOpenFileInputEx], [have_wavpack_lib=yes;WAVPACK_LIBS="-lwavpack"], [], [-lm])
+        ])
+    if test x$have_wavpack_pc = xyes; then
+        CFLAGS_SAVED="$CFLAGS"
+        CFLAGS="$CFLAGS $WAVPACK_CFLAGS"
+        AC_CHECK_HEADER([wavpack.h], [have_wavpack_hdr2=yes])
+        CFLAGS="$CFLAGS_SAVED"
+    fi
+    LIBS="$LIBS_SAVED"
+
+    if test x$have_wavpack_hdr = xyes -a x$have_wavpack_lib = xyes; then
+        have_wavpack=yes
+        case "$host" in
+            *-*-darwin*)
+                wavpack_lib=[`find_lib libwavpack.dylib`]
+                ;;
+            *-*-cygwin* | *-*-mingw*)
+                wavpack_lib=[`find_lib "libwavpack*.dll"`]
+                ;;
+            *)
+                wavpack_lib=[`find_lib "libwavpack[0-9]*.so.*"`]
+                if test x$wavpack_lib = x; then
+                    wavpack_lib=[`find_lib "libwavpack.so.*"`]
+                fi
+                ;;
+        esac
+        EXTRA_CFLAGS="$EXTRA_CFLAGS -DMUSIC_WAVPACK $WAVPACK_CFLAGS"
+        if test x$have_wavpack_hdr2 = xyes; then
+            EXTRA_CFLAGS="$EXTRA_CFLAGS -DHAVE_WAVPACK_H"
+        fi
+        if test x$enable_music_wavpack_shared = xyes && test x$wavpack_lib != x; then
+            echo "-- dynamic wavpack -> $wavpack_lib"
+            EXTRA_CFLAGS="$EXTRA_CFLAGS -DWAVPACK_DYNAMIC=\\\"$wavpack_lib\\\""
+        else
+            MIXER_LIBS="$MIXER_LIBS $WAVPACK_LIBS"
+            if test x$have_wavpack_pc = xyes; then
+                PC_REQUIRES="$PC_REQUIRES wavpack"
+            else
+                PC_LIBS="$PC_LIBS $WAVPACK_LIBS"
+            fi
+        fi
+        SDL2MIXER_WAVPACK=1
+    else
+        AC_MSG_WARN([*** Unable to find WavPack library (http://www.wavpack.com)])
+        AC_MSG_WARN([WavPack support disabled])
+    fi
+fi
+
 dnl check for LD --no-undefined option
 CheckNoUndef
 
@@ -984,6 +1105,8 @@ AC_SUBST(SDL2MIXER_VORBIS_STB)
 AC_SUBST(SDL2MIXER_VORBIS_TREMOR)
 AC_SUBST(SDL2MIXER_VORBIS_VORBISFILE)
 AC_SUBST(SDL2MIXER_WAVE)
+AC_SUBST(SDL2MIXER_WAVPACK)
+AC_SUBST(SDL2MIXER_GME)
 
 AC_CONFIG_FILES([
 Makefile
@@ -992,6 +1115,7 @@ SDL2_mixer.pc
 sdl2_mixer-config.cmake
 sdl2_mixer-config-version.cmake
 ])
+
 AC_CONFIG_COMMANDS([default],
                    [cat >>Makefile <<__EOF__
 

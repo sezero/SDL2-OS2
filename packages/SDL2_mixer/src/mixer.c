@@ -185,6 +185,9 @@ static int get_loaded_mix_init_flags(void)
             case MUS_FLAC:
                 loaded_init_flags |= MIX_INIT_FLAC;
                 break;
+            case MUS_WAVPACK:
+                loaded_init_flags |= MIX_INIT_WAVPACK;
+                break;
             case MUS_MOD:
                 loaded_init_flags |= MIX_INIT_MOD;
                 break;
@@ -220,6 +223,14 @@ int Mix_Init(int flags)
             result |= MIX_INIT_FLAC;
         } else {
             Mix_SetError("FLAC support not available");
+        }
+    }
+    if (flags & MIX_INIT_WAVPACK) {
+        if (load_music_type(MUS_WAVPACK)) {
+            open_music_type(MUS_WAVPACK);
+            result |= MIX_INIT_WAVPACK;
+        } else {
+            Mix_SetError("WavPack support not available");
         }
     }
     if (flags & MIX_INIT_MOD) {
@@ -533,6 +544,15 @@ int Mix_OpenAudio(int frequency, Uint16 format, int nchannels, int chunksize)
                                 SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
 }
 
+/* Pause or resume the audio streaming */
+void Mix_PauseAudio(int pause_on)
+{
+    SDL_PauseAudioDevice(audio_device, pause_on);
+    Mix_LockAudio();
+    pause_async_music(pause_on);
+    Mix_UnlockAudio();
+}
+
 /* Dynamically change the number of channels managed by the mixer.
    If decreasing the number of channels, the upper channels are
    stopped.
@@ -749,6 +769,7 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
     SDL_AudioCVT wavecvt;
     int samplesize;
     int wavfree;        /* to decide how to free chunk->abuf. */
+    Uint8 *resized_buf;
 
     /* rcg06012001 Make sure src is valid */
     if (!src) {
@@ -851,7 +872,12 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
             return(NULL);
         }
 
-        chunk->abuf = wavecvt.buf;
+        resized_buf = SDL_realloc(wavecvt.buf, wavecvt.len_cvt);
+        if (resized_buf == NULL) {
+            chunk->abuf = wavecvt.buf;
+        } else {
+            chunk->abuf = resized_buf;
+        }
         chunk->alen = wavecvt.len_cvt;
         wavfree = 0;
     }

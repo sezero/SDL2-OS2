@@ -3,8 +3,8 @@ dnl Process this file with autoconf to produce a configure script.
 dnl Set various version strings - taken gratefully from the GTk sources
 # See docs/release_checklist.md
 m4_define([MAJOR_VERSION_MACRO], [2])
-m4_define([MINOR_VERSION_MACRO], [6])
-m4_define([MICRO_VERSION_MACRO], [2])
+m4_define([MINOR_VERSION_MACRO], [7])
+m4_define([MICRO_VERSION_MACRO], [0])
 
 AC_INIT([SDL2_image],
         [MAJOR_VERSION_MACRO.MINOR_VERSION_MACRO.MICRO_VERSION_MACRO],
@@ -61,12 +61,21 @@ dnl Setup for automake
 AM_INIT_AUTOMAKE([foreign tar-ustar])
 
 dnl Check for tools
+AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_OBJC
 AC_CHECK_TOOL(RC,[windres],[:])
 AC_PROG_INSTALL
+AC_PROG_FGREP
 AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG
+
+if [ test -z "$AWK" ]; then
+    AC_MSG_ERROR([*** awk not found, aborting])
+fi
+
+AC_CHECK_PROGS([SORT], [gsort sort], [false])
+AS_IF([! "$SORT" -V </dev/null >/dev/null], [AC_MSG_WARN([sort(1) that supports the -V option is required to find dynamic libraries])])
 
 case "$host" in
     *-*-beos*)
@@ -123,8 +132,8 @@ base_libdir=`echo \${libdir} | sed 's/.*\/\(.*\)/\1/; q'`
 dnl Function to find a library in the compiler search path
 find_lib()
 {
-    gcc_bin_path=[`$CC -print-search-dirs 2>/dev/null | fgrep programs: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
-    gcc_lib_path=[`$CC -print-search-dirs 2>/dev/null | fgrep libraries: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
+    gcc_bin_path=[`$CC -print-search-dirs 2>/dev/null | $FGREP programs: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
+    gcc_lib_path=[`$CC -print-search-dirs 2>/dev/null | $FGREP libraries: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
     env_lib_path=[`echo $LIBS $LDFLAGS $* | sed 's/-L[ ]*//g'`]
     if test "$cross_compiling" = yes; then
         host_lib_path=""
@@ -132,7 +141,7 @@ find_lib()
         host_lib_path="$ac_default_prefix/$base_libdir $ac_default_prefix/$base_bindir /usr/$base_libdir /usr/local/$base_libdir"
     fi
     for path in $env_lib_path $gcc_bin_path $gcc_lib_path $host_lib_path; do
-        lib=[`ls -- $path/$1 2>/dev/null | sed -e '/\.so\..*\./d' -e 's,.*/,,' | sort | tail -1`]
+        lib=[`ls -- $path/$1 2>/dev/null | sed 's,.*/,,' | $SORT -V -r | $AWK 'BEGIN{FS="."}{ print NF, $0 }' | $SORT -n -s | sed 's,[0-9]* ,,' | head -1`]
         if test x$lib != x; then
             echo $lib
             return
@@ -265,8 +274,6 @@ AC_ARG_ENABLE([xv], [AS_HELP_STRING([--enable-xv], [support loading XV images [d
  [], [enable_xv=yes])
 AC_ARG_ENABLE([webp], [AS_HELP_STRING([--enable-webp], [support loading WEBP images [default=yes]])],
  [], [enable_webp=yes])
-AC_ARG_ENABLE([webpdec], [AS_HELP_STRING([--enable-webpdec], [support loading WEBP images via libwebpdecoder instead of libwebp [default=no]])],
- [], [enable_webpdec=no])
 AC_ARG_ENABLE([webp-shared], [AS_HELP_STRING([--enable-webp-shared], [dynamically load WEBP support [default=yes]])],
  [], [enable_webp_shared=yes])
 AC_ARG_ENABLE([qoi], [AS_HELP_STRING([--enable-qoi], [support loading QOI images [default=yes]])],
@@ -526,14 +533,22 @@ if test x$enable_tif = xyes -a x$enable_imageio != xyes; then
 fi
 AC_SUBST([LOAD_TIF], $load_tif)
 
-load_webp=0
-if test x$enable_webpdec = xyes; then
-  webplib=webpdecoder
-else
-  webplib=webp
-fi
 if test x$enable_webp = xyes; then
-    PKG_CHECK_MODULES([LIBWEBP], [lib$webplib], [dnl
+    PKG_CHECK_MODULES([LIBWEBPDEMUX], [libwebpdemux], [dnl
+        have_webpdemux_hdr=yes
+        have_webpdemux_lib=yes
+        have_webpdemux_pc=yes
+      ], [dnl
+        AC_CHECK_HEADER([webp/demux.h], [
+            have_webpdemux_hdr=yes
+            LIBWEBPDEMUX_CFLAGS=""
+        ])
+        AC_CHECK_LIB([webpdemux], [WebPDemuxGetFrame], [
+            have_webpdemux_lib=yes
+            LIBWEBPDEMUX_LIBS="-lwebpdemux"
+        ], [], [-lm])
+      ])
+    PKG_CHECK_MODULES([LIBWEBP], [libwebp], [dnl
         have_webp_hdr=yes
         have_webp_lib=yes
         have_webp_pc=yes
@@ -542,26 +557,30 @@ if test x$enable_webp = xyes; then
             have_webp_hdr=yes
             LIBWEBP_CFLAGS=""
         ])
-        AC_CHECK_LIB([$webplib], [WebPGetDecoderVersion], [
+        AC_CHECK_LIB([webp], [WebPGetDecoderVersion], [
             have_webp_lib=yes
-            LIBWEBP_LIBS="-l$webplib"
+            LIBWEBP_LIBS="-lwebp"
         ], [], [-lm])
       ])
-    if test x$have_webp_hdr = xyes -a x$have_webp_lib = xyes; then
+    if test x$have_webpdemux_hdr = xyes -a x$have_webpdemux_lib = xyes -a x$have_webp_hdr = xyes -a x$have_webp_lib = xyes; then
         AC_DEFINE([LOAD_WEBP])
         load_webp=1
 
         case "$host" in
             *-*-darwin*)
-                webp_lib=[`find_lib lib$webplib.dylib`]
+                webpdemux_lib=[`find_lib libwebpdemux.dylib`]
+                webp_lib=[`find_lib libwebp.dylib`]
                 ;;
             *-*-cygwin* | *-*-mingw*)
-                webp_lib=[`find_lib "lib$webplib-*.dll"`]
+                webpdemux_lib=[`find_lib "libwebpdemux-*.dll"`]
+                webp_lib=[`find_lib "libwebp-*.dll"`]
                 ;;
             *)
-                webp_lib=[`find_lib "lib$webplib[0-9]*.so.*"`]
+                webpdemux_lib=[`find_lib "libwebpdemux[0-9]*.so.*"`]
+                webp_lib=[`find_lib "libwebp[0-9]*.so.*"`]
                 if test x$webp_lib = x; then
-                    webp_lib=[`find_lib "lib$webplib.so.*"`]
+                    webpdemux_lib=[`find_lib "libwebpdemux.so.*"`]
+                    webp_lib=[`find_lib "libwebp.so.*"`]
                 fi
                 ;;
         esac
@@ -649,17 +668,19 @@ if test x$enable_qoi = xyes; then
 fi
 AC_SUBST([LOAD_QOI], $load_qoi)
 
-if test x$enable_webp = xyes -a x$have_webp_hdr = xyes -a x$have_webp_lib = xyes; then
+if test x$enable_webp = xyes -a x$have_webp_hdr = xyes -a x$have_webp_lib -a x$have_webpdemux_hdr = xyes -a x$have_webpdemux_lib = xyes; then
     CFLAGS="$LIBWEBP_CFLAGS $CFLAGS"
     if test x$enable_webp_shared = xyes && test x$webp_lib != x; then
         echo "-- dynamic libwebp -> $webp_lib"
         AC_DEFINE_UNQUOTED(LOAD_WEBP_DYNAMIC, "$webp_lib")
+        echo "-- dynamic libwebpdemux -> $webpdemux_lib"
+        AC_DEFINE_UNQUOTED(LOAD_WEBPDEMUX_DYNAMIC, "$webpdemux_lib")
     else
-        IMG_LIBS="$LIBWEBP_LIBS $IMG_LIBS"
+        IMG_LIBS="$LIBWEBPDEMUX_LIBS $LIBWEBP_LIBS $IMG_LIBS"
         if test x$have_webp_pc = xyes; then
-            PC_REQUIRES="lib$webplib $PC_REQUIRES"
+            PC_REQUIRES="libwebpdemux libwebp $PC_REQUIRES"
         else
-            PC_LIBS="$LIBWEBP_LIBS $PC_LIBS"
+            PC_LIBS="$LIBWEBPDEMUX_LIBS $LIBWEBP_LIBS $PC_LIBS"
         fi
     fi
 fi

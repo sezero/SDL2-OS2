@@ -2,13 +2,20 @@
 # fails, define SDL2_DIR environment variable to point to your SDL2
 # installation.
 
-cmake_minimum_required(VERSION 2.8.12)
-
-project(SDL_sound C)
 set(SDLSOUND_VERSION 2.0.1)
 
 # Increment this if/when we break backwards compatibility.
 set(SDLSOUND_SOVERSION 2)
+
+cmake_minimum_required(VERSION 3.0)
+
+project(SDL_sound
+    VERSION ${SDLSOUND_VERSION}
+    LANGUAGES C
+)
+
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 
 include_directories(src)
 
@@ -24,7 +31,6 @@ if(CMAKE_C_COMPILER_ID STREQUAL "SunPro")
 endif()
 
 find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR})
 if(WIN32)
     # -lmingw32: gcc adds it automatically.
     # -mwindows: doesn't make sense.
@@ -206,8 +212,16 @@ if(SDLSOUND_BUILD_STATIC)
     if(NOT MSVC)
         set_target_properties(SDL2_sound-static PROPERTIES OUTPUT_NAME "SDL2_sound")
     endif()
+    target_include_directories(SDL2_sound-static PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/SDL2>)
+    if(TARGET SDL2::SDL2)
+        target_include_directories(SDL2_sound-static
+            PUBLIC $<TARGET_PROPERTY:SDL2::SDL2,INTERFACE_INCLUDE_DIRECTORIES>)
+        target_link_libraries(SDL2_sound-static PRIVATE $<BUILD_INTERFACE:SDL2::SDL2> ${OPTIONAL_LIBRARY_LIBS} ${OTHER_LDFLAGS})
+    else()
+        target_include_directories(SDL2_sound-static PUBLIC ${SDL2_INCLUDE_DIRS})
+        target_link_libraries(SDL2_sound-static PRIVATE $<BUILD_INTERFACE:${SDL2_LIBRARIES}> ${OPTIONAL_LIBRARY_LIBS} ${OTHER_LDFLAGS})
+    endif()
     set(SDLSOUND_LIB_TARGET SDL2_sound-static)
-    set(SDLSOUND_INSTALL_TARGETS ${SDLSOUND_INSTALL_TARGETS} ";SDL2_sound-static")
 endif()
 
 option(SDLSOUND_BUILD_SHARED "Build shared library" TRUE)
@@ -216,6 +230,9 @@ if(SDLSOUND_BUILD_SHARED)
     set_target_properties(SDL2_sound PROPERTIES MACOSX_RPATH 1)
     set_target_properties(SDL2_sound PROPERTIES VERSION ${SDLSOUND_VERSION})
     set_target_properties(SDL2_sound PROPERTIES SOVERSION ${SDLSOUND_SOVERSION})
+    # Use `Compatible Interface Properties` to ensure a shared SDL_sound is linked to a shared SDL library
+    set_property(TARGET SDL2_sound PROPERTY INTERFACE_SDL2_SHARED ON)
+    set_property(TARGET SDL2_sound APPEND PROPERTY COMPATIBLE_INTERFACE_BOOL SDL2_SHARED)
     if(WIN32 OR OS2)
         SET_TARGET_PROPERTIES(SDL2_sound PROPERTIES DEFINE_SYMBOL SDL_SOUND_DLL_EXPORTS)
         # avoid DLL having "lib" prefix
@@ -224,12 +241,20 @@ if(SDLSOUND_BUILD_SHARED)
     if(OS2)   # OS/2 does not support a DLL name longer than 8 characters.
         SET_TARGET_PROPERTIES(SDL2_sound PROPERTIES OUTPUT_NAME "SDL2snd")
     endif()
-    target_link_libraries(SDL2_sound ${SDL2_LIBRARIES} ${SDL2_LIBRARY} ${OPTIONAL_LIBRARY_LIBS} ${OTHER_LDFLAGS})
+    target_include_directories(SDL2_sound
+        PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/SDL2>
+    )
+    if(TARGET SDL2::SDL2)
+        target_include_directories(SDL2_sound PUBLIC "$<TARGET_PROPERTY:SDL2::SDL2,INTERFACE_INCLUDE_DIRECTORIES>")
+        target_link_libraries(SDL2_sound PRIVATE SDL2::SDL2 ${OPTIONAL_LIBRARY_LIBS} ${OTHER_LDFLAGS})
+    else()
+        target_include_directories(SDL2_sound PUBLIC "${SDL2_INCLUDE_DIRS}")
+        target_link_libraries(SDL2_sound PRIVATE ${SDL2_LIBRARIES} ${OPTIONAL_LIBRARY_LIBS} ${OTHER_LDFLAGS})
+    endif()
     set(SDLSOUND_LIB_TARGET SDL2_sound)
-    set(SDLSOUND_INSTALL_TARGETS ${SDLSOUND_INSTALL_TARGETS} ";SDL2_sound")
 endif()
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/SDL2_sound.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/SDL2_sound.pc" @ONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/SDL2_sound.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/SDL2_sound.pc" @ONLY)
 
 if(NOT SDLSOUND_BUILD_SHARED AND NOT SDLSOUND_BUILD_STATIC)
     message(FATAL "Both shared and static libraries are disabled!")
@@ -239,16 +264,28 @@ option(SDLSOUND_BUILD_TEST "Build stdio test program." TRUE)
 mark_as_advanced(SDLSOUND_BUILD_TEST)
 if(SDLSOUND_BUILD_TEST)
     add_executable(playsound examples/playsound.c)
-    target_link_libraries(playsound ${SDLSOUND_LIB_TARGET} ${OTHER_LDFLAGS})
+    if(TARGET SDL2::SDL2)
+        target_link_libraries(playsound PRIVATE SDL2::SDL2)
+    else()
+        target_include_directories(playsound PRIVATE ${SDL2_INCLUDE_DIRS})
+        target_link_libraries(playsound PRIVATE ${SDL2_LIBRARIES})
+    endif()
+    target_link_libraries(playsound PRIVATE ${SDLSOUND_LIB_TARGET} ${OTHER_LDFLAGS})
     # assuming assert.h, signal.h and setbuf() being available universally
     target_compile_definitions(playsound PRIVATE "HAVE_SETBUF")
     target_compile_definitions(playsound PRIVATE "HAVE_ASSERT_H")
     target_compile_definitions(playsound PRIVATE "HAVE_SIGNAL_H")
 
-    set(SDLSOUND_INSTALL_TARGETS ${SDLSOUND_INSTALL_TARGETS} ";playsound")
+    list(APPEND SDLSOUND_INSTALL_TARGETS playsound)
     add_executable(playsound_simple examples/playsound_simple.c)
-    target_link_libraries(playsound_simple ${SDLSOUND_LIB_TARGET} ${OTHER_LDFLAGS})
-    #set(SDLSOUND_INSTALL_TARGETS ${SDLSOUND_INSTALL_TARGETS} ";playsound_simple")
+    if(TARGET SDL2::SDL2)
+        target_link_libraries(playsound_simple PRIVATE SDL2::SDL2)
+    else()
+        target_include_directories(playsound_simple PRIVATE ${SDL2_INCLUDE_DIRS})
+        target_link_libraries(playsound_simple PRIVATE ${SDL2_LIBRARIES})
+    endif()
+    target_link_libraries(playsound_simple PRIVATE ${SDLSOUND_LIB_TARGET} ${OTHER_LDFLAGS})
+    #list(APPEND SDLSOUND_INSTALL_TARGETS playsound_simple)
     IF (WIN32 AND MSVC)
         SET_TARGET_PROPERTIES(playsound PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
         SET_TARGET_PROPERTIES(playsound_simple PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
@@ -265,20 +302,66 @@ if(SDLSOUND_BUILD_TEST)
     endif()
 endif()
 
-include(GNUInstallDirs)
-install(TARGETS ${SDLSOUND_INSTALL_TARGETS}
+if(FREEBSD)
+    set(PKGCONFIG_INSTALLDIR "libdata/pkgconfig")
+else()
+    set(PKGCONFIG_INSTALLDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+endif()
+
+if(WIN32 AND NOT MINGW)
+    set(SDLSOUND_INSTALL_CMAKEDIR_DEFAULT "cmake")
+else()
+    set(SDLSOUND_INSTALL_CMAKEDIR_DEFAULT "${CMAKE_INSTALL_LIBDIR}/cmake/SDL2_sound")
+endif()
+set(SDLSOUND_INSTALL_CMAKEDIR "${SDLSOUND_INSTALL_CMAKEDIR_DEFAULT}" CACHE STRING "Location where to install SDL2_sound.cmake")
+
+configure_package_config_file(cmake/SDL2_soundConfig.cmake.in SDL2_soundConfig.cmake
+    INSTALL_DESTINATION "${SDLSOUND_INSTALL_CMAKEDIR}"
+)
+write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/SDL2_soundConfigVersion.cmake"
+    VERSION "${SDLSOUND_VERSION}"
+    COMPATIBILITY AnyNewerVersion
+)
+if(SDLSOUND_BUILD_SHARED)
+    install(TARGETS SDL2_sound
+        EXPORT SDLSoundSharedExports
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
-install(FILES src/SDL_sound.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/SDL2)
-if(FREEBSD)
-  # FreeBSD uses ${PREFIX}/libdata/pkgconfig
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SDL2_sound.pc DESTINATION "libdata/pkgconfig")
-else()
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SDL2_sound.pc
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+    )
+    install(EXPORT SDLSoundSharedExports
+        FILE "${SDLSOUND_LIB_TARGET}-shared-targets.cmake"
+        NAMESPACE SDL2_sound::
+        DESTINATION "${SDLSOUND_INSTALL_CMAKEDIR}"
+    )
 endif()
+if(SDLSOUND_BUILD_STATIC)
+    install(TARGETS SDL2_sound-static
+        EXPORT SDLSoundStaticExports
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+    install(EXPORT SDLSoundStaticExports
+        FILE "${SDLSOUND_LIB_TARGET}-static-targets.cmake"
+        NAMESPACE SDL2_sound::
+        DESTINATION "${SDLSOUND_INSTALL_CMAKEDIR}"
+    )
+endif()
+install(TARGETS ${SDLSOUND_INSTALL_TARGETS}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/SDL2_soundConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/SDL2_soundConfigVersion.cmake"
+    DESTINATION "${SDLSOUND_INSTALL_CMAKEDIR}"
+)
+install(FILES src/SDL_sound.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/SDL2)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SDL2_sound.pc
+    DESTINATION "${PKGCONFIG_INSTALLDIR}")
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)

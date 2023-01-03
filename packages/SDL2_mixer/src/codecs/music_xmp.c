@@ -73,7 +73,7 @@ static xmp_loader libxmp;
 #else
 #define FUNCTION_LOADER(FUNC, SIG) \
     libxmp.FUNC = FUNC; \
-    if (libxmp.FUNC == NULL) { Mix_SetError("Missing xmp.framework"); return -1; }
+    if (libxmp.FUNC == NULL) { Mix_SetError("Missing xmp_lite.framework"); return -1; }
 #endif
 
 static int XMP_Load(void)
@@ -99,6 +99,9 @@ static int XMP_Load(void)
         FUNCTION_LOADER(xmp_free_context, void(*)(xmp_context))
 #if defined(XMP_DYNAMIC)
         libxmp.xmp_load_module_from_callbacks = (int (*)(xmp_context,void*,struct xmp_callbacks)) SDL_LoadFunction(libxmp.handle, "xmp_load_module_from_callbacks");
+        if (libxmp.xmp_load_module_from_callbacks == NULL) {
+            SDL_ClearError();   /* xmp_load_module_from_callbacks is optional. */
+        }
 #elif (XMP_VERCODE >= 0x040500)
         libxmp.xmp_load_module_from_callbacks = xmp_load_module_from_callbacks;
 #else
@@ -426,6 +429,8 @@ Mix_MusicInterface Mix_MusicInterface_XMP =
     NULL,   /* LoopEnd */
     NULL,   /* LoopLength */
     XMP_GetMetaTag,
+    NULL,   /* GetNumTracks */
+    NULL,   /* StartTrack */
     NULL,   /* Pause */
     NULL,   /* Resume */
     XMP_Stop,

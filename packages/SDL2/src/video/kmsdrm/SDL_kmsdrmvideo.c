@@ -304,8 +304,8 @@ KMSDRM_CreateDevice(int devindex)
     return device;
 
 cleanup:
-    if (device)
-        SDL_free(device);
+    SDL_free(device);
+
     if (viddata)
         SDL_free(viddata);
     return NULL;

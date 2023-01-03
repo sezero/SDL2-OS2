@@ -288,8 +288,8 @@ DIST_SUBDIRS = . test
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/SDL2_image.pc.in \
 	$(srcdir)/SDL2_image.spec.in \
 	$(srcdir)/sdl2_image-config-version.cmake.in \
-	$(srcdir)/sdl2_image-config.cmake.in compile config.guess \
-	config.sub depcomp install-sh ltmain.sh missing
+	$(srcdir)/sdl2_image-config.cmake.in ar-lib compile \
+	config.guess config.sub depcomp install-sh ltmain.sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -384,6 +384,8 @@ LIBS = @LIBS@
 LIBTIFF_CFLAGS = @LIBTIFF_CFLAGS@
 LIBTIFF_LIBS = @LIBTIFF_LIBS@
 LIBTOOL = @LIBTOOL@
+LIBWEBPDEMUX_CFLAGS = @LIBWEBPDEMUX_CFLAGS@
+LIBWEBPDEMUX_LIBS = @LIBWEBPDEMUX_LIBS@
 LIBWEBP_CFLAGS = @LIBWEBP_CFLAGS@
 LIBWEBP_LIBS = @LIBWEBP_LIBS@
 LIPO = @LIPO@
@@ -449,6 +451,7 @@ SDL_VERSION = @SDL_VERSION@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SORT = @SORT@
 STRIP = @STRIP@
 USE_IMAGEIO = @USE_IMAGEIO@
 USE_STBIMAGE = @USE_STBIMAGE@
@@ -1313,7 +1316,7 @@ rpm: $(PACKAGE)-$(VERSION).tar.gz
 	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
 
 dist-hook:
-	ls $(distdir)/external | fgrep -v download.sh | while read dir; do rm -rf "$(distdir)/external/$$dir"; done
+	ls $(distdir)/external | $(FGREP) -v download.sh | while read dir; do rm -rf "$(distdir)/external/$$dir"; done
 
 install-data-local:
 	$(MKDIR_P) $(DESTDIR)$(libdir)/cmake/SDL2_image

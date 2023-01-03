@@ -40,6 +40,8 @@ typedef enum
     MIX_MUSIC_FLAC,
     MIX_MUSIC_OPUS,
     MIX_MUSIC_LIBXMP,
+    MIX_MUSIC_WAVPACK,
+    MIX_MUSIC_GME,
     MIX_MUSIC_LAST
 } Mix_MusicAPI;
 
@@ -132,6 +134,12 @@ typedef struct
     /* Get a meta-tag string if available */
     const char* (*GetMetaTag)(void *music, Mix_MusicMetaTag tag_type);
 
+    /* Get number of tracks. Returns -1 if not applicable */
+    int (*GetNumTracks)(void *music);
+
+    /* Start a specific track */
+    int (*StartTrack)(void *music, int track);
+
     /* Pause playing music */
     void (*Pause)(void *music);
 
@@ -149,7 +157,6 @@ typedef struct
 
     /* Unload the library */
     void (*Unload)(void);
-
 } Mix_MusicInterface;
 
 
@@ -163,6 +170,7 @@ extern void open_music(const SDL_AudioSpec *spec);
 extern int music_pcm_getaudio(void *context, void *data, int bytes, int volume,
                               int (*GetSome)(void *context, void *data, int bytes, SDL_bool *done));
 extern void SDLCALL music_mixer(void *udata, Uint8 *stream, int len);
+extern void pause_async_music(int pause_on);
 extern void close_music(void);
 extern void unload_music(void);
 

@@ -83,6 +83,9 @@ static int MODPLUG_Load(void)
         FUNCTION_LOADER(ModPlug_GetName, const char* (*)(ModPlugFile* file))
 #ifdef MODPLUG_DYNAMIC
         modplug.ModPlug_Tell = (int (*)(ModPlugFile* file)) SDL_LoadFunction(modplug.handle, "ModPlug_Tell");
+        if (modplug.ModPlug_Tell == NULL) {
+            SDL_ClearError();   /* ModPlug_Tell is optional. */
+        }
 #elif defined(MODPLUG_HAS_TELL)
         modplug.ModPlug_Tell = ModPlug_Tell;
 #else
@@ -363,6 +366,8 @@ Mix_MusicInterface Mix_MusicInterface_MODPLUG =
     NULL,   /* LoopEnd */
     NULL,   /* LoopLength */
     MODPLUG_GetMetaTag,
+    NULL,   /* GetNumTracks */
+    NULL,   /* StartTrack */
     NULL,   /* Pause */
     NULL,   /* Resume */
     MODPLUG_Stop,

@@ -45,8 +45,8 @@ extern "C" {
  * Printable format: "%d.%d.%d", MAJOR, MINOR, PATCHLEVEL
  */
 #define SDL_MIXER_MAJOR_VERSION 2
-#define SDL_MIXER_MINOR_VERSION 6
-#define SDL_MIXER_PATCHLEVEL    2
+#define SDL_MIXER_MINOR_VERSION 7
+#define SDL_MIXER_PATCHLEVEL    0
 
 /**
  * This macro can be used to fill a version structure with the compile-time
@@ -112,15 +112,20 @@ typedef enum
     MIX_INIT_MP3    = 0x00000008,
     MIX_INIT_OGG    = 0x00000010,
     MIX_INIT_MID    = 0x00000020,
-    MIX_INIT_OPUS   = 0x00000040
+    MIX_INIT_OPUS   = 0x00000040,
+    MIX_INIT_WAVPACK= 0x00000080
 } MIX_InitFlags;
 
 /**
  * Initialize SDL_mixer.
  *
  * This function loads dynamic libraries that SDL_mixer needs, and prepares
- * them for use. This must be the first function you call in SDL_mixer, and if
- * it fails you should not continue with the library.
+ * them for use.
+ *
+ * Note that, unlike other SDL libraries, this call is optional! If you load a
+ * music file, SDL_mixer will handle initialization on the fly. This function
+ * will let you know, up front, whether a specific format will be available
+ * for use.
  *
  * Flags should be one or more flags from MIX_InitFlags OR'd together. It
  * returns the flags successfully initialized, or 0 on failure.
@@ -133,6 +138,7 @@ typedef enum
  * - `MIX_INIT_OGG`
  * - `MIX_INIT_MID`
  * - `MIX_INIT_OPUS`
+ * - `MIX_INIT_WAVPACK`
  *
  * More flags may be added in a future SDL_mixer release.
  *
@@ -255,7 +261,9 @@ typedef enum {
     MUS_MP3_MAD_UNUSED,
     MUS_FLAC,
     MUS_MODPLUG_UNUSED,
-    MUS_OPUS
+    MUS_OPUS,
+    MUS_WAVPACK,
+    MUS_GME
 } Mix_MusicType;
 
 /**
@@ -336,7 +344,7 @@ typedef struct _Mix_Music Mix_Music;
  * The app can use Mix_QuerySpec() to determine the final device settings.
  *
  * When done with an audio device, probably at the end of the program, the app
- * should dispose of the device with Mix_CloseDevice().
+ * should dispose of the device with Mix_CloseAudio().
  *
  * \param frequency the frequency to playback audio at (in Hz).
  * \param format audio format, one of SDL's AUDIO_* values.
@@ -348,7 +356,7 @@ typedef struct _Mix_Music Mix_Music;
  * \since This function is available since SDL_mixer 2.0.0.
  *
  * \sa Mix_OpenAudioDevice
- * \sa Mix_CloseDevice
+ * \sa Mix_CloseAudio
  */
 extern DECLSPEC int SDLCALL Mix_OpenAudio(int frequency, Uint16 format, int channels, int chunksize);
 
@@ -456,6 +464,15 @@ extern DECLSPEC int SDLCALL Mix_OpenAudio(int frequency, Uint16 format, int chan
  * \sa Mix_QuerySpec
  */
 extern DECLSPEC int SDLCALL Mix_OpenAudioDevice(int frequency, Uint16 format, int channels, int chunksize, const char* device, int allowed_changes);
+
+/**
+ * Suspend or resume the whole audio output.
+ *
+ * \param pause_on 1 to pause audio output, or 0 to resume.
+ *
+ * \since This function is available since SDL_mixer 2.8.0.
+ */
+extern DECLSPEC void SDLCALL Mix_PauseAudio(int pause_on);
 
 /**
  * Find out what the actual audio device parameters are.
@@ -709,6 +726,7 @@ extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUS_RW(SDL_RWops *src, int freesrc);
  * - `MUS_MP3` (MP3 files)
  * - `MUS_FLAC` (FLAC files)
  * - `MUS_OPUS` (Opus files)
+ * - `MUS_WAVPACK` (WavPack files)
  *
  * If `freesrc` is non-zero, the RWops will be closed before returning,
  * whether this function succeeds or not. SDL_mixer reads everything it needs
@@ -2183,7 +2201,7 @@ extern DECLSPEC int SDLCALL Mix_ExpireChannel(int channel, int ticks);
  *
  * \param which the channel to fade out.
  * \param ms number of milliseconds to fade before halting the channel.
- * \returns 0 on success, or -1 on error.
+ * \returns the number of channels scheduled to fade.
  *
  * \since This function is available since SDL_mixer 2.0.0.
  */
@@ -2407,6 +2425,10 @@ extern DECLSPEC int SDLCALL Mix_PausedMusic(void);
  * \since This function is available since SDL_mixer 2.6.0.
  */
 extern DECLSPEC int SDLCALL Mix_ModMusicJumpToOrder(int order);
+
+/* Tracks */
+extern DECLSPEC int SDLCALL Mix_StartTrack(Mix_Music *music, int track);
+extern DECLSPEC int SDLCALL Mix_GetNumTracks(Mix_Music *music);
 
 /**
  * Set the current position in the music stream, in seconds.

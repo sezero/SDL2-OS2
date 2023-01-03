@@ -39,6 +39,8 @@
 #include "music_mpg123.h"
 #include "music_drflac.h"
 #include "music_flac.h"
+#include "music_wavpack.h"
+#include "music_gme.h"
 #include "native_midi/native_midi.h"
 
 #include "utils.h"
@@ -170,6 +172,9 @@ static Mix_MusicInterface *s_music_interfaces[] =
 #ifdef MUSIC_FLAC_LIBFLAC
     &Mix_MusicInterface_FLAC,
 #endif
+#ifdef MUSIC_WAVPACK
+    &Mix_MusicInterface_WAVPACK,
+#endif
 #ifdef MUSIC_OGG
     &Mix_MusicInterface_OGG,
 #endif
@@ -196,6 +201,9 @@ static Mix_MusicInterface *s_music_interfaces[] =
 #endif
 #ifdef MUSIC_MID_NATIVE
     &Mix_MusicInterface_NATIVEMIDI,
+#endif
+#ifdef MUSIC_GME
+    &Mix_MusicInterface_GME,
 #endif
 };
 
@@ -378,6 +386,23 @@ void SDLCALL music_mixer(void *udata, Uint8 *stream, int len)
     }
 }
 
+void pause_async_music(int pause_on)
+{
+    if (!music_active || !music_playing || !music_playing->interface) {
+        return;
+    }
+
+    if (pause_on) {
+        if (music_playing->interface->Pause) {
+            music_playing->interface->Pause(music_playing->context);
+        }
+    } else {
+        if (music_playing->interface->Resume) {
+            music_playing->interface->Resume(music_playing->context);
+        }
+    }
+}
+
 /* Load the music interface libraries for a given music type */
 SDL_bool load_music_type(Mix_MusicType type)
 {
@@ -476,6 +501,10 @@ SDL_bool open_music_type(Mix_MusicType type)
         add_music_decoder("FLAC");
         add_chunk_decoder("FLAC");
     }
+    if (has_music(MUS_WAVPACK)) {
+        add_music_decoder("WAVPACK");
+        add_chunk_decoder("WAVPACK");
+    }
 
     return (opened > 0) ? SDL_TRUE : SDL_FALSE;
 }
@@ -552,6 +581,11 @@ Mix_MusicType detect_music_type(SDL_RWops *src)
         return MUS_FLAC;
     }
 
+    /* WavPack files have the magic four bytes "wvpk" */
+    if (SDL_memcmp(magic, "wvpk", 4) == 0) {
+        return MUS_WAVPACK;
+    }
+
     /* MIDI files have the magic four bytes "MThd" */
     if (SDL_memcmp(magic, "MThd", 4) == 0) {
         return MUS_MID;
@@ -562,6 +596,32 @@ Mix_MusicType detect_music_type(SDL_RWops *src)
         (magic[0] == 0xFF && (magic[1] & 0xE6) == 0xE2)) {
         return MUS_MP3;
     }
+
+    /* GME Specific files */
+    if (SDL_memcmp(magic, "ZXAY", 4) == 0)
+        return MUS_GME;
+    if (SDL_memcmp(magic, "GBS\x01", 4) == 0)
+        return MUS_GME;
+    if (SDL_memcmp(magic, "GYMX", 4) == 0)
+        return MUS_GME;
+    if (SDL_memcmp(magic, "HESM", 4) == 0)
+        return MUS_GME;
+    if (SDL_memcmp(magic, "KSCC", 4) == 0)
+        return MUS_GME;
+    if (SDL_memcmp(magic, "KSSX", 4) == 0)
+        return MUS_GME;
+    if (SDL_memcmp(magic, "NESM", 4) == 0)
+        return MUS_GME;
+    if (SDL_memcmp(magic, "NSFE", 4) == 0)
+        return MUS_GME;
+    if (SDL_memcmp(magic, "SAP\x0D", 4) == 0)
+        return MUS_GME;
+    if (SDL_memcmp(magic, "SNES", 4) == 0)
+        return MUS_GME;
+    if (SDL_memcmp(magic, "Vgm ", 4) == 0)
+        return MUS_GME;
+    if (SDL_memcmp(magic, "\x1f\x8b", 2) == 0)
+        return MUS_GME;
 
     /* Assume MOD format.
      *
@@ -626,6 +686,8 @@ Mix_Music *Mix_LoadMUS(const char *file)
             type = MUS_OPUS;
         } else if (SDL_strcasecmp(ext, "FLAC") == 0) {
             type = MUS_FLAC;
+        } else if (SDL_strcasecmp(ext, "WV") == 0) {
+            type = MUS_WAVPACK;
         } else  if (SDL_strcasecmp(ext, "MPG") == 0 ||
                      SDL_strcasecmp(ext, "MPEG") == 0 ||
                      SDL_strcasecmp(ext, "MP3") == 0 ||
@@ -654,6 +716,12 @@ Mix_Music *Mix_LoadMUS(const char *file)
                     SDL_strcasecmp(ext, "WOW") == 0 ||
                     SDL_strcasecmp(ext, "XM") == 0) {
             type = MUS_MOD;
+        } else if (SDL_strcasecmp(ext, "GBS") == 0 ||
+                    SDL_strcasecmp(ext, "M3U") == 0 ||
+                    SDL_strcasecmp(ext, "NSF") == 0 ||
+                    SDL_strcasecmp(ext, "SPC") == 0 ||
+                    SDL_strcasecmp(ext, "VGM") == 0) {
+            type = MUS_GME;
         }
     }
     return Mix_LoadMUSType_RW(src, type, SDL_TRUE);
@@ -1257,6 +1325,38 @@ void Mix_RewindMusic(void)
 int Mix_PausedMusic(void)
 {
     return (music_active == SDL_FALSE);
+}
+
+int Mix_StartTrack(Mix_Music *music, int track)
+{
+    int result;
+
+    Mix_LockAudio();
+    if (music && music->interface->StartTrack) {
+        if (music->interface->Pause) {
+            music->interface->Pause(music->context);
+        }
+        result = music->interface->StartTrack(music->context, track);
+    } else {
+        result = Mix_SetError("That operation is not supported");
+    }
+    Mix_UnlockAudio();
+
+    return result;
+}
+
+int Mix_GetNumTracks(Mix_Music *music)
+{
+    int result;
+
+    Mix_LockAudio();
+    if (music && music->interface->GetNumTracks) {
+        result = music->interface->GetNumTracks(music->context);
+    } else {
+        result = Mix_SetError("That operation is not supported");
+    }
+    Mix_UnlockAudio();
+    return result;
 }
 
 /* Check the status of the music */

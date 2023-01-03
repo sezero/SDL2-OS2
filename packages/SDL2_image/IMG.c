@@ -86,6 +86,7 @@ static struct {
 } supported_anims[] = {
     /* keep magicless formats first */
     { "GIF", IMG_isGIF, IMG_LoadGIFAnimation_RW },
+    { "WEBP", IMG_isWEBP, IMG_LoadWEBPAnimation_RW },
 };
 
 const SDL_version *IMG_Linked_Version(void)
@@ -184,7 +185,7 @@ SDL_Surface *IMG_Load(const char *file)
 
     data = emscripten_get_preloaded_image_data(file, &w, &h);
     if (data != NULL) {
-        surf = SDL_CreateRGBSurface(0, w, h, 32, 0xFF, 0xFF00, 0xFF0000, 0xFF000000);
+        surf = SDL_CreateRGBSurfaceWithFormat(0, w, h, 0, SDL_PIXELFORMAT_ABGR8888);
         if (surf != NULL) {
             memcpy(surf->pixels, data, w * h * 4);
         }
@@ -257,7 +258,7 @@ SDL_Surface *IMG_LoadTyped_RW(SDL_RWops *src, int freesrc, const char *type)
 
         if (data)
         {
-            surf = SDL_CreateRGBSurface(0, w, h, 32, 0xFF, 0xFF00, 0xFF0000, 0xFF000000);
+            surf = SDL_CreateRGBSurfaceWithFormat(0, w, h, 0, SDL_PIXELFORMAT_ABGR8888);
             if (surf != NULL) {
                 memcpy(surf->pixels, data, w * h * 4);
             }
@@ -266,7 +267,7 @@ SDL_Surface *IMG_LoadTyped_RW(SDL_RWops *src, int freesrc, const char *type)
             if (freesrc)
                 SDL_RWclose(src);
 
-            /* If SDL_CreateRGBSurface returns NULL, it has set the error message for us */
+            /* If SDL_CreateRGBSurfaceWithFormat returns NULL, it has set the error message for us */
             return surf;
         }
     }
