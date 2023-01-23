@@ -48,6 +48,10 @@
    sparingly. */
 #define SDL_DYNAPI_VERSION 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static void SDL_InitDynamicAPI(void);
 
 
@@ -215,6 +219,10 @@ SDL_DYNAPI_entry(Uint32 apiver, void *table, Uint32 tablesize)
     return initialize_jumptable(apiver, table, tablesize);
 }
 
+#ifdef __cplusplus
+}
+#endif
+
 
 /* Obviously we can't use SDL_LoadObject() to load SDL.  :)  */
 /* Also obviously, we never close the loaded library. */
@@ -285,12 +293,16 @@ static void dynapi_warn(const char *msg)
 /* This is not declared in any header, although it is shared between some
     parts of SDL, because we don't want anything calling it without an
     extremely good reason. */
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern SDL_NORETURN void SDL_ExitProcess(int exitcode);
 #if defined(__WATCOMC__)
-void SDL_ExitProcess(int exitcode);
 #pragma aux SDL_ExitProcess aborts;
 #endif
-SDL_NORETURN void SDL_ExitProcess(int exitcode);
-
+#ifdef __cplusplus
+}
+#endif
 
 static void
 SDL_InitDynamicAPILocked(void)

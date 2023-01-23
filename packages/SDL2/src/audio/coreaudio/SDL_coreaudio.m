@@ -53,7 +53,7 @@
 static const AudioObjectPropertyAddress devlist_address = {
     kAudioHardwarePropertyDevices,
     kAudioObjectPropertyScopeGlobal,
-    kAudioObjectPropertyElementMaster
+    kAudioObjectPropertyElementMain
 };
 
 typedef void (*addDevFn)(const char *name, SDL_AudioSpec *spec, const int iscapture, AudioDeviceID devId, void *data);
@@ -131,17 +131,17 @@ build_device_list(int iscapture, addDevFn addfn, void *addfndata)
         const AudioObjectPropertyAddress addr = {
             kAudioDevicePropertyStreamConfiguration,
             iscapture ? kAudioDevicePropertyScopeInput : kAudioDevicePropertyScopeOutput,
-            kAudioObjectPropertyElementMaster
+            kAudioObjectPropertyElementMain
         };
         const AudioObjectPropertyAddress nameaddr = {
             kAudioObjectPropertyName,
             iscapture ? kAudioDevicePropertyScopeInput : kAudioDevicePropertyScopeOutput,
-            kAudioObjectPropertyElementMaster
+            kAudioObjectPropertyElementMain
         };
         const AudioObjectPropertyAddress freqaddr = {
             kAudioDevicePropertyNominalSampleRate,
             iscapture ? kAudioDevicePropertyScopeInput : kAudioDevicePropertyScopeOutput,
-            kAudioObjectPropertyElementMaster
+            kAudioObjectPropertyElementMain
         };
 
         result = AudioObjectGetPropertyDataSize(dev, &addr, 0, NULL, &size);
@@ -633,7 +633,7 @@ static const AudioObjectPropertyAddress alive_address =
 {
     kAudioDevicePropertyDeviceIsAlive,
     kAudioObjectPropertyScopeGlobal,
-    kAudioObjectPropertyElementMaster
+    kAudioObjectPropertyElementMain
 };
 
 static OSStatus
@@ -754,7 +754,7 @@ prepare_device(_THIS)
     AudioObjectPropertyAddress addr = {
         0,
         kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (handle == NULL) {
@@ -801,7 +801,7 @@ assign_device_to_audioqueue(_THIS)
     const AudioObjectPropertyAddress prop = {
         kAudioDevicePropertyDeviceUID,
         this->iscapture ? kAudioDevicePropertyScopeInput : kAudioDevicePropertyScopeOutput,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     OSStatus result;
@@ -950,7 +950,7 @@ audioqueue_thread(void *arg)
     const AudioObjectPropertyAddress default_device_address = {
         this->iscapture ? kAudioHardwarePropertyDefaultInputDevice : kAudioHardwarePropertyDefaultOutputDevice,
         kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (this->handle == NULL) {  /* opened the default device? Register to know if the user picks a new default. */

@@ -52,6 +52,7 @@ else()
     set(vendored_default OFF)
 endif()
 
+include(CheckIncludeFile)
 include(CheckSymbolExists)
 include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
@@ -506,7 +507,7 @@ endif()
 if(SDL2MIXER_FLAC_LIBFLAC)
     target_compile_definitions(SDL2_mixer PRIVATE MUSIC_FLAC_LIBFLAC)
     if(SDL2MIXER_VENDORED)
-        # vendored libogg alread handled
+        # vendored libogg already handled
         if(NOT TARGET ogg)
             message(FATAL_ERROR "ogg target not present")
         endif()
@@ -655,8 +656,8 @@ if(SDL2MIXER_MP3_MPG123)
         set(BUILD_PROGRAMS OFF CACHE BOOL "Build programs")
         set(BUILD_SHARED_LIBS "${SDL2MIXER_MP3_MPG123_SHARED}")
         add_subdirectory(external/mpg123/ports/cmake EXCLUDE_FROM_ALL)
-        if(NOT TARGET MPG123::mpg123)
-            add_library(MPG123::mpg123 ALIAS libmpg123)
+        if(NOT TARGET MPG123::libmpg123)
+            add_library(MPG123::libmpg123 ALIAS libmpg123)
         endif()
         if(SDL2MIXER_MP3_MPG123_SHARED OR NOT SDL2MIXER_BUILD_SHARED_LIBS)
             list(APPEND INSTALL_EXTRA_TARGETS libmpg123)
@@ -666,25 +667,25 @@ if(SDL2MIXER_MP3_MPG123)
         endif()
     else()
         message(STATUS "Using system mpg123")
-        find_package(MPG123 REQUIRED)
+        find_package(mpg123 REQUIRED)
         if(NOT SDL2MIXER_MP3_MPG123_SHARED)
             list(APPEND PC_REQUIRES libmpg123)
         endif()
     endif()
     if(SDL2MIXER_MP3_MPG123_SHARED)
         target_include_directories(SDL2_mixer PRIVATE
-            $<TARGET_PROPERTY:MPG123::mpg123,INCLUDE_DIRECTORIES>
-            $<TARGET_PROPERTY:MPG123::mpg123,INTERFACE_INCLUDE_DIRECTORIES>
-            $<TARGET_PROPERTY:MPG123::mpg123,INTERFACE_SYSTEM_INCLUDE_DIRECTORIES>
+            $<TARGET_PROPERTY:MPG123::libmpg123,INCLUDE_DIRECTORIES>
+            $<TARGET_PROPERTY:MPG123::libmpg123,INTERFACE_INCLUDE_DIRECTORIES>
+            $<TARGET_PROPERTY:MPG123::libmpg123,INTERFACE_SYSTEM_INCLUDE_DIRECTORIES>
         )
-        target_get_dynamic_library(dynamic_mpg123 MPG123::mpg123)
+        target_get_dynamic_library(dynamic_mpg123 MPG123::libmpg123)
         message(STATUS "Dynamic mpg123}: ${dynamic_mpg123}")
         target_compile_definitions(SDL2_mixer PRIVATE "MPG123_DYNAMIC=\"${dynamic_mpg123}\"")
         if(SDL2MIXER_VENDORED)
-            add_dependencies(SDL2_mixer MPG123::mpg123)
+            add_dependencies(SDL2_mixer MPG123::libmpg123)
         endif()
     else()
-        target_link_libraries(SDL2_mixer PRIVATE MPG123::mpg123)
+        target_link_libraries(SDL2_mixer PRIVATE MPG123::libmpg123)
     endif()
 endif()
 
@@ -851,10 +852,10 @@ if(SDL2MIXER_INSTALL)
                 cmake/Findlibxmp.cmake
                 cmake/Findlibxmp-lite.cmake
                 cmake/Findmodplug.cmake
+                cmake/Findmpg123.cmake
                 cmake/FindOpusFile.cmake
-                cmake/FindMPG123.cmake
-                cmake/FindVorbis.cmake
                 cmake/Findtremor.cmake
+                cmake/FindVorbis.cmake
                 cmake/Findwavpack.cmake
             DESTINATION "${SDLMIXER_INSTALL_CMAKEDIR}"
             COMPONENT devel
@@ -912,6 +913,9 @@ if(SDL2MIXER_INSTALL)
 endif()
 
 if(SDL2MIXER_SAMPLES)
+    check_include_file("signal.h" HAVE_SIGNAL_H)
+    check_symbol_exists("setbuf" "stdio.h" HAVE_SETBUF)
+
     add_executable(playmus playmus.c)
     add_executable(playwave playwave.c)
 
@@ -928,6 +932,12 @@ if(SDL2MIXER_SAMPLES)
             target_link_libraries(${prog} PRIVATE SDL2::SDL2main)
         endif()
         target_link_libraries(${prog} PRIVATE ${sdl2_target_name})
+        if(HAVE_SIGNAL_H)
+            target_compile_definitions(${prog} PRIVATE HAVE_SIGNAL_H)
+        endif()
+        if(HAVE_SETBUF)
+            target_compile_definitions(${prog} PRIVATE HAVE_SETBUF)
+        endif()
 
         if(SDL2MIXER_SAMPLES_INSTALL)
             install(TARGETS ${prog}
