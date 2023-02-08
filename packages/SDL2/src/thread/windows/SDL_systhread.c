@@ -30,47 +30,18 @@
 #include "../SDL_systhread.h"
 #include "SDL_systhread_c.h"
 
-#ifndef SDL_PASSED_BEGINTHREAD_ENDTHREAD
-/* We'll use the C library from this DLL */
-#include <process.h>
-
 #ifndef STACK_SIZE_PARAM_IS_A_RESERVATION
 #define STACK_SIZE_PARAM_IS_A_RESERVATION 0x00010000
 #endif
 
-/* Cygwin gcc-3 ... MingW64 (even with a i386 host) does this like MSVC. */
-#if (defined(__MINGW32__) && (__GNUC__ < 4))
-typedef unsigned long (__cdecl *pfnSDL_CurrentBeginThread) (void *, unsigned,
-        unsigned (__stdcall *func)(void *), void *arg,
-        unsigned, unsigned *threadID);
-typedef void (__cdecl *pfnSDL_CurrentEndThread)(unsigned code);
-
-#elif defined(__WATCOMC__)
-/* This is for Watcom targets except OS2 */
-#if __WATCOMC__ < 1240
-#define __watcall
-#endif
-typedef unsigned long (__watcall * pfnSDL_CurrentBeginThread) (void *,
-                                                               unsigned,
-                                                               unsigned
-                                                               (__stdcall *
-                                                                func) (void
-                                                                       *),
-                                                               void *arg,
-                                                               unsigned,
-                                                               unsigned
-                                                               *threadID);
-typedef void (__watcall * pfnSDL_CurrentEndThread) (unsigned code);
-
-#else
-typedef uintptr_t(__cdecl * pfnSDL_CurrentBeginThread) (void *, unsigned,
-                                                        unsigned (__stdcall *
-                                                                  func) (void
-                                                                         *),
+#ifndef SDL_PASSED_BEGINTHREAD_ENDTHREAD
+/* We'll use the C library from this DLL */
+#include <process.h>
+typedef uintptr_t (__cdecl *pfnSDL_CurrentBeginThread) (void *, unsigned,
+                                                        unsigned (__stdcall *func)(void*),
                                                         void *arg, unsigned,
                                                         unsigned *threadID);
-typedef void (__cdecl * pfnSDL_CurrentEndThread) (unsigned code);
-#endif
+typedef void (__cdecl *pfnSDL_CurrentEndThread) (unsigned code);
 #endif /* !SDL_PASSED_BEGINTHREAD_ENDTHREAD */
 
 
@@ -206,7 +177,7 @@ SDL_SYS_SetupThread(const char *name)
 SDL_threadID
 SDL_ThreadID(void)
 {
-    return ((SDL_threadID) GetCurrentThreadId());
+    return (SDL_threadID) GetCurrentThreadId();
 }
 
 int
