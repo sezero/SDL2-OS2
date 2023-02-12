@@ -17,6 +17,10 @@ CFLAGS  = -Iinclude -O2 -speed -maxoptpasses=32 -c99 -cpu=68060 -fpu=68060 -D__A
 #CFLAGS += -DDEBUG
 #CFLAGS += -DHAVE_PROTO_XFDMASTER_H
 
+# vbcc_PosixLib is needed in tempfile.c, mkstemp.c:
+POSIXLIB_CFLAGS += -I/opt/vbcc68k-posix/include
+POSIXLIB_CFLAGS += -DHAVE_UNISTD_H -DHAVE_MKSTEMP -DHAVE_FNMATCH -DHAVE_POPEN -DHAVE_UMASK -DHAVE_SYS_STAT_H
+
 ifeq ($(USE_PROWIZARD),0)
 CFLAGS += -DLIBXMP_NO_PROWIZARD
 else
@@ -26,12 +30,6 @@ ifeq ($(USE_DEPACKERS),0)
 CFLAGS += -DLIBXMP_NO_DEPACKERS
 else
 NEED_POSIXLIB = 1
-endif
-
-# vbcc_PosixLib needed in tempfile.c / mkstemp.c:
-ifeq ($(NEED_POSIXLIB),1)
-CFLAGS += -I/opt/vbcc68k-posix/include
-CFLAGS += -DHAVE_UNISTD_H -DHAVE_MKSTEMP -DHAVE_FNMATCH -DHAVE_POPEN -DHAVE_UMASK -DHAVE_SYS_STAT_H
 endif
 
 OBJS	= \
@@ -204,10 +202,17 @@ endif
 
 .PHONY: clean distclean
 
+all: $(LIBFILE)
+
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-all: $(LIBFILE)
+ifeq ($(NEED_POSIXLIB),1)
+src/mkstemp.o: src/mkstemp.c
+	$(CC) $(CFLAGS) $(POSIXLIB_CFLAGS) -c -o $@ $<
+src/tempfile.o: src/tempfile.c
+	$(CC) $(CFLAGS) $(POSIXLIB_CFLAGS) -c -o $@ $<
+endif
 
 $(LIBFILE): $(ALL_OBJS)
 	cat $(ALL_OBJS) > $(LIBFILE)

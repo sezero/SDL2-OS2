@@ -200,10 +200,10 @@ TEST_OBJS = test/md5.o test/test.o
 
 .PHONY: clean distclean
 
+all: $(LIBFILE)
+
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
-
-all: $(LIBFILE)
 
 test/md5.o: src/md5.c
 	$(CC) $(CFLAGS) -c -o $@ $<
