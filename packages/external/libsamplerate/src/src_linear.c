@@ -102,7 +102,7 @@ linear_vari_process (SRC_STATE *state, SRC_DATA *data)
 		} ;
 
 	rem = fmod_one (input_index) ;
-	priv->in_used += state->channels * lrint (input_index - rem) ;
+	priv->in_used += state->channels * psf_lrint (input_index - rem) ;
 	input_index = rem ;
 
 	/* Main processing loop. */
@@ -128,7 +128,7 @@ linear_vari_process (SRC_STATE *state, SRC_DATA *data)
 		input_index += 1.0 / src_ratio ;
 		rem = fmod_one (input_index) ;
 
-		priv->in_used += state->channels * lrint (input_index - rem) ;
+		priv->in_used += state->channels * psf_lrint (input_index - rem) ;
 		input_index = rem ;
 		} ;
 
@@ -175,8 +175,7 @@ linear_get_description (int src_enum)
 
 static LINEAR_DATA *
 linear_data_new (int channels)
-{
-	LINEAR_DATA *priv;
+{	LINEAR_DATA *priv ;
 	assert (channels > 0) ;
 
 	priv = (LINEAR_DATA *) calloc (1, sizeof (LINEAR_DATA)) ;
@@ -196,8 +195,7 @@ linear_data_new (int channels)
 
 LIBSAMPLERATE_DLL_PRIVATE SRC_STATE *
 linear_state_new (int channels, SRC_ERROR *error)
-{
-	SRC_STATE *state;
+{	SRC_STATE *state ;
 
 	assert (channels > 0) ;
 	assert (error != NULL) ;

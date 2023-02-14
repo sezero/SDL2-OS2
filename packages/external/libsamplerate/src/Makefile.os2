@@ -12,7 +12,7 @@ target = dll
 
 CC=wcc386
 
-CPPFLAGS=-DHAVE_CONFIG_H -Iwatcom -I"../include"
+CPPFLAGS=-DHAVE_CONFIG_H -DNDEBUG -Iwatcom -I"../include"
 CFLAGS = -bt=os2 -bm -fp5 -fpi87 -mf -d0 -oeatxh -wx -sg -ei -zp8 -zq
 # -5s  :  Pentium stack calling conventions.
 # -5r  :  Pentium register calling conventions.

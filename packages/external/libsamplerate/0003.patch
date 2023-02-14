@@ -1,15 +1,15 @@
-From 337b9e35145ecdaca202a5a94e187759920dc5b8 Mon Sep 17 00:00:00 2001
+From 1359472a80574d2ec710e67da93b8a61f8521b37 Mon Sep 17 00:00:00 2001
 From: Ozkan Sezer <sezeroz@gmail.com>
-Date: Mon, 29 Nov 2021 11:55:02 +0300
-Subject: [PATCH 3/3] added OS/2 Watcom config and Makefiles.
+Date: Tue, 14 Feb 2023 11:50:10 +0300
+Subject: [PATCH 4/4] added OS/2 Watcom config and Makefiles.
 
 ---
  src/Makefile.os2       |   53 ++++++++++++++++
- src/watcom/config.h    |  159 ++++++++++++++++++++++++++++++++++++++++++++++++
+ src/watcom/config.h    |  158 ++++++++++++++++++++++++++++++++++++++++++++++++
  src/watcom/exports.lbc |   20 ++++++
  src/watcom/exports.txt |    1 +
- tests/Makefile.os2     |   48 ++++++++++++++
- 5 files changed, 281 insertions(+), 0 deletions(-)
+ tests/Makefile.os2     |   48 +++++++++++++++
+ 5 files changed, 280 insertions(+), 0 deletions(-)
  create mode 100644 src/Makefile.os2
  create mode 100644 src/watcom/config.h
  create mode 100644 src/watcom/exports.lbc
@@ -18,7 +18,7 @@ Subject: [PATCH 3/3] added OS/2 Watcom config and Makefiles.
 
 diff --git a/src/Makefile.os2 b/src/Makefile.os2
 new file mode 100644
-index 0000000..42291b9
+index 0000000..b84f22a
 --- /dev/null
 +++ b/src/Makefile.os2
 @@ -0,0 +1,53 @@
@@ -36,7 +36,7 @@ index 0000000..42291b9
 +
 +CC=wcc386
 +
-+CPPFLAGS=-DHAVE_CONFIG_H -Iwatcom -I"../include"
++CPPFLAGS=-DHAVE_CONFIG_H -DNDEBUG -Iwatcom -I"../include"
 +CFLAGS = -bt=os2 -bm -fp5 -fpi87 -mf -d0 -oeatxh -wx -sg -ei -zp8 -zq
 +# -5s  :  Pentium stack calling conventions.
 +# -5r  :  Pentium register calling conventions.
@@ -77,14 +77,14 @@ index 0000000..42291b9
 +	rm -f *.obj *.err
 diff --git a/src/watcom/config.h b/src/watcom/config.h
 new file mode 100644
-index 0000000..8d27029
+index 0000000..fd1f11f
 --- /dev/null
 +++ b/src/watcom/config.h
-@@ -0,0 +1,159 @@
-+/* hand-edited config.h for OS/2 using Watcom compiler. */
+@@ -0,0 +1,158 @@
++/* hand-edited config.h for OS/2 using OpenWatcom compiler. */
 +
 +/* Version number of package */
-+#define VERSION "0.2.1"
++#define VERSION "0.2.2"
 +/* Name of package */
 +#define PACKAGE "libsamplerate"
 +
@@ -239,7 +239,6 @@ index 0000000..8d27029
 +/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
 +   significant byte first (like Motorola and SPARC, unlike Intel). */
 +/* #undef WORDS_BIGENDIAN */
-+
 diff --git a/src/watcom/exports.lbc b/src/watcom/exports.lbc
 new file mode 100644
 index 0000000..0f252df

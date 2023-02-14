@@ -812,6 +812,7 @@ with_sysroot
 enable_libtool_lock
 enable_werror
 enable_cpu_clip
+enable_sse2_lrint
 enable_sndfile
 enable_alsa
 enable_fftw
@@ -1477,6 +1478,7 @@ Optional Features:
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-werror         enable -Werror in all Makefiles
   --disable-cpu-clip      disable tricky cpu specific clipper
+  --enable-sse2-lrint     implement lrintf using SSE2 on x86 CPUs if possible
   --disable-sndfile       disable support for sndfile (default=autodetect)
   --disable-alsa          disable ALSA support in the varispeed-play example
                           program (default=autodetect)
@@ -14393,6 +14395,12 @@ then :
   printf "%s\n" "#define HAVE_UNISTD_H 1" >>confdefs.h
 
 fi
+ac_fn_c_check_header_compile "$LINENO" "immintrin.h" "ac_cv_header_immintrin_h" "$ac_includes_default"
+if test "x$ac_cv_header_immintrin_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_IMMINTRIN_H 1" >>confdefs.h
+
+fi
 
 
 
@@ -14410,6 +14418,13 @@ fi
 if test ${enable_cpu_clip+y}
 then :
   enableval=$enable_cpu_clip;
+fi
+
+
+# Check whether --enable-sse2-lrint was given.
+if test ${enable_sse2_lrint+y}
+then :
+  enableval=$enable_sse2_lrint;
 fi
 
 
@@ -15189,6 +15204,14 @@ printf "%s\n" "#define CPU_CLIPS_POSITIVE ${ac_cv_c_clip_positive}" >>confdefs.h
 
 printf "%s\n" "#define CPU_CLIPS_NEGATIVE ${ac_cv_c_clip_negative}" >>confdefs.h
 
+
+
+if test "x$enable_sse2_lrint" = "xyes"
+then :
+
+		CFLAGS="$CFLAGS -DENABLE_SSE2_LRINT"
+
+fi
 
 
 if test "x$enable_sndfile" != "xno"

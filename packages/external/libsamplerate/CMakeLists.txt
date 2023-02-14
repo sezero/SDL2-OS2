@@ -10,11 +10,7 @@ endif()
 # MSVC runtime library flags are selected by an abstraction, CMake >= 3.15
 # This policy still need to be set even with cmake_minimum_required() command above.
 if(POLICY CMP0091)
-  if(DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
-    cmake_policy(SET CMP0091 NEW)
-  else()
-    cmake_policy(SET CMP0091 OLD)
-  endif()
+  cmake_policy(SET CMP0091 NEW)
 endif()
 
 project(libsamplerate VERSION 0.2.2 LANGUAGES C)
@@ -68,6 +64,11 @@ if(NOT (WIN32 OR APPLE OR CYGWIN OR HAIKU OR BEOS))
   endif()
 endif()
 
+option(LIBSAMPLERATE_SSE2_LRINT "Implement lrintf using SSE2 on x86 CPUs if possible" OFF)
+if(LIBSAMPLERATE_SSE2_LRINT)
+  add_definitions(-DENABLE_SSE2_LRINT)
+endif()
+
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
   option(LIBSAMPLERATE_ENABLE_SANITIZERS "Enable ASAN and UBSAN" OFF)
 
@@ -92,6 +93,7 @@ endif()
 
 check_include_file(stdbool.h HAVE_STDBOOL_H)
 check_include_file(unistd.h HAVE_UNISTD_H)
+check_include_file(immintrin.h HAVE_IMMINTRIN_H)
 
 # For examples and tests
 

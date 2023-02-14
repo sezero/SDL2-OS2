@@ -446,7 +446,7 @@ src_float_to_short_array (const float *in, short *out, int len)
 		else if (scaled_value <= -32768.f)
 			out [i] = -32768 ;
 		else
-			out [i] = (short) (lrintf (scaled_value)) ;
+			out [i] = (short) (psf_lrintf (scaled_value)) ;
 	}
 } /* src_float_to_short_array */
 
@@ -479,7 +479,7 @@ src_float_to_int_array (const float *in, int *out, int len)
 			continue ;
 			} ;
 #endif
-		out [i] = (int) lrint (scaled_value) ;
+		out [i] = (int) psf_lrint (scaled_value) ;
 		} ;
 
 } /* src_float_to_int_array */

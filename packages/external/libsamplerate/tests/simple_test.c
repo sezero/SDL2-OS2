@@ -62,21 +62,19 @@ main (void)
 
 static void
 src_simple_produces_output_test (int converter, double src_ratio)
-{
-	int channels;
+{	int channels;
 	for (channels = 1; channels <= 9; channels++)
 		src_simple_produces_output(converter, channels, src_ratio);
 }
 
 static void
 src_simple_produces_output (int converter, int channels, double src_ratio)
-{
+{	float *input, *output;
+	SRC_DATA src_data;
 	// Choose a suitable number of frames.
 	// At least 256 so a conversion ratio of 1/256 can produce any output
 	const long NUM_FRAMES = 1000;
 	int error;
-	float *input, *output;
-	SRC_DATA src_data;
 
 	printf ("\tproduces_output\t(SRC ratio = %6.4f, channels = %d) ... ", src_ratio, channels) ;
 	fflush (stdout) ;

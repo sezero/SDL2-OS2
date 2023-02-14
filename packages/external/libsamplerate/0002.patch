@@ -1,7 +1,7 @@
-From 24ef819498220e3ec2e811afeb91cca4d86ba522 Mon Sep 17 00:00:00 2001
+From 31161f90de940453f13080370389f5f0a48c3806 Mon Sep 17 00:00:00 2001
 From: Ozkan Sezer <sezeroz@gmail.com>
-Date: Mon, 29 Nov 2021 11:55:02 +0300
-Subject: [PATCH 2/3] tests: Watcom and OS/2 compatibility
+Date: Tue, 14 Feb 2023 11:50:10 +0300
+Subject: [PATCH 3/4] tests: Watcom and OS/2 compatibility
 
 ---
  tests/multichan_throughput_test.c |    8 ++++++++

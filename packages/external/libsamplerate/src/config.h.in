@@ -51,6 +51,9 @@
 /* Define to 1 if you have the `free' function. */
 #undef HAVE_FREE
 
+/* Define to 1 if you have the <immintrin.h> header file. */
+#undef HAVE_IMMINTRIN_H
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 

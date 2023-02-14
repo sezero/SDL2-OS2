@@ -1,20 +1,20 @@
-From 6bbdfae29a14ffd8363d28b9952bc1e6eab41e54 Mon Sep 17 00:00:00 2001
+From 378227454e6ab86b77d5b2025df3c92f5de2269e Mon Sep 17 00:00:00 2001
 From: Ozkan Sezer <sezeroz@gmail.com>
-Date: Mon, 29 Nov 2021 11:55:02 +0300
-Subject: [PATCH 1/3] make it build using c89 compilers
+Date: Tue, 14 Feb 2023 11:50:10 +0300
+Subject: [PATCH 1/4] fix build in c89 mode
 
 ---
  src/samplerate.c                  |   20 ++++++++------
- src/src_linear.c                  |   17 ++++++++----
- src/src_sinc.c                    |   50 ++++++++++++++++++++----------------
- src/src_zoh.c                     |   20 +++++++++------
+ src/src_linear.c                  |   19 ++++++++-----
+ src/src_sinc.c                    |   52 ++++++++++++++++++++-----------------
+ src/src_zoh.c                     |   20 ++++++++-----
  tests/multichan_throughput_test.c |    5 ++-
- tests/simple_test.c               |   10 ++++---
+ tests/simple_test.c               |   12 ++++----
  tests/termination_test.c          |   17 +++++++-----
- 7 files changed, 81 insertions(+), 58 deletions(-)
+ 7 files changed, 81 insertions(+), 64 deletions(-)
 
 diff --git a/src/samplerate.c b/src/samplerate.c
-index 30dcbc9..d64506b 100644
+index 6a51f27..cae336d 100644
 --- a/src/samplerate.c
 +++ b/src/samplerate.c
 @@ -29,7 +29,8 @@ src_new (int converter_type, int channels, int *error)
@@ -80,14 +80,15 @@ index 30dcbc9..d64506b 100644
  #if CPU_CLIPS_POSITIVE == 0
  		if (scaled_value >= (1.0 * 0x7FFFFFFF))
 diff --git a/src/src_linear.c b/src/src_linear.c
-index 11707d2..c9d3c8e 100644
+index 43a0fd4..4ee11a4 100644
 --- a/src/src_linear.c
 +++ b/src/src_linear.c
-@@ -176,9 +176,10 @@ linear_get_description (int src_enum)
+@@ -175,10 +175,10 @@ linear_get_description (int src_enum)
+ 
  static LINEAR_DATA *
  linear_data_new (int channels)
- {
-+	LINEAR_DATA *priv;
+-{
++{	LINEAR_DATA *priv ;
  	assert (channels > 0) ;
  
 -	LINEAR_DATA *priv = (LINEAR_DATA *) calloc (1, sizeof (LINEAR_DATA)) ;
@@ -95,11 +96,12 @@ index 11707d2..c9d3c8e 100644
  	if (priv)
  	{
  		priv->linear_magic_marker = LINEAR_MAGIC_MARKER ;
-@@ -196,10 +197,12 @@ linear_data_new (int channels)
+@@ -195,11 +195,12 @@ linear_data_new (int channels)
+ 
  LIBSAMPLERATE_DLL_PRIVATE SRC_STATE *
  linear_state_new (int channels, SRC_ERROR *error)
- {
-+	SRC_STATE *state;
+-{
++{	SRC_STATE *state ;
 +
  	assert (channels > 0) ;
  	assert (error != NULL) ;
@@ -109,7 +111,7 @@ index 11707d2..c9d3c8e 100644
  	if (!state)
  	{
  		*error = SRC_ERR_MALLOC_FAILED ;
-@@ -245,19 +248,21 @@ linear_reset (SRC_STATE *state)
+@@ -245,19 +246,21 @@ linear_reset (SRC_STATE *state)
  
  SRC_STATE *
  linear_copy (SRC_STATE *state)
@@ -136,14 +138,15 @@ index 11707d2..c9d3c8e 100644
  	{
  		free (to) ;
 diff --git a/src/src_sinc.c b/src/src_sinc.c
-index 51e2997..cdf9333 100644
+index 716c4a4..a7eb69d 100644
 --- a/src/src_sinc.c
 +++ b/src/src_sinc.c
-@@ -206,12 +206,14 @@ sinc_get_description (int src_enum)
+@@ -205,13 +205,14 @@ sinc_get_description (int src_enum)
+ 
  static SINC_FILTER *
  sinc_filter_new (int converter_type, int channels)
- {
-+	SINC_FILTER *priv;
+-{
++{	SINC_FILTER *priv ;
 +
  	assert (converter_type == SRC_SINC_FASTEST ||
  		converter_type == SRC_SINC_MEDIUM_QUALITY ||
@@ -155,16 +158,17 @@ index 51e2997..cdf9333 100644
  	if (priv)
  	{
  		priv->sinc_magic_marker = SINC_MAGIC_MARKER ;
-@@ -260,6 +262,8 @@ sinc_filter_new (int converter_type, int channels)
+@@ -259,7 +260,8 @@ sinc_filter_new (int converter_type, int channels)
+ 
  LIBSAMPLERATE_DLL_PRIVATE SRC_STATE *
  sinc_state_new (int converter_type, int channels, SRC_ERROR *error)
- {
-+	SRC_STATE *state ;
+-{
++{	SRC_STATE *state ;
 +
  	assert (converter_type == SRC_SINC_FASTEST ||
  		converter_type == SRC_SINC_MEDIUM_QUALITY ||
  		converter_type == SRC_SINC_BEST_QUALITY) ;
-@@ -272,7 +276,7 @@ sinc_state_new (int converter_type, int channels, SRC_ERROR *error)
+@@ -272,7 +274,7 @@ sinc_state_new (int converter_type, int channels, SRC_ERROR *error)
  		return NULL ;
  	}
  
@@ -173,7 +177,7 @@ index 51e2997..cdf9333 100644
  	if (!state)
  	{
  		*error = SRC_ERR_MALLOC_FAILED ;
-@@ -329,20 +333,22 @@ sinc_reset (SRC_STATE *state)
+@@ -329,20 +331,22 @@ sinc_reset (SRC_STATE *state)
  
  static SRC_STATE *
  sinc_copy (SRC_STATE *state)
@@ -200,7 +204,7 @@ index 51e2997..cdf9333 100644
  	if (!to_filter)
  	{
  		free (to) ;
-@@ -524,7 +530,7 @@ static inline void
+@@ -524,7 +528,7 @@ static inline void
  calc_output_stereo (SINC_FILTER *filter, int channels, increment_t increment, increment_t start_filter_index, double scale, float * output)
  {	double		fraction, left [2], right [2], icoeff ;
  	increment_t	filter_index, max_filter_index ;
@@ -209,7 +213,7 @@ index 51e2997..cdf9333 100644
  
  	/* Convert input parameters into fixed point. */
  	max_filter_index = int_to_fp (filter->coeff_half_len) ;
-@@ -550,7 +556,7 @@ calc_output_stereo (SINC_FILTER *filter, int channels, increment_t increment, in
+@@ -550,7 +554,7 @@ calc_output_stereo (SINC_FILTER *filter, int channels, increment_t increment, in
  		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
  		assert (data_index >= 0 && data_index + 1 < filter->b_len) ;
  		assert (data_index + 1 < filter->b_end) ;
@@ -218,7 +222,7 @@ index 51e2997..cdf9333 100644
  			left [ch] += icoeff * filter->buffer [data_index + ch] ;
  
  		filter_index -= increment ;
-@@ -571,7 +577,7 @@ calc_output_stereo (SINC_FILTER *filter, int channels, increment_t increment, in
+@@ -571,7 +575,7 @@ calc_output_stereo (SINC_FILTER *filter, int channels, increment_t increment, in
  		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
  		assert (data_index >= 0 && data_index + 1 < filter->b_len) ;
  		assert (data_index + 1 < filter->b_end) ;
@@ -227,7 +231,7 @@ index 51e2997..cdf9333 100644
  			right [ch] += icoeff * filter->buffer [data_index + ch] ;
  
  		filter_index -= increment ;
-@@ -579,7 +585,7 @@ calc_output_stereo (SINC_FILTER *filter, int channels, increment_t increment, in
+@@ -579,7 +583,7 @@ calc_output_stereo (SINC_FILTER *filter, int channels, increment_t increment, in
  		}
  	while (filter_index > MAKE_INCREMENT_T (0)) ;
  
@@ -236,7 +240,7 @@ index 51e2997..cdf9333 100644
  		output [ch] = (float) (scale * (left [ch] + right [ch])) ;
  } /* calc_output_stereo */
  
-@@ -679,7 +685,7 @@ static inline void
+@@ -679,7 +683,7 @@ static inline void
  calc_output_quad (SINC_FILTER *filter, int channels, increment_t increment, increment_t start_filter_index, double scale, float * output)
  {	double		fraction, left [4], right [4], icoeff ;
  	increment_t	filter_index, max_filter_index ;
@@ -245,7 +249,7 @@ index 51e2997..cdf9333 100644
  
  	/* Convert input parameters into fixed point. */
  	max_filter_index = int_to_fp (filter->coeff_half_len) ;
-@@ -705,7 +711,7 @@ calc_output_quad (SINC_FILTER *filter, int channels, increment_t increment, incr
+@@ -705,7 +709,7 @@ calc_output_quad (SINC_FILTER *filter, int channels, increment_t increment, incr
  		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
  		assert (data_index >= 0 && data_index + 3 < filter->b_len) ;
  		assert (data_index + 3 < filter->b_end) ;
@@ -254,7 +258,7 @@ index 51e2997..cdf9333 100644
  			left [ch] += icoeff * filter->buffer [data_index + ch] ;
  
  		filter_index -= increment ;
-@@ -726,7 +732,7 @@ calc_output_quad (SINC_FILTER *filter, int channels, increment_t increment, incr
+@@ -726,7 +730,7 @@ calc_output_quad (SINC_FILTER *filter, int channels, increment_t increment, incr
  		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
  		assert (data_index >= 0 && data_index + 3 < filter->b_len) ;
  		assert (data_index + 3 < filter->b_end) ;
@@ -263,7 +267,7 @@ index 51e2997..cdf9333 100644
  			right [ch] += icoeff * filter->buffer [data_index + ch] ;
  
  
-@@ -735,7 +741,7 @@ calc_output_quad (SINC_FILTER *filter, int channels, increment_t increment, incr
+@@ -735,7 +739,7 @@ calc_output_quad (SINC_FILTER *filter, int channels, increment_t increment, incr
  		}
  	while (filter_index > MAKE_INCREMENT_T (0)) ;
  
@@ -272,7 +276,7 @@ index 51e2997..cdf9333 100644
  		output [ch] = (float) (scale * (left [ch] + right [ch])) ;
  } /* calc_output_quad */
  
-@@ -835,7 +841,7 @@ static inline void
+@@ -835,7 +839,7 @@ static inline void
  calc_output_hex (SINC_FILTER *filter, int channels, increment_t increment, increment_t start_filter_index, double scale, float * output)
  {	double		fraction, left [6], right [6], icoeff ;
  	increment_t	filter_index, max_filter_index ;
@@ -281,7 +285,7 @@ index 51e2997..cdf9333 100644
  
  	/* Convert input parameters into fixed point. */
  	max_filter_index = int_to_fp (filter->coeff_half_len) ;
-@@ -861,7 +867,7 @@ calc_output_hex (SINC_FILTER *filter, int channels, increment_t increment, incre
+@@ -861,7 +865,7 @@ calc_output_hex (SINC_FILTER *filter, int channels, increment_t increment, incre
  		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
  		assert (data_index >= 0 && data_index + 5 < filter->b_len) ;
  		assert (data_index + 5 < filter->b_end) ;
@@ -290,7 +294,7 @@ index 51e2997..cdf9333 100644
  			left [ch] += icoeff * filter->buffer [data_index + ch] ;
  
  		filter_index -= increment ;
-@@ -882,7 +888,7 @@ calc_output_hex (SINC_FILTER *filter, int channels, increment_t increment, incre
+@@ -882,7 +886,7 @@ calc_output_hex (SINC_FILTER *filter, int channels, increment_t increment, incre
  		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
  		assert (data_index >= 0 && data_index + 5 < filter->b_len) ;
  		assert (data_index + 5 < filter->b_end) ;
@@ -299,7 +303,7 @@ index 51e2997..cdf9333 100644
  			right [ch] += icoeff * filter->buffer [data_index + ch] ;
  
  		filter_index -= increment ;
-@@ -890,7 +896,7 @@ calc_output_hex (SINC_FILTER *filter, int channels, increment_t increment, incre
+@@ -890,7 +894,7 @@ calc_output_hex (SINC_FILTER *filter, int channels, increment_t increment, incre
  		}
  	while (filter_index > MAKE_INCREMENT_T (0)) ;
  
@@ -308,7 +312,7 @@ index 51e2997..cdf9333 100644
  		output [ch] = (float) (scale * (left [ch] + right [ch])) ;
  } /* calc_output_hex */
  
-@@ -992,7 +998,7 @@ calc_output_multi (SINC_FILTER *filter, increment_t increment, increment_t start
+@@ -992,7 +996,7 @@ calc_output_multi (SINC_FILTER *filter, increment_t increment, increment_t start
  	/* The following line is 1999 ISO Standard C. If your compiler complains, get a better compiler. */
  	double		*left, *right ;
  	increment_t	filter_index, max_filter_index ;
@@ -317,7 +321,7 @@ index 51e2997..cdf9333 100644
  
  	left = filter->left_calc ;
  	right = filter->right_calc ;
-@@ -1024,7 +1030,7 @@ calc_output_multi (SINC_FILTER *filter, increment_t increment, increment_t start
+@@ -1024,7 +1028,7 @@ calc_output_multi (SINC_FILTER *filter, increment_t increment, increment_t start
  
  		assert (data_index >= 0 && data_index + channels - 1 < filter->b_len) ;
  		assert (data_index + channels - 1 < filter->b_end) ;
@@ -326,7 +330,7 @@ index 51e2997..cdf9333 100644
  			left [ch] += icoeff * filter->buffer [data_index + ch] ;
  
  		filter_index -= increment ;
-@@ -1045,7 +1051,7 @@ calc_output_multi (SINC_FILTER *filter, increment_t increment, increment_t start
+@@ -1045,7 +1049,7 @@ calc_output_multi (SINC_FILTER *filter, increment_t increment, increment_t start
  		icoeff = filter->coeffs [indx] + fraction * (filter->coeffs [indx + 1] - filter->coeffs [indx]) ;
  		assert (data_index >= 0 && data_index + channels - 1 < filter->b_len) ;
  		assert (data_index + channels - 1 < filter->b_end) ;
@@ -335,7 +339,7 @@ index 51e2997..cdf9333 100644
  			right [ch] += icoeff * filter->buffer [data_index + ch] ;
  
  		filter_index -= increment ;
-@@ -1053,7 +1059,7 @@ calc_output_multi (SINC_FILTER *filter, increment_t increment, increment_t start
+@@ -1053,7 +1057,7 @@ calc_output_multi (SINC_FILTER *filter, increment_t increment, increment_t start
  		}
  	while (filter_index > MAKE_INCREMENT_T (0)) ;
  
@@ -345,7 +349,7 @@ index 51e2997..cdf9333 100644
  
  	return ;
 diff --git a/src/src_zoh.c b/src/src_zoh.c
-index 4dba3d4..d87dd26 100644
+index 41ba79a..9100a63 100644
 --- a/src/src_zoh.c
 +++ b/src/src_zoh.c
 @@ -164,10 +164,11 @@ zoh_get_description (int src_enum)
@@ -434,26 +438,29 @@ index 5cab44a..a3bd1cc 100644
  #ifdef ENABLE_SINC_FAST_CONVERTER
  			throughput_test (SRC_SINC_FASTEST, ch, &sinc_fastest) ;
 diff --git a/tests/simple_test.c b/tests/simple_test.c
-index f9014fd..8d535c4 100644
+index f9014fd..a1a2425 100644
 --- a/tests/simple_test.c
 +++ b/tests/simple_test.c
-@@ -63,7 +63,8 @@ main (void)
+@@ -62,14 +62,15 @@ main (void)
+ 
  static void
  src_simple_produces_output_test (int converter, double src_ratio)
- {
+-{
 -	for (int channels = 1; channels <= 9; channels++)
-+	int channels;
++{	int channels;
 +	for (channels = 1; channels <= 9; channels++)
  		src_simple_produces_output(converter, channels, src_ratio);
  }
  
-@@ -74,14 +75,15 @@ src_simple_produces_output (int converter, int channels, double src_ratio)
+ static void
+ src_simple_produces_output (int converter, int channels, double src_ratio)
+-{
++{	float *input, *output;
++	SRC_DATA src_data;
+ 	// Choose a suitable number of frames.
  	// At least 256 so a conversion ratio of 1/256 can produce any output
  	const long NUM_FRAMES = 1000;
- 	int error;
-+	float *input, *output;
-+	SRC_DATA src_data;
- 
+@@ -78,10 +79,9 @@ src_simple_produces_output (int converter, int channels, double src_ratio)
  	printf ("\tproduces_output\t(SRC ratio = %6.4f, channels = %d) ... ", src_ratio, channels) ;
  	fflush (stdout) ;
  

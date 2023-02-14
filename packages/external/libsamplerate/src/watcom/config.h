@@ -1,7 +1,7 @@
-/* hand-edited config.h for OS/2 using Watcom compiler. */
+/* hand-edited config.h for OS/2 using OpenWatcom compiler. */
 
 /* Version number of package */
-#define VERSION "0.2.1"
+#define VERSION "0.2.2"
 /* Name of package */
 #define PACKAGE "libsamplerate"
 
@@ -156,4 +156,3 @@ extern __inline long float2int(float);
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 /* #undef WORDS_BIGENDIAN */
-
