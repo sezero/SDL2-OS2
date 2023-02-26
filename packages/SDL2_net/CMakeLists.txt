@@ -4,11 +4,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # See release_checklist.md
 set(MAJOR_VERSION 2)
-set(MINOR_VERSION 2)
+set(MINOR_VERSION 3)
 set(MICRO_VERSION 0)
 set(SDL_REQUIRED_VERSION 2.0.4)
-
-set(DYLIB_COMPATIBILITY_VERSION "1")
 
 include(PrivateSdlFunctions)
 sdl_calculate_derived_version_variables()
@@ -36,10 +34,18 @@ else()
     find_package(SDL2test)
 endif()
 
+set(SDLNET_PKGCONFIG_PRIVATE_LIBS)
+
 # Set defaults preventing destination file conflicts
 set(SDL2NET_DEBUG_POSTFIX "d"
     CACHE STRING "Name suffix for debug builds")
 mark_as_advanced(SDL2NET_DEBUG_POSTFIX)
+
+set(sdl2net_install_enableable ON)
+if ((TARGET SDL2 OR TARGET SDL2-static) AND SDL2_DISABLE_INSTALL)
+    # Cannot install SDL2_net when SDL2 is built in same built, and is not installed.
+    set(sdl2net_install_enableable OFF)
+endif()
 
 include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
@@ -48,7 +54,7 @@ include(GNUInstallDirs)
 option(CMAKE_POSITION_INDEPENDENT_CODE "Build static libraries with -fPIC" ON)
 option(BUILD_SHARED_LIBS "Build the library as a shared library" ON)
 
-option(SDL2NET_INSTALL "Enable SDL2_net install target" ${SDL2NET_ROOTPROJECT})
+cmake_dependent_option(SDL2NET_INSTALL "Enable SDL2_net install target" ${SDL2NET_ROOTPROJECT} ${sdl2net_install_enableable} OFF)
 
 cmake_dependent_option(SDL2NET_SAMPLES "Build SDL2_net samples" ${SDL2NET_ROOTPROJECT} "${SDL2test_FOUND}" OFF)
 
@@ -95,6 +101,7 @@ if(WIN32)
     endif()
     target_compile_definitions(SDL2_net PRIVATE _WINSOCK_DEPRECATED_NO_WARNINGS)
     target_link_libraries(SDL2_net PRIVATE ws2_32 iphlpapi)
+    list(APPEND SDLNET_PKGCONFIG_PRIVATE_LIBS -lws2_32 -liphlpapi)
     if(SDL2NET_BUILD_SHARED_LIBS)
         target_sources(SDL2_net PRIVATE version.rc)
     endif()
@@ -178,13 +185,14 @@ if(SDL2NET_INSTALL)
     )
 
     if(WIN32 AND NOT MINGW)
-        set(PKG_PREFIX "cmake")
+        set(SDLNET_INSTALL_CMAKEDIR_DEFAULT "cmake")
     else()
-        set(PKG_PREFIX "${CMAKE_INSTALL_LIBDIR}/cmake/SDL2_net")
+        set(SDLNET_INSTALL_CMAKEDIR_DEFAULT "${CMAKE_INSTALL_LIBDIR}/cmake/SDL2_net")
     endif()
+    set(SDLNET_INSTALL_CMAKEDIR "${SDLNET_INSTALL_CMAKEDIR_DEFAULT}" CACHE STRING "Location where to install SDL2_netConfig.cmake")
 
     configure_package_config_file(SDL2_netConfig.cmake.in SDL2_netConfig.cmake
-        INSTALL_DESTINATION "${PKG_PREFIX}"
+        INSTALL_DESTINATION "${SDLNET_INSTALL_CMAKEDIR}"
     )
     write_basic_package_version_file("${PROJECT_BINARY_DIR}/SDL2_netConfigVersion.cmake"
         VERSION ${FULL_VERSION}
@@ -194,49 +202,57 @@ if(SDL2NET_INSTALL)
         FILES
             "${CMAKE_CURRENT_BINARY_DIR}/SDL2_netConfig.cmake"
             "${CMAKE_CURRENT_BINARY_DIR}/SDL2_netConfigVersion.cmake"
-        DESTINATION "${PKG_PREFIX}"
+        DESTINATION "${SDLNET_INSTALL_CMAKEDIR}"
         COMPONENT devel
     )
     install(EXPORT SDL2NetExports
         FILE SDL2_net-${sdl2_net_install_name_infix}-targets.cmake
         NAMESPACE SDL2_net::
-        DESTINATION "${PKG_PREFIX}"
+        DESTINATION "${SDLNET_INSTALL_CMAKEDIR}"
         COMPONENT devel
     )
 
     if(SDL2NET_BUILD_SHARED_LIBS)
-        # Only create a .pc file for a shared SDL2_net
-        set(prefix "${CMAKE_INSTALL_PREFIX}")
-        set(exec_prefix "\${prefix}")
-        set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
-        set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
-        set(PACKAGE "${PROJECT_NAME}")
-        set(VERSION "${FULL_VERSION}")
-        set(SDL_VERSION "${SDL_REQUIRED_VERSION}")
-        string(JOIN " " PC_REQUIRES ${PC_REQUIRES})
-        string(JOIN " " PC_LIBS ${PC_LIBS})
-        configure_file("${PROJECT_SOURCE_DIR}/SDL2_net.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/SDL2_net.pc.intermediate" @ONLY)
-        file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/SDL2_net-$<CONFIG>.pc" INPUT "${CMAKE_CURRENT_BINARY_DIR}/SDL2_net.pc.intermediate")
-
-        set(PC_DESTDIR)
-        if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
-            # FreeBSD uses ${PREFIX}/libdata/pkgconfig
-            set(PC_DESTDIR "libdata/pkgconfig")
-        else()
-            set(PC_DESTDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-        endif()
-        # Only install a SDL2_net.pc file in Release mode
-        install(CODE "
-            if(CMAKE_INSTALL_CONFIG_NAME MATCHES \"Release\")
-                # FIXME: use file(COPY_FILE) if minimum CMake version >= 3.21
-                execute_process(COMMAND \"\${CMAKE_COMMAND}\" -E copy_if_different
-                    \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_net-$<CONFIG>.pc\"
-                    \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_net.pc\")
-                file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${PC_DESTDIR}\"
-                    TYPE FILE
-                    FILES \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_net.pc\")
-            endif()" COMPONENT devel)
+        set(ENABLE_SHARED_TRUE "")
+        set(ENABLE_SHARED_FALSE "#")
+        set(ENABLE_STATIC_TRUE "#")
+        set(ENABLE_STATIC_FALSE "")
+    else()
+        set(ENABLE_SHARED_TRUE "#")
+        set(ENABLE_SHARED_FALSE "")
+        set(ENABLE_STATIC_TRUE "")
+        set(ENABLE_STATIC_FALSE "#")
     endif()
+
+    set(prefix "${CMAKE_INSTALL_PREFIX}")
+    set(exec_prefix "\${prefix}")
+    set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
+    set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+    set(PACKAGE "${PROJECT_NAME}")
+    set(VERSION "${FULL_VERSION}")
+    set(SDL_VERSION "${SDL_REQUIRED_VERSION}")
+    string(JOIN " " PC_REQUIRES ${PC_REQUIRES})
+    string(JOIN " " PC_LIBS ${PC_LIBS})
+    string(JOIN " " INETLIB ${SDLNET_PKGCONFIG_PRIVATE_LIBS})
+    configure_file("${PROJECT_SOURCE_DIR}/SDL2_net.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/SDL2_net.pc.intermediate" @ONLY)
+    file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/SDL2_net-$<CONFIG>.pc" INPUT "${CMAKE_CURRENT_BINARY_DIR}/SDL2_net.pc.intermediate")
+
+    set(PC_DESTDIR)
+    if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
+        # FreeBSD uses ${PREFIX}/libdata/pkgconfig
+        set(PC_DESTDIR "libdata/pkgconfig")
+    else()
+        set(PC_DESTDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+    endif()
+    # Always install SDL2_net.pc: libraries might be different between config modes
+    install(CODE "
+        # FIXME: use file(COPY_FILE) if minimum CMake version >= 3.21
+        execute_process(COMMAND \"\${CMAKE_COMMAND}\" -E copy_if_different
+            \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_net-$<CONFIG>.pc\"
+            \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_net.pc\")
+        file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${PC_DESTDIR}\"
+            TYPE FILE
+            FILES \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_net.pc\")" COMPONENT devel)
 
     if(SDL2NET_BUILD_SHARED_LIBS AND (APPLE OR (UNIX AND NOT ANDROID)))
         install(

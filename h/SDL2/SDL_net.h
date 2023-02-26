@@ -1,6 +1,6 @@
 /*
   SDL_net:  An example cross-platform network library for use with SDL
-  Copyright (C) 1997-2022 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
   Copyright (C) 2012 Simeon Maxein <smaxein@googlemail.com>
 
   This software is provided 'as-is', without any express or implied
@@ -55,7 +55,7 @@ extern "C" {
 /* Printable format: "%d.%d.%d", MAJOR, MINOR, PATCHLEVEL
 */
 #define SDL_NET_MAJOR_VERSION   2
-#define SDL_NET_MINOR_VERSION   2
+#define SDL_NET_MINOR_VERSION   3
 #define SDL_NET_PATCHLEVEL      0
 
 /* This macro can be used to fill a version structure with the compile-time

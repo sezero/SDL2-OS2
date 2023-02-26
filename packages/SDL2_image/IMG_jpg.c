@@ -1,6 +1,6 @@
 /*
   SDL_image:  An example image loading library for use with SDL
-  Copyright (C) 1997-2022 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -667,6 +667,7 @@ SDL_Surface *IMG_LoadJPG_RW(SDL_RWops *src)
 /* Use tinyjpeg as a fallback if we don't have a hard dependency on libjpeg */
 #if SDL_IMAGE_SAVE_JPG && (defined(LOAD_JPG_DYNAMIC) || !defined(WANT_JPEGLIB))
 
+#undef assert
 #define assert SDL_assert
 #undef memcpy
 #define memcpy SDL_memcpy

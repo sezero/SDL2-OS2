@@ -8,9 +8,6 @@ set(MINOR_VERSION 0)
 set(MICRO_VERSION 0)
 set(SDL_REQUIRED_VERSION 2.0.0)
 
-# For historical reasons this is 15.0.0 rather than the expected 1.0.0
-set(DYLIB_COMPATIBILITY_VERSION "1.0.0")
-
 include(PrivateSdlFunctions)
 sdl_calculate_derived_version_variables()
 
@@ -24,6 +21,12 @@ project(SDL2_rtf
 )
 
 message(STATUS "Configuring ${PROJECT_NAME} ${PROJECT_VERSION}")
+
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    set(SDL2RTF_ROOTPROJECT ON)
+else()
+    set(SDL2RTF_ROOTPROJECT OFF)
+endif()
 
 # Set defaults preventing destination file conflicts
 set(SDL2RTF_DEBUG_POSTFIX "d"
@@ -48,8 +51,8 @@ option(BUILD_SHARED_LIBS "Build the library as a shared library" ON)
 # Save BUILD_SHARED_LIBS variable
 set(SDL2RTF_BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}")
 
-option(SDL2RTF_SAMPLES "Build the SDL2_rtf sample program(s)" ON)
-option(SDL2RTF_INSTALL "Enable SDL2_rtf install target" ON)
+option(SDL2RTF_SAMPLES "Build the SDL2_rtf sample program(s)" ${SDL2RTF_ROOTPROJECT})
+option(SDL2RTF_INSTALL "Enable SDL2_rtf install target" ${SDL2RTF_ROOTPROJECT})
 
 if(SDL2RTF_BUILD_SHARED_LIBS)
     set(sdl2_rtf_export_name SDL2_rtf)
@@ -64,7 +67,9 @@ else()
 endif()
 
 sdl_find_sdl2(${sdl2_target_name} ${SDL_REQUIRED_VERSION})
-find_package(SDL2_ttf REQUIRED)
+if(NOT TARGET ${sdl2ttf_target_name})
+    find_package(SDL2_ttf REQUIRED)
+endif()
 
 add_library(SDL2_rtf
     rtfactn.c
@@ -95,7 +100,6 @@ if(WIN32 AND SDL2RTF_BUILD_SHARED_LIBS)
 endif()
 set_target_properties(SDL2_rtf PROPERTIES
     DEFINE_SYMBOL DLL_EXPORT
-    PUBLIC_HEADER SDL_rtf.h
     EXPORT_NAME ${sdl2_rtf_export_name}
     C_VISIBILITY_PRESET "hidden"
 )
@@ -159,17 +163,21 @@ if(SDL2RTF_INSTALL)
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT devel
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT library
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT library
-        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/SDL2" COMPONENT devel
+    )
+    install(
+        FILES "${CMAKE_CURRENT_SOURCE_DIR}/SDL_rtf.h"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/SDL2" COMPONENT DEVEL
     )
 
     if(WIN32 AND NOT MINGW)
-        set(PKG_PREFIX "cmake")
+        set(SDLRTF_INSTALL_CMAKEDIR_DEFAULT "cmake")
     else()
-        set(PKG_PREFIX "${CMAKE_INSTALL_LIBDIR}/cmake/SDL2_rtf")
+        set(SDLRTF_INSTALL_CMAKEDIR_DEFAULT "${CMAKE_INSTALL_LIBDIR}/cmake/SDL2_ttf")
     endif()
+    set(SDLRTF_INSTALL_CMAKEDIR "${SDLRTF_INSTALL_CMAKEDIR_DEFAULT}" CACHE STRING "Location where to install SDL2_rtfConfig.cmake")
 
     configure_package_config_file(SDL2_rtfConfig.cmake.in SDL2_rtfConfig.cmake
-        INSTALL_DESTINATION "${PKG_PREFIX}"
+        INSTALL_DESTINATION "${SDLRTF_INSTALL_CMAKEDIR}"
     )
     write_basic_package_version_file("${PROJECT_BINARY_DIR}/SDL2_rtfConfigVersion.cmake"
         VERSION ${FULL_VERSION}
@@ -179,45 +187,44 @@ if(SDL2RTF_INSTALL)
         FILES
             "${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtfConfig.cmake"
             "${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtfConfigVersion.cmake"
-        DESTINATION ${PKG_PREFIX}
+        DESTINATION ${SDLRTF_INSTALL_CMAKEDIR}
         COMPONENT devel
     )
     install(EXPORT SDL2_rtfTargets
         FILE SDL2_rtf-${sdl2_rtf_install_name_infix}-targets.cmake
         NAMESPACE SDL2_rtf::
-        DESTINATION "${PKG_PREFIX}"
+        DESTINATION "${SDLRTF_INSTALL_CMAKEDIR}"
         COMPONENT devel
     )
 
-    if(SDL2RTF_BUILD_SHARED_LIBS)
-        # Only create a .pc file for a shared SDL2_rtf
-        set(prefix "${CMAKE_INSTALL_PREFIX}")
-        set(exec_prefix "\${prefix}")
-        set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
-        set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
-        set(PACKAGE "${PROJECT_NAME}")
-        set(VERSION ${FULL_VERSION})
-        set(SDL_VERSION ${SDL_REQUIRED_VERSION})
-        string(JOIN " " PC_REQUIRES ${PC_REQUIRES})
-        string(JOIN " " PC_LIBS ${PC_LIBS})
-        configure_file("${PROJECT_SOURCE_DIR}/SDL2_rtf.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtf.pc.intermediate" @ONLY)
-        file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtf-$<CONFIG>.pc" INPUT "${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtf.pc.intermediate")
+    set(prefix "${CMAKE_INSTALL_PREFIX}")
+    set(exec_prefix "\${prefix}")
+    set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
+    set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+    set(PACKAGE "${PROJECT_NAME}")
+    set(VERSION ${FULL_VERSION})
+    set(SDL_VERSION ${SDL_REQUIRED_VERSION})
+    string(JOIN " " PC_REQUIRES ${PC_REQUIRES})
+    string(JOIN " " PC_LIBS ${PC_LIBS})
+    configure_file("${PROJECT_SOURCE_DIR}/SDL2_rtf.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtf.pc.intermediate" @ONLY)
+    file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtf-$<CONFIG>.pc" INPUT "${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtf.pc.intermediate")
 
-        set(PC_DESTDIR)
-        if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
-            # FreeBSD uses ${PREFIX}/libdata/pkgconfig
-            set(PC_DESTDIR "libdata/pkgconfig")
-        else()
-            set(PC_DESTDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-        endif()
-        # Only install a SDL2_rtf.pc file in Release mode
-        install(CODE "
-        file(COPY_FILE \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtf-$<CONFIG>.pc\"
-            \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtf.pc\" ONLY_IF_DIFFERENT)
+    set(PC_DESTDIR)
+    if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
+        # FreeBSD uses ${PREFIX}/libdata/pkgconfig
+        set(PC_DESTDIR "libdata/pkgconfig")
+    else()
+        set(PC_DESTDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+    endif()
+    # Always install SDL2_rtf.pc file: libraries might be different between config modes
+    install(CODE "
+        # FIXME: use file(COPY_FILE) if minimum CMake version >= 3.21
+        execute_process(COMMAND \"\${CMAKE_COMMAND}\" -E copy_if_different
+            \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtf-$<CONFIG>.pc\"
+            \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtf.pc\")
         file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${PC_DESTDIR}\"
             TYPE FILE
-            FILES \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtf.pc\")" CONFIG Release)
-    endif()
+            FILES \"${CMAKE_CURRENT_BINARY_DIR}/SDL2_rtf.pc\")" COMPONENT devel)
 
     if(SDL2RTF_BUILD_SHARED_LIBS AND (APPLE OR (UNIX AND NOT ANDROID)))
         install(FILES

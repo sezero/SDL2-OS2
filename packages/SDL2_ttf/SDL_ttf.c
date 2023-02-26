@@ -1,6 +1,6 @@
 /*
   SDL_ttf:  A companion library to SDL for working with TrueType (tm) fonts
-  Copyright (C) 2001-2022 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 2001-2023 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -1024,6 +1024,12 @@ static void Draw_Line(TTF_Font *font, const SDL_Surface *textbuf, int column, in
      * than the ones of the "splitted lines". */
     if (tmp > 0) {
         line_thickness -= tmp;
+    }
+    /* Previous case also happens with SDF (render_sdf) , because 'spread' property
+     * requires to increase 'ystart'
+     * Check for valid value anyway.  */
+    if (line_thickness <= 0) {
+        return;
     }
 
     /* Wrapped mode with an unbroken line: 'line_width' is greater that 'textbuf->w' */
@@ -3474,6 +3480,16 @@ static SDL_Surface* TTF_Render_Internal(TTF_Font *font, const char *text, const 
         text = (const char *)utf8_alloc;
     }
 
+#if TTF_USE_SDF
+    /* Invalid cache if we were using SDF */
+    if (render_mode != RENDER_BLENDED) {
+        if (font->render_sdf) {
+            font->render_sdf = 0;
+            Flush_Cache(font);
+        }
+    }
+#endif
+
     /* Get the dimensions of the text surface */
     if ((TTF_Size_Internal(font, text, STR_UTF8, &width, &height, &xstart, &ystart, NO_MEASUREMENT) < 0) || !width) {
         TTF_SetError("Text has zero width");
@@ -3706,6 +3722,16 @@ static SDL_Surface* TTF_Render_Wrapped_Internal(TTF_Font *font, const char *text
         SDL_memcpy(utf8_alloc, text, str_len + 1);
         text_cpy = (char *)utf8_alloc;
     }
+
+#if TTF_USE_SDF
+    /* Invalid cache if we were using SDF */
+    if (render_mode != RENDER_BLENDED) {
+        if (font->render_sdf) {
+            font->render_sdf = 0;
+            Flush_Cache(font);
+        }
+    }
+#endif
 
     /* Get the dimensions of the text surface */
     if ((TTF_SizeUTF8(font, text_cpy, &width, &height) < 0) || !width) {

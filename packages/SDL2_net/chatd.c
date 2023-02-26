@@ -1,6 +1,6 @@
 /*
   CHATD:  A chat server using the SDL example network library
-  Copyright (C) 1997-2022 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -194,6 +194,9 @@ int main(int argc, char *argv[])
 {
     IPaddress serverIP;
     int i;
+
+    (void) argc;
+    (void) argv;
 
     /* Initialize SDL */
     if ( SDL_Init(0) < 0 ) {

@@ -1,6 +1,6 @@
 /*
   SDL_ttf:  A companion library to SDL for working with TrueType (tm) fonts
-  Copyright (C) 2001-2022 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 2001-2023 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -48,8 +48,8 @@ extern "C" {
  * Printable format: "%d.%d.%d", MAJOR, MINOR, PATCHLEVEL
  */
 #define SDL_TTF_MAJOR_VERSION   2
-#define SDL_TTF_MINOR_VERSION   20
-#define SDL_TTF_PATCHLEVEL      1
+#define SDL_TTF_MINOR_VERSION   21
+#define SDL_TTF_PATCHLEVEL      0
 
 /**
  * This macro can be used to fill a version structure with the compile-time
@@ -845,7 +845,7 @@ extern DECLSPEC int SDLCALL TTF_SizeText(TTF_Font *font, const char *text, int *
  * This does not need to render the string to do this calculation.
  *
  * \param font the font to query.
- * \param text text to calculate, in Latin1 encoding.
+ * \param text text to calculate, in UTF-8 encoding.
  * \param w will be filled with width, in pixels, on return.
  * \param h will be filled with height, in pixels, on return.
  * \returns 0 if successful, -1 on error.
@@ -1250,6 +1250,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderGlyph32_Solid(TTF_Font *font,
  * \param font the font to render with.
  * \param text text to render, in Latin1 encoding.
  * \param fg the foreground color for the text.
+ * \param bg the background color for the text.
  * \returns a new 8-bit, palettized surface, or NULL if there was an error.
  *
  * \since This function is available since SDL_ttf 2.0.12.
@@ -1281,6 +1282,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderText_Shaded(TTF_Font *font,
  * \param font the font to render with.
  * \param text text to render, in UTF-8 encoding.
  * \param fg the foreground color for the text.
+ * \param bg the background color for the text.
  * \returns a new 8-bit, palettized surface, or NULL if there was an error.
  *
  * \since This function is available since SDL_ttf 2.0.12.
@@ -1349,6 +1351,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderUNICODE_Shaded(TTF_Font *font,
  * \param font the font to render with.
  * \param text text to render, in Latin1 encoding.
  * \param fg the foreground color for the text.
+ * \param bg the background color for the text.
  * \returns a new 8-bit, palettized surface, or NULL if there was an error.
  *
  * \since This function is available since SDL_ttf 2.0.18.
@@ -1449,6 +1452,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderUNICODE_Shaded_Wrapped(TTF_Font 
  * \param font the font to render with.
  * \param ch the character to render.
  * \param fg the foreground color for the text.
+ * \param bg the background color for the text.
  * \returns a new 8-bit, palettized surface, or NULL if there was an error.
  *
  * \since This function is available since SDL_ttf 2.0.12.
@@ -2032,7 +2036,8 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderGlyph32_LCD(TTF_Font *font,
  * Dispose of a previously-created font.
  *
  * Call this when done with a font. This function will free any resources
- * associated with it.
+ * associated with it. It is safe to call this function on NULL, for example
+ * on the result of a failed call to TTF_OpenFont().
  *
  * The font is not valid after being passed to this function. String pointers
  * from functions that return information on this font, such as
@@ -2043,6 +2048,7 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderGlyph32_LCD(TTF_Font *font,
  *
  * \since This function is available since SDL_ttf 2.0.12.
  *
+ * \sa TTF_OpenFont
  * \sa TTF_OpenFontIndexDPIRW
  * \sa TTF_OpenFontRW
  * \sa TTF_OpenFontDPI
