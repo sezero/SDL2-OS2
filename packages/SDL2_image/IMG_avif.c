@@ -39,6 +39,7 @@ static struct {
     avifResult (*avifDecoderParse)(avifDecoder * decoder);
     avifResult (*avifDecoderNextImage)(avifDecoder * decoder);
     avifResult (*avifImageYUVToRGB)(const avifImage * image, avifRGBImage * rgb);
+    const char * (*avifResultToString)(avifResult res);
 } lib;
 
 #ifdef LOAD_AVIF_DYNAMIC
@@ -67,6 +68,7 @@ int IMG_InitAVIF()
         FUNCTION_LOADER(avifDecoderParse, avifResult (*)(avifDecoder * decoder))
         FUNCTION_LOADER(avifDecoderNextImage, avifResult (*)(avifDecoder * decoder))
         FUNCTION_LOADER(avifImageYUVToRGB, avifResult (*)(const avifImage * image, avifRGBImage * rgb))
+        FUNCTION_LOADER(avifResultToString, const char *(*)(avifResult res))
     }
     ++lib.loaded;
 
@@ -133,7 +135,7 @@ static SDL_bool ReadAVIFHeader(SDL_RWops *src, Uint8 **header_data, size_t *head
     }
 
     /* Read in the header */
-    data = (Uint8 *)SDL_malloc(size);
+    data = (Uint8 *)SDL_malloc((size_t)size);
     if (!data) {
         return SDL_FALSE;
     }
@@ -188,6 +190,8 @@ typedef struct
 static avifResult ReadAVIFIO(struct avifIO * io, uint32_t readFlags, uint64_t offset, size_t size, avifROData * out)
 {
     avifIOContext *context = (avifIOContext *)io->data;
+
+    (void) readFlags;   /* not used */
 
     /* The AVIF reader bounces all over, so always seek to the correct offset */
     if (SDL_RWseek(context->src, context->start + offset, RW_SEEK_SET) < 0) {
@@ -265,13 +269,13 @@ SDL_Surface *IMG_LoadAVIF_RW(SDL_RWops *src)
 
     result = lib.avifDecoderParse(decoder);
     if (result != AVIF_RESULT_OK) {
-        IMG_SetError("Couldn't parse AVIF image: %d", result);
+        IMG_SetError("Couldn't parse AVIF image: %s", lib.avifResultToString(result));
         goto done;
     }
 
     result = lib.avifDecoderNextImage(decoder);
     if (result != AVIF_RESULT_OK) {
-        IMG_SetError("Couldn't get AVIF image: %d", result);
+        IMG_SetError("Couldn't get AVIF image: %s", lib.avifResultToString(result));
         goto done;
     }
 
@@ -293,7 +297,7 @@ SDL_Surface *IMG_LoadAVIF_RW(SDL_RWops *src)
     rgb.rowBytes = (uint32_t)surface->pitch;
     result = lib.avifImageYUVToRGB(decoder->image, &rgb);
     if (result != AVIF_RESULT_OK) {
-        IMG_SetError("Couldn't convert AVIF image to RGB: %d", result);
+        IMG_SetError("Couldn't convert AVIF image to RGB: %s", lib.avifResultToString(result));
         SDL_FreeSurface(surface);
         surface = NULL;
         goto done;
