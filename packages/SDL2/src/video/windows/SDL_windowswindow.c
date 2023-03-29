@@ -1098,15 +1098,17 @@ WIN_UpdateClipCursor(SDL_Window *window)
         (window->flags & SDL_WINDOW_INPUT_FOCUS)) {
         if (mouse->relative_mode && !mouse->relative_mode_warp && data->mouse_relative_mode_center) {
             if (GetWindowRect(data->hwnd, &rect)) {
+                /* WIN_WarpCursor() jitters by +1, and remote desktop warp wobble is +/- 1 */
+                LONG remote_desktop_adjustment = GetSystemMetrics(SM_REMOTESESSION) ? 2 : 0;
                 LONG cx, cy;
 
                 cx = (rect.left + rect.right) / 2;
                 cy = (rect.top + rect.bottom) / 2;
 
                 /* Make an absurdly small clip rect */
-                rect.left = cx - 1;
-                rect.right = cx + 1;
-                rect.top = cy - 1;
+                rect.left = cx - remote_desktop_adjustment;
+                rect.right = cx + 1 + remote_desktop_adjustment;
+                rect.top = cy;
                 rect.bottom = cy + 1;
 
                 if (SDL_memcmp(&rect, &clipped_rect, sizeof(rect)) != 0) {
