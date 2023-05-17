@@ -253,10 +253,11 @@ done:
         __asm mov d, edx \
 }
 #elif defined(_MSC_VER) && defined(_M_X64)
+/* Use __cpuidex instead of __cpuid because ICL does not clear ecx register */
 #define cpuid(func, a, b, c, d) \
 { \
     int CPUInfo[4]; \
-    __cpuid(CPUInfo, func); \
+    __cpuidex(CPUInfo, func, 0); \
     a = CPUInfo[0]; \
     b = CPUInfo[1]; \
     c = CPUInfo[2]; \
