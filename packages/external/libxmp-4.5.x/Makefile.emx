@@ -92,8 +92,8 @@ OBJS	= \
  src/loaders/liq_load.o \
  src/loaders/ims_load.o \
  src/loaders/masi_load.o \
+ src/loaders/masi16_load.o \
  src/loaders/amf_load.o \
- src/loaders/psm_load.o \
  src/loaders/stim_load.o \
  src/loaders/mmd_common.o \
  src/loaders/mmd1_load.o \
@@ -120,6 +120,7 @@ OBJS	= \
  src/loaders/chip_load.o \
  src/loaders/abk_load.o \
  src/loaders/coco_load.o \
+ src/loaders/xmf_load.o \
 
 PROWIZ_OBJS	= \
  src/loaders/prowizard/prowiz.o \

@@ -17,7 +17,7 @@ CFLAGS  = -Iinclude -O2 -speed -maxoptpasses=32 -c99 -cpu=68060 -fpu=68060 -D__A
 #CFLAGS += -DDEBUG
 #CFLAGS += -DHAVE_PROTO_XFDMASTER_H
 
-# vbcc_PosixLib is needed in tempfile.c, mkstemp.c:
+# vbcc_PosixLib is needed in tempfile.c and mkstemp.c
 POSIXLIB_CFLAGS += -I/opt/vbcc68k-posix/include
 POSIXLIB_CFLAGS += -DHAVE_UNISTD_H -DHAVE_MKSTEMP -DHAVE_FNMATCH -DHAVE_POPEN -DHAVE_UMASK -DHAVE_SYS_STAT_H
 
@@ -95,8 +95,8 @@ OBJS	= \
  src/loaders/liq_load.o \
  src/loaders/ims_load.o \
  src/loaders/masi_load.o \
+ src/loaders/masi16_load.o \
  src/loaders/amf_load.o \
- src/loaders/psm_load.o \
  src/loaders/stim_load.o \
  src/loaders/mmd_common.o \
  src/loaders/mmd1_load.o \
@@ -123,6 +123,7 @@ OBJS	= \
  src/loaders/chip_load.o \
  src/loaders/abk_load.o \
  src/loaders/coco_load.o \
+ src/loaders/xmf_load.o \
 
 PROWIZ_OBJS	= \
  src/loaders/prowizard/prowiz.o \

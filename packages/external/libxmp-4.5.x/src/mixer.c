@@ -384,8 +384,9 @@ static int has_active_sustain_loop(struct context_data *ctx, struct mixer_voice 
 #ifndef LIBXMP_CORE_DISABLE_IT
 	struct module_data *m = &ctx->m;
 	return vi->smp < m->mod.smp && (xxs->flg & XMP_SAMPLE_SLOOP) && (~vi->flags & VOICE_RELEASE);
-#endif
+#else
 	return 0;
+#endif
 }
 
 static int has_active_loop(struct context_data *ctx, struct mixer_voice *vi,
@@ -487,7 +488,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 	struct loop_data loop_data;
 	double step, step_dir;
 	int samples, size;
-	int vol_l, vol_r, voc, usmp;
+	int vol, vol_l, vol_r, voc, usmp;
 	int prev_l, prev_r = 0;
 	int32 *buf_pos;
 	MIX_FP  mix_fn;
@@ -557,12 +558,19 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 		vi->pos0 = vi->pos;
 
 		buf_pos = s->buf32;
+		vol = vi->vol;
+
+		/* Mix volume (S3M and IT) */
+		if (m->mvolbase > 0 && m->mvol != m->mvolbase) {
+			vol = vol * m->mvol / m->mvolbase;
+		}
+
 		if (vi->pan == PAN_SURROUND) {
-			vol_r = vi->vol * 0x80;
-			vol_l = -vi->vol * 0x80;
+			vol_r = vol * 0x80;
+			vol_l = -vol * 0x80;
 		} else {
-			vol_r = vi->vol * (0x80 - vi->pan);
-			vol_l = vi->vol * (0x80 + vi->pan);
+			vol_r = vol * (0x80 - vi->pan);
+			vol_l = vol * (0x80 + vi->pan);
 		}
 
 		if (vi->smp < mod->smp) {
@@ -748,7 +756,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 		downmix_int_8bit(s->buffer, s->buf32, size, s->amplify,
 				s->format & XMP_FORMAT_UNSIGNED ? 0x80 : 0);
 	} else {
-		downmix_int_16bit((int16 *)s->buffer, s->buf32, size,s->amplify,
+		downmix_int_16bit((int16 *)s->buffer, s->buf32, size, s->amplify,
 				s->format & XMP_FORMAT_UNSIGNED ? 0x8000 : 0);
 	}
 
