@@ -833,7 +833,7 @@ SDL_iconv_string(const char *tocode, const char *fromcode, const char *inbuf,
     }
 
     stringsize = inbytesleft > 4 ? inbytesleft : 4;
-    string = (char *) SDL_malloc(stringsize);
+    string = (char *) SDL_malloc(stringsize + 1);
     if (!string) {
         SDL_iconv_close(cd);
         return NULL;
@@ -850,7 +850,7 @@ SDL_iconv_string(const char *tocode, const char *fromcode, const char *inbuf,
             {
                 char *oldstring = string;
                 stringsize *= 2;
-                string = (char *) SDL_realloc(string, stringsize);
+                string = (char *) SDL_realloc(string, stringsize + 1);
                 if (!string) {
                     SDL_free(oldstring);
                     SDL_iconv_close(cd);
@@ -859,8 +859,8 @@ SDL_iconv_string(const char *tocode, const char *fromcode, const char *inbuf,
                 outbuf = string + (outbuf - oldstring);
                 outbytesleft = stringsize - (outbuf - string);
                 SDL_memset(outbuf, 0, 4);
+                continue;
             }
-            break;
         case SDL_ICONV_EILSEQ:
             /* Try skipping some input data - not perfect, but... */
             ++inbuf;
@@ -877,6 +877,7 @@ SDL_iconv_string(const char *tocode, const char *fromcode, const char *inbuf,
             break;
         }
     }
+    *outbuf = '\0';
     SDL_iconv_close(cd);
 
     return string;
