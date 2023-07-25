@@ -189,30 +189,31 @@ if(NOT DEFINED OpenGL_GL_PREFERENCE)
 endif()
 
 add_library(SDL2_image
-    IMG.c
-    IMG_WIC.c
-    IMG_avif.c
-    IMG_bmp.c
-    IMG_gif.c
-    IMG_jpg.c
-    IMG_jxl.c
-    IMG_lbm.c
-    IMG_pcx.c
-    IMG_png.c
-    IMG_pnm.c
-    IMG_qoi.c
-    IMG_stb.c
-    IMG_svg.c
-    IMG_tga.c
-    IMG_tif.c
-    IMG_webp.c
-    IMG_xcf.c
-    IMG_xpm.c
-    IMG_xv.c
+    src/IMG.c
+    src/IMG_WIC.c
+    src/IMG_avif.c
+    src/IMG_bmp.c
+    src/IMG_gif.c
+    src/IMG_jpg.c
+    src/IMG_jxl.c
+    src/IMG_lbm.c
+    src/IMG_pcx.c
+    src/IMG_png.c
+    src/IMG_pnm.c
+    src/IMG_qoi.c
+    src/IMG_stb.c
+    src/IMG_svg.c
+    src/IMG_tga.c
+    src/IMG_tif.c
+    src/IMG_webp.c
+    src/IMG_xcf.c
+    src/IMG_xpm.c
+    src/IMG_xv.c
 )
 add_library(SDL2_image::${sdl2_image_export_name} ALIAS SDL2_image)
 target_include_directories(SDL2_image PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/SDL2>"
 )
 target_compile_definitions(SDL2_image PRIVATE
@@ -224,7 +225,7 @@ target_compile_definitions(SDL2_image PRIVATE
 target_link_libraries(SDL2_image PRIVATE $<BUILD_INTERFACE:${sdl2_target_name}>)
 if(WIN32 AND SDL2IMAGE_BUILD_SHARED_LIBS)
     target_sources(SDL2_image PRIVATE
-        version.rc
+        src/version.rc
     )
 endif()
 set_target_properties(SDL2_image PROPERTIES
@@ -309,7 +310,7 @@ if(APPLE)
         target_link_libraries(SDL2_image PRIVATE -Wl,-framework,ApplicationServices)
         target_link_libraries(SDL2_image PRIVATE objc)
         target_sources(SDL2_image PRIVATE
-            IMG_ImageIO.m
+            src/IMG_ImageIO.m
         )
 
         if (SDL2IMAGE_PNG AND NOT SDL2IMAGE_BACKEND_STB)
@@ -335,7 +336,7 @@ if(SDL2IMAGE_ZLIB)
         # PNG_BUILD_ZLIB variable is used by vendored libpng
         set(PNG_BUILD_ZLIB ON CACHE BOOL "libpng option to tell it should use 'our' vendored ZLIB library" FORCE)
         # ZLIB_INCLUDE_DIR variable is used by vendored libpng
-        set(ZLIB_INCLUDE_DIR "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/zlib;${CMAKE_CURRENT_BINARY_DIR}/external/zlib>" CACHE STRING "path of zlib, passed to libpng" FORCE)
+        set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/zlib;${CMAKE_CURRENT_BINARY_DIR}/external/zlib" CACHE STRING "path of zlib, passed to libpng" FORCE)
         # ZLIB_LIBRARY variable is used by vendored libpng
         if(SDL2IMAGE_ZLIB_SHARED)
             set(ZLIB_LIBRARY zlib)
@@ -690,7 +691,7 @@ if(SDL2IMAGE_INSTALL)
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT library
     )
     install(
-        FILES "${CMAKE_CURRENT_SOURCE_DIR}/SDL_image.h"
+        FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/SDL_image.h"
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/SDL2" COMPONENT DEVEL
     )
 
@@ -780,8 +781,8 @@ if(SDL2IMAGE_INSTALL)
 endif()
 
 if(SDL2IMAGE_SAMPLES)
-    add_executable(showanim showanim.c)
-    add_executable(showimage showimage.c)
+    add_executable(showanim examples/showanim.c)
+    add_executable(showimage examples/showimage.c)
 
     find_package(SDL2main)
 

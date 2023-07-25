@@ -23,9 +23,9 @@ To create a surface from an XPM image included in C source, use:
 
 	SDL_Surface *IMG_ReadXPMFromArray(char **xpm);
 
-An example program 'showimage' is included, with source in showimage.c
+An example program 'showimage' is included, with source in 'examples/showimage.c'
 
-Documentation is also available online at https://wiki.libsdl.org/SDL_image
+Documentation is also available online at https://wiki.libsdl.org/SDL2_image
 
 This library is under the zlib License, see the file "LICENSE.txt" for details.
 

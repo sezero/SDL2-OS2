@@ -10,7 +10,7 @@ DEPS_INC=-I"../../../h/SDL2"
 DEPS_LIB= ../../../lib
 
 LIBNAME = SDL2snd
-VERSION = 2.0.1
+VERSION = 2.0.3
 
 LIBFILE = $(LIBNAME).lib
 DLLFILE = $(LIBNAME).dll
