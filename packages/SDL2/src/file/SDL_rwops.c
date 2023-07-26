@@ -890,7 +890,7 @@ SDL_RWFromMem(void *mem, int size)
       SDL_InvalidParamError("mem");
       return rwops;
     }
-    if (!size) {
+    if (size <= 0) {
       SDL_InvalidParamError("size");
       return rwops;
     }
@@ -918,7 +918,7 @@ SDL_RWFromConstMem(const void *mem, int size)
       SDL_InvalidParamError("mem");
       return rwops;
     }
-    if (!size) {
+    if (size <= 0) {
       SDL_InvalidParamError("size");
       return rwops;
     }
