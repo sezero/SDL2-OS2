@@ -20464,40 +20464,6 @@ $as_echo "$have_gcc_no_strict_aliasing" >&6; }
     fi
 }
 
-CheckStackBoundary()
-{
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GCC -mpreferred-stack-boundary option" >&5
-$as_echo_n "checking for GCC -mpreferred-stack-boundary option... " >&6; }
-    have_gcc_preferred_stack_boundary=no
-
-    save_CFLAGS="$CFLAGS"
-    CFLAGS="$save_CFLAGS -mpreferred-stack-boundary=2"
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-    int x = 0;
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  have_gcc_preferred_stack_boundary=yes
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_gcc_preferred_stack_boundary" >&5
-$as_echo "$have_gcc_preferred_stack_boundary" >&6; }
-    CFLAGS="$save_CFLAGS"
-
-    if test x$have_gcc_preferred_stack_boundary = xyes; then
-        EXTRA_CFLAGS="$EXTRA_CFLAGS -mpreferred-stack-boundary=2"
-    fi
-}
-
 CheckDeclarationAfterStatement()
 {
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GCC -Wdeclaration-after-statement option" >&5
@@ -24803,9 +24769,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_wince" >&5
 $as_echo "$have_wince" >&6; }
 
-    # This fixes Windows stack alignment with newer GCC
-    CheckStackBoundary
-
     # headers needed elsewhere
     ac_fn_c_check_header_mongrel "$LINENO" "tpcshrd.h" "ac_cv_header_tpcshrd_h" "$ac_includes_default"
 if test "x$ac_cv_header_tpcshrd_h" = xyes; then :
@@ -25559,7 +25522,7 @@ fi
                 enable_hidapi_libusb=yes
                 require_hidapi_libusb=yes
                 ;;
-           *-*-os2* )
+            *-*-os2* )
                 enable_hidapi_libusb=yes
                 ;;
         esac
@@ -26918,7 +26881,7 @@ $as_echo "#define SDL_VIDEO_DRIVER_OS2 1" >>confdefs.h
 
             SOURCES="$SOURCES $srcdir/src/video/os2/*.c"
             have_video=yes
-            SUMMARY_video="${SUMMARY_video} os/2"
+            SUMMARY_video="${SUMMARY_video} OS/2"
         fi
         # Set up files for the audio library
         if test x$enable_audio = xyes; then
@@ -26927,7 +26890,7 @@ $as_echo "#define SDL_AUDIO_DRIVER_OS2 1" >>confdefs.h
 
             SOURCES="$SOURCES $srcdir/src/audio/os2/*.c"
             have_audio=yes
-            SUMMARY_audio="${SUMMARY_audio} os/2"
+            SUMMARY_audio="${SUMMARY_audio} OS/2"
             EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lmmpm2"
         fi
         # Set up files for the thread library

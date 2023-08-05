@@ -1462,26 +1462,6 @@ CheckNoStrictAliasing()
     fi
 }
 
-dnl See if GCC's -mpreferred-stack-boundary is supported.
-dnl  Reference: http://bugzilla.libsdl.org/show_bug.cgi?id=1296
-CheckStackBoundary()
-{
-    AC_MSG_CHECKING(for GCC -mpreferred-stack-boundary option)
-    have_gcc_preferred_stack_boundary=no
-
-    save_CFLAGS="$CFLAGS"
-    CFLAGS="$save_CFLAGS -mpreferred-stack-boundary=2"
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-    int x = 0;
-    ]],[])], [have_gcc_preferred_stack_boundary=yes],[])
-    AC_MSG_RESULT($have_gcc_preferred_stack_boundary)
-    CFLAGS="$save_CFLAGS"
-
-    if test x$have_gcc_preferred_stack_boundary = xyes; then
-        EXTRA_CFLAGS="$EXTRA_CFLAGS -mpreferred-stack-boundary=2"
-    fi
-}
-
 dnl See if GCC's -Wdeclaration-after-statement is supported.
 dnl  This lets us catch things that would fail on a C89 compiler when using
 dnl  a modern GCC.
@@ -3193,9 +3173,6 @@ CheckWINDOWS()
     ],[])
     AC_MSG_RESULT($have_wince)
 
-    # This fixes Windows stack alignment with newer GCC
-    CheckStackBoundary
-
     # headers needed elsewhere
     AC_CHECK_HEADER(tpcshrd.h,have_tpcshrd_h=yes)
     if test x$have_tpcshrd_h = xyes; then
@@ -3509,7 +3486,7 @@ CheckHIDAPI()
                 enable_hidapi_libusb=yes
                 require_hidapi_libusb=yes
                 ;;
-           *-*-os2* )
+            *-*-os2* )
                 enable_hidapi_libusb=yes
                 ;;
         esac
@@ -4495,14 +4472,14 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
             AC_DEFINE(SDL_VIDEO_DRIVER_OS2, 1, [ ])
             SOURCES="$SOURCES $srcdir/src/video/os2/*.c"
             have_video=yes
-            SUMMARY_video="${SUMMARY_video} os/2"
+            SUMMARY_video="${SUMMARY_video} OS/2"
         fi
         # Set up files for the audio library
         if test x$enable_audio = xyes; then
             AC_DEFINE(SDL_AUDIO_DRIVER_OS2, 1, [ ])
             SOURCES="$SOURCES $srcdir/src/audio/os2/*.c"
             have_audio=yes
-            SUMMARY_audio="${SUMMARY_audio} os/2"
+            SUMMARY_audio="${SUMMARY_audio} OS/2"
             EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lmmpm2"
         fi
         # Set up files for the thread library
