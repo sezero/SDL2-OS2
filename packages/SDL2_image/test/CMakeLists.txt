@@ -1,5 +1,12 @@
-find_package(SDL2main)
-find_package(SDL2test REQUIRED)
+enable_testing()
+
+if(NOT TARGET SDL2::SDL2main)
+    find_package(SDL2main)
+endif()
+
+if(NOT TARGET SDL2::SDL2test)
+    find_package(SDL2test REQUIRED)
+endif()
 
 add_executable(testimage main.c)
 

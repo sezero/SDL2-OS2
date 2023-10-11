@@ -11,7 +11,7 @@ set(SDL_REQUIRED_VERSION 2.0.9)
 include(PrivateSdlFunctions)
 sdl_calculate_derived_version_variables()
 
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
     message(FATAL_ERROR "Prevented in-tree built. Please create a build directory outside of the SDL_mixer source code and call cmake from there")
 endif()
 
@@ -103,7 +103,7 @@ option(SDL2MIXER_CMD "Support an external music player" ${sdl2mixer_cmd_default}
 
 option(SDL2MIXER_FLAC "Enable FLAC music" ON)
 
-cmake_dependent_option(SDL2MIXER_FLAC_LIBFLAC "Enable FLAC music using libFLAC" ON SDL2MIXER_FLAC OFF)
+cmake_dependent_option(SDL2MIXER_FLAC_LIBFLAC "Enable FLAC music using libFLAC" OFF SDL2MIXER_FLAC OFF)
 cmake_dependent_option(SDL2MIXER_FLAC_LIBFLAC_SHARED "Dynamically load LIBFLAC" "${SDL2MIXER_DEPS_SHARED}" SDL2MIXER_FLAC_LIBFLAC OFF)
 
 cmake_dependent_option(SDL2MIXER_FLAC_DRFLAC "Enable FLAC music using drflac" ON SDL2MIXER_FLAC OFF)
@@ -181,6 +181,7 @@ cmake_dependent_option(SDL2MIXER_VORBIS_VORBISFILE_SHARED "Dynamically load vorb
 option(SDL2MIXER_WAVE "Enable streaming WAVE music" ON)
 
 option(SDL2MIXER_WAVPACK "Enable WavPack music" ON)
+cmake_dependent_option(SDL2MIXER_WAVPACK_DSD "Enable WavPack DSD music support" OFF SDL2MIXER_WAVPACK OFF)
 cmake_dependent_option(SDL2MIXER_WAVPACK_SHARED "Dynamically load WavPack library" "${SDL2MIXER_DEPS_SHARED}" SDL2MIXER_WAVPACK OFF)
 
 if(SDL2MIXER_VORBIS_TREMOR OR SDL2MIXER_VORBIS_VORBISFILE OR SDL2MIXER_FLAC_LIBFLAC OR SDL2MIXER_OPUS)
@@ -839,7 +840,7 @@ endif()
 if(SDL2MIXER_WAVPACK)
     target_compile_definitions(SDL2_mixer PRIVATE MUSIC_WAVPACK)
     if(SDL2MIXER_VENDORED)
-        message(STATUS "Using vendored WevPack")
+        message(STATUS "Using vendored WavPack")
         sdl_check_project_in_subfolder(external/wavpack WavPack SDL2MIXER_VENDORED)
         set(WAVPACK_BUILD_PROGRAMS FALSE)
         set(WAVPACK_BUILD_COOLEDIT_PLUGIN OFF)
@@ -860,6 +861,9 @@ if(SDL2MIXER_WAVPACK)
         if(NOT SDL2MIXER_WAVPACK_SHARED)
             list(APPEND PC_REQUIRES wavpack)
         endif()
+    endif()
+    if(SDL2MIXER_WAVPACK_DSD)
+        target_compile_definitions(SDL2_mixer PRIVATE MUSIC_WAVPACK_DSD)
     endif()
     if(SDL2MIXER_WAVPACK_SHARED)
         target_include_directories(SDL2_mixer PRIVATE

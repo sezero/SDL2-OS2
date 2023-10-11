@@ -644,9 +644,6 @@ DECODER_OBJ
 YASM_FORMAT
 USE_YASM_FOR_AVX_FALSE
 USE_YASM_FOR_AVX_TRUE
-INCLUDE_SYS_TYPE_H
-INCLUDE_STDLIB_H
-INCLUDE_STDIO_H
 LFS_LOBJ
 YASMFLAGS
 YASM
@@ -736,7 +733,6 @@ build
 MAINT
 MAINTAINER_MODE_FALSE
 MAINTAINER_MODE_TRUE
-API_VERSION
 LIBMPG123_VERSION
 target_alias
 host_alias
@@ -2584,7 +2580,6 @@ LIBMPG123_VERSION=$API_VERSION:$LIB_PATCHLEVEL:$API_VERSION
 
 
 
-
 ac_aux_dir=
 for ac_dir in build "$srcdir"/build; do
   if test -f "$ac_dir/install-sh"; then
@@ -3886,6 +3881,8 @@ int
 main ()
 {
 FILE *f = fopen ("conftest.out", "w");
+ if (!f)
+  return 1;
  return ferror (f) || fclose (f) != 0;
 
   ;
@@ -15425,19 +15422,6 @@ fi
 
 
 
-for ac_func in strerror
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-done
-
-
 for ac_func in strdup
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
@@ -15449,29 +15433,6 @@ _ACEOF
 
 fi
 done
-
-
-
-# Substitutions for the installable mpg123.h header
-if test "x$ac_cv_header_stdio_h" = "xyes"; then
-	INCLUDE_STDIO_H="#include <stdio.h>"
-else
-	INCLUDE_STDIO_H="/* #include <stdio.h> is not available on this system */"
-fi
-
-
-if test "x$ac_cv_header_stdlib_h" = "xyes"; then
-	INCLUDE_STDLIB_H="#include <stdlib.h>"
-else
-	INCLUDE_STDLIB_H="/* #include <stdlib.h> is not available on this system */"
-fi
-
-
-if test "x$ac_cv_header_sys_types_h" = "xyes"; then
-	INCLUDE_SYS_TYPE_H="#include <sys/types.h>"
-else
-	INCLUDE_SYS_TYPE_H="/* #include <sys/types.h> is not available on this system */"
-fi
 
 
 
@@ -15522,15 +15483,6 @@ _ACEOF
 fi
 
 
-# attempt to make the signal stuff work... also with GENERIC - later
-#if test x"$ac_cv_header_sys_signal_h" = xyes; then
-#	AC_CHECK_FUNCS( sigemptyset sigaddset sigprocmask sigaction )
-#	if test x"$ac_cv_func_sigemptyset" = xyes &&
-#	   test x"$ac_cv_func_sigaddset" = xyes &&
-#	   test x"$ac_cv_func_sigprocmask" = xyes &&
-#	   test x"$ac_cv_func_sigaction" = xyes; then
-#	AC_DEFINE(
-#fi
 
 
 # do not assume gcc here, so no flags by default
@@ -15545,47 +15497,6 @@ if test "x$ac_cv_header_os2_h" = xyes; then :
   ADD_CPPFLAGS="$ADD_CPPFLAGS -DOS2"
 fi
 
-
-# On OS/2, we need to link to os2term to make terminal control actually work.
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for tcsetattr in -los2term" >&5
-$as_echo_n "checking for tcsetattr in -los2term... " >&6; }
-if ${ac_cv_lib_os2term_tcsetattr+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-los2term  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char tcsetattr ();
-int
-main ()
-{
-return tcsetattr ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_os2term_tcsetattr=yes
-else
-  ac_cv_lib_os2term_tcsetattr=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_os2term_tcsetattr" >&5
-$as_echo "$ac_cv_lib_os2term_tcsetattr" >&6; }
-if test "x$ac_cv_lib_os2term_tcsetattr" = xyes; then :
-  ADD_LDFLAGS="$ADD_LDFLAGS -los2term"
-fi
 
 
 # If debugging is enabled then make warnings errors
@@ -16135,7 +16046,7 @@ fi
 LIBMPG123_LIBS=$LIBS
 
 
-ac_config_files="$ac_config_files Makefile libmpg123.pc src/Makefile src/mpg123.h"
+ac_config_files="$ac_config_files Makefile libmpg123.pc src/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -17175,7 +17086,6 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "libmpg123.pc") CONFIG_FILES="$CONFIG_FILES libmpg123.pc" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
-    "src/mpg123.h") CONFIG_FILES="$CONFIG_FILES src/mpg123.h" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
