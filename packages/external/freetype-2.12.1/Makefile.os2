@@ -18,9 +18,9 @@ OBJS = $(SRCS:.c=.obj)
 INCPATH =-Iinclude
 CFLAGS = -bt=os2 -ei -d0 -q -bm -5s -fp5 -fpi87 -sg -oeatxh
 CFLAGS+= -wcd=124 -DFT2_BUILD_LIBRARY
-# just use zlib included in ft2
+# use zlib included in ft2
 #CFLAGS+= -DFT_CONFIG_OPTION_SYSTEM_ZLIB
-#INCPATH+= -I"../zlib-1.2.13"
+#INCPATH+= -I"../zlib-1.3"
 CFLAGS+= $(INCPATH)
 
 $(LIBFILE): $(OBJS)
