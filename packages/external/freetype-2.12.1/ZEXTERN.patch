@@ -1,0 +1,13 @@
+--- freetype-2.12.1/src/gzip/ftgzip.c~
++++ freetype-2.12.1/src/gzip/ftgzip.c
+@@ -78,9 +78,9 @@
+   /* being exported by the library.                                     */
+ #if defined( __GNUC__ ) ||  defined( __clang__ )
+ #define HAVE_HIDDEN  1
++#endif
+ #define ZEXPORT
+ #define ZEXTERN      static
+-#endif
+ 
+ #define Z_SOLO      1
+ #define Z_FREETYPE  1
