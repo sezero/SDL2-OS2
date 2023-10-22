@@ -1,3 +1,4 @@
+/* libtiff/tiffconf.h.  Generated from tiffconf.h.in by configure.  */
 /*
   Configuration defines for installed libtiff.
   This file maintained for backward compatibility. Do not use definitions
@@ -8,106 +9,107 @@
 #define _TIFFCONF_
 
 /* Signed 16-bit type */
-#define TIFF_INT16_T @TIFF_INT16_T@
+#define TIFF_INT16_T signed short
 
 /* Signed 32-bit type */
-#define TIFF_INT32_T @TIFF_INT32_T@
+#define TIFF_INT32_T signed int
 
 /* Signed 64-bit type */
-#define TIFF_INT64_T @TIFF_INT64_T@
+#define TIFF_INT64_T signed long long
 
 /* Signed 8-bit type */
-#define TIFF_INT8_T @TIFF_INT8_T@
+#define TIFF_INT8_T signed char
 
 /* Unsigned 16-bit type */
-#define TIFF_UINT16_T @TIFF_UINT16_T@
+#define TIFF_UINT16_T unsigned short
 
 /* Unsigned 32-bit type */
-#define TIFF_UINT32_T @TIFF_UINT32_T@
+#define TIFF_UINT32_T unsigned int
 
 /* Unsigned 64-bit type */
-#define TIFF_UINT64_T @TIFF_UINT64_T@
+#define TIFF_UINT64_T unsigned long long
 
 /* Unsigned 8-bit type */
-#define TIFF_UINT8_T @TIFF_UINT8_T@
-
-/* Unsigned size type */
-#define TIFF_SIZE_T @TIFF_SIZE_T@
+#define TIFF_UINT8_T unsigned char
 
 /* Signed size type */
-#define TIFF_SSIZE_T @TIFF_SSIZE_T@
+#if defined _WIN64
+#define TIFF_SSIZE_T signed long long
+#else
+#define TIFF_SSIZE_T signed int
+#endif
 
 /* Pointer difference type */
-#define TIFF_PTRDIFF_T @TIFF_PTRDIFF_T@
+#define TIFF_PTRDIFF_T ptrdiff_t
 
 /* Compatibility stuff. */
 
 /* Define as 0 or 1 according to the floating point format suported by the
    machine */
-#cmakedefine HAVE_IEEEFP 1
+#define HAVE_IEEEFP 1
 
 /* Set the native cpu bit order (FILLORDER_LSB2MSB or FILLORDER_MSB2LSB) */
-#define HOST_FILLORDER @HOST_FILLORDER@
+#define HOST_FILLORDER FILLORDER_LSB2MSB
 
 /* Native cpu byte order: 1 if big-endian (Motorola) or 0 if little-endian
    (Intel) */
-#define HOST_BIGENDIAN @HOST_BIG_ENDIAN@
+#define HOST_BIGENDIAN 0
 
 /* Support CCITT Group 3 & 4 algorithms */
-#cmakedefine CCITT_SUPPORT 1
+#define CCITT_SUPPORT 1
 
 /* Support JPEG compression (requires IJG JPEG library) */
-#cmakedefine JPEG_SUPPORT 1
+/* #undef JPEG_SUPPORT */
 
 /* Support JBIG compression (requires JBIG-KIT library) */
-#cmakedefine JBIG_SUPPORT
+/* #undef JBIG_SUPPORT */
 
 /* Support LogLuv high dynamic range encoding */
-#cmakedefine LOGLUV_SUPPORT 1
+#define LOGLUV_SUPPORT 1
 
 /* Support LZW algorithm */
-#cmakedefine LZW_SUPPORT 1
+#define LZW_SUPPORT 1
 
 /* Support NeXT 2-bit RLE algorithm */
-#cmakedefine NEXT_SUPPORT 1
+#define NEXT_SUPPORT 1
 
 /* Support Old JPEG compresson (read contrib/ojpeg/README first! Compilation
    fails with unpatched IJG JPEG library) */
-#cmakedefine OJPEG_SUPPORT 1
+/* #undef OJPEG_SUPPORT */
 
 /* Support Macintosh PackBits algorithm */
-#cmakedefine PACKBITS_SUPPORT 1
+#define PACKBITS_SUPPORT 1
 
 /* Support Pixar log-format algorithm (requires Zlib) */
-#cmakedefine PIXARLOG_SUPPORT 1
+/* #undef PIXARLOG_SUPPORT */
 
 /* Support ThunderScan 4-bit RLE algorithm */
-#cmakedefine THUNDER_SUPPORT 1
+#define THUNDER_SUPPORT 1
 
 /* Support Deflate compression */
-#cmakedefine ZIP_SUPPORT 1
+/* #undef ZIP_SUPPORT */
 
 /* Support libdeflate enhanced compression */
-#cmakedefine LIBDEFLATE_SUPPORT 1
+/* #undef LIBDEFLATE_SUPPORT */
 
 /* Support strip chopping (whether or not to convert single-strip uncompressed
    images to mutiple strips of ~8Kb to reduce memory usage) */
-#cmakedefine STRIPCHOP_DEFAULT TIFF_STRIPCHOP
+#define STRIPCHOP_DEFAULT TIFF_STRIPCHOP
 
 /* Enable SubIFD tag (330) support */
-#cmakedefine SUBIFD_SUPPORT 1
+#define SUBIFD_SUPPORT 1
 
 /* Treat extra sample as alpha (default enabled). The RGBA interface will
    treat a fourth sample with no EXTRASAMPLE_ value as being ASSOCALPHA. Many
    packages produce RGBA files but don't mark the alpha properly. */
-#cmakedefine DEFAULT_EXTRASAMPLE_AS_ALPHA 1
+#define DEFAULT_EXTRASAMPLE_AS_ALPHA 1
 
 /* Pick up YCbCr subsampling info from the JPEG data stream to support files
    lacking the tag (default enabled). */
-#cmakedefine CHECK_JPEG_YCBCR_SUBSAMPLING 1
+/* #undef CHECK_JPEG_YCBCR_SUBSAMPLING */
 
 /* Support MS MDI magic number files as TIFF */
-#cmakedefine MDI_SUPPORT 1
+#define MDI_SUPPORT 1
 
 /*
  * Feature support definitions.
