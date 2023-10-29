@@ -179,6 +179,12 @@ static long sdl_tell_func(void *datasource)
     return (long)SDL_RWtell((SDL_RWops*)datasource);
 }
 
+static int sdl_close_func(void *datasource)
+{
+    (void)datasource;
+    return 0;
+}
+
 static int OGG_Seek(void *context, double time);
 static void OGG_Delete(void *context);
 
@@ -241,9 +247,9 @@ static void *OGG_CreateFromRW(SDL_RWops *src, int freesrc)
     music->volume = MIX_MAX_VOLUME;
     music->section = -1;
 
-    SDL_zero(callbacks);
     callbacks.read_func = sdl_read_func;
     callbacks.seek_func = sdl_seek_func;
+    callbacks.close_func = sdl_close_func;
     callbacks.tell_func = sdl_tell_func;
 
     if (vorbis.ov_open_callbacks(src, &music->vf, NULL, 0, callbacks) < 0) {
@@ -555,4 +561,3 @@ Mix_MusicInterface Mix_MusicInterface_OGG =
 
 #endif /* MUSIC_OGG */
 
-/* vi: set ts=4 sw=4 expandtab: */
