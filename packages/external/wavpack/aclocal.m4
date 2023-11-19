@@ -12612,5 +12612,3 @@ m4_if([$1], [v7],
 AC_SUBST([am__tar])
 AC_SUBST([am__untar])
 ]) # _AM_PROG_TAR
-
-m4_include([acinclude.m4])

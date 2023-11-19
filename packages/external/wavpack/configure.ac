@@ -34,9 +34,10 @@ AC_DEFINE_UNQUOTED([VERSION_OS], ["${host_os}"], [os version])
 
 dnl Checks for programs.
 AC_PROG_CC
-AC_PROG_INSTALL
 AM_PROG_AR
 AM_PROG_AS
+AC_CHECK_TOOL(RC,[windres],[:])
+AC_PROG_INSTALL
 
 LT_INIT([win32-dll disable-static])
 
@@ -46,9 +47,6 @@ LT_LIB_M
 dnl Check for large files support
 AC_SYS_LARGEFILE
 AC_FUNC_FSEEKO
-
-AC_ARG_ENABLE([libcrypto],
-  [AS_HELP_STRING([--enable-libcrypto], [use libcrypto MD5 if available (breaks Mac build)])])
 
 AC_ARG_ENABLE([apps],
   [AS_HELP_STRING([--disable-apps], [build only libwavpack (removes ICONV dependency)])])
@@ -67,10 +65,6 @@ AS_IF([test "x${enable_apps}" != "xno" && test "x${windows_host}" != "xyes"], [
   AS_IF([test "x${am_cv_func_iconv}" != "xyes"], [
     AC_MSG_ERROR([iconv is required for apps, use --disable-apps to build only libwavpack])
   ])
-])
-
-AS_IF([test "x${enable_libcrypto}" = "xyes"], [
-  AC_CHECK_LIB([crypto],[MD5_Init])
 ])
 
 AC_ARG_ENABLE([legacy],
@@ -140,24 +134,14 @@ AS_IF([test "x${ac_cv_have___builtin_ctz}" = "xyes"], [
   AC_DEFINE([HAVE___BUILTIN_CTZ])
 ])
 
-AC_ARG_ENABLE([man],
-  [AS_HELP_STRING([--enable-man], [regenerate man pages from Docbook [default=no]])])
-
-AS_IF([test "x${enable_man}" = "xyes"], [
-  dnl
-  dnl Check for xsltproc
-  dnl
-  AC_PATH_PROG([XSLTPROC], [xsltproc])
-  AS_IF([test -z "${XSLTPROC}"], [enable_man=no])
-
-  dnl check for DocBook DTD and stylesheets in the local catalog.
-  JH_CHECK_XML_CATALOG([-//OASIS//DTD DocBook XML V4.1.2//EN],
-    [DocBook XML DTD V4.1.2], [], [enable_man=no])
-  JH_CHECK_XML_CATALOG([http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl],
-    [DocBook XSL Stylesheets], [],[enable_man=no])
+AS_IF([test "x${ac_cv_c_compiler_gnu}" = "xyes"], [
+  CFLAGS="$CFLAGS -Wall"
 ])
 
-AM_CONDITIONAL([ENABLE_MAN], [test "x${enable_man}" != "xno"])
+AS_IF([test "x${windows_host}" = "xyes"], [
+  AS_IF([test "x$RC" != "x:"],[have_windres=true])
+])
+AM_CONDITIONAL([HAVE_WINDRES],[test "x$have_windres" = "xtrue"])
 
 AC_CONFIG_LINKS([
   cli/all-tests:cli/all-tests

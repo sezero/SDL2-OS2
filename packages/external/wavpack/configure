@@ -663,11 +663,8 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-ENABLE_MAN_FALSE
-ENABLE_MAN_TRUE
-XMLCATALOG
-XML_CATALOG_FILE
-XSLTPROC
+HAVE_WINDRES_FALSE
+HAVE_WINDRES_TRUE
 ENABLE_ARMASM_FALSE
 ENABLE_ARMASM_TRUE
 ENABLE_X64ASM_FALSE
@@ -710,6 +707,7 @@ LIBTOOL
 OBJDUMP
 DLLTOOL
 AS
+RC
 am__fastdepCCAS_FALSE
 am__fastdepCCAS_TRUE
 CCASDEPMODE
@@ -832,15 +830,12 @@ with_gnu_ld
 with_sysroot
 enable_libtool_lock
 enable_largefile
-enable_libcrypto
 enable_apps
 enable_rpath
 with_libiconv_prefix
 enable_legacy
 enable_dsd
 enable_asm
-enable_man
-with_xml_catalog
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1496,14 +1491,12 @@ Optional Features:
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --disable-largefile     omit support for large files
-  --enable-libcrypto      use libcrypto MD5 if available (breaks Mac build)
   --disable-apps          build only libwavpack (removes ICONV dependency)
   --disable-rpath         do not hardcode runtime library paths
   --enable-legacy         decode legacy (< 4.0) WavPack files
   --disable-dsd           disable support for WavPack DSD files
   --enable-rpath          hardcode library path in executables
   --disable-asm           disable assembly optimizations
-  --enable-man            regenerate man pages from Docbook [default=no]
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1519,8 +1512,6 @@ Optional Packages:
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
   --with-libiconv-prefix[=DIR]  search for libiconv in DIR/include and DIR/lib
   --without-libiconv-prefix     don't search for libiconv in includedir and libdir
-  --with-xml-catalog=CATALOG
-                          path to xml catalog to use
 
 Some influential environment variables:
   CC          C compiler command
@@ -4655,7 +4646,6 @@ fi
 
 
 
-
   if test -n "$ac_tool_prefix"; then
   for ac_prog in ar lib "link -lib"
   do
@@ -4970,6 +4960,109 @@ CCASDEPMODE=depmode=$am_cv_CCAS_dependencies_compiler_type
 else
   am__fastdepCCAS_TRUE='#'
   am__fastdepCCAS_FALSE=
+fi
+
+
+if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}windres", so it can be a program name with args.
+set dummy ${ac_tool_prefix}windres; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_prog_RC+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  if test -n "$RC"; then
+  ac_cv_prog_RC="$RC" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_prog_RC="${ac_tool_prefix}windres"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+RC=$ac_cv_prog_RC
+if test -n "$RC"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $RC" >&5
+printf "%s\n" "$RC" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+fi
+if test -z "$ac_cv_prog_RC"; then
+  ac_ct_RC=$RC
+  # Extract the first word of "windres", so it can be a program name with args.
+set dummy windres; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_prog_ac_ct_RC+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  if test -n "$ac_ct_RC"; then
+  ac_cv_prog_ac_ct_RC="$ac_ct_RC" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_prog_ac_ct_RC="windres"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+ac_ct_RC=$ac_cv_prog_ac_ct_RC
+if test -n "$ac_ct_RC"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_ct_RC" >&5
+printf "%s\n" "$ac_ct_RC" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+  if test "x$ac_ct_RC" = x; then
+    RC=":"
+  else
+    case $cross_compiling:$ac_tool_warned in
+yes:)
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
+printf "%s\n" "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
+ac_tool_warned=yes ;;
+esac
+    RC=$ac_ct_RC
+  fi
+else
+  RC="$ac_cv_prog_RC"
 fi
 
 
@@ -13854,13 +13947,6 @@ printf "%s\n" "#define HAVE_FSEEKO 1" >>confdefs.h
 fi
 
 
-# Check whether --enable-libcrypto was given.
-if test ${enable_libcrypto+y}
-then :
-  enableval=$enable_libcrypto;
-fi
-
-
 # Check whether --enable-apps was given.
 if test ${enable_apps+y}
 then :
@@ -15527,61 +15613,6 @@ fi
 
 fi
 
-if test "x${enable_libcrypto}" = "xyes"
-then :
-
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for MD5_Init in -lcrypto" >&5
-printf %s "checking for MD5_Init in -lcrypto... " >&6; }
-if test ${ac_cv_lib_crypto_MD5_Init+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lcrypto  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.
-   The 'extern "C"' is for builds by C++ compilers;
-   although this is not generally supported in C code supporting it here
-   has little cost and some practical benefit (sr 110532).  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char MD5_Init (void);
-int
-main (void)
-{
-return MD5_Init ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_lib_crypto_MD5_Init=yes
-else $as_nop
-  ac_cv_lib_crypto_MD5_Init=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_MD5_Init" >&5
-printf "%s\n" "$ac_cv_lib_crypto_MD5_Init" >&6; }
-if test "x$ac_cv_lib_crypto_MD5_Init" = xyes
-then :
-  printf "%s\n" "#define HAVE_LIBCRYPTO 1" >>confdefs.h
-
-  LIBS="-lcrypto $LIBS"
-
-fi
-
-
-fi
-
 # Check whether --enable-legacy was given.
 if test ${enable_legacy+y}
 then :
@@ -15793,191 +15824,28 @@ then :
 
 fi
 
-# Check whether --enable-man was given.
-if test ${enable_man+y}
+if test "x${ac_cv_c_compiler_gnu}" = "xyes"
 then :
-  enableval=$enable_man;
+
+  CFLAGS="$CFLAGS -Wall"
+
 fi
 
-
-
-  # check for the presence of the XML catalog
-
-# Check whether --with-xml-catalog was given.
-if test ${with_xml_catalog+y}
+if test "x${windows_host}" = "xyes"
 then :
-  withval=$with_xml_catalog;
-else $as_nop
-  with_xml_catalog=/etc/xml/catalog
+
+  if test "x$RC" != "x:"
+then :
+  have_windres=true
 fi
 
-  jh_found_xmlcatalog=true
-  XML_CATALOG_FILE="$with_xml_catalog"
-
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for XML catalog ($XML_CATALOG_FILE)" >&5
-printf %s "checking for XML catalog ($XML_CATALOG_FILE)... " >&6; }
-  if test -f "$XML_CATALOG_FILE"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: found" >&5
-printf "%s\n" "found" >&6; }
-  else
-    jh_found_xmlcatalog=false
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: not found" >&5
-printf "%s\n" "not found" >&6; }
-  fi
-
-  # check for the xmlcatalog program
-  # Extract the first word of "xmlcatalog", so it can be a program name with args.
-set dummy xmlcatalog; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_XMLCATALOG+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $XMLCATALOG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_XMLCATALOG="$XMLCATALOG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_XMLCATALOG="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_XMLCATALOG" && ac_cv_path_XMLCATALOG="no"
-  ;;
-esac
 fi
-XMLCATALOG=$ac_cv_path_XMLCATALOG
-if test -n "$XMLCATALOG"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $XMLCATALOG" >&5
-printf "%s\n" "$XMLCATALOG" >&6; }
+ if test "x$have_windres" = "xtrue"; then
+  HAVE_WINDRES_TRUE=
+  HAVE_WINDRES_FALSE='#'
 else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-  if test "x$XMLCATALOG" = xno; then
-    jh_found_xmlcatalog=false
-  fi
-
-  if $jh_found_xmlcatalog; then
-    :
-  else
-    :
-  fi
-
-if test "x${enable_man}" = "xyes"
-then :
-
-        # Extract the first word of "xsltproc", so it can be a program name with args.
-set dummy xsltproc; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_XSLTPROC+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $XSLTPROC in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_XSLTPROC="$XSLTPROC" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_XSLTPROC="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-XSLTPROC=$ac_cv_path_XSLTPROC
-if test -n "$XSLTPROC"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $XSLTPROC" >&5
-printf "%s\n" "$XSLTPROC" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-  if test -z "${XSLTPROC}"
-then :
-  enable_man=no
-fi
-
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for DocBook XML DTD V4.1.2 in XML catalog" >&5
-printf %s "checking for DocBook XML DTD V4.1.2 in XML catalog... " >&6; }
-  if $jh_found_xmlcatalog && \
-     { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$XMLCATALOG --noout \"\$XML_CATALOG_FILE\" \"-//OASIS//DTD DocBook XML V4.1.2//EN\" >&2"; } >&5
-  ($XMLCATALOG --noout "$XML_CATALOG_FILE" "-//OASIS//DTD DocBook XML V4.1.2//EN" >&2) 2>&5
-  ac_status=$?
-  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: found" >&5
-printf "%s\n" "found" >&6; }
-      else
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: not found" >&5
-printf "%s\n" "not found" >&6; }
-    enable_man=no
-  fi
-
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for DocBook XSL Stylesheets in XML catalog" >&5
-printf %s "checking for DocBook XSL Stylesheets in XML catalog... " >&6; }
-  if $jh_found_xmlcatalog && \
-     { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$XMLCATALOG --noout \"\$XML_CATALOG_FILE\" \"http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl\" >&2"; } >&5
-  ($XMLCATALOG --noout "$XML_CATALOG_FILE" "http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl" >&2) 2>&5
-  ac_status=$?
-  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: found" >&5
-printf "%s\n" "found" >&6; }
-      else
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: not found" >&5
-printf "%s\n" "not found" >&6; }
-    enable_man=no
-  fi
-
-
-fi
-
- if test "x${enable_man}" != "xno"; then
-  ENABLE_MAN_TRUE=
-  ENABLE_MAN_FALSE='#'
-else
-  ENABLE_MAN_TRUE='#'
-  ENABLE_MAN_FALSE=
+  HAVE_WINDRES_TRUE='#'
+  HAVE_WINDRES_FALSE=
 fi
 
 
@@ -16194,8 +16062,8 @@ if test -z "${ENABLE_ARMASM_TRUE}" && test -z "${ENABLE_ARMASM_FALSE}"; then
   as_fn_error $? "conditional \"ENABLE_ARMASM\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${ENABLE_MAN_TRUE}" && test -z "${ENABLE_MAN_FALSE}"; then
-  as_fn_error $? "conditional \"ENABLE_MAN\" was never defined.
+if test -z "${HAVE_WINDRES_TRUE}" && test -z "${HAVE_WINDRES_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_WINDRES\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 

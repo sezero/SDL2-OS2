@@ -110,42 +110,34 @@ static int push_back_byte (void *id, int c)
     return ungetc (c, id);
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__WATCOMC__)
 
-static int64_t get_length (void *id)
+static int can_seek (void *id)
 {
-    LARGE_INTEGER Size;
-    HANDLE        fHandle;
-
-    if (id == NULL)
-        return 0;
-
-    fHandle = (HANDLE)_get_osfhandle(_fileno((FILE*) id));
-    if (fHandle == INVALID_HANDLE_VALUE)
-        return 0;
-
-    Size.u.LowPart = GetFileSize(fHandle, (DWORD *) &Size.u.HighPart);
-
-    if (Size.u.LowPart == INVALID_FILE_SIZE && GetLastError() != NO_ERROR)
-        return 0;
-
-    return (int64_t)Size.QuadPart;
+    struct _stati64 statbuf;
+    return id && !_fstati64 (_fileno ((FILE *)id), &statbuf) && S_ISREG(statbuf.st_mode);
 }
-
-#elif defined(__WATCOMC__)
 
 static int64_t get_length (void *id)
 {
     FILE *file = id;
     struct _stati64 statbuf;
 
-    if (!file || _fstati64 (fileno (file), &statbuf) || !S_ISREG(statbuf.st_mode))
+    if (!file || _fstati64 (_fileno (file), &statbuf) || !S_ISREG(statbuf.st_mode))
         return 0;
 
     return statbuf.st_size;
 }
 
 #else
+
+static int can_seek (void *id)
+{
+    FILE *file = id;
+    struct stat statbuf;
+
+    return file && !fstat (fileno (file), &statbuf) && S_ISREG(statbuf.st_mode);
+}
 
 static int64_t get_length (void *id)
 {
@@ -160,32 +152,12 @@ static int64_t get_length (void *id)
 
 #endif
 
-#ifdef _WIN32
-
-static int can_seek (void *id)
-{
-    struct stat statbuf;
-    return id && !fstat (_fileno ((FILE *)id), &statbuf) && S_ISREG(statbuf.st_mode);
-}
-
-#else
-
-static int can_seek (void *id)
-{
-    FILE *file = id;
-    struct stat statbuf;
-
-    return file && !fstat (fileno (file), &statbuf) && S_ISREG(statbuf.st_mode);
-}
-
-#endif
-
 static int32_t write_bytes (void *id, void *data, int32_t bcount)
 {
     return (int32_t) fwrite (data, 1, bcount, (FILE*) id);
 }
 
-#if defined(__WATCOMC__) && defined(_WIN32) /* no _chsize_s() in watcom... */
+#if defined(_WIN32) /* no _chsize_s() in old msvcrt.dll, or in watcom... */
 
 static int truncate_here (void *id)
 {
@@ -224,16 +196,6 @@ static int truncate_here (void *id)
         return (pDosSetFileSizeL(handle, pos) == 0) ? 0 : -1;
     }
     return (DosSetFileSize(handle,(ULONG)pos) == 0) ? 0 : -1;
-}
-
-#elif defined(_WIN32)
-
-static int truncate_here (void *id)
-{
-    FILE *file = id;
-    int64_t curr_pos = _ftelli64 (file);
-
-    return _chsize_s (_fileno (file), curr_pos);
 }
 
 #else

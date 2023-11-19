@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.2...3.5)
 
 project(WavPack VERSION 5.6.0)
 
@@ -22,6 +22,12 @@ math(EXPR DYLIB_COMPATIBILITY_VERSION_MINOR "0")
 math(EXPR DYLIB_COMPATIBILITY_VERSION_MICRO "0")
 set(DYLIB_CURRENT_VERSION "${DYLIB_CURRENT_VERSION_MAJOR}.${DYLIB_CURRENT_VERSION_MINOR}.${DYLIB_CURRENT_VERSION_MICRO}")
 set(DYLIB_COMPATIBILITY_VERSION "${DYLIB_COMPATIBILITY_VERSION_MAJOR}.${DYLIB_COMPATIBILITY_VERSION_MINOR}.${DYLIB_COMPATIBILITY_VERSION_MICRO}")
+
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    set(WAVPACK_ROOTPROJECT ON)
+else()
+    set(WAVPACK_ROOTPROJECT OFF)
+endif()
 
 # Languages
 
@@ -72,15 +78,14 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(FeatureSummary)
 include(CPack)
-include(FindOpenSSL)
 
 # Options. See also dependent options below
 
 option(WAVPACK_ENABLE_LEGACY "Decode legacy (< 4.0) WavPack files" OFF)
 option(WAVPACK_ENABLE_DSD "Enable support for WavPack DSD files" ON)
-option(WAVPACK_INSTALL_CMAKE_MODULE "Generate and install CMake package configuration module" ON)
-option(WAVPACK_INSTALL_DOCS "Install documentation" ON)
-option(WAVPACK_INSTALL_PKGCONFIG_MODULE "Generate and install wavpack.pc" ON)
+option(WAVPACK_INSTALL_CMAKE_MODULE "Generate and install CMake package configuration module" ${WAVPACK_ROOTPROJECT})
+option(WAVPACK_INSTALL_DOCS "Install documentation" ${WAVPACK_ROOTPROJECT})
+option(WAVPACK_INSTALL_PKGCONFIG_MODULE "Generate and install wavpack.pc" ${WAVPACK_ROOTPROJECT})
 
 # Configuration tests
 
@@ -89,41 +94,10 @@ if(HAVE_LIBM)
     list(APPEND CMAKE_REQUIRED_LIBRARIES m)
 endif()
 
-find_package(Threads)
-find_package(Iconv)
-find_package(LibXslt)
-find_package(OpenSSL)
-
-set(DOCBOOK_PREREQS_FOUND FALSE)
-if(LIBXSLT_XSLTPROC_EXECUTABLE)
-    if(NOT $ENV{XML_CATALOG_FILES} STREQUAL "")
-        set(XML_CATALOG_FILEPATH $ENV{XML_CATALOG_FILES})
-    else()
-        set(XML_CATALOG_FILEPATH "/etc/xml/catalog")
-    endif()
-
-    find_program(XMLCATALOG_EXECUTABLE xmlcatalog)
-
-    if(XMLCATALOG_EXECUTABLE)
-        execute_process(
-            COMMAND ${XMLCATALOG_EXECUTABLE} --noout ${XML_CATALOG_FILEPATH} "-//OASIS//DTD DocBook XML V4.1.2//EN"
-            RESULT_VARIABLE DOCBOOK_XML_RSLT
-            OUTPUT_QUIET
-            ERROR_QUIET
-        )
-        if(DOCBOOK_XML_RSLT EQUAL 0)
-            execute_process(
-                COMMAND ${XMLCATALOG_EXECUTABLE} --noout ${XML_CATALOG_FILEPATH} "http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl"
-                RESULT_VARIABLE DOCBOOK_XSL_RSLT
-                OUTPUT_QUIET
-                ERROR_QUIET
-            )
-            if(DOCBOOK_XML_RSLT EQUAL 0)
-                set(DOCBOOK_PREREQS_FOUND TRUE)
-            endif()
-        endif()
-    endif()
+if(NOT WIN32)
+  find_package(Threads)
 endif()
+find_package(Iconv)
 
 check_c_source_compiles(
         "int main()
@@ -138,6 +112,10 @@ if(LARGE_FILES_SUPPORTED)
     add_definitions(${LARGE_FILES_DEFINITIONS})
 endif()
 check_function_exists(fseeko HAVE_FSEEKO)
+
+if(NOT MSVC AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
+    add_compile_options(-Wall)
+endif()
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "amd64.*|x86_64.*|AMD64.*")
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -168,12 +146,10 @@ endif()
 # Dependent options
 
 cmake_dependent_option(WAVPACK_ENABLE_ASM "Enable assembly optimizations" ON "HAVE_ASM OR HAVE_MASM" OFF)
-cmake_dependent_option(WAVPACK_ENABLE_LIBCRYPTO "Use OpenSSL::Crypto library" ON "OPENSSL_FOUND" OFF)
-cmake_dependent_option(WAVPACK_BUILD_PROGRAMS "Build programs" ON "WIN32 OR Iconv_FOUND" OFF)
-cmake_dependent_option(WAVPACK_BUILD_COOLEDIT_PLUGIN "Build CoolEdit plugin" ON "WIN32" OFF)
-cmake_dependent_option(WAVPACK_BUILD_WINAMP_PLUGIN "Build WinAmp plugin" ON "WIN32" OFF)
-cmake_dependent_option(BUILD_TESTING "Build tests" ON "NOT WIN32" OFF)
-cmake_dependent_option(WAVPACK_BUILD_DOCS "Build documentation" ON "DOCBOOK_PREREQS_FOUND" OFF)
+cmake_dependent_option(WAVPACK_BUILD_PROGRAMS "Build programs" ${WAVPACK_ROOTPROJECT} "WIN32 OR Iconv_FOUND" OFF)
+cmake_dependent_option(WAVPACK_BUILD_COOLEDIT_PLUGIN "Build CoolEdit plugin" OFF "WIN32" OFF)
+cmake_dependent_option(WAVPACK_BUILD_WINAMP_PLUGIN "Build WinAmp plugin" OFF "WIN32" OFF)
+cmake_dependent_option(BUILD_TESTING "Build tests" ${WAVPACK_ROOTPROJECT} "NOT WIN32" OFF)
 
 # Targets
 
@@ -230,22 +206,6 @@ target_link_libraries(wavpack
 )
 add_library(WavPack::WavPack ALIAS wavpack)
 
-if(CMAKE_VERSION VERSION_LESS 3.4)
-    target_include_directories(wavpack
-        PRIVATE
-            $<$<BOOL:${WAVPACK_ENABLE_LIBCRYPTO}>:${OPENSSL_INCLUDE_DIR}>
-    )
-    target_link_libraries(wavpack
-        PRIVATE
-            $<$<BOOL:${WAVPACK_ENABLE_LIBCRYPTO}>:${OPENSSL_CRYPTO_LIBRARY}>
-    )
-else()
-    target_link_libraries(wavpack
-        PRIVATE
-            $<$<BOOL:${WAVPACK_ENABLE_LIBCRYPTO}>:OpenSSL::Crypto>
-    )
-endif()
-
 target_compile_definitions(wavpack
     PRIVATE
         $<$<BOOL:${WAVPACK_ENABLE_LEGACY}>:ENABLE_LEGACY>
@@ -253,7 +213,6 @@ target_compile_definitions(wavpack
         $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
         $<$<BOOL:${HAVE___BUILTIN_CLZ}>:HAVE___BUILTIN_CLZ>
         $<$<BOOL:${HAVE_FSEEKO}>:HAVE_FSEEKO>
-        $<$<BOOL:${WAVPACK_ENABLE_LIBCRYPTO}>:HAVE_LIBCRYPTO>
         $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${CPU_ASM_X86}>>:OPT_ASM_X86>
         $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${CPU_ASM_X64}>>:OPT_ASM_X64>
         $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${CPU_ASM_ARM32}>>:OPT_ASM_ARM32>
@@ -503,7 +462,6 @@ if(WAVPACK_BUILD_PROGRAMS)
 			$<$<NOT:$<BOOL:${WIN32}>>:Iconv::Iconv>
 			$<$<BOOL:${HAVE_LIBM}>:m>
 	)
-
 endif()
 
 if(WAVPACK_BUILD_COOLEDIT_PLUGIN)
@@ -598,34 +556,9 @@ set(WAVPACK_DOC_NAMES
     wvunpack
     wvtag
 )
-if(WAVPACK_BUILD_DOCS)
 
-    foreach(WAVPACK_DOC_NAME ${WAVPACK_DOC_NAMES})
-        add_custom_command(
-            OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/man/${WAVPACK_DOC_NAME}.1
-            MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/man/${WAVPACK_DOC_NAME}.xml
-            COMMAND ${LIBXSLT_XSLTPROC_EXECUTABLE} -nonet --output ${CMAKE_CURRENT_BINARY_DIR}/man/${WAVPACK_DOC_NAME}.1 "http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl" ${CMAKE_CURRENT_SOURCE_DIR}/man/${WAVPACK_DOC_NAME}.xml
-            COMMENT "Generating MAN page '${WAVPACK_DOC_NAME}.1' from DocBook XML file ${WAVPACK_DOC_NAME}.xml..."
-        )
-    endforeach()
-
-    set(GENERATED_MANS_LIST "")
-    foreach(WAVPACK_DOC_NAME ${WAVPACK_DOC_NAMES})
-        list(APPEND GENERATED_MANS_LIST ${CMAKE_CURRENT_BINARY_DIR}/man/${WAVPACK_DOC_NAME}.1)
-    endforeach()
-    add_custom_target(GEN_DOCS ALL
-        DEPENDS ${GENERATED_MANS_LIST}
-    )
-
-endif()
 
 # Features
-
-set_package_properties(OpenSSL PROPERTIES
-	TYPE RECOMMENDED
-	DESCRIPTION "TLS/SSL and crypto library"
-    PURPOSE "Can be used to build wavpack library."
-)
 
 set_package_properties(Iconv PROPERTIES
 	TYPE RECOMMENDED
@@ -637,11 +570,6 @@ set_package_properties(Threads PROPERTIES
 	DESCRIPTION "Threads library"
     PURPOSE "Required to build tests."
 )
-set_package_properties(LibXslt PROPERTIES
-	TYPE OPTIONAL
-	DESCRIPTION "XSLT C library developed for the GNOME project."
-    PURPOSE "Required to generate documentation."
-)
 
 add_feature_info(BUILD_SHARED_LIBS BUILD_SHARED_LIBS "Build shared library.")
 add_feature_info(BUILD_TESTING BUILD_TESTING "Build tests.")
@@ -649,17 +577,15 @@ add_feature_info(WAVPACK_ENABLE_LEGACY WAVPACK_ENABLE_LEGACY "Decode legacy (< 4
 add_feature_info(WAVPACK_ENABLE_DSD WAVPACK_ENABLE_DSD "Enable support for WavPack DSD files.")
 add_feature_info(WAVPACK_INSTALL_CMAKE_MODULE WAVPACK_INSTALL_CMAKE_MODULE "Generate and install CMake package configuration module.")
 
-
 add_feature_info(WAVPACK_ENABLE_ASM WAVPACK_ENABLE_ASM "Enable assembly optimizations.")
-add_feature_info(WAVPACK_ENABLE_LIBCRYPTO WAVPACK_ENABLE_LIBCRYPTO "Use OpenSSL::Crypto library.")
 add_feature_info(WAVPACK_BUILD_PROGRAMS WAVPACK_BUILD_PROGRAMS "Build programs.")
 add_feature_info(WAVPACK_BUILD_COOLEDIT_PLUGIN WAVPACK_BUILD_COOLEDIT_PLUGIN "Build CoolEdit plugin.")
 add_feature_info(WAVPACK_BUILD_WINAMP_PLUGIN WAVPACK_BUILD_WINAMP_PLUGIN "Build WinAmp plugin.")
-add_feature_info(WAVPACK_BUILD_DOCS WAVPACK_BUILD_DOCS "Build documentation.")
 add_feature_info(WAVPACK_INSTALL_DOCS WAVPACK_INSTALL_DOCS "Install documentation.")
 add_feature_info(WAVPACK_INSTALL_PKGCONFIG_MODULE WAVPACK_INSTALL_PKGCONFIG_MODULE "Generate and install wavpack.pc.")
 
 feature_summary(WHAT ALL)
+
 
 # Installation
 
@@ -716,16 +642,9 @@ endif()
 
 if(WAVPACK_INSTALL_DOCS)
     set(MAN_FILES_INSTALL_LIST "")
-    if(WAVPACK_BUILD_DOCS)
-        foreach(WAVPACK_DOC_NAME ${WAVPACK_DOC_NAMES})
-            list(APPEND MAN_FILES_INSTALL_LIST ${CMAKE_CURRENT_BINARY_DIR}/man/${WAVPACK_DOC_NAME}.1)
-        endforeach()
-    else()
-        foreach(WAVPACK_DOC_NAME ${WAVPACK_DOC_NAMES})
-            list(APPEND MAN_FILES_INSTALL_LIST ${CMAKE_CURRENT_SOURCE_DIR}/man/${WAVPACK_DOC_NAME}.1)
-        endforeach()
-    endif()
-
+    foreach(WAVPACK_DOC_NAME ${WAVPACK_DOC_NAMES})
+	    list(APPEND MAN_FILES_INSTALL_LIST ${CMAKE_CURRENT_SOURCE_DIR}/man/${WAVPACK_DOC_NAME}.1)
+    endforeach()
     install(
         FILES ${MAN_FILES_INSTALL_LIST}
         DESTINATION ${CMAKE_INSTALL_MANDIR}/man1
@@ -735,7 +654,7 @@ endif()
 # Tests
 
 if(BUILD_TESTING AND (NOT WIN32))
-
+    # FIXME: wvtest relies on pthreads only and doesn't use win32 threads
     enable_testing()
 
     add_executable(wvtest
@@ -755,5 +674,4 @@ if(BUILD_TESTING AND (NOT WIN32))
             $<$<BOOL:${HAVE_LIBM}>:m>
     )
     add_test(NAME wvtest COMMAND $<TARGET_FILE:wvtest> --exhaustive --short --no-extras)
-
 endif()
