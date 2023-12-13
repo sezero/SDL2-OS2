@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_PREREQ([2.63])
+AC_PREREQ([2.65])
 AC_INIT
 AC_CONFIG_SRCDIR([src/SDL.c])
 AC_CONFIG_HEADERS([include/SDL_config.h])
@@ -307,6 +307,22 @@ dnl See whether we are allowed to use the system C library
 AC_ARG_ENABLE(libc,
 [AS_HELP_STRING([--enable-libc], [Use the system C library [default=yes]])],
               , enable_libc=yes)
+
+dnl See whether we are allowed to use system iconv
+enable_system_iconv_default=yes
+case "$host" in
+  *-*-cygwin*|*-*-mingw*)
+    enable_system_iconv_default=no
+    ;;
+esac
+AC_ARG_ENABLE(system-iconv,
+[AS_HELP_STRING([--enable-system-iconv], [Use iconv() from system-installed libraries [default=no for windows, yes for others]])],
+              , enable_system_iconv=$enable_system_iconv_default)
+dnl See whether we prefer libiconv over libc
+AC_ARG_ENABLE(libiconv,
+[AS_HELP_STRING([--enable-libiconv], [Prefer iconv() from libiconv, if available, over libc version [default=no]])],
+              , enable_libiconv=no)
+
 if test x$enable_libc = xyes; then
     AC_DEFINE(HAVE_LIBC, 1, [ ])
 
@@ -337,8 +353,48 @@ dnl Checks for library functions.
     AC_CHECK_LIB(m, pow, [LIBS="$LIBS -lm"; EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lm"])
     AC_CHECK_FUNCS(acos acosf asin asinf atan atanf atan2 atan2f ceil ceilf copysign copysignf cos cosf exp expf fabs fabsf floor floorf trunc truncf fmod fmodf log logf log10 log10f lround lroundf pow powf round roundf scalbn scalbnf sin sinf sqrt sqrtf tan tanf)
 
-    AC_CHECK_LIB(iconv, iconv_open, [LIBS="$LIBS -liconv"; EXTRA_LDFLAGS="$EXTRA_LDFLAGS -liconv"])
-    AC_CHECK_FUNCS(iconv)
+    if test x$enable_system_iconv = xyes; then
+        AC_MSG_CHECKING(for iconv in libc)
+        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+         #define LIBICONV_PLUG 1 /* in case libiconv header is in include path */
+         #include <stddef.h>
+         #include <iconv.h>
+        ]],[[
+         iconv_open(NULL,NULL);
+        ]])], [have_libc_iconv=yes],[have_libc_iconv=no])
+        AC_MSG_RESULT($have_libc_iconv)
+
+        AC_MSG_CHECKING(for iconv in libiconv)
+        save_LIBS="$LIBS"
+        LIBS="$LIBS -liconv"
+        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+         #include <stddef.h>
+         #include <iconv.h>
+        ]],[[
+         iconv_open(NULL,NULL);
+        ]])], [have_libiconv=yes],[have_libiconv=no])
+        LIBS="$save_LIBS"
+        AC_MSG_RESULT($have_libiconv)
+
+        if test x$have_libc_iconv = xyes || test x$have_libiconv = xyes; then
+           AC_DEFINE(HAVE_ICONV,1,[ ])
+
+           if test x$have_libiconv = xyes; then
+              if test x$have_libc_iconv != xyes; then
+                 use_libiconv=yes
+              elif test x$enable_libiconv = xyes; then
+                 use_libiconv=yes
+              fi
+           fi
+           if test x$use_libiconv = xyes; then
+              AC_DEFINE(SDL_USE_LIBICONV,1,[ ])
+              EXTRA_LDFLAGS="$EXTRA_LDFLAGS -liconv"
+              echo "-- Using iconv from libiconv"
+           else
+              echo "-- Using iconv from libc"
+           fi
+        fi
+    fi
 
     AC_CHECK_MEMBER(struct sigaction.sa_sigaction,[AC_DEFINE([HAVE_SA_SIGACTION], 1, [ ])], ,[#include <signal.h>])
 
@@ -4198,7 +4254,11 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         SOURCES="$SOURCES $srcdir/src/video/uikit/*.m"
         SUMMARY_video="${SUMMARY_video} uikit"
         have_video=yes
-        EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lm -liconv -lobjc"
+        EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lm"
+        if test x$enable_system_iconv = xyes; then
+            EXTRA_LDFLAGS="$EXTRA_LDFLAGS -liconv"
+        fi
+        EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lobjc"
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,AVFoundation"
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,AudioToolbox"
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,CoreAudio"
@@ -4459,8 +4519,10 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
 
         # Set up the core platform files
         SOURCES="$SOURCES $srcdir/src/core/os2/*.c"
-        if test x$ac_cv_func_iconv != xyes -o x$ac_cv_header_iconv_h != xyes; then
-            SOURCES="$SOURCES $srcdir/src/core/os2/geniconv/*.c"
+        if test x$enable_system_iconv = xyes; then
+            if test x$ac_cv_func_iconv != xyes -o x$ac_cv_header_iconv_h != xyes; then
+                SOURCES="$SOURCES $srcdir/src/core/os2/geniconv/*.c"
+            fi
         fi
         # Use the Unix locale APIs.
         if test x$enable_locale = xyes; then

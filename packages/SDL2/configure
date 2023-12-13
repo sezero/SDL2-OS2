@@ -808,6 +808,8 @@ enable_libtool_lock
 enable_assertions
 enable_dependency_tracking
 enable_libc
+enable_system_iconv
+enable_libiconv
 enable_gcc_atomics
 enable_atomic
 enable_audio
@@ -1590,6 +1592,10 @@ Optional Features:
   --enable-dependency-tracking
                           Use gcc -MMD -MT dependency tracking [default=yes]
   --enable-libc           Use the system C library [default=yes]
+  --enable-system-iconv   Use iconv() from system-installed libraries
+                          [default=no for windows, yes for others]
+  --enable-libiconv       Prefer iconv() from libiconv, if available, over
+                          libc version [default=no]
   --enable-gcc-atomics    Use gcc builtin atomics [default=yes]
   --enable-atomic         Enable the atomic operations subsystem [default=yes]
   --enable-audio          Enable the audio subsystem [default=yes]
@@ -3524,6 +3530,8 @@ int
 main ()
 {
 FILE *f = fopen ("conftest.out", "w");
+ if (!f)
+  return 1;
  return ferror (f) || fclose (f) != 0;
 
   ;
@@ -17284,6 +17292,28 @@ else
   enable_libc=yes
 fi
 
+
+enable_system_iconv_default=yes
+case "$host" in
+  *-*-cygwin*|*-*-mingw*)
+    enable_system_iconv_default=no
+    ;;
+esac
+# Check whether --enable-system-iconv was given.
+if test "${enable_system_iconv+set}" = set; then :
+  enableval=$enable_system_iconv;
+else
+  enable_system_iconv=$enable_system_iconv_default
+fi
+
+# Check whether --enable-libiconv was given.
+if test "${enable_libiconv+set}" = set; then :
+  enableval=$enable_libiconv;
+else
+  enable_libiconv=no
+fi
+
+
 if test x$enable_libc = xyes; then
 
 $as_echo "#define HAVE_LIBC 1" >>confdefs.h
@@ -17742,57 +17772,90 @@ fi
 done
 
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for iconv_open in -liconv" >&5
-$as_echo_n "checking for iconv_open in -liconv... " >&6; }
-if ${ac_cv_lib_iconv_iconv_open+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-liconv  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+    if test x$enable_system_iconv = xyes; then
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for iconv in libc" >&5
+$as_echo_n "checking for iconv in libc... " >&6; }
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char iconv_open ();
+         #define LIBICONV_PLUG 1 /* in case libiconv header is in include path */
+         #include <stddef.h>
+         #include <iconv.h>
+
 int
 main ()
 {
-return iconv_open ();
+
+         iconv_open(NULL,NULL);
+
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_iconv_iconv_open=yes
+  have_libc_iconv=yes
 else
-  ac_cv_lib_iconv_iconv_open=no
+  have_libc_iconv=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_iconv_iconv_open" >&5
-$as_echo "$ac_cv_lib_iconv_iconv_open" >&6; }
-if test "x$ac_cv_lib_iconv_iconv_open" = xyes; then :
-  LIBS="$LIBS -liconv"; EXTRA_LDFLAGS="$EXTRA_LDFLAGS -liconv"
-fi
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_libc_iconv" >&5
+$as_echo "$have_libc_iconv" >&6; }
 
-    for ac_func in iconv
-do :
-  ac_fn_c_check_func "$LINENO" "iconv" "ac_cv_func_iconv"
-if test "x$ac_cv_func_iconv" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_ICONV 1
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for iconv in libiconv" >&5
+$as_echo_n "checking for iconv in libiconv... " >&6; }
+        save_LIBS="$LIBS"
+        LIBS="$LIBS -liconv"
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+         #include <stddef.h>
+         #include <iconv.h>
+
+int
+main ()
+{
+
+         iconv_open(NULL,NULL);
+
+  ;
+  return 0;
+}
 _ACEOF
-
+if ac_fn_c_try_link "$LINENO"; then :
+  have_libiconv=yes
+else
+  have_libiconv=no
 fi
-done
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+        LIBS="$save_LIBS"
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_libiconv" >&5
+$as_echo "$have_libiconv" >&6; }
 
+        if test x$have_libc_iconv = xyes || test x$have_libiconv = xyes; then
+
+$as_echo "#define HAVE_ICONV 1" >>confdefs.h
+
+
+           if test x$have_libiconv = xyes; then
+              if test x$have_libc_iconv != xyes; then
+                 use_libiconv=yes
+              elif test x$enable_libiconv = xyes; then
+                 use_libiconv=yes
+              fi
+           fi
+           if test x$use_libiconv = xyes; then
+
+$as_echo "#define SDL_USE_LIBICONV 1" >>confdefs.h
+
+              EXTRA_LDFLAGS="$EXTRA_LDFLAGS -liconv"
+              echo "-- Using iconv from libiconv"
+           else
+              echo "-- Using iconv from libc"
+           fi
+        fi
+    fi
 
     ac_fn_c_check_member "$LINENO" "struct sigaction" "sa_sigaction" "ac_cv_member_struct_sigaction_sa_sigaction" "#include <signal.h>
 "
@@ -26571,7 +26634,11 @@ $as_echo "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
         SOURCES="$SOURCES $srcdir/src/video/uikit/*.m"
         SUMMARY_video="${SUMMARY_video} uikit"
         have_video=yes
-        EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lm -liconv -lobjc"
+        EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lm"
+        if test x$enable_system_iconv = xyes; then
+            EXTRA_LDFLAGS="$EXTRA_LDFLAGS -liconv"
+        fi
+        EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lobjc"
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,AVFoundation"
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,AudioToolbox"
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,CoreAudio"
@@ -26866,8 +26933,10 @@ $as_echo "#define SDL_TIMER_UNIX 1" >>confdefs.h
 
         # Set up the core platform files
         SOURCES="$SOURCES $srcdir/src/core/os2/*.c"
-        if test x$ac_cv_func_iconv != xyes -o x$ac_cv_header_iconv_h != xyes; then
-            SOURCES="$SOURCES $srcdir/src/core/os2/geniconv/*.c"
+        if test x$enable_system_iconv = xyes; then
+            if test x$ac_cv_func_iconv != xyes -o x$ac_cv_header_iconv_h != xyes; then
+                SOURCES="$SOURCES $srcdir/src/core/os2/geniconv/*.c"
+            fi
         fi
         # Use the Unix locale APIs.
         if test x$enable_locale = xyes; then

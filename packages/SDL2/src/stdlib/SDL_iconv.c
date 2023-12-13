@@ -31,7 +31,7 @@
 #include "SDL_endian.h"
 
 #if defined(HAVE_ICONV) && defined(HAVE_ICONV_H)
-#ifdef __FreeBSD__
+#ifndef SDL_USE_LIBICONV
 /* Define LIBICONV_PLUG to use iconv from the base instead of ports and avoid linker errors. */
 #define LIBICONV_PLUG 1
 #endif
@@ -60,7 +60,7 @@ SDL_iconv(SDL_iconv_t cd,
     /* iconv's second parameter may or may not be `const char const *` depending on the
        C runtime's whims. Casting to void * seems to make everyone happy, though. */
     const size_t retCode = iconv((iconv_t) ((uintptr_t) cd), (void *) inbuf, inbytesleft, outbuf, outbytesleft);
-    if (retCode == (size_t) - 1) {
+    if (retCode == (size_t)-1) {
         switch (errno) {
         case E2BIG:
             return SDL_ICONV_E2BIG;
@@ -235,7 +235,7 @@ SDL_iconv_open(const char *tocode, const char *fromcode)
             return cd;
         }
     }
-    return (SDL_iconv_t) - 1;
+    return (SDL_iconv_t)-1;
 }
 
 size_t
@@ -817,30 +817,26 @@ SDL_iconv_string(const char *tocode, const char *fromcode, const char *inbuf,
     size_t outbytesleft;
     size_t retCode = 0;
 
-    cd = SDL_iconv_open(tocode, fromcode);
-    if (cd == (SDL_iconv_t) - 1) {
-        /* See if we can recover here (fixes iconv on Solaris 11) */
-        if (!tocode || !*tocode) {
-            tocode = "UTF-8";
-        }
-        if (!fromcode || !*fromcode) {
-            fromcode = "UTF-8";
-        }
-        cd = SDL_iconv_open(tocode, fromcode);
+    if (!tocode || !*tocode) {
+        tocode = "UTF-8";
     }
-    if (cd == (SDL_iconv_t) - 1) {
+    if (!fromcode || !*fromcode) {
+        fromcode = "UTF-8";
+    }
+    cd = SDL_iconv_open(tocode, fromcode);
+    if (cd == (SDL_iconv_t)-1) {
         return NULL;
     }
 
-    stringsize = inbytesleft > 4 ? inbytesleft : 4;
-    string = (char *) SDL_malloc(stringsize + 1);
+    stringsize = inbytesleft;
+    string = (char *) SDL_malloc(stringsize + sizeof(Uint32));
     if (!string) {
         SDL_iconv_close(cd);
         return NULL;
     }
     outbuf = string;
     outbytesleft = stringsize;
-    SDL_memset(outbuf, 0, 4);
+    SDL_memset(outbuf, 0, sizeof(Uint32));
 
     while (inbytesleft > 0) {
         const size_t oldinbytesleft = inbytesleft;
@@ -850,7 +846,7 @@ SDL_iconv_string(const char *tocode, const char *fromcode, const char *inbuf,
             {
                 char *oldstring = string;
                 stringsize *= 2;
-                string = (char *) SDL_realloc(string, stringsize + 1);
+                string = (char *) SDL_realloc(string, stringsize + sizeof(Uint32));
                 if (!string) {
                     SDL_free(oldstring);
                     SDL_iconv_close(cd);
@@ -858,7 +854,7 @@ SDL_iconv_string(const char *tocode, const char *fromcode, const char *inbuf,
                 }
                 outbuf = string + (outbuf - oldstring);
                 outbytesleft = stringsize - (outbuf - string);
-                SDL_memset(outbuf, 0, 4);
+                SDL_memset(outbuf, 0, sizeof(Uint32));
                 continue;
             }
         case SDL_ICONV_EILSEQ:
@@ -877,7 +873,7 @@ SDL_iconv_string(const char *tocode, const char *fromcode, const char *inbuf,
             break;
         }
     }
-    *outbuf = '\0';
+    SDL_memset(outbuf, 0, sizeof(Uint32));
     SDL_iconv_close(cd);
 
     return string;

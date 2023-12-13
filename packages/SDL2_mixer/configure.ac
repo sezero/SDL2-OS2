@@ -4,7 +4,7 @@ dnl Set various version strings - taken gratefully from the GTk sources
 # See release_checklist.md
 m4_define([MAJOR_VERSION_MACRO], [2])
 m4_define([MINOR_VERSION_MACRO], [7])
-m4_define([MICRO_VERSION_MACRO], [0])
+m4_define([MICRO_VERSION_MACRO], [1])
 
 AC_INIT([SDL2_mixer],
         [MAJOR_VERSION_MACRO.MINOR_VERSION_MACRO.MICRO_VERSION_MACRO],
@@ -266,12 +266,13 @@ find_lib()
     gcc_bin_path=[`$CC -print-search-dirs 2>/dev/null | $FGREP programs: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
     gcc_lib_path=[`$CC -print-search-dirs 2>/dev/null | $FGREP libraries: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
     env_lib_path=[`echo $LIBS $LDFLAGS $* | sed 's/-L[ ]*//g'`]
+    env_bin_path=`echo $env_lib_path | sed 's,/lib,/bin,'`
     if test "$cross_compiling" = yes; then
         host_lib_path=""
     else
         host_lib_path="$ac_default_prefix/$base_libdir $ac_default_prefix/$base_bindir /usr/$base_libdir /usr/local/$base_libdir"
     fi
-    for path in $env_lib_path $gcc_bin_path $gcc_lib_path $host_lib_path; do
+    for path in $env_bin_path $env_lib_path $gcc_bin_path $gcc_lib_path $host_lib_path; do
         lib=[`ls -- $path/$1 2>/dev/null | sed 's,.*/,,' | $SORT -V -r | $AWK 'BEGIN{FS="."}{ print NF, $0 }' | $SORT -n -s | sed 's,[0-9]* ,,' | head -1`]
         if test x$lib != x; then
             echo $lib
@@ -626,7 +627,7 @@ if test x$enable_music_gme = xyes; then
         fi
         SDL2MIXER_GME=1
     else
-        AC_MSG_WARN([*** Unable to find GME library (https://bitbucket.org/mpyne/game-music-emu)])
+        AC_MSG_WARN([*** Unable to find GME library (https://github.com/libgme/game-music-emu)])
         AC_MSG_WARN([Game Music Emu support disabled.])
     fi
 fi

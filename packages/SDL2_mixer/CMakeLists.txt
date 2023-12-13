@@ -5,7 +5,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 # See docs/release_checklist.md
 set(MAJOR_VERSION 2)
 set(MINOR_VERSION 7)
-set(MICRO_VERSION 0)
+set(MICRO_VERSION 1)
 set(SDL_REQUIRED_VERSION 2.0.9)
 
 include(PrivateSdlFunctions)
@@ -295,6 +295,7 @@ if(SDL2MIXER_BUILD_SHARED_LIBS)
     if(WIN32 OR OS2)
         set_target_properties(SDL2_mixer PROPERTIES
             PREFIX ""
+            DLL_NAME_WITH_SOVERSION FALSE
         )
     endif()
     if(OS2)
@@ -690,7 +691,7 @@ if(SDL2MIXER_MOD_XMP)
             set(tgt_xmp libxmp-lite::libxmp-lite)
             set(xmp_name libxmp-lite)
             if(NOT SDL2MIXER_MOD_XMP_SHARED)
-                list(APPEND PC_REQUIRES libxmplite)
+                list(APPEND PC_REQUIRES libxmp-lite)
             endif()
         else()
             message(STATUS "Using system libxmp")
@@ -900,10 +901,8 @@ if(SDL2MIXER_INSTALL)
     if(INSTALL_EXTRA_TARGETS)
         install(TARGETS ${INSTALL_EXTRA_TARGETS}
             EXPORT SDL2MixerTargets
-            ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT devel
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT library
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT library
-            PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}" COMPONENT devel
         )
     endif()
 
