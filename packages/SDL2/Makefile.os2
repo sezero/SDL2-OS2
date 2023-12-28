@@ -1,4 +1,4 @@
-# Open Watcom makefile to build SDL2.dll for OS/2
+# Open Watcom makefile to build SDL2.dll for OS/2:
 # wmake -f Makefile.os2
 #
 # If you have GNU libiconv installed (iconv2.dll), you
@@ -9,6 +9,8 @@
 # can compile hidapi joystick support against it (experimental)
 # by specifying HIDAPI=1, e.g.:
 # wmake -f Makefile.os2 HIDAPI=1
+#
+# To error out upon warnings: wmake -f Makefile.os2 ENABLE_WERROR=1
 
 LIBNAME = SDL2
 VERSION = 2.0.22
@@ -37,6 +39,9 @@ CFLAGS = -bt=os2 -d0 -q -bm -5s -fp5 -fpi87 -sg -oeatxhn -ei
 
 # max warnings:
 CFLAGS+= -wx
+!ifeq ENABLE_WERROR 1
+CFLAGS+= -we
+!endif
 # newer OpenWatcom versions enable W303 by default
 CFLAGS+= -wcd=303
 # the include paths :
@@ -48,7 +53,7 @@ CFLAGS_DLL+= -bd
 # iconv:
 LIBICONV_LIB=iconv2.lib
 !ifeq LIBICONV 1
-CFLAGS_DLL+= -DHAVE_ICONV=1 -DHAVE_ICONV_H=1
+CFLAGS_DLL+= -DHAVE_ICONV=1 -DHAVE_ICONV_H=1 -DSDL_USE_LIBICONV
 LIBS+= $(ICONVLIB)
 !else
 LIBS+= libuls.lib libconv.lib
