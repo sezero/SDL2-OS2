@@ -62,7 +62,7 @@ static Uint16 UTF8_to_UNICODE(const char *utf8, int *advance)
 
     ch = ((const unsigned char *)utf8)[i];
     if ( ch >= 0xF0 ) {
-        ch  =  (Uint16)(utf8[i]&0x07) << 18;
+        ch  =  (Uint16)((utf8[i]&0x07) << 18);
         ch |=  (Uint16)(utf8[++i]&0x3F) << 12;
         ch |=  (Uint16)(utf8[++i]&0x3F) << 6;
         ch |=  (Uint16)(utf8[++i]&0x3F);
@@ -96,7 +96,7 @@ static void * SDLCALL CreateFont(const char *name, RTF_FontFamily family, int ch
             TTF_style |= TTF_STYLE_ITALIC;
         if ( style & RTF_FontUnderline )
             TTF_style |= TTF_STYLE_UNDERLINE;
-        TTF_SetFontStyle(font, style);
+        TTF_SetFontStyle(font, TTF_style);
     }
 
     /* FIXME: What do we do with the character set? */
