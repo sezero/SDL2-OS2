@@ -3,8 +3,8 @@ dnl Process this file with autoconf to produce a configure script.
 dnl Set various version strings - taken gratefully from the GTk sources
 # See release_checklist.md
 m4_define([MAJOR_VERSION_MACRO], [2])
-m4_define([MINOR_VERSION_MACRO], [7])
-m4_define([MICRO_VERSION_MACRO], [2])
+m4_define([MINOR_VERSION_MACRO], [8])
+m4_define([MICRO_VERSION_MACRO], [0])
 
 AC_INIT([SDL2_mixer],
         [MAJOR_VERSION_MACRO.MINOR_VERSION_MACRO.MICRO_VERSION_MACRO],
@@ -585,8 +585,8 @@ fi
 
 SDL2MIXER_GME=0
 AC_ARG_ENABLE([music-gme],
-[AS_HELP_STRING([--enable-music-gme], [enable Game Music Emu support [default=no]])],
-              [], [enable_music_gme=no])
+[AS_HELP_STRING([--enable-music-gme], [enable Game Music Emu support [default=yes]])],
+              [], [enable_music_gme=yes])
 AC_ARG_ENABLE([music-gme-shared],
 [AS_HELP_STRING([--enable-music-gme-shared], [dynamically load libgme library [default=yes]])],
               [], [enable_music_gme_shared=yes])
