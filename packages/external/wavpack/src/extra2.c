@@ -346,8 +346,8 @@ static void decorr_stereo_buffer (WavpackExtraInfo *info, int32_t *samples, int3
     if (tindex == 0)
         reverse_decorr (&dp);
     else {
-        CLEAR (dp.samples_A);
-        CLEAR (dp.samples_B);
+        CLEARA (dp.samples_A);
+        CLEARA (dp.samples_B);
     }
 
     memcpy (dppi->samples_A, dp.samples_A, sizeof (dp.samples_A));
@@ -421,7 +421,7 @@ static void recurse_stereo (WavpackContext *wpc, WavpackExtraInfo *info, int dep
 
         if (bits < info->best_bits) {
             info->best_bits = bits;
-            CLEAR (wps->decorr_passes);
+            CLEARA (wps->decorr_passes);
             memcpy (wps->decorr_passes, info->dps, sizeof (info->dps [0]) * (depth + 1));
             memcpy (info->sampleptrs [info->nterms + 1], info->sampleptrs [depth + 1], wps->wphdr.block_samples * 8);
         }
@@ -488,7 +488,7 @@ static void delta_stereo (WavpackContext *wpc, WavpackExtraInfo *info)
         if (bits < info->best_bits) {
             lower = TRUE;
             info->best_bits = bits;
-            CLEAR (wps->decorr_passes);
+            CLEARA (wps->decorr_passes);
             memcpy (wps->decorr_passes, info->dps, sizeof (info->dps [0]) * i);
             memcpy (info->sampleptrs [info->nterms + 1], info->sampleptrs [i], wps->wphdr.block_samples * 8);
         }
@@ -512,7 +512,7 @@ static void delta_stereo (WavpackContext *wpc, WavpackExtraInfo *info)
 
         if (bits < info->best_bits) {
             info->best_bits = bits;
-            CLEAR (wps->decorr_passes);
+            CLEARA (wps->decorr_passes);
             memcpy (wps->decorr_passes, info->dps, sizeof (info->dps [0]) * i);
             memcpy (info->sampleptrs [info->nterms + 1], info->sampleptrs [i], wps->wphdr.block_samples * 8);
         }
@@ -557,7 +557,7 @@ static void sort_stereo (WavpackContext *wpc, WavpackExtraInfo *info)
             if (bits < info->best_bits) {
                 reversed = TRUE;
                 info->best_bits = bits;
-                CLEAR (wps->decorr_passes);
+                CLEARA (wps->decorr_passes);
                 memcpy (wps->decorr_passes, info->dps, sizeof (info->dps [0]) * i);
                 memcpy (info->sampleptrs [info->nterms + 1], info->sampleptrs [i], wps->wphdr.block_samples * 8);
             }
@@ -641,7 +641,7 @@ static void analyze_stereo (WavpackContext *wpc, int32_t *samples, int do_sample
 
 static void stereo_add_noise (WavpackStream *wps, int32_t *lptr, int32_t *rptr)
 {
-    int shaping_weight, new = wps->wphdr.flags & NEW_SHAPING;
+    int shaping_weight, is_new = wps->wphdr.flags & NEW_SHAPING;
     short *shaping_array = wps->dc.shaping_array;
     int32_t error [2], temp, cnt;
 
@@ -659,7 +659,7 @@ static void stereo_add_noise (WavpackStream *wps, int32_t *lptr, int32_t *rptr)
 
             temp = -apply_weight (shaping_weight, error [0]);
 
-            if (new && shaping_weight < 0 && temp) {
+            if (is_new && shaping_weight < 0 && temp) {
                 if (temp == error [0])
                     temp = (temp < 0) ? temp + 1 : temp - 1;
 
@@ -673,7 +673,7 @@ static void stereo_add_noise (WavpackStream *wps, int32_t *lptr, int32_t *rptr)
 
             temp = -apply_weight (shaping_weight, error [1]);
 
-            if (new && shaping_weight < 0 && temp) {
+            if (is_new && shaping_weight < 0 && temp) {
                 if (temp == error [1])
                     temp = (temp < 0) ? temp + 1 : temp - 1;
 
@@ -722,7 +722,7 @@ void execute_stereo (WavpackContext *wpc, int32_t *samples, int no_history, int 
 
     if (i == num_samples * 2) {
         wps->wphdr.flags &= ~((uint32_t) JOINT_STEREO);
-        CLEAR (wps->decorr_passes);
+        CLEARA (wps->decorr_passes);
         wps->num_terms = 0;
         init_words (wps);
         return;
@@ -830,8 +830,8 @@ void execute_stereo (WavpackContext *wpc, int32_t *samples, int no_history, int 
                     num_samples > 2048 ? 2048 : num_samples, &temp_decorr_pass, -1);
 
                 if (j) {
-                    CLEAR (temp_decorr_pass.samples_A);
-                    CLEAR (temp_decorr_pass.samples_B);
+                    CLEARA (temp_decorr_pass.samples_A);
+                    CLEARA (temp_decorr_pass.samples_B);
                 }
                 else
                     reverse_decorr (&temp_decorr_pass);

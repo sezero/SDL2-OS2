@@ -32,7 +32,7 @@ void pack_init (WavpackContext *wpc)
 
     wps->sample_index = 0;
     wps->delta_decay = 2.0;
-    CLEAR (wps->decorr_passes);
+    CLEARA (wps->decorr_passes);
     CLEAR (wps->dc);
 
 #ifdef SKIP_DECORRELATION
@@ -218,8 +218,8 @@ static void write_decorr_samples (WavpackStream *wps, WavpackMetadata *wpmd)
             wcount--;
         }
         else {
-            CLEAR (dpp->samples_A);
-            CLEAR (dpp->samples_B);
+            CLEARA (dpp->samples_A);
+            CLEARA (dpp->samples_B);
         }
 
     wpmd->byte_length = (int32_t)(byteptr - (unsigned char *) wpmd->data);
@@ -1452,8 +1452,8 @@ static int pack_samples (WavpackContext *wpc, int32_t *buffer)
 
                 for (ti = wps->num_terms; ti < saved_stream.num_terms; ++ti) {
                     wps->decorr_passes [ti].weight_A = wps->decorr_passes [ti].weight_B = 0;
-                    CLEAR (wps->decorr_passes [ti].samples_A);
-                    CLEAR (wps->decorr_passes [ti].samples_B);
+                    CLEARA (wps->decorr_passes [ti].samples_A);
+                    CLEARA (wps->decorr_passes [ti].samples_B);
                 }
 
                 wps->num_terms = saved_stream.num_terms;
