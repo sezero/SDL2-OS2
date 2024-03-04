@@ -157,7 +157,7 @@ static int32_t write_bytes (void *id, void *data, int32_t bcount)
     return (int32_t) fwrite (data, 1, bcount, (FILE*) id);
 }
 
-#if defined(_WIN32) /* no _chsize_s() in old msvcrt.dll, or in watcom... */
+#if defined(_WIN32) /*&& defined(__WATCOMC__)*/ /* no _chsize_s() in watcom or in old msvcrt.dll */
 
 static int truncate_here (void *id)
 {
@@ -196,6 +196,16 @@ static int truncate_here (void *id)
         return (pDosSetFileSizeL(handle, pos) == 0) ? 0 : -1;
     }
     return (DosSetFileSize(handle,(ULONG)pos) == 0) ? 0 : -1;
+}
+
+#elif defined(_WIN32)
+
+static int truncate_here (void *id)
+{
+    FILE *file = id;
+    int64_t curr_pos = _ftelli64 (file);
+
+    return _chsize_s (_fileno (file), curr_pos);
 }
 
 #else
