@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.0.0)
-project(SDL2 C)
+cmake_minimum_required(VERSION 3.0...3.5)
+project(SDL2_test C)
 
 # Global settings for all of the test targets
 # FIXME: is this wrong?

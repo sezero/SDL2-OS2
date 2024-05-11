@@ -3,9 +3,10 @@ if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 cmake_minimum_required(VERSION 3.0.0...3.5)
-project(SDL2 C CXX)
+project(SDL2 C)
 
 if (HAIKU)
+  enable_language(CXX)
   set(LINKER_LANGUAGE CXX)
 endif()
 
@@ -18,6 +19,7 @@ endif()
 add_library(sdl-build-options INTERFACE)
 
 if(WINDOWS_STORE)
+  enable_language(CXX)
   cmake_minimum_required(VERSION 3.11.0)
   target_compile_definitions(sdl-build-options INTERFACE "-DSDL_BUILDING_WINRT=1")
   target_compile_options(sdl-build-options INTERFACE "-ZW")
@@ -27,7 +29,6 @@ endif()
 if(MSVC)
   target_compile_options(sdl-build-options INTERFACE "/MP")
 endif(MSVC)
-
 
 # !!! FIXME: this should probably do "MACOSX_RPATH ON" as a target property
 # !!! FIXME:  for the SDL2 shared library (so you get an
@@ -233,7 +234,7 @@ endif()
 if(UNIX OR MINGW OR MSYS OR (USE_CLANG AND NOT WINDOWS) OR VITA OR PSP)
   set(OPT_DEF_LIBC ON)
 endif()
-if(WINDOWS)
+if(WINDOWS OR DARWIN OR MACOSX OR IOS OR TVOS)
   set(SDL_SYSTEM_ICONV_DEFAULT OFF)
 else()
   set(SDL_SYSTEM_ICONV_DEFAULT ON)
