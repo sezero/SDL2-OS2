@@ -38,17 +38,17 @@ SDL_atan(double x)
     return atan(x);
 #else
     return SDL_uclibc_atan(x);
-#endif /* HAVE_ATAN */
+#endif
 }
 
 double
-SDL_atan2(double x, double y)
+SDL_atan2(double y, double x)
 {
 #if defined(HAVE_ATAN2)
-    return atan2(x, y);
+    return atan2(y, x);
 #else
-    return SDL_uclibc_atan2(x, y);
-#endif /* HAVE_ATAN2 */
+    return SDL_uclibc_atan2(y, x);
+#endif
 }
 
 double
@@ -127,7 +127,7 @@ SDL_cos(double x)
     return cos(x);
 #else
     return SDL_uclibc_cos(x);
-#endif /* HAVE_COS */
+#endif
 }
 
 float
@@ -144,10 +144,10 @@ double
 SDL_fabs(double x)
 {
 #if defined(HAVE_FABS)
-    return fabs(x); 
+    return fabs(x);
 #else
     return SDL_uclibc_fabs(x);
-#endif /* HAVE_FABS */
+#endif
 }
 
 double
@@ -157,7 +157,7 @@ SDL_floor(double x)
     return floor(x);
 #else
     return SDL_uclibc_floor(x);
-#endif /* HAVE_FLOOR */
+#endif
 }
 
 double
@@ -167,7 +167,7 @@ SDL_log(double x)
     return log(x);
 #else
     return SDL_uclibc_log(x);
-#endif /* HAVE_LOG */
+#endif
 }
 
 double
@@ -177,7 +177,7 @@ SDL_pow(double x, double y)
     return pow(x, y);
 #else
     return SDL_uclibc_pow(x, y);
-#endif /* HAVE_POW */
+#endif
 }
 
 double
@@ -193,7 +193,7 @@ SDL_scalbn(double x, int n)
     return ldexp(x, n);
 #else
     return SDL_uclibc_scalbn(x, n);
-#endif /* HAVE_SCALBN */
+#endif
 }
 
 double
@@ -203,17 +203,17 @@ SDL_sin(double x)
     return sin(x);
 #else
     return SDL_uclibc_sin(x);
-#endif /* HAVE_SIN */
+#endif
 }
 
-float 
+float
 SDL_sinf(float x)
 {
 #if defined(HAVE_SINF)
     return sinf(x);
 #else
     return (float)SDL_sin((double)x);
-#endif /* HAVE_SINF */
+#endif
 }
 
 double
@@ -288,42 +288,28 @@ int SDL_tolower(int x) { return ((x) >= 'A') && ((x) <= 'Z') ? ('a'+((x)-'A')) :
 __declspec(selectany) int _fltused = 1;
 #endif
 
-/* The optimizer on Visual Studio 2005 and later generates memcpy() calls */
-#if (_MSC_VER >= 1400) && defined(_WIN64) && !defined(_DEBUG) && !(_MSC_VER >= 1900 && defined(_MT))
-#include <intrin.h>
+/* The optimizer on Visual Studio 2005 and later generates memcpy() and memset() calls */
+#if _MSC_VER >= 1400
+extern void *memcpy(void* dst, const void* src, size_t len);
+#pragma intrinsic(memcpy)
 
 #pragma function(memcpy)
-void * memcpy ( void * destination, const void * source, size_t num )
+void *
+memcpy(void *dst, const void *src, size_t len)
 {
-    const Uint8 *src = (const Uint8 *)source;
-    Uint8 *dst = (Uint8 *)destination;
-    size_t i;
-    
-    /* All WIN64 architectures have SSE, right? */
-    if (!((uintptr_t) src & 15) && !((uintptr_t) dst & 15)) {
-        __m128 values[4];
-        for (i = num / 64; i--;) {
-            _mm_prefetch(src, _MM_HINT_NTA);
-            values[0] = *(__m128 *) (src + 0);
-            values[1] = *(__m128 *) (src + 16);
-            values[2] = *(__m128 *) (src + 32);
-            values[3] = *(__m128 *) (src + 48);
-            _mm_stream_ps((float *) (dst + 0), values[0]);
-            _mm_stream_ps((float *) (dst + 16), values[1]);
-            _mm_stream_ps((float *) (dst + 32), values[2]);
-            _mm_stream_ps((float *) (dst + 48), values[3]);
-            src += 64;
-            dst += 64;
-        }
-        num &= 63;
-    }
-
-    while (num--) {
-        *dst++ = *src++;
-    }
-    return destination;
+    return SDL_memcpy(dst, src, len);
 }
-#endif /* _MSC_VER == 1600 && defined(_WIN64) && !defined(_DEBUG) */
+
+extern void *memset(void* dst, int c, size_t len);
+#pragma intrinsic(memset)
+
+#pragma function(memset)
+void *
+memset(void *dst, int c, size_t len)
+{
+    return SDL_memset(dst, c, len);
+}
+#endif /* _MSC_VER >= 1400 */
 
 #ifdef _M_IX86
 
@@ -924,8 +910,8 @@ _allshr()
 {
     /* *INDENT-OFF* */
     __asm {
-        cmp         cl,40h
-        jae         RETZERO
+        cmp         cl,3Fh
+        jae         RETSIGN
         cmp         cl,20h
         jae         MORE32
         shrd        eax,edx,cl
@@ -933,13 +919,13 @@ _allshr()
         ret
 MORE32:
         mov         eax,edx
-        xor         edx,edx
+        sar         edx,1Fh
         and         cl,1Fh
         sar         eax,cl
         ret
-RETZERO:
-        xor         eax,eax
-        xor         edx,edx
+RETSIGN:
+        sar         edx,1Fh
+        mov         eax,edx
         ret
     }
     /* *INDENT-ON* */

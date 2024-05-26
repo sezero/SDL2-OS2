@@ -45,7 +45,7 @@ AC_ARG_ENABLE(sdltest, [  --disable-sdltest       Do not try to compile and run 
 
   if test "x$sdl_pc" = xyes ; then
     no_sdl=""
-    SDL2_CONFIG="pkg-config sdl2"
+    SDL2_CONFIG="$PKG_CONFIG sdl2"
   else
     as_save_PATH="$PATH"
     if test "x$prefix" != xNONE && test "$cross_compiling" != yes; then
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 { return 0; }
 #undef  main
 #define main K_and_R_C_main
-],      [ return 0; ],
+], [ return 0; ],
         [ echo "*** The test program compiled, but did not run. This usually means"
           echo "*** that the run-time linker is not finding SDL or finding the wrong"
           echo "*** version of SDL. If it is not finding SDL, you'll need to set your"
@@ -287,7 +287,7 @@ AC_ARG_VAR([$1][_CFLAGS], [C compiler flags for $1, overriding pkg-config])dnl
 AC_ARG_VAR([$1][_LIBS], [linker flags for $1, overriding pkg-config])dnl
 
 pkg_failed=no
-AC_MSG_CHECKING([for $1])
+AC_MSG_CHECKING([for $2])
 
 _PKG_CONFIG([$1][_CFLAGS], [cflags], [$2])
 _PKG_CONFIG([$1][_LIBS], [libs], [$2])

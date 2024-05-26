@@ -36,16 +36,18 @@
 #endif
 
 /* Useful headers */
-#define HAVE_ALLOCA_H       1
-#define HAVE_SYS_TYPES_H    1
-#define HAVE_STDIO_H    1
 #define STDC_HEADERS    1
-#define HAVE_STRING_H   1
-#define HAVE_INTTYPES_H 1
-#define HAVE_STDINT_H   1
+#define HAVE_ALLOCA_H       1
 #define HAVE_CTYPE_H    1
+#define HAVE_FLOAT_H    1
+#define HAVE_INTTYPES_H 1
+#define HAVE_LIMITS_H   1
 #define HAVE_MATH_H 1
 #define HAVE_SIGNAL_H   1
+#define HAVE_STDINT_H   1
+#define HAVE_STDIO_H    1
+#define HAVE_STRING_H   1
+#define HAVE_SYS_TYPES_H    1
 
 /* C library functions */
 #define HAVE_DLOPEN 1
@@ -68,7 +70,6 @@
 #define HAVE_STRLEN 1
 #define HAVE_STRLCPY    1
 #define HAVE_STRLCAT    1
-#define HAVE_STRDUP 1
 #define HAVE_STRCHR 1
 #define HAVE_STRRCHR    1
 #define HAVE_STRSTR 1
@@ -156,7 +157,6 @@
  */
 #define SDL_VIDEO_DRIVER_X11_XINPUT2 1
 #define SDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS 1
-#define SDL_VIDEO_DRIVER_X11_CONST_PARAM_XEXTADDDISPLAY 1
 #endif
 
 #ifndef SDL_VIDEO_RENDER_OGL

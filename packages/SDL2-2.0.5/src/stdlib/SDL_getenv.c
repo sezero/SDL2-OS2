@@ -44,7 +44,7 @@ int
 SDL_setenv(const char *name, const char *value, int overwrite)
 {
     /* Input validation */
-    if (!name || SDL_strlen(name) == 0 || SDL_strchr(name, '=') != NULL || !value) {
+    if (!name || *name == '\0' || SDL_strchr(name, '=') != NULL || !value) {
         return (-1);
     }
     
@@ -55,14 +55,12 @@ int
 SDL_setenv(const char *name, const char *value, int overwrite)
 {
     /* Input validation */
-    if (!name || SDL_strlen(name) == 0 || SDL_strchr(name, '=') != NULL || !value) {
+    if (!name || *name == '\0' || SDL_strchr(name, '=') != NULL || !value) {
         return (-1);
     }
     
     if (!overwrite) {
-        char ch = 0;
-        const size_t len = GetEnvironmentVariableA(name, &ch, sizeof (ch));
-        if (len > 0) {
+        if (GetEnvironmentVariableA(name, NULL, 0) > 0) {
             return 0;  /* asked not to overwrite existing value. */
         }
     }
@@ -80,7 +78,7 @@ SDL_setenv(const char *name, const char *value, int overwrite)
     char *new_variable;
 
     /* Input validation */
-    if (!name || SDL_strlen(name) == 0 || SDL_strchr(name, '=') != NULL || !value) {
+    if (!name || *name == '\0' || SDL_strchr(name, '=') != NULL || !value) {
         return (-1);
     }
     
@@ -108,12 +106,12 @@ int
 SDL_setenv(const char *name, const char *value, int overwrite)
 {
     int added;
-    int len, i;
+    size_t len, i;
     char **new_env;
     char *new_variable;
 
     /* Input validation */
-    if (!name || SDL_strlen(name) == 0 || SDL_strchr(name, '=') != NULL || !value) {
+    if (!name || *name == '\0' || SDL_strchr(name, '=') != NULL || !value) {
         return (-1);
     }
 
@@ -174,7 +172,7 @@ char *
 SDL_getenv(const char *name)
 {
     /* Input validation */
-    if (!name || SDL_strlen(name)==0) {
+    if (!name || *name == '\0') {
         return NULL;
     }
 
@@ -187,7 +185,7 @@ SDL_getenv(const char *name)
     size_t bufferlen;
 
     /* Input validation */
-    if (!name || SDL_strlen(name)==0) {
+    if (!name || *name == '\0') {
         return NULL;
     }
     
@@ -211,11 +209,11 @@ SDL_getenv(const char *name)
 char *
 SDL_getenv(const char *name)
 {
-    int len, i;
+    size_t len, i;
     char *value;
 
     /* Input validation */
-    if (!name || SDL_strlen(name)==0) {
+    if (!name || *name == '\0') {
         return NULL;
     }
     

@@ -59,7 +59,7 @@ test_device(const int iscapture, const char *fname, int flags, int (*test) (int 
                 static size_t dummyhandle = 0;
                 dummyhandle++;
                 SDL_assert(dummyhandle != 0);
-                SDL_AddAudioDevice(iscapture, fname, (void *) dummyhandle);
+                SDL_AddAudioDevice(iscapture, fname, (void *) (uintptr_t) dummyhandle);
             }
         }
     }

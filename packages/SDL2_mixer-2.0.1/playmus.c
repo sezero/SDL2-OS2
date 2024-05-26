@@ -72,8 +72,7 @@ void Menu(void)
     char buf[10];
 
     printf("Available commands: (p)ause (r)esume (h)alt volume(v#) > ");
-    fflush(stdin);
-    if (scanf("%s",buf) == 1) {
+    if (fgets(buf, sizeof(buf), stdin)) {
         switch(buf[0]){
         case 'p': case 'P':
             Mix_PauseMusic();

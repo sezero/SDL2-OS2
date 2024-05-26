@@ -156,6 +156,34 @@ calc_swizzle32(const SDL_PixelFormat * srcfmt, const SDL_PixelFormat * dstfmt)
     return (vswiz);
 }
 
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+/* reorder bytes for PowerPC little endian */
+static vector unsigned char reorder_ppc64le_vec(vector unsigned char vpermute)
+{
+    /* The result vector of calc_swizzle32 reorder bytes using vec_perm.
+       The LE transformation for vec_perm has an implicit assumption
+       that the permutation is being used to reorder vector elements,
+       not to reorder bytes within those elements.  
+       Unfortunatly the result order is not the expected one for powerpc
+       little endian when the two first vector parameters of vec_perm are
+       not of type 'vector char'. This is because the numbering from the
+       left for BE, and numbering from the right for LE, produces a
+       different interpretation of what the odd and even lanes are.
+       Refer to fedora bug 1392465
+     */
+
+    const vector unsigned char ppc64le_reorder = VECUINT8_LITERAL(
+                                      0x01, 0x00, 0x03, 0x02,
+                                      0x05, 0x04, 0x07, 0x06,
+                                      0x09, 0x08, 0x0B, 0x0A,
+                                      0x0D, 0x0C, 0x0F, 0x0E );
+
+    vector unsigned char vswiz_ppc64le;
+    vswiz_ppc64le = vec_perm(vpermute, vpermute, ppc64le_reorder);
+    return(vswiz_ppc64le);
+}
+#endif
+
 static void Blit_RGB888_RGB565(SDL_BlitInfo * info);
 static void
 Blit_RGB888_RGB565Altivec(SDL_BlitInfo * info)
@@ -600,6 +628,11 @@ Blit32to32KeyAltivec(SDL_BlitInfo * info)
     ((unsigned int *) (char *) &vrgbmask)[0] = rgbmask;
     vrgbmask = vec_splat(vrgbmask, 0);
 
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    /* reorder bytes for PowerPC little endian */
+    vpermute = reorder_ppc64le_vec(vpermute);
+#endif
+
     while (height--) {
 #define ONE_PIXEL_BLEND(condition, widthvar) \
         if (copy_alpha) { \
@@ -697,6 +730,11 @@ ConvertAltivec32to32_noprefetch(SDL_BlitInfo * info)
     SDL_assert(srcfmt->BytesPerPixel == 4);
     SDL_assert(dstfmt->BytesPerPixel == 4);
 
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    /* reorder bytes for PowerPC little endian */
+    vpermute = reorder_ppc64le_vec(vpermute);
+#endif
+
     while (height--) {
         vector unsigned char valigner;
         vector unsigned int vbits;
@@ -779,6 +817,11 @@ ConvertAltivec32to32_prefetch(SDL_BlitInfo * info)
 
     SDL_assert(srcfmt->BytesPerPixel == 4);
     SDL_assert(dstfmt->BytesPerPixel == 4);
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    /* reorder bytes for PowerPC little endian */
+    vpermute = reorder_ppc64le_vec(vpermute);
+#endif
 
     while (height--) {
         vector unsigned char valigner;

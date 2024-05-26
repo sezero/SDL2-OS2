@@ -181,7 +181,7 @@ extern DECLSPEC void SDLCALL SDL_LogMessage(int category,
  */
 extern DECLSPEC void SDLCALL SDL_LogMessageV(int category,
                                              SDL_LogPriority priority,
-                                             const char *fmt, va_list ap);
+                                             SDL_PRINTF_FORMAT_STRING const char *fmt, va_list ap) SDL_PRINTF_VARARG_FUNCV(3);
 
 /**
  *  \brief The prototype for the log output function

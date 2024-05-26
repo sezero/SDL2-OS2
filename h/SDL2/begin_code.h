@@ -34,7 +34,7 @@
 #define _begin_code_h
 
 #ifndef SDL_DEPRECATED
-#  if (__GNUC__ >= 4)  /* technically, this arrived in gcc 3.1, but oh well. */
+#  if defined(__GNUC__) && (__GNUC__ >= 4)  /* technically, this arrived in gcc 3.1, but oh well. */
 #    define SDL_DEPRECATED __attribute__((deprecated))
 #  else
 #    define SDL_DEPRECATED
@@ -108,7 +108,7 @@
 #ifdef __BORLANDC__
 #pragma nopackwarning
 #endif
-#ifdef _M_X64
+#ifdef _WIN64
 /* Use 8-byte alignment on 64-bit architectures, so pointers are aligned */
 #pragma pack(push,8)
 #else
@@ -122,7 +122,7 @@
 #elif defined(_MSC_VER) || defined(__BORLANDC__) || \
       defined(__DMC__) || defined(__SC__) || \
       defined(__WATCOMC__) || defined(__LCC__) || \
-      defined(__DECC)
+      defined(__DECC) || defined(__CC_ARM)
 #define SDL_INLINE __inline
 #ifndef __inline__
 #define __inline__ __inline

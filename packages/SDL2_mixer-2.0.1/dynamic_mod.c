@@ -240,11 +240,9 @@ int Mix_InitMOD(void)
     if ( mikmod.loaded == 0 ) {
 #ifdef __MACOSX__
         extern void Player_Start(MODULE*) __attribute__((weak_import));
-        if ( Player_Start == NULL )
-        {
+        if ( Player_Start == NULL ) {
             /* Missing weakly linked framework */
-            Mix_SetError("Missing mikmod.framework");
-            return -1;
+            return Mix_SetError("Missing mikmod.framework");
         }
 #endif /* __MACOSX__ */
 

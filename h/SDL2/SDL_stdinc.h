@@ -62,6 +62,9 @@
 #ifdef HAVE_STRINGS_H
 # include <strings.h>
 #endif
+#ifdef HAVE_WCHAR_H
+# include <wchar.h>
+#endif
 #if defined(HAVE_INTTYPES_H)
 # include <inttypes.h>
 #elif defined(HAVE_STDINT_H)
@@ -177,7 +180,7 @@ typedef uint64_t Uint64;
 #define SDL_PRIs64 PRIs64
 #elif defined(__WIN32__)
 #define SDL_PRIs64 "I64d"
-#elif defined(__LINUX__) && defined(__LP64__)
+#elif defined(__LP64__) && !defined(__APPLE__)
 #define SDL_PRIs64 "ld"
 #else
 #define SDL_PRIs64 "lld"
@@ -188,7 +191,7 @@ typedef uint64_t Uint64;
 #define SDL_PRIu64 PRIu64
 #elif defined(__WIN32__)
 #define SDL_PRIu64 "I64u"
-#elif defined(__LINUX__) && defined(__LP64__)
+#elif defined(__LP64__) && !defined(__APPLE__)
 #define SDL_PRIu64 "lu"
 #else
 #define SDL_PRIu64 "llu"
@@ -199,7 +202,7 @@ typedef uint64_t Uint64;
 #define SDL_PRIx64 PRIx64
 #elif defined(__WIN32__)
 #define SDL_PRIx64 "I64x"
-#elif defined(__LINUX__) && defined(__LP64__)
+#elif defined(__LP64__) && !defined(__APPLE__)
 #define SDL_PRIx64 "lx"
 #else
 #define SDL_PRIx64 "llx"
@@ -210,7 +213,7 @@ typedef uint64_t Uint64;
 #define SDL_PRIX64 PRIX64
 #elif defined(__WIN32__)
 #define SDL_PRIX64 "I64X"
-#elif defined(__LINUX__) && defined(__LP64__)
+#elif defined(__LP64__) && !defined(__APPLE__)
 #define SDL_PRIX64 "lX"
 #else
 #define SDL_PRIX64 "llX"
@@ -228,7 +231,9 @@ typedef uint64_t Uint64;
 #define SDL_PRINTF_FORMAT_STRING
 #define SDL_SCANF_FORMAT_STRING
 #define SDL_PRINTF_VARARG_FUNC( fmtargnumber )
+#define SDL_PRINTF_VARARG_FUNCV( fmtargnumber )
 #define SDL_SCANF_VARARG_FUNC( fmtargnumber )
+#define SDL_SCANF_VARARG_FUNCV( fmtargnumber )
 #else
 #if defined(_MSC_VER) && (_MSC_VER >= 1600) /* VS 2010 and above */
 #include <sal.h>
@@ -254,15 +259,19 @@ typedef uint64_t Uint64;
 #endif
 #if defined(__GNUC__)
 #define SDL_PRINTF_VARARG_FUNC( fmtargnumber ) __attribute__ (( format( __printf__, fmtargnumber, fmtargnumber+1 )))
+#define SDL_PRINTF_VARARG_FUNCV( fmtargnumber ) __attribute__(( format( __printf__, fmtargnumber, 0 )))
 #define SDL_SCANF_VARARG_FUNC( fmtargnumber ) __attribute__ (( format( __scanf__, fmtargnumber, fmtargnumber+1 )))
+#define SDL_SCANF_VARARG_FUNCV( fmtargnumber ) __attribute__(( format( __scanf__, fmtargnumber, 0 )))
 #else
 #define SDL_PRINTF_VARARG_FUNC( fmtargnumber )
+#define SDL_PRINTF_VARARG_FUNCV( fmtargnumber )
 #define SDL_SCANF_VARARG_FUNC( fmtargnumber )
+#define SDL_SCANF_VARARG_FUNCV( fmtargnumber )
 #endif
 #endif /* SDL_DISABLE_ANALYZE_MACROS */
 
 #define SDL_COMPILE_TIME_ASSERT(name, x)               \
-       typedef int SDL_dummy_ ## name[(x) * 2 - 1]
+       typedef int SDL_compile_time_assert_ ## name[(x) * 2 - 1]
 /** \cond */
 #ifndef DOXYGEN_SHOULD_IGNORE_THIS
 SDL_COMPILE_TIME_ASSERT(uint8, sizeof(Uint8) == 1);
@@ -284,15 +293,12 @@ SDL_COMPILE_TIME_ASSERT(sint64, sizeof(Sint64) == 8);
 
 /** \cond */
 #ifndef DOXYGEN_SHOULD_IGNORE_THIS
-#if !defined(__ANDROID__)
-   /* TODO: include/SDL_stdinc.h:174: error: size of array 'SDL_dummy_enum' is negative */
 typedef enum
 {
     DUMMY_ENUM_VALUE
 } SDL_DUMMY_ENUM;
 
 SDL_COMPILE_TIME_ASSERT(enum, sizeof(SDL_DUMMY_ENUM) == sizeof(int));
-#endif
 #endif /* DOXYGEN_SHOULD_IGNORE_THIS */
 /** \endcond */
 
@@ -321,7 +327,7 @@ extern "C" {
 # elif defined(__MRC__)
 void *alloca(unsigned);
 # else
-char *alloca();
+void *alloca(size_t);
 # endif
 #endif
 #ifdef HAVE_ALLOCA
@@ -344,8 +350,7 @@ extern DECLSPEC void SDLCALL SDL_qsort(void *base, size_t nmemb, size_t size, in
 
 extern DECLSPEC int SDLCALL SDL_abs(int x);
 
-/* !!! FIXME: these have side effects. You probably shouldn't use them. */
-/* !!! FIXME: Maybe we do forceinline functions of SDL_mini, SDL_minf, etc? */
+/* NOTE: these double-evaluate their arguments, so you should never have side effects in the parameters */
 #define SDL_min(x, y) (((x) < (y)) ? (x) : (y))
 #define SDL_max(x, y) (((x) > (y)) ? (x) : (y))
 
@@ -375,10 +380,10 @@ SDL_FORCE_INLINE void SDL_memset4(void *dst, Uint32 val, size_t dwords)
     size_t _n = (dwords + 3) / 4;
     Uint32 *_p = SDL_static_cast(Uint32 *, dst);
     Uint32 _val = (val);
-    if (dwords == 0)
+    if (dwords == 0) {
         return;
-    switch (dwords % 4)
-    {
+    }
+    switch (dwords % 4) {
         case 0: do {    *_p++ = _val;
         case 3:         *_p++ = _val;
         case 2:         *_p++ = _val;
@@ -431,9 +436,9 @@ extern DECLSPEC int SDLCALL SDL_strcasecmp(const char *str1, const char *str2);
 extern DECLSPEC int SDLCALL SDL_strncasecmp(const char *str1, const char *str2, size_t len);
 
 extern DECLSPEC int SDLCALL SDL_sscanf(const char *text, SDL_SCANF_FORMAT_STRING const char *fmt, ...) SDL_SCANF_VARARG_FUNC(2);
-extern DECLSPEC int SDLCALL SDL_vsscanf(const char *text, const char *fmt, va_list ap);
+extern DECLSPEC int SDLCALL SDL_vsscanf(const char *text, SDL_SCANF_FORMAT_STRING const char *fmt, va_list ap) SDL_SCANF_VARARG_FUNCV(2);
 extern DECLSPEC int SDLCALL SDL_snprintf(SDL_OUT_Z_CAP(maxlen) char *text, size_t maxlen, SDL_PRINTF_FORMAT_STRING const char *fmt, ... ) SDL_PRINTF_VARARG_FUNC(3);
-extern DECLSPEC int SDLCALL SDL_vsnprintf(SDL_OUT_Z_CAP(maxlen) char *text, size_t maxlen, const char *fmt, va_list ap);
+extern DECLSPEC int SDLCALL SDL_vsnprintf(SDL_OUT_Z_CAP(maxlen) char *text, size_t maxlen, SDL_PRINTF_FORMAT_STRING const char *fmt, va_list ap) SDL_PRINTF_VARARG_FUNCV(3);
 
 #ifndef HAVE_M_PI
 #ifndef M_PI
@@ -444,7 +449,7 @@ extern DECLSPEC int SDLCALL SDL_vsnprintf(SDL_OUT_Z_CAP(maxlen) char *text, size
 extern DECLSPEC double SDLCALL SDL_acos(double x);
 extern DECLSPEC double SDLCALL SDL_asin(double x);
 extern DECLSPEC double SDLCALL SDL_atan(double x);
-extern DECLSPEC double SDLCALL SDL_atan2(double x, double y);
+extern DECLSPEC double SDLCALL SDL_atan2(double y, double x);
 extern DECLSPEC double SDLCALL SDL_ceil(double x);
 extern DECLSPEC double SDLCALL SDL_copysign(double x, double y);
 extern DECLSPEC double SDLCALL SDL_cos(double x);
@@ -476,16 +481,16 @@ extern DECLSPEC size_t SDLCALL SDL_iconv(SDL_iconv_t cd, const char **inbuf,
                                          size_t * inbytesleft, char **outbuf,
                                          size_t * outbytesleft);
 /**
- *  This function converts a string between encodings in one pass, returning a
- *  string that must be freed with SDL_free() or NULL on error.
+ * This function converts a buffer or string between encodings in one pass, returning a
+ * string that must be freed with SDL_free() or NULL on error.
  */
 extern DECLSPEC char *SDLCALL SDL_iconv_string(const char *tocode,
                                                const char *fromcode,
                                                const char *inbuf,
                                                size_t inbytesleft);
 #define SDL_iconv_utf8_locale(S)    SDL_iconv_string("", "UTF-8", S, SDL_strlen(S)+1)
-#define SDL_iconv_utf8_ucs2(S)      (Uint16 *)SDL_iconv_string("UCS-2-INTERNAL", "UTF-8", S, SDL_strlen(S)+1)
-#define SDL_iconv_utf8_ucs4(S)      (Uint32 *)SDL_iconv_string("UCS-4-INTERNAL", "UTF-8", S, SDL_strlen(S)+1)
+#define SDL_iconv_utf8_ucs2(S)      (Uint16 *)SDL_iconv_string("UCS-2", "UTF-8", S, SDL_strlen(S)+1)
+#define SDL_iconv_utf8_ucs4(S)      (Uint32 *)SDL_iconv_string("UCS-4", "UTF-8", S, SDL_strlen(S)+1)
 
 /* force builds using Clang's static analysis tools to use literal C runtime
    here, since there are possibly tests that are ineffective otherwise. */

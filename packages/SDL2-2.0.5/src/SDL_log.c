@@ -302,7 +302,7 @@ SDL_LogMessageV(int category, SDL_LogPriority priority, const char *fmt, va_list
     SDL_stack_free(message);
 }
 
-#if defined(__WIN32__)
+#if defined(__WIN32__) && !defined(HAVE_STDIO_H) && !defined(__WINRT__)
 /* Flag tracking the attachment of the console: 0=unattached, 1=attached, -1=error */
 static int consoleAttached = 0;
 
@@ -326,6 +326,7 @@ SDL_LogOutput(void *userdata, int category, SDL_LogPriority priority,
         BOOL attachResult;
         DWORD attachError;
         unsigned long charsWritten; 
+        DWORD consoleMode;
 
         /* Maybe attach console and get stderr handle */
         if (consoleAttached == 0) {
@@ -333,7 +334,8 @@ SDL_LogOutput(void *userdata, int category, SDL_LogPriority priority,
             if (!attachResult) {
                     attachError = GetLastError();
                     if (attachError == ERROR_INVALID_HANDLE) {
-                        OutputDebugString(TEXT("Parent process has no console\r\n"));
+                        /* This is expected when running from Visual Studio */
+                        /*OutputDebugString(TEXT("Parent process has no console\r\n"));*/
                         consoleAttached = -1;
                     } else if (attachError == ERROR_GEN_FAILURE) {
                          OutputDebugString(TEXT("Could not attach to console of parent process\r\n"));
@@ -349,9 +351,15 @@ SDL_LogOutput(void *userdata, int category, SDL_LogPriority priority,
                     /* Newly attached */
                     consoleAttached = 1;
                 }
-			
+
                 if (consoleAttached == 1) {
                         stderrHandle = GetStdHandle(STD_ERROR_HANDLE);
+
+                        if (GetConsoleMode(stderrHandle, &consoleMode) == 0) {
+                            /* WriteConsole fails if the output is redirected to a file. Must use WriteFile instead. */
+                            OutputDebugString(TEXT("Console ouput is being redirected\r\n"));
+                            consoleAttached = 2;
+                        }
                 }
         }
 #endif /* !defined(HAVE_STDIO_H) && !defined(__WINRT__) */
@@ -373,6 +381,11 @@ SDL_LogOutput(void *userdata, int category, SDL_LogPriority priority,
                         OutputDebugString(TEXT("Insufficient heap memory to write message\r\n"));
                     }
                 }
+
+        } else if (consoleAttached == 2) {
+            if (!WriteFile(stderrHandle, output, lstrlenA(output), &charsWritten, NULL)) {
+                OutputDebugString(TEXT("Error calling WriteFile\r\n"));
+            }
         }
 #endif /* !defined(HAVE_STDIO_H) && !defined(__WINRT__) */
 

@@ -82,7 +82,7 @@
 /* Compatibility with not-so-old versions of OSS
    (OSS < 3.7, Linux kernel < 2.1.16) */
 #ifndef AFMT_S16_NE
-#if defined(_AIX) || defined(AIX) || defined(sparc) || defined(HPPA) || defined(PPC)
+#if defined(WORDS_BIGENDIAN)
 #define AFMT_S16_NE AFMT_S16_BE
 #else
 #define AFMT_S16_NE AFMT_S16_LE
@@ -237,6 +237,10 @@ static int OSS_Init_internal(void)
 
 	play_rate=md_mixfreq;
 	if((ioctl(sndfd,SNDCTL_DSP_SPEED,&play_rate)<0)) {
+		_mm_errno=MMERR_OSS_SETSPEED;
+		return 1;
+	}
+	if(play_rate>65535) { /* md_mixfreq is an uint16_t */
 		_mm_errno=MMERR_OSS_SETSPEED;
 		return 1;
 	}

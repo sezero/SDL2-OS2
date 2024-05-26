@@ -144,11 +144,9 @@ int Mix_InitFLAC()
     if ( flac.loaded == 0 ) {
 #ifdef __MACOSX__
         extern FLAC__StreamDecoder *FLAC__stream_decoder_new(void) __attribute__((weak_import));
-        if ( FLAC__stream_decoder_new == NULL )
-        {
+        if ( FLAC__stream_decoder_new == NULL ) {
             /* Missing weakly linked framework */
-            Mix_SetError("Missing FLAC.framework");
-            return -1;
+            return Mix_SetError("Missing FLAC.framework");
         }
 #endif // __MACOSX__
 

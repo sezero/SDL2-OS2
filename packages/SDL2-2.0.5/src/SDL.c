@@ -497,9 +497,9 @@ SDL_GetPlatform()
 #if defined(__WIN32__)
 
 #if !defined(HAVE_LIBC) || (defined(__WATCOMC__) && defined(BUILD_DLL))
-/* Need to include DllMain() on Watcom C for some reason.. */
+/* FIXME: Still need to include DllMain() on Watcom C ? */
 
-BOOL APIENTRY
+BOOL APIENTRY MINGW32_FORCEALIGN
 _DllMainCRTStartup(HANDLE hModule,
                    DWORD ul_reason_for_call, LPVOID lpReserved)
 {

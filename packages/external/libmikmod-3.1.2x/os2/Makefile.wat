@@ -10,6 +10,7 @@
 target = dll
 !endif
 
+INCLUDES=-I. -I"../include"
 CPPFLAGS=-DMIKMOD_BUILD -DHAVE_FCNTL_H -DHAVE_LIMITS_H -DHAVE_MALLOC_H
 
 # To build a debug version :
@@ -31,7 +32,7 @@ CPPFLAGS=-DMIKMOD_BUILD -DHAVE_FCNTL_H -DHAVE_LIMITS_H -DHAVE_MALLOC_H
 #CPPFLAGS+= -DNO_HQMIXER
 
 # drv_os2 and drv_dart require mmpm2
-#LIBS = mmpm2.lib
+LIBS = mmpm2.lib
 
 CFLAGS = -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8 -zq
 # newer OpenWatcom versions enable W303 by default.
@@ -46,8 +47,11 @@ DLLFLAGS=-bd
 
 DLLNAME=mikmod2.dll
 EXPNAME=mikmod2.exp
+MAPNAME=mikmod2.map
 LIBNAME=mikmod2.lib
+LNKFILE=mikmod2.lnk
 LIBSTATIC=mikmod_static.lib
+LBCFILE=mikmod2.lbc
 
 !ifeq target static
 CPPFLAGS+= -DMIKMOD_STATIC=1
@@ -73,31 +77,37 @@ OBJ=drv_os2.obj drv_dart.obj &
 all: $(BLD_TARGET)
 
 # rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
-$(DLLNAME): $(OBJ)
-	wlink NAM $@ OP q SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE OPTION MANYAUTODATA LIBR {$(LIBS)} FIL {$(OBJ)} OPTION IMPF=$(EXPNAME)
+$(DLLNAME): $(OBJ) $(LNKFILE)
+	wlink @$(LNKFILE)
 	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
 
-$(LIBSTATIC): $(OBJ)
-	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJ)
+$(LIBSTATIC): $(OBJ) $(LBCFILE)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ @$(LBCFILE)
 
+.c: ../drivers;../loaders;../mmio;../playercode;../posix;
 .c.obj:
 	$(COMPILE) -fo=$^@ $<
 
-!ifndef __UNIX__
 distclean: clean .symbolic
-	@if exist $(LIBSTATIC) del $(LIBSTATIC)
-	@if exist $(DLLNAME) del $(DLLNAME)
-	@if exist $(EXPNAME) del $(EXPNAME)
-	@if exist $(LIBNAME) del $(LIBNAME)
-clean: .symbolic
-	@if exist *.obj del *.obj
-.c: ..\drivers;..\loaders;..\mmio;..\playercode;..\posix
-INCLUDES=-I..\os2 -I..\include
-!else
-distclean: clean .symbolic
+	rm -f $(MAPNAME) $(LNKFILE) $(LBCFILE) 
 	rm -f $(DLLNAME) $(EXPNAME) $(LIBNAME) $(LIBSTATIC)
 clean: .symbolic
 	rm -f *.obj
-.c: ../drivers;../loaders;../mmio;../playercode;../posix
-INCLUDES=-I../os2 -I../include
-!endif
+
+$(LNKFILE):
+	@echo Creating linker file: $@
+	@%create $@
+	@%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
+	@%append $@ NAME $(DLLNAME)
+	@for %i in ($(OBJ)) do @%append $@ FILE %i
+	@for %i in ($(LIBS)) do @%append $@ LIB %i
+	@%append $@ OPTION QUIET
+	@%append $@ OPTION MANYAUTODATA
+	@%append $@ OPTION IMPF=$(EXPNAME)
+	@%append $@ OPTION MAP=$(MAPNAME)
+	@%append $@ OPTION SHOWDEAD
+
+$(LBCFILE):
+	@echo Creating wlib commands file: $@
+	@%create $@
+	@for %i in ($(OBJ)) do @%append $@ +%i

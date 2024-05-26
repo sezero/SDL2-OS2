@@ -108,11 +108,9 @@ int Mix_InitOgg()
     if ( vorbis.loaded == 0 ) {
 #ifdef __MACOSX__
         extern int ov_open_callbacks(void*, OggVorbis_File*, const char*, long, ov_callbacks) __attribute__((weak_import));
-        if ( ov_open_callbacks == NULL )
-        {
+        if ( ov_open_callbacks == NULL ) {
             /* Missing weakly linked framework */
-            Mix_SetError("Missing Vorbis.framework");
-            return -1;
+            return Mix_SetError("Missing Vorbis.framework");
         }
 #endif // __MACOSX__
 

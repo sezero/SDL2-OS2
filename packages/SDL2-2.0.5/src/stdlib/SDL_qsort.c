@@ -415,7 +415,7 @@ static void qsort_nonaligned(void *base, size_t nmemb, size_t size,
   char *first,*last;
   char *pivot=malloc(size);
   size_t trunc=TRUNC_nonaligned*size;
-  assert(pivot!=0);
+  assert(pivot != NULL);
 
   first=(char*)base; last=first+(nmemb-1)*size;
 
@@ -446,7 +446,7 @@ static void qsort_aligned(void *base, size_t nmemb, size_t size,
   char *first,*last;
   char *pivot=malloc(size);
   size_t trunc=TRUNC_aligned*size;
-  assert(pivot!=0);
+  assert(pivot != NULL);
 
   first=(char*)base; last=first+(nmemb-1)*size;
 
@@ -476,7 +476,7 @@ static void qsort_words(void *base, size_t nmemb,
   int stacktop=0;
   char *first,*last;
   char *pivot=malloc(WORD_BYTES);
-  assert(pivot!=0);
+  assert(pivot != NULL);
 
   first=(char*)base; last=first+(nmemb-1)*WORD_BYTES;
 

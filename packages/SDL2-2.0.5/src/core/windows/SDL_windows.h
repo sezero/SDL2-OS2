@@ -34,7 +34,21 @@
 #define _WIN32_WINNT  0x501   /* Need 0x410 for AlphaBlend() and 0x500 for EnumDisplayDevices(), 0x501 for raw input */
 #endif
 
+/* See https://github.com/libsdl-org/SDL/pull/7607  */
+/* force_align_arg_pointer attribute requires gcc >= 4.2.x.  */
+#if defined(__clang__)
+#define HAVE_FORCE_ALIGN_ARG_POINTER
+#elif defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
+#define HAVE_FORCE_ALIGN_ARG_POINTER
+#endif
+#if defined(__GNUC__) && defined(__i386__) && defined(HAVE_FORCE_ALIGN_ARG_POINTER)
+#define MINGW32_FORCEALIGN __attribute__((force_align_arg_pointer))
+#else
+#define MINGW32_FORCEALIGN
+#endif
+
 #include <windows.h>
+#include <basetyps.h>   /* for REFIID with broken mingw.org headers */
 
 /* Routines to convert from UTF8 to native Windows text */
 #if UNICODE

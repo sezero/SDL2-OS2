@@ -71,8 +71,7 @@ int modplug_init(SDL_AudioSpec *spec)
         break;
 
         default: {
-            Mix_SetError("Unknown hardware audio format");
-            return -1;
+            return Mix_SetError("Unknown hardware audio format");
         }
 
     }

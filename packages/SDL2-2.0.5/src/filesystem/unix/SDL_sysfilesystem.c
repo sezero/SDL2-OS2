@@ -109,16 +109,6 @@ SDL_GetBasePath(void)
         SDL_free(retvalargs);
     }
 #endif
-#if defined(__SOLARIS__)
-    const char *path = getexecname();
-    if ((path != NULL) && (path[0] == '/')) { /* must be absolute path... */
-        retval = SDL_strdup(path);
-        if (!retval) {
-            SDL_OutOfMemory();
-            return NULL;
-        }
-    }
-#endif
 
     /* is a Linux-style /proc filesystem available? */
     if (!retval && (access("/proc", F_OK) == 0)) {
@@ -126,6 +116,8 @@ SDL_GetBasePath(void)
         retval = readSymLink("/proc/curproc/file");
 #elif defined(__NETBSD__)
         retval = readSymLink("/proc/curproc/exe");
+#elif defined(__SOLARIS__)
+        retval = readSymLink("/proc/self/path/a.out");
 #else
         retval = readSymLink("/proc/self/exe");  /* linux. */
 #endif
@@ -140,6 +132,19 @@ SDL_GetBasePath(void)
             }
         }
     }
+
+#if defined(__SOLARIS__)  /* try this as a fallback if /proc didn't pan out */
+    if (!retval) {
+        const char *path = getexecname();
+        if ((path != NULL) && (path[0] == '/')) { /* must be absolute path... */
+            retval = SDL_strdup(path);
+            if (!retval) {
+                SDL_OutOfMemory();
+                return NULL;
+            }
+        }
+    }
+#endif
 
     /* If we had access to argv[0] here, we could check it for a path,
         or troll through $PATH looking for it, too. */

@@ -100,6 +100,8 @@
 #endif
 
 /* typedef's for XInput structs we use */
+
+#ifndef HAVE_XINPUT_GAMEPAD_EX
 typedef struct
 {
     WORD wButtons;
@@ -111,12 +113,15 @@ typedef struct
     SHORT sThumbRY;
     DWORD dwPaddingReserved;
 } XINPUT_GAMEPAD_EX;
+#endif
 
+#ifndef HAVE_XINPUT_STATE_EX
 typedef struct
 {
     DWORD dwPacketNumber;
     XINPUT_GAMEPAD_EX Gamepad;
 } XINPUT_STATE_EX;
+#endif
 
 typedef struct
 {

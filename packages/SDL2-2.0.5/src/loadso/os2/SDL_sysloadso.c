@@ -41,17 +41,26 @@ SDL_LoadObject(const char *sofile)
     PSZ     pszModName;
 
     if (!sofile) {
-        SDL_SetError("NULL sofile");
+        SDL_InvalidParamError("sofile");
         return NULL;
     }
 
     pszModName = OS2_UTF8ToSys(sofile);
     ulRC = DosLoadModule(acError, sizeof(acError), pszModName, &hModule);
-    SDL_free(pszModName);
-    if (ulRC != NO_ERROR) {
-        SDL_SetError("Failed loading %s (E%u)", acError, ulRC);
-        return NULL;
+
+    if (ulRC != NO_ERROR && !SDL_strrchr(pszModName, '\\') && !SDL_strrchr(pszModName, '/')) {
+        /* strip .dll extension and retry only if name has no path. */
+        size_t len = SDL_strlen(pszModName);
+        if (len > 4 && SDL_strcasecmp(&pszModName[len - 4], ".dll") == 0) {
+            pszModName[len - 4] = '\0';
+            ulRC = DosLoadModule(acError, sizeof(acError), pszModName, &hModule);
+        }
     }
+    if (ulRC != NO_ERROR) {
+        SDL_SetError("Failed loading %s: %s (E%u)", sofile, acError, ulRC);
+        hModule = NULLHANDLE;
+    }
+    SDL_free(pszModName);
 
     return (void *)hModule;
 }
@@ -63,6 +72,15 @@ SDL_LoadFunction(void *handle, const char *name)
     PFN     pFN;
 
     ulRC = DosQueryProcAddr((HMODULE)handle, 0, name, &pFN);
+    if (ulRC != NO_ERROR) {
+        /* retry with an underscore prepended, e.g. for gcc-built dlls. */
+        size_t len = SDL_strlen(name) + 1;
+        char *_name = SDL_stack_alloc(char, len + 1);
+        _name[0] = '_';
+        SDL_memcpy(&_name[1], name, len);
+        ulRC = DosQueryProcAddr((HMODULE)handle, 0, _name, &pFN);
+        SDL_stack_free(_name);
+    }
     if (ulRC != NO_ERROR) {
         SDL_SetError("Failed loading procedure %s (E%u)", name, ulRC);
         return NULL;

@@ -18,14 +18,29 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
+
+/* We won't get fseeko64 on QNX if _LARGEFILE64_SOURCE is defined, but the
+   configure script knows the C runtime has it and enables it. */
+#ifndef __QNXNTO__
 /* Need this so Linux systems define fseek64o, ftell64o and off64_t */
+#ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
+#endif
+#endif
+
 #include "../SDL_internal.h"
 
 #if defined(__WIN32__)
 #include "../core/windows/SDL_windows.h"
 #endif
 
+#ifdef HAVE_STDIO_H
+#include <stdio.h>
+#endif
+
+#ifdef HAVE_LIMITS_H
+#include <limits.h>
+#endif
 
 /* This file provides a general interface for SDL to read and write
    data sources.  It can easily be extended to files, memory, etc.
@@ -292,6 +307,42 @@ windows_file_close(SDL_RWops * context)
 
 #ifdef HAVE_STDIO_H
 
+#ifdef HAVE_FOPEN64
+#define fopen   fopen64
+#endif
+#ifdef HAVE_FSEEKO64
+#define fseek_off_t off64_t
+#define fseek   fseeko64
+#define ftell   ftello64
+#elif defined(HAVE_FSEEKO)
+#if defined(OFF_MIN) && defined(OFF_MAX)
+#define FSEEK_OFF_MIN OFF_MIN
+#define FSEEK_OFF_MAX OFF_MAX
+#elif defined(HAVE_LIMITS_H)
+/* POSIX doesn't specify the minimum and maximum macros for off_t so
+ * we have to improvise and dance around implementation-defined
+ * behavior. This may fail if the off_t type has padding bits or
+ * is not a two's-complement representation. The compilers will detect
+ * and eliminate the dead code if off_t has 64 bits.
+ */
+#define FSEEK_OFF_MAX (((((off_t)1 << (sizeof(off_t) * CHAR_BIT - 2)) - 1) << 1) + 1)
+#define FSEEK_OFF_MIN (-(FSEEK_OFF_MAX) - 1)
+#endif
+#define fseek_off_t off_t
+#define fseek   fseeko
+#define ftell   ftello
+#elif defined(HAVE__FSEEKI64)
+#define fseek_off_t __int64
+#define fseek   _fseeki64
+#define ftell   _ftelli64
+#else
+#ifdef HAVE_LIMITS_H
+#define FSEEK_OFF_MIN LONG_MIN
+#define FSEEK_OFF_MAX LONG_MAX
+#endif
+#define fseek_off_t long
+#endif
+
 /* Functions to read/write stdio file pointers */
 
 static Sint64 SDLCALL
@@ -312,23 +363,35 @@ stdio_size(SDL_RWops * context)
 static Sint64 SDLCALL
 stdio_seek(SDL_RWops * context, Sint64 offset, int whence)
 {
-#ifdef HAVE_FSEEKO64
-    if (fseeko64(context->hidden.stdio.fp, (off64_t)offset, whence) == 0) {
-        return ftello64(context->hidden.stdio.fp);
+    int stdiowhence;
+
+    switch (whence) {
+    case RW_SEEK_SET:
+        stdiowhence = SEEK_SET;
+        break;
+    case RW_SEEK_CUR:
+        stdiowhence = SEEK_CUR;
+        break;
+    case RW_SEEK_END:
+        stdiowhence = SEEK_END;
+        break;
+    default:
+        return SDL_SetError("Unknown value for 'whence'");
     }
-#elif defined(HAVE_FSEEKO)
-    if (fseeko(context->hidden.stdio.fp, (off_t)offset, whence) == 0) {
-        return ftello(context->hidden.stdio.fp);
-    }
-#elif defined(HAVE__FSEEKI64)
-    if (_fseeki64(context->hidden.stdio.fp, offset, whence) == 0) {
-        return _ftelli64(context->hidden.stdio.fp);
-    }
-#else
-    if (fseek(context->hidden.stdio.fp, offset, whence) == 0) {
-        return ftell(context->hidden.stdio.fp);
+
+#if defined(FSEEK_OFF_MIN) && defined(FSEEK_OFF_MAX)
+    if (offset < (Sint64)(FSEEK_OFF_MIN) || offset > (Sint64)(FSEEK_OFF_MAX)) {
+        return SDL_SetError("Seek offset out of range");
     }
 #endif
+
+    if (fseek(context->hidden.stdio.fp, (fseek_off_t)offset, stdiowhence) == 0) {
+        Sint64 pos = ftell(context->hidden.stdio.fp);
+        if (pos < 0) {
+            return SDL_SetError("Couldn't get stream offset");
+        }
+        return pos;
+    }
     return SDL_Error(SDL_EFSEEK);
 }
 
@@ -482,6 +545,7 @@ SDL_RWFromFile(const char *file, const char *mode)
         char *path;
         FILE *fp;
 
+        /* !!! FIXME: why not just "char path[PATH_MAX];" ? */
         path = SDL_stack_alloc(char, PATH_MAX);
         if (path) {
             SDL_snprintf(path, PATH_MAX, "%s/%s",
@@ -584,7 +648,7 @@ SDL_RWFromMem(void *mem, int size)
       SDL_InvalidParamError("mem");
       return rwops;
     }
-    if (!size) {
+    if (size <= 0) {
       SDL_InvalidParamError("size");
       return rwops;
     }
@@ -612,7 +676,7 @@ SDL_RWFromConstMem(const void *mem, int size)
       SDL_InvalidParamError("mem");
       return rwops;
     }
-    if (!size) {
+    if (size <= 0) {
       SDL_InvalidParamError("size");
       return rwops;
     }

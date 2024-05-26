@@ -48,7 +48,7 @@ SDL_DYNAPI_PROC(int,SDL_snprintf,(SDL_OUT_Z_CAP(b) char *a, size_t b, SDL_PRINTF
 #undef SDL_CreateThread
 #endif
 
-#if defined(__WIN32__) && !defined(HAVE_LIBC)
+#if defined(__WIN32__)
 SDL_DYNAPI_PROC(SDL_Thread*,SDL_CreateThread,(SDL_ThreadFunction a, const char *b, void *c, pfnSDL_CurrentBeginThread d, pfnSDL_CurrentEndThread e),(a,b,c,d,e),return)
 #elif defined(__OS2__)
 SDL_DYNAPI_PROC(SDL_Thread*,SDL_CreateThread,(SDL_ThreadFunction a, const char *b, void *c, pfnSDL_CurrentBeginThread d, pfnSDL_CurrentEndThread e),(a,b,c,d,e),return)
@@ -69,7 +69,7 @@ SDL_DYNAPI_PROC(void,SDL_MemoryBarrierAcquire,(void),(),)
 #endif
 
 #ifdef __WIN32__
-SDL_DYNAPI_PROC(int,SDL_RegisterApp,(char *a, Uint32 b, void *c),(a,b,c),return)
+SDL_DYNAPI_PROC(int,SDL_RegisterApp,(const char *a, Uint32 b, void *c),(a,b,c),return)
 SDL_DYNAPI_PROC(void,SDL_UnregisterApp,(void),(),)
 SDL_DYNAPI_PROC(int,SDL_Direct3D9GetAdapterIndex,(int a),(a),return)
 SDL_DYNAPI_PROC(IDirect3DDevice9*,SDL_RenderGetD3D9Device,(SDL_Renderer *a),(a),return)
@@ -610,7 +610,7 @@ SDL_DYNAPI_PROC(SDL_bool,SDL_DXGIGetOutputInfo,(int a,int *b, int *c),(a,b,c),re
 #endif
 SDL_DYNAPI_PROC(SDL_bool,SDL_RenderIsClipEnabled,(SDL_Renderer *a),(a),return)
 #ifdef __WINRT__
-SDL_DYNAPI_PROC(int,SDL_WinRTRunApp,(int a, char **b, void *c),(a,b,c),return)
+SDL_DYNAPI_PROC(int,SDL_WinRTRunApp,(int (*a)(int, char**), void *b),(a,b),return)
 SDL_DYNAPI_PROC(const wchar_t*,SDL_WinRTGetFSPathUNICODE,(SDL_WinRT_Path a),(a),return)
 SDL_DYNAPI_PROC(const char*,SDL_WinRTGetFSPathUTF8,(SDL_WinRT_Path a),(a),return)
 #endif

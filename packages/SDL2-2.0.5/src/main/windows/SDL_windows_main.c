@@ -196,7 +196,7 @@ console_wmain(int argc, wchar_t *wargv[], wchar_t *wenvp)
 #endif
 
 /* This is where execution begins [windowed apps] */
-int WINAPI
+int WINAPI MINGW32_FORCEALIGN
 WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 {
     return main_getcmdline();

@@ -83,16 +83,14 @@ int MOD_init(SDL_AudioSpec *mixerfmt)
         break;
 
         default: {
-            Mix_SetError("Unknown hardware audio format");
-            return -1;
+            return Mix_SetError("Unknown hardware audio format");
         }
     }
     current_output_channels = mixerfmt->channels;
     current_output_format = mixerfmt->format;
     if ( mixerfmt->channels > 1 ) {
         if ( mixerfmt->channels > MAX_OUTPUT_CHANNELS ) {
-            Mix_SetError("Hardware uses more channels than mixerfmt");
-            return -1;
+            return Mix_SetError("Hardware uses more channels than mixerfmt");
         }
         *mikmod.md_mode |= DMODE_STEREO;
     }
@@ -118,8 +116,7 @@ int MOD_init(SDL_AudioSpec *mixerfmt)
       mikmod.MikMod_RegisterAllLoaders();
 
     if ( mikmod.MikMod_Init(NULL) ) {
-        Mix_SetError("%s", mikmod.MikMod_strerror(*mikmod.MikMod_errno));
-        return -1;
+        return Mix_SetError("%s", mikmod.MikMod_strerror(*mikmod.MikMod_errno));
     }
 
     return 0;

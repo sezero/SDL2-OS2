@@ -581,7 +581,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 PACKAGE_URL=
 
-ac_unique_file="README"
+ac_unique_file="loopwave.c"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 SDL_TTF_LIB
@@ -589,6 +589,9 @@ XLIB
 GLES2LIB
 GLESLIB
 GLLIB
+OPENGL_TARGETS
+OPENGLES2_TARGETS
+OPENGLES1_TARGETS
 CPP
 XMKMF
 SDL2_CONFIG
@@ -1918,8 +1921,9 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+
 ac_aux_dir=
-for ac_dir in $srcdir/../build-scripts; do
+for ac_dir in ../build-scripts "$srcdir"/../build-scripts; do
   if test -f "$ac_dir/install-sh"; then
     ac_aux_dir=$ac_dir
     ac_install_sh="$ac_aux_dir/install-sh -c"
@@ -1935,7 +1939,7 @@ for ac_dir in $srcdir/../build-scripts; do
   fi
 done
 if test -z "$ac_aux_dir"; then
-  as_fn_error $? "cannot find install-sh, install.sh, or shtool in $srcdir/../build-scripts" "$LINENO" 5
+  as_fn_error $? "cannot find install-sh, install.sh, or shtool in ../build-scripts \"$srcdir\"/../build-scripts" "$LINENO" 5
 fi
 
 # These three variables are undocumented and unsupported,
@@ -2016,7 +2020,6 @@ shift; shift
 host_os=$*
 IFS=$ac_save_IFS
 case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
-
 
 
 
@@ -2495,6 +2498,8 @@ int
 main ()
 {
 FILE *f = fopen ("conftest.out", "w");
+ if (!f)
+  return 1;
  return ferror (f) || fclose (f) != 0;
 
   ;
@@ -2813,7 +2818,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for an ANSI C-conforming const" >&5
 $as_echo_n "checking for an ANSI C-conforming const... " >&6; }
 if ${ac_cv_c_const+:} false; then :
@@ -2901,7 +2905,7 @@ ISWINDOWS="false"
 ISMACOSX="false"
 
 case "$host" in
-    *-*-cygwin* | *-*-mingw32*)
+    *-*-cygwin* | *-*-mingw*)
         ISWINDOWS="true"
         EXE=".exe"
         MATHLIB=""
@@ -2912,7 +2916,7 @@ case "$host" in
         MATHLIB=""
         SYS_GL_LIBS="-lGL"
         ;;
-    *-*-darwin* )
+    *-*-darwin*)
         ISMACOSX="true"
         EXE=""
         MATHLIB=""
@@ -2984,7 +2988,7 @@ fi
         MATHLIB=""
         SYS_GL_LIBS="-lGLES_CM"
         ;;
-    *-*-emscripten* )
+    *-*-emscripten*)
                 EXE=".bc"
         MATHLIB=""
         SYS_GL_LIBS=""
@@ -3151,8 +3155,8 @@ fi
   if test "x$sdl_prefix$sdl_exec_prefix" = x ; then
 
 pkg_failed=no
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SDL" >&5
-$as_echo_n "checking for SDL... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sdl2 >= $min_sdl_version" >&5
+$as_echo_n "checking for sdl2 >= $min_sdl_version... " >&6; }
 
 if test -n "$SDL_CFLAGS"; then
     pkg_cv_SDL_CFLAGS="$SDL_CFLAGS"
@@ -3236,7 +3240,7 @@ fi
 
   if test "x$sdl_pc" = xyes ; then
     no_sdl=""
-    SDL2_CONFIG="pkg-config sdl2"
+    SDL2_CONFIG="$PKG_CONFIG sdl2"
   else
     as_save_PATH="$PATH"
     if test "x$prefix" != xNONE && test "$cross_compiling" != yes; then
@@ -3829,20 +3833,20 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
  #include "SDL_opengl.h"
+ #ifndef SDL_VIDEO_OPENGL
+ #error SDL_VIDEO_OPENGL
+ #endif
 
 int
 main ()
 {
-
 
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-
-have_opengl=yes
-
+  have_opengl=yes
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_opengl" >&5
@@ -3854,25 +3858,21 @@ have_opengles=no
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
- #if defined (__IPHONEOS__)
-    #include <OpenGLES/ES1/gl.h>
- #else
-    #include <GLES/gl.h>
- #endif /* __QNXNTO__ */
+ #include "SDL_opengles.h"
+ #ifndef SDL_VIDEO_OPENGL_ES
+ #error SDL_VIDEO_OPENGL_ES
+ #endif
 
 int
 main ()
 {
-
 
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-
-have_opengles=yes
-
+  have_opengles=yes
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_opengles" >&5
@@ -3884,27 +3884,21 @@ have_opengles2=no
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
- #if defined (__IPHONEOS__)
-    #include <OpenGLES/ES2/gl.h>
-    #include <OpenGLES/ES2/glext.h>
- #else
-    #include <GLES2/gl2.h>
-    #include <GLES2/gl2ext.h>
+ #include "SDL_opengles2.h"
+ #ifndef SDL_VIDEO_OPENGL_ES2
+ #error SDL_VIDEO_OPENGL_ES2
  #endif
 
 int
 main ()
 {
 
-
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-
-have_opengles2=yes
-
+  have_opengles2=yes
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_opengles2" >&5
@@ -3913,18 +3907,27 @@ $as_echo "$have_opengles2" >&6; }
 GLLIB=""
 GLESLIB=""
 GLES2LIB=""
+OPENGLES1_TARGETS="UNUSED"
+OPENGLES2_TARGETS="UNUSED"
+OPENGL_TARGETS="UNUSED"
 if test x$have_opengles = xyes; then
     CFLAGS="$CFLAGS -DHAVE_OPENGLES"
     GLESLIB="$XPATH -lGLESv1_CM"
+    OPENGLES1_TARGETS="TARGETS"
 fi
 if test x$have_opengles2 = xyes; then
     CFLAGS="$CFLAGS -DHAVE_OPENGLES2"
     #GLES2LIB="$XPATH -lGLESv2"
+    OPENGLES2_TARGETS="TARGETS"
 fi
 if test x$have_opengl = xyes; then
     CFLAGS="$CFLAGS -DHAVE_OPENGL"
     GLLIB="$XPATH $SYS_GL_LIBS"
+    OPENGL_TARGETS="TARGETS"
 fi
+
+
+
 
 
 

@@ -87,11 +87,9 @@ int Mix_InitModPlug()
     if ( modplug.loaded == 0 ) {
 #ifdef __MACOSX__
         extern ModPlugFile* ModPlug_Load(const void* data, int size) __attribute__((weak_import));
-        if ( ModPlug_Load == NULL )
-        {
+        if ( ModPlug_Load == NULL ) {
             /* Missing weakly linked framework */
-            Mix_SetError("Missing modplug.framework");
-            return -1;
+            return Mix_SetError("Missing modplug.framework");
         }
 #endif // __MACOSX__
 

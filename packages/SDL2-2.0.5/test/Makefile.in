@@ -24,9 +24,6 @@ TARGETS = \
 	testfile$(EXE) \
 	testgamecontroller$(EXE) \
 	testgesture$(EXE) \
-	testgl2$(EXE) \
-	testgles$(EXE) \
-	testgles2$(EXE) \
 	testhaptic$(EXE) \
 	testhittesting$(EXE) \
 	testrumble$(EXE) \
@@ -51,7 +48,6 @@ TARGETS = \
 	testresample$(EXE) \
 	testscale$(EXE) \
 	testsem$(EXE) \
-	testshader$(EXE) \
 	testshape$(EXE) \
 	testsprite2$(EXE) \
 	testspriteminimal$(EXE) \
@@ -66,7 +62,13 @@ TARGETS = \
 	testdisplayinfo$(EXE) \
 	testqsort$(EXE) \
 	controllermap$(EXE) \
-	
+
+
+@OPENGL_TARGETS@ += testgl2$(EXE) testshader$(EXE)
+@OPENGLES1_TARGETS@ += testgles$(EXE)
+@OPENGLES2_TARGETS@ += testgles2$(EXE)
+
+
 all: Makefile $(TARGETS)
 
 Makefile: $(srcdir)/Makefile.in
@@ -146,10 +148,10 @@ testfile$(EXE): $(srcdir)/testfile.c
 
 testgamecontroller$(EXE): $(srcdir)/testgamecontroller.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
- 
+
 testgesture$(EXE): $(srcdir)/testgesture.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) @MATHLIB@
- 
+
 testgl2$(EXE): $(srcdir)/testgl2.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) @MATHLIB@
 

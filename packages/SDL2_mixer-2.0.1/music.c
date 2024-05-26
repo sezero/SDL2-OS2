@@ -1001,8 +1001,7 @@ static int music_internal_play(Mix_Music *music, double position)
         break;
 #endif
         default:
-        Mix_SetError("Can't play unknown music type");
-        retval = -1;
+        retval = Mix_SetError("Can't play unknown music type");
         break;
     }
 
@@ -1011,8 +1010,7 @@ skip:
     if ( retval == 0 ) {
         if ( position > 0.0 ) {
             if ( music_internal_position(position) < 0 ) {
-                Mix_SetError("Position not implemented for music type");
-                retval = -1;
+                retval = Mix_SetError("Position not implemented for music type");
             }
         } else {
             music_internal_position(0.0);
@@ -1030,14 +1028,12 @@ int Mix_FadeInMusicPos(Mix_Music *music, int loops, int ms, double position)
     int retval;
 
     if ( ms_per_step == 0 ) {
-        SDL_SetError("Audio device hasn't been opened");
-        return(-1);
+        return Mix_SetError("Audio device hasn't been opened");
     }
 
     /* Don't play null pointers :-) */
     if ( music == NULL ) {
-        Mix_SetError("music parameter was NULL");
-        return(-1);
+        return Mix_SetError("music parameter was NULL");
     }
 
     /* Setup the data */
@@ -1141,8 +1137,7 @@ int Mix_SetMusicPosition(double position)
             Mix_SetError("Position not implemented for music type");
         }
     } else {
-        Mix_SetError("Music isn't playing");
-        retval = -1;
+        retval = Mix_SetError("Music isn't playing");
     }
     SDL_UnlockAudio();
 
