@@ -34,8 +34,8 @@ CFLAGS = $(CFLAGS_BASE)
 # to build a dll:
 CFLAGS+= -bd -DDLL_EXPORT
 # mmx support:
-# FIXME: Watcom doesn't support align directive in inline asm:
-# https://github.com/open-watcom/open-watcom-v2/issues/521
+# FIXME: Watcom doesn't support align directive in inline asm :
+#     https://github.com/open-watcom/open-watcom-v2/issues/521
 CFLAGS+= -DUSE_MMX
 # newer OpenWatcom versions enable W303 by default:
 CFLAGS+= -wcd=303
@@ -56,7 +56,7 @@ $(LNKFILE):
   @%append $@ NAME $(LIBNAME)
   @for %i in ($(OBJS)) do @%append $@ FILE %i
   @%append $@ OPTION QUIET
-  @%append $@ OPTION DESCRIPTION '@$#ferzkopp.net:$(VERSION)$#@Simple DirectMedia Layer graphics'
+  @%append $@ OPTION DESCRIPTION '@$#ferzkopp.net:$(VERSION)$#@Simple DirectMedia Layer graphics extension.'
   @%append $@ LIBPATH $(DEPS_LIB)
   @for %i in ($(LIBS)) do @%append $@ LIB %i
   @%append $@ OPTION MAP=$*

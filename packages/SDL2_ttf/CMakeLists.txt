@@ -4,7 +4,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # See docs/release_checklist.md
 set(MAJOR_VERSION 2)
-set(MINOR_VERSION 22)
+set(MINOR_VERSION 23)
 set(MICRO_VERSION 0)
 set(SDL_REQUIRED_VERSION 2.0.10)
 
@@ -118,18 +118,14 @@ set_target_properties(SDL2_ttf PROPERTIES
 if(NOT ANDROID)
     set_target_properties(SDL2_ttf PROPERTIES
         DEBUG_POSTFIX "${SDL2TTF_DEBUG_POSTFIX}"
+        SOVERSION "${LT_MAJOR}"
+        VERSION "${LT_VERSION}"
     )
     if(APPLE)
-        # the SOVERSION property corresponds to the compatibility version and VERSION corresponds to the current version
-        # https://cmake.org/cmake/help/latest/prop_tgt/SOVERSION.html#mach-o-versions
+        cmake_minimum_required(VERSION 3.17)
         set_target_properties(SDL2_ttf PROPERTIES
-            SOVERSION "${DYLIB_COMPATIBILITY_VERSION}"
-            VERSION "${DYLIB_CURRENT_VERSION}"
-        )
-    else()
-        set_target_properties(SDL2_ttf PROPERTIES
-            SOVERSION "${LT_MAJOR}"
-            VERSION "${LT_VERSION}"
+            MACHO_COMPATIBILITY_VERSION "${DYLIB_COMPATIBILITY_VERSION}"
+            MACHO_CURRENT_VERSION "${MACHO_CURRENT_VERSION}"
         )
     endif()
 endif()
@@ -262,23 +258,6 @@ elseif (UNIX AND NOT APPLE AND NOT ANDROID)
         SOVERSION "${LT_MAJOR}"
         VERSION "${LT_VERSION}"
     )
-endif()
-if (BUILD_SHARED_LIBS)
-    if (WIN32 OR OS2)
-        set_target_properties(SDL2_ttf PROPERTIES
-            PREFIX ""
-        )
-    endif()
-    if (OS2)
-        # OS/2 doesn't support a DLL name longer than 8 characters.
-        set_target_properties(SDL2_ttf PROPERTIES
-           OUTPUT_NAME "SDL2ttf"
-        )
-    elseif (UNIX AND NOT APPLE AND NOT ANDROID)
-        set_target_properties(SDL2_ttf PROPERTIES
-            OUTPUT_NAME "SDL2_ttf-${LT_RELEASE}"
-        )
-    endif()
 endif()
 
 # Restore BUILD_SHARED_LIBS variable

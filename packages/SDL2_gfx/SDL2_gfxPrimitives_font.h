@@ -29,7 +29,7 @@ Andreas Schiffler -- aschiffler at ferzkopp dot net
 
 #define GFX_FONTDATAMAX (8*256)
 
-static unsigned char gfxPrimitivesFontdata[GFX_FONTDATAMAX] = {
+static const unsigned char gfxPrimitivesFontdata[GFX_FONTDATAMAX] = {
 
 	/*
 	* 0 0x00 '^@' 
