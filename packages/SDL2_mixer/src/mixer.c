@@ -96,14 +96,14 @@ static int reserved_channels = 0;
 
 
 /* Support for hooking into the mixer callback system */
-static void (SDLCALL *mix_postmix)(void *udata, Uint8 *stream, int len) = NULL;
+static Mix_MixCallback mix_postmix = NULL;
 static void *mix_postmix_data = NULL;
 
 /* rcg07062001 callback to alert when channels are done playing. */
-static void (SDLCALL *channel_done_callback)(int channel) = NULL;
+static Mix_ChannelFinishedCallback channel_done_callback = NULL;
 
 /* Support for user defined music functions */
-static void (SDLCALL *mix_music)(void *udata, Uint8 *stream, int len) = music_mixer;
+static Mix_MixCallback mix_music = music_mixer;
 static void *music_data = NULL;
 
 /* rcg06042009 report available decoders at runtime. */
@@ -561,6 +561,8 @@ void Mix_PauseAudio(int pause_on)
  */
 int Mix_AllocateChannels(int numchans)
 {
+    struct _Mix_Channel *mix_channel_tmp;
+
     if (numchans<0 || numchans==num_channels)
         return num_channels;
 
@@ -573,27 +575,42 @@ int Mix_AllocateChannels(int numchans)
         }
     }
     Mix_LockAudio();
-    mix_channel = (struct _Mix_Channel *) SDL_realloc(mix_channel, numchans * sizeof(struct _Mix_Channel));
-    if (numchans > num_channels) {
-        /* Initialize the new channels */
-        int i;
-        for (i = num_channels; i < numchans; i++) {
-            mix_channel[i].chunk = NULL;
-            mix_channel[i].playing = 0;
-            mix_channel[i].looping = 0;
-            mix_channel[i].volume = MIX_MAX_VOLUME;
-            mix_channel[i].fade_volume = MIX_MAX_VOLUME;
-            mix_channel[i].fade_volume_reset = MIX_MAX_VOLUME;
-            mix_channel[i].fading = MIX_NO_FADING;
-            mix_channel[i].tag = -1;
-            mix_channel[i].expire = 0;
-            mix_channel[i].effects = NULL;
-            mix_channel[i].paused = 0;
-        }
+    /* Allocate channels into temporary pointer */
+    if (numchans) {
+        mix_channel_tmp = (struct _Mix_Channel *) SDL_realloc(mix_channel, numchans * sizeof(struct _Mix_Channel));
+    } else {
+        /* Handle 0 numchans */
+        SDL_free(mix_channel);
+        mix_channel_tmp = NULL;
     }
-    num_channels = numchans;
+    /* Check the allocation */
+    if (mix_channel_tmp || !numchans) {
+        /* Apply the temporary pointer on success */
+        mix_channel = mix_channel_tmp;
+        if (numchans > num_channels) {
+            /* Initialize the new channels */
+            int i;
+            for (i = num_channels; i < numchans; i++) {
+                mix_channel[i].chunk = NULL;
+                mix_channel[i].playing = 0;
+                mix_channel[i].looping = 0;
+                mix_channel[i].volume = MIX_MAX_VOLUME;
+                mix_channel[i].fade_volume = MIX_MAX_VOLUME;
+                mix_channel[i].fade_volume_reset = MIX_MAX_VOLUME;
+                mix_channel[i].fading = MIX_NO_FADING;
+                mix_channel[i].tag = -1;
+                mix_channel[i].expire = 0;
+                mix_channel[i].effects = NULL;
+                mix_channel[i].paused = 0;
+            }
+        }
+        num_channels = numchans;
+    } else {
+        /* On error mix_channel remains intact */
+        Mix_SetError("Channel allocation failed");
+    }
     Mix_UnlockAudio();
-    return num_channels;
+    return num_channels; /* If the return value equals numchans the allocation was successful */
 }
 
 /* Return the actual mixer parameters */
@@ -1006,8 +1023,7 @@ void Mix_FreeChunk(Mix_Chunk *chunk)
    This can be used to provide real-time visual display of the audio stream
    or add a custom mixer filter for the stream data.
 */
-void Mix_SetPostMix(void (SDLCALL *mix_func)
-                    (void *udata, Uint8 *stream, int len), void *arg)
+void Mix_SetPostMix(Mix_MixCallback mix_func, void *arg)
 {
     Mix_LockAudio();
     mix_postmix_data = arg;
@@ -1018,8 +1034,7 @@ void Mix_SetPostMix(void (SDLCALL *mix_func)
 /* Add your own music player or mixer function.
    If 'mix_func' is NULL, the default music player is re-enabled.
  */
-void Mix_HookMusic(void (SDLCALL *mix_func)(void *udata, Uint8 *stream, int len),
-                                                                void *arg)
+void Mix_HookMusic(Mix_MixCallback mix_func, void *arg)
 {
     Mix_LockAudio();
     if (mix_func != NULL) {
@@ -1037,7 +1052,7 @@ void *Mix_GetMusicHookData(void)
     return music_data;
 }
 
-void Mix_ChannelFinished(void (SDLCALL *channel_finished)(int channel))
+void Mix_ChannelFinished(Mix_ChannelFinishedCallback channel_finished)
 {
     Mix_LockAudio();
     channel_done_callback = channel_finished;

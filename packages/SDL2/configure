@@ -23744,6 +23744,9 @@ else
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
                 ;;
+            *-*-solaris*)
+                enable_video_vulkan=no
+                ;;
             *-*-darwin*)
                 save_CFLAGS="$CFLAGS"
                 CFLAGS="$CFLAGS -x objective-c"

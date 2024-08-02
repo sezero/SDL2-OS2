@@ -60,7 +60,7 @@ static int music_volume = MIX_MAX_VOLUME;
 static Mix_Music * volatile music_playing = NULL;
 SDL_AudioSpec music_spec;
 
-struct _Mix_Music {
+struct Mix_Music {
     Mix_MusicInterface *interface;
     void *context;
 
@@ -1544,7 +1544,7 @@ const char* Mix_GetSoundFonts(void)
     return NULL;
 }
 
-int Mix_EachSoundFont(int (SDLCALL *function)(const char*, void*), void *data)
+int Mix_EachSoundFont(Mix_EachSoundFontCallback function, void *data)
 {
     char *context, *path, *paths;
     const char* cpaths = Mix_GetSoundFonts();
