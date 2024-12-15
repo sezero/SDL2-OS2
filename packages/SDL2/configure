@@ -1621,7 +1621,7 @@ Optional Features:
   --enable-ssemath        Allow GCC to use SSE floating point math
                           [default=maybe]
   --enable-mmx            use MMX assembly routines [default=yes]
-  --enable-3dnow          use 3DNow! assembly routines [default=yes]
+  --enable-3dnow          use 3DNow! assembly routines [default=no]
   --enable-sse            use SSE assembly routines [default=yes]
   --enable-sse2           use SSE2 assembly routines [default=maybe]
   --enable-sse3           use SSE3 assembly routines [default=maybe]
@@ -18329,7 +18329,7 @@ $as_echo "$have_gcc_mmx" >&6; }
 if test "${enable_3dnow+set}" = set; then :
   enableval=$enable_3dnow;
 else
-  enable_3dnow=yes
+  enable_3dnow=no
 fi
 
     if test x$enable_3dnow = xyes; then

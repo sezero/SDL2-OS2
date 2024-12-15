@@ -32,7 +32,7 @@ CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -j -zp8
 CFLAGS+= -5s
 DLLFLAGS=-bd
 
-NASMFLAGS=-Iia32/ -f obj -D__OS2__
+NASMFLAGS=-Iia32/ -f obj -DOBJ_FORMAT_obj
 
 LIBS=ogg.lib
 

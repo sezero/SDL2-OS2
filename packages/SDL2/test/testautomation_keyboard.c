@@ -132,9 +132,9 @@ keyboard_getKeyFromScancode(void *arg)
    SDL_Keycode result;
 
    /* Case where input is valid */
-   result = SDL_GetKeyFromScancode(SDL_SCANCODE_A);
+   result = SDL_GetKeyFromScancode(SDL_SCANCODE_SPACE);
    SDLTest_AssertPass("Call to SDL_GetKeyFromScancode(valid)");
-   SDLTest_AssertCheck(result == SDLK_a, "Verify result from call, expected: %i, got: %i", SDLK_a, result);
+   SDLTest_AssertCheck(result == SDLK_SPACE, "Verify result from call, expected: %i, got: %i", SDLK_SPACE, result);
 
    /* Case where input is zero */
    result = SDL_GetKeyFromScancode(0);
@@ -339,7 +339,6 @@ keyboard_getSetModState(void *arg)
 
    return TEST_COMPLETED;
 }
-
 
 /**
  * @brief Check call to SDL_StartTextInput and SDL_StopTextInput

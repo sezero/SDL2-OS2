@@ -685,8 +685,8 @@ dnl Check for various instruction support
     fi
 
     AC_ARG_ENABLE(3dnow,
-[AS_HELP_STRING([--enable-3dnow], [use 3DNow! assembly routines [default=yes]])],
-                  , enable_3dnow=yes)
+[AS_HELP_STRING([--enable-3dnow], [use 3DNow! assembly routines [default=no]])],
+                  , enable_3dnow=no)
     if test x$enable_3dnow = xyes; then
         save_CFLAGS="$CFLAGS"
         have_gcc_3dnow=no

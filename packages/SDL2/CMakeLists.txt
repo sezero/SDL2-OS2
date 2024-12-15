@@ -389,7 +389,7 @@ set_option(SDL_GCC_ATOMICS         "Use gcc builtin atomics" ${OPT_DEF_GCC_ATOMI
 set_option(SDL_ASSEMBLY            "Enable assembly routines" ${OPT_DEF_ASM})
 set_option(SDL_SSEMATH             "Allow GCC to use SSE floating point math" ${OPT_DEF_SSEMATH})
 set_option(SDL_MMX                 "Use MMX assembly routines" ${OPT_DEF_ASM})
-set_option(SDL_3DNOW               "Use 3Dnow! MMX assembly routines" ${OPT_DEF_ASM})
+set_option(SDL_3DNOW               "Use 3Dnow! MMX assembly routines" OFF)
 set_option(SDL_SSE                 "Use SSE assembly routines" ${OPT_DEF_ASM})
 set_option(SDL_SSE2                "Use SSE2 assembly routines" ${OPT_DEF_SSEMATH})
 set_option(SDL_SSE3                "Use SSE3 assembly routines" ${OPT_DEF_SSEMATH})
