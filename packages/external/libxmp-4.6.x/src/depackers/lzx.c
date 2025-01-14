@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 2022 Alice Rowan <petrifiedrowan@gmail.com>
+ * Copyright (C) 2022-2024 Alice Rowan <petrifiedrowan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -440,5 +440,6 @@ static int decrunch_lzx(HIO_HANDLE *in, void **out, long *outlen)
 const struct depacker libxmp_depacker_lzx =
 {
   test_lzx,
+  NULL,
   decrunch_lzx
 };

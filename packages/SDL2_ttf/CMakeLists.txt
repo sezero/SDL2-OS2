@@ -4,7 +4,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # See docs/release_checklist.md
 set(MAJOR_VERSION 2)
-set(MINOR_VERSION 23)
+set(MINOR_VERSION 24)
 set(MICRO_VERSION 0)
 set(SDL_REQUIRED_VERSION 2.0.10)
 
@@ -44,7 +44,7 @@ endif()
 
 set(sdl2ttf_install_enableable ON)
 if ((TARGET SDL2 OR TARGET SDL2-static) AND SDL2_DISABLE_INSTALL)
-    # Cannot install SDL2_mixer when SDL2 is built in same built, and is not installed.
+    # Cannot install SDL2_ttf when SDL2 is built in same built, and is not installed.
     set(sdl2ttf_install_enableable OFF)
 endif()
 
@@ -109,6 +109,9 @@ if(WIN32 AND SDL2TTF_BUILD_SHARED_LIBS)
     target_sources(SDL2_ttf PRIVATE
         version.rc
     )
+    if(MINGW)
+        target_link_options(SDL2_ttf PRIVATE -static-libgcc)
+    endif()
 endif()
 set_target_properties(SDL2_ttf PROPERTIES
     DEFINE_SYMBOL DLL_EXPORT

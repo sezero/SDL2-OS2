@@ -12,6 +12,9 @@
 # To disable ProWizard functionality:
 #	wmake -f Makefile.os2 USE_PROWIZARD=0
 #
+# To build the lite version of the library:
+#	wmake -f Makefile.os2 lite
+
 !ifndef target
 target = dll
 !endif
@@ -21,7 +24,7 @@ USE_DEPACKERS	= 1
 
 CC = wcc386
 SYSTEM = os2v2
-SYSTEM_DLL = os2v2_dll
+TARGET_OS2=yes
 
 CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8
 # newer OpenWatcom versions enable W303 by default.
@@ -32,3 +35,26 @@ CFLAGS += -5s
 CFLAGS += -I"$(%WATCOM)/h/os2" -I"$(%WATCOM)/h"
 
 !include watcom.mif
+
+$(LNKFILE):
+	@echo Creating linker file: $@
+	@%create $@
+	@%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
+	@%append $@ NAME $(DLLNAME)
+	@for %i in ($(ALL_OBJS)) do @%append $@ FILE %i
+	@%append $@ OPTION QUIET
+	@%append $@ OPTION MANYAUTODATA
+	@%append $@ OPTION IMPF=$(EXPNAME)
+	@%append $@ OPTION MAP=$(MAPNAME)
+	@%append $@ OPTION SHOWDEAD
+$(LNKLITE):
+	@echo Creating linker file: $@
+	@%create $@
+	@%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
+	@%append $@ NAME $(DLLNAME_LITE)
+	@for %i in ($(LITE_OBJS)) do @%append $@ FILE %i
+	@%append $@ OPTION QUIET
+	@%append $@ OPTION MANYAUTODATA
+	@%append $@ OPTION IMPF=$(EXPNAME_LITE)
+	@%append $@ OPTION MAP=$(MAPNAME_LITE)
+	@%append $@ OPTION SHOWDEAD

@@ -6,11 +6,15 @@
 #
 # To disable ProWizard functionality:
 #	make -f Makefile.vbcc USE_PROWIZARD=0
+#
+# To build the lite version of the library:
+#	make -f Makefile.vbcc lite
 
 USE_DEPACKERS	= 1
 USE_PROWIZARD	= 1
 
 LIBFILE = xmp.lib
+LIBLITE = xmp-lite.lib
 
 CC	= vc
 CFLAGS  = -Iinclude -O2 -speed -maxoptpasses=32 -c99 -cpu=68060 -fpu=68060 -D__AMIGA__ -DWORDS_BIGENDIAN
@@ -43,6 +47,7 @@ OBJS	= \
  src/mkstemp.o \
  src/md5.o \
  src/lfo.o \
+ src/flow.o \
  src/scan.o \
  src/control.o \
  src/far_extras.o \
@@ -51,6 +56,7 @@ OBJS	= \
  src/effects.o \
  src/mixer.o \
  src/mix_all.o \
+ src/rng.o \
  src/load_helpers.o \
  src/load.o \
  src/hio.o \
@@ -123,7 +129,7 @@ OBJS	= \
  src/loaders/chip_load.o \
  src/loaders/abk_load.o \
  src/loaders/coco_load.o \
- src/loaders/xmf_load.o \
+ src/loaders/xmf_load.o
 
 PROWIZ_OBJS	= \
  src/loaders/prowizard/prowiz.o \
@@ -165,7 +171,7 @@ PROWIZ_OBJS	= \
  src/loaders/prowizard/skyt.o \
  src/loaders/prowizard/novotrade.o \
  src/loaders/prowizard/hrt.o \
- src/loaders/prowizard/noiserun.o \
+ src/loaders/prowizard/noiserun.o
 
 DEPACKER_OBJS	= \
  src/depackers/depacker.o \
@@ -211,6 +217,38 @@ DEPACKER_OBJS	= \
  src/depackers/lhasa/pm2_decoder.o \
  src/depackers/lhasa/macbinary.o
 
+LITE_OBJS	= \
+ src/lite/lite-virtual.o \
+ src/lite/lite-format.o \
+ src/lite/lite-period.o \
+ src/lite/lite-player.o \
+ src/lite/lite-read_event.o \
+ src/lite/lite-misc.o \
+ src/lite/lite-dataio.o \
+ src/lite/lite-lfo.o \
+ src/lite/lite-flow.o \
+ src/lite/lite-scan.o \
+ src/lite/lite-control.o \
+ src/lite/lite-filter.o \
+ src/lite/lite-effects.o \
+ src/lite/lite-mixer.o \
+ src/lite/lite-mix_all.o \
+ src/lite/lite-load_helpers.o \
+ src/lite/lite-load.o \
+ src/lite/lite-filetype.o \
+ src/lite/lite-hio.o \
+ src/lite/lite-smix.o \
+ src/lite/lite-memio.o \
+ src/lite/lite-rng.o \
+ src/lite/lite-win32.o \
+ src/lite/lite-common.o \
+ src/lite/lite-itsex.o \
+ src/lite/lite-sample.o \
+ src/lite/lite-xm_load.o \
+ src/lite/lite-mod_load.o \
+ src/lite/lite-s3m_load.o \
+ src/lite/lite-it_load.o
+
 ALL_OBJS	= $(OBJS)
 ifeq ($(USE_PROWIZARD),1)
 ALL_OBJS += $(PROWIZ_OBJS)
@@ -222,10 +260,10 @@ endif
 .PHONY: clean distclean
 
 all: $(LIBFILE)
+lite: $(LIBLITE)
 
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
-
 ifeq ($(NEED_POSIXLIB),1)
 src/mkstemp.o: src/mkstemp.c
 	$(CC) $(CFLAGS) $(POSIXLIB_CFLAGS) -c -o $@ $<
@@ -235,10 +273,15 @@ endif
 
 $(LIBFILE): $(ALL_OBJS)
 	cat $(ALL_OBJS) > $(LIBFILE)
+$(LIBLITE): $(LITE_OBJS)
+	cat $(LITE_OBJS) > $(LIBLITE)
 
 clean:
 	$(RM) $(OBJS)
 	$(RM) $(DEPACKER_OBJS)
 	$(RM) $(PROWIZ_OBJS)
+	$(RM) $(LITE_OBJS)
 distclean: clean
 	$(RM) $(LIBFILE)
+	$(RM) $(LIBLITE)
+

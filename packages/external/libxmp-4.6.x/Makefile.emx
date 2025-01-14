@@ -6,12 +6,17 @@
 #
 # To disable ProWizard functionality:
 #	make -f Makefile.emx USE_PROWIZARD=0
+#
+# To build the lite version of the library:
+#	make -f Makefile.emx lite
 
 USE_DEPACKERS	= 1
 USE_PROWIZARD	= 1
 
 LIBFILE = xmp.a
 TESTNAME= libxmp-test.exe
+LIBLITE = xmp-lite.a
+TESTLITE= libxmp-lite-test.exe
 
 CC	= gcc
 AR	= ar
@@ -40,6 +45,7 @@ OBJS	= \
  src/mkstemp.o \
  src/md5.o \
  src/lfo.o \
+ src/flow.o \
  src/scan.o \
  src/control.o \
  src/far_extras.o \
@@ -48,6 +54,7 @@ OBJS	= \
  src/effects.o \
  src/mixer.o \
  src/mix_all.o \
+ src/rng.o \
  src/load_helpers.o \
  src/load.o \
  src/hio.o \
@@ -120,7 +127,7 @@ OBJS	= \
  src/loaders/chip_load.o \
  src/loaders/abk_load.o \
  src/loaders/coco_load.o \
- src/loaders/xmf_load.o \
+ src/loaders/xmf_load.o
 
 PROWIZ_OBJS	= \
  src/loaders/prowizard/prowiz.o \
@@ -162,7 +169,7 @@ PROWIZ_OBJS	= \
  src/loaders/prowizard/skyt.o \
  src/loaders/prowizard/novotrade.o \
  src/loaders/prowizard/hrt.o \
- src/loaders/prowizard/noiserun.o \
+ src/loaders/prowizard/noiserun.o
 
 DEPACKER_OBJS	= \
  src/depackers/depacker.o \
@@ -208,6 +215,38 @@ DEPACKER_OBJS	= \
  src/depackers/lhasa/pm2_decoder.o \
  src/depackers/lhasa/macbinary.o
 
+LITE_OBJS	= \
+ src/lite/lite-virtual.o \
+ src/lite/lite-format.o \
+ src/lite/lite-period.o \
+ src/lite/lite-player.o \
+ src/lite/lite-read_event.o \
+ src/lite/lite-misc.o \
+ src/lite/lite-dataio.o \
+ src/lite/lite-lfo.o \
+ src/lite/lite-flow.o \
+ src/lite/lite-scan.o \
+ src/lite/lite-control.o \
+ src/lite/lite-filter.o \
+ src/lite/lite-effects.o \
+ src/lite/lite-mixer.o \
+ src/lite/lite-mix_all.o \
+ src/lite/lite-load_helpers.o \
+ src/lite/lite-load.o \
+ src/lite/lite-filetype.o \
+ src/lite/lite-hio.o \
+ src/lite/lite-smix.o \
+ src/lite/lite-memio.o \
+ src/lite/lite-rng.o \
+ src/lite/lite-win32.o \
+ src/lite/lite-common.o \
+ src/lite/lite-itsex.o \
+ src/lite/lite-sample.o \
+ src/lite/lite-xm_load.o \
+ src/lite/lite-mod_load.o \
+ src/lite/lite-s3m_load.o \
+ src/lite/lite-it_load.o
+
 ALL_OBJS	= $(OBJS)
 ifeq ($(USE_PROWIZARD),1)
 ALL_OBJS += $(PROWIZ_OBJS)
@@ -216,10 +255,12 @@ ifeq ($(USE_DEPACKERS),1)
 ALL_OBJS += $(DEPACKER_OBJS)
 endif
 TEST_OBJS = test/md5.o test/test.o
+TESTLITE_OBJS = test/md5.o test/testlite.o
 
 .PHONY: clean distclean
 
 all: $(LIBFILE)
+lite: $(LIBLITE)
 
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -228,15 +269,24 @@ test/md5.o: src/md5.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 test/test.o: test/test.c
 	$(CC) $(CFLAGS) -c -o $@ $<
+test/testlite.o: test/testlite.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(LIBFILE): $(ALL_OBJS)
 	$(AR) cru $(LIBFILE) $(ALL_OBJS)
 	$(RANLIB) $(LIBFILE)
+$(LIBLITE): $(LITE_OBJS)
+	$(AR) cru $(LIBLITE) $(LITE_OBJS)
+	$(RANLIB) $(LIBLITE)
 
 test/$(TESTNAME): $(LIBFILE) $(TEST_OBJS)
 	$(CC) $(TEST_OBJS) -L. -lxmp -Zmt -o $@
+test/$(TESTLITE): $(LIBLITE) $(TESTLITE_OBJS)
+	$(CC) $(TESTLITE_OBJS) -L. -lxmp-lite -Zmt -o $@
 check: test/$(TESTNAME)
 	cd test & $(TESTNAME)
+check-lite: test/$(TESTLITE)
+	cd test & $(TESTLITE)
 
 clean:
 	-del src\*.o
@@ -246,4 +296,7 @@ clean:
 	-del test\*.o
 distclean: clean
 	-del $(LIBFILE)
+	-del $(LIBLITE)
 	-del test\$(TESTNAME)
+	-del test\$(TESTLITE)
+

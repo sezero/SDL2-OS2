@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2023 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -37,6 +37,7 @@
  * Claudio's fix: implementing effect K
  */
 
+#include "common.h"
 #include "virtual.h"
 #include "period.h"
 #include "effects.h"
@@ -137,6 +138,9 @@ static int update_envelope_generic(struct xmp_envelope *env, int x, int release)
 	 * envelope loop end and the key is released, FT2 escapes the loop
 	 * while IT runs another iteration. (See EnvLoops.xm in the OpenMPT
 	 * test cases.)
+	 * TODO: this is a bit suspicious, has little relation to the above
+	 * description, and had to be removed from the XM handler because it
+	 * broke a module (fade_2_grey_visage.xm). Retesting is required.
 	 */
 	if (has_loop && has_sus && sus == lpe) {
 		if (!release)
@@ -168,6 +172,12 @@ static int update_envelope_generic(struct xmp_envelope *env, int x, int release)
 	 * Real Tracker 2.
 	 */
 	if (has_loop && x >= data[lpe]) {
+		/* FT2 and IT envelopes behave in a different way regarding
+		 * loops, sustain and release. When the sustain point is at the
+		 * end of the envelope loop end and the key is released, FT2
+		 * escapes the loop while IT runs another iteration.
+		 * (See OpenMPT EnvLoops.xm)
+		 */
 		if (!(release && has_sus && sus == lpe))
 			x = data[lps];
 	}
@@ -190,17 +200,6 @@ static int update_envelope_xm(struct xmp_envelope *env, int x, int release)
 	lpe = env->lpe << 1;
 	sus = env->sus << 1;
 
-	/* FT2 and IT envelopes behave in a different way regarding loops,
-	 * sustain and release. When the sustain point is at the end of the
-	 * envelope loop end and the key is released, FT2 escapes the loop
-	 * while IT runs another iteration. (See EnvLoops.xm in the OpenMPT
-	 * test cases.)
-	 */
-	if (has_loop && has_sus && sus == lpe) {
-		if (!release)
-			has_sus = 0;
-	}
-
 	/* If the envelope point is set to somewhere after the sustain point
 	 * or sustain loop, enable release to prevent the envelope point from
 	 * returning to the sustain point or loop start. (See Filip Skutela's
@@ -221,10 +220,16 @@ static int update_envelope_xm(struct xmp_envelope *env, int x, int release)
 	 *
 	 * If the envelope point is set to somewhere after the sustain point
 	 * or sustain loop, the loop point is ignored to prevent the envelope
-	 * point to return to the sustain point or loop start. (See Filip Skutela's
-	 * farewell_tear.xm or Ebony Owl Netsuke.xm.)
+	 * point from returning to the sustain point or loop start.
+	 * (See Filip Skutela's farewell_tear.xm or Ebony Owl Netsuke.xm.)
 	*/
 	if (has_loop && x == data[lpe]) {
+		/* FT2 and IT envelopes behave in a different way regarding
+		 * loops, sustain and release. When the sustain point is at the
+		 * end of the envelope loop end and the key is released, FT2
+		 * escapes the loop while IT runs another iteration.
+		 * (See OpenMPT EnvLoops.xm)
+		 */
 		if (!(release && has_sus && sus == lpe))
 			x = data[lps];
 	}
@@ -557,7 +562,12 @@ static void update_invloop(struct context_data *ctx, struct channel_data *xc)
 {
 	struct xmp_sample *xxs = libxmp_get_sample(ctx, xc->smp);
 	struct module_data *m = &ctx->m;
-	int lps, len = -1;
+	int lps = 0, len = -1;
+
+	/* If an instrument number is present, reset the position. */
+	if (ctx->p.frame == 0 && TEST(NEW_INS)) {
+		xc->invloop.pos = 0;
+	}
 
 	xc->invloop.count += invloop_table[xc->invloop.speed];
 
@@ -1622,7 +1632,7 @@ static void play_channel(struct context_data *ctx, int chn)
 			xc->volume += rval[xc->retrig.type].s;
 			xc->volume *= rval[xc->retrig.type].m;
 			xc->volume /= rval[xc->retrig.type].d;
-			xc->retrig.count = LSN(xc->retrig.val);
+			xc->retrig.count = xc->retrig.val;
 
 			if (xc->retrig.limit > 0) {
 				/* Limit the number of retriggers. */
@@ -1695,6 +1705,7 @@ static void next_order(struct context_data *ctx)
 	struct xmp_module *mod = &m->mod;
 	int reset_gvol = 0;
 	int mark;
+	int i;
 
 	do {
 		p->ord++;
@@ -1737,6 +1748,17 @@ static void next_order(struct context_data *ctx)
 	p->pos = p->ord;
 	p->frame = 0;
 
+	/* Scream Tracker 3, Imago Orpheus: position change resets loop vars.
+	 * For some reason the pattern jump effect does not do this in IMF. */
+	if (HAS_FLOW_MODE(FLOW_LOOP_PATTERN_RESET)) {
+		f->loop_start = -1;
+		f->loop_count = 0;
+		for (i = 0; i < mod->chn; i++) {
+			f->loop[i].start = 0;
+			f->loop[i].count = 0;
+		}
+	}
+
 #ifndef LIBXMP_CORE_PLAYER
 	f->jump_in_pat = -1;
 
@@ -1757,6 +1779,7 @@ static void next_row(struct context_data *ctx)
 
 	p->frame = 0;
 	f->delay = 0;
+	f->loop_param = -1;
 
 	if (f->pbreak) {
 		f->pbreak = 0;
@@ -1775,9 +1798,9 @@ static void next_row(struct context_data *ctx)
 			f->rowdelay--;
 		}
 
-		if (f->loop_chn) {
-			p->row = f->loop[f->loop_chn - 1].start;
-			f->loop_chn = 0;
+		if (f->loop_dest >= 0) {
+			p->row = f->loop_dest;
+			f->loop_dest = -1;
 		}
 
 		/* check end of pattern */
@@ -1834,7 +1857,11 @@ void libxmp_reset_flow(struct context_data *ctx)
 	f->jumpline = 0;
 	f->jump = -1;
 	f->pbreak = 0;
-	f->loop_chn = 0;
+	f->loop_dest = -1;
+	f->loop_param = -1;
+	f->loop_start = -1;
+	f->loop_count = 0;
+	f->loop_active_num = 0;
 	f->delay = 0;
 	f->rowdelay = 0;
 	f->rowdelay_set = 0;

@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 2021-2022 Alice Rowan <petrifiedrowan@gmail.com>
+ * Copyright (C) 2021-2024 Alice Rowan <petrifiedrowan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -334,5 +334,6 @@ static int arcfs_decrunch(HIO_HANDLE *in, void **out, long *outlen)
 const struct depacker libxmp_depacker_arcfs =
 {
   arcfs_test,
+  NULL,
   arcfs_decrunch
 };

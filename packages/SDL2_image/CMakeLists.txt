@@ -248,6 +248,9 @@ if(WIN32 AND SDL2IMAGE_BUILD_SHARED_LIBS)
     target_sources(SDL2_image PRIVATE
         src/version.rc
     )
+    if(MINGW)
+        target_link_options(SDL2_image PRIVATE -static-libgcc)
+    endif()
 endif()
 set_target_properties(SDL2_image PROPERTIES
     DEFINE_SYMBOL DLL_EXPORT
@@ -364,8 +367,7 @@ if(SDL2IMAGE_ZLIB)
         set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "zlib examples" FORCE)
         sdl_check_project_in_subfolder(external/zlib zlib SDL2IMAGE_VENDORED)
         add_subdirectory(external/zlib EXCLUDE_FROM_ALL)
-        # PNG_BUILD_ZLIB variable is used by vendored libpng
-        set(PNG_BUILD_ZLIB ON CACHE BOOL "libpng option to tell it should use 'our' vendored ZLIB library" FORCE)
+        set(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/external/zlib;${CMAKE_CURRENT_BINARY_DIR}/external/zlib")
         # ZLIB_INCLUDE_DIR variable is used by vendored libpng
         set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/zlib;${CMAKE_CURRENT_BINARY_DIR}/external/zlib" CACHE STRING "path of zlib, passed to libpng" FORCE)
         # ZLIB_LIBRARY variable is used by vendored libpng
@@ -373,6 +375,7 @@ if(SDL2IMAGE_ZLIB)
             set(ZLIB_LIBRARY zlib)
         else()
             set(ZLIB_LIBRARY zlibstatic)
+            set(SKIP_INSTALL_CONFIG_FILE ON)
         endif()
         if(NOT TARGET ZLIB::ZLIB)
             add_library(ZLIB::ZLIB ALIAS ${ZLIB_LIBRARY})
@@ -419,7 +422,7 @@ if(SDL2IMAGE_AVIF)
         if(NOT SDL2IMAGE_AVIF_SHARED)
             list(APPEND PC_LIBS -l$<TARGET_FILE_BASE_NAME:avif>)
         endif()
-        if(NOT MSVC)
+        if(NOT MSVC AND NOT CMAKE_SYSTEM_NAME MATCHES ".*OpenBSD.*")
           check_linker_flag(C "-Wl,--no-undefined" LINKER_SUPPORTS_WL_NO_UNDEFINED)
           if(LINKER_SUPPORTS_WL_NO_UNDEFINED)
             target_link_options(avif PRIVATE "-Wl,--no-undefined")
