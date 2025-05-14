@@ -1,6 +1,6 @@
 m4_define([libxmp_VERSION_MAJOR_m4], [4])
 m4_define([libxmp_VERSION_MINOR_m4], [6])
-m4_define([libxmp_VERSION_PATCH_m4], [2])
+m4_define([libxmp_VERSION_PATCH_m4], [3])
 m4_define([libxmp_VERSION_m4], libxmp_VERSION_MAJOR_m4[.]libxmp_VERSION_MINOR_m4[.]libxmp_VERSION_PATCH_m4)
 
 AC_PREREQ(2.60)
@@ -279,6 +279,10 @@ amigaos*|aros*|morphos*)
   AC_CHECK_HEADERS(proto/xfdmaster.h)
   ;;
 esac
+
+# FIXME: Make out-of-tree builds work.
+CPPFLAGS="$CPPFLAGS -Iinclude"
+CPPFLAGS="$CPPFLAGS -D_REENTRANT"
 
 AC_SUBST([libxmp_VERSION_MAJOR],libxmp_VERSION_MAJOR_m4)
 AC_SUBST([libxmp_VERSION_MINOR],libxmp_VERSION_MINOR_m4)

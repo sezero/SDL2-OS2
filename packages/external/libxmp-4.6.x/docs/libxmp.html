@@ -43,7 +43,6 @@ h2 {
 	font-size:115%;
 }
 
-
 h3 {
 	font-size:105%;
 }
@@ -84,7 +83,6 @@ ul {
 	list-style-type: square;
 	color: #404040;
 }
-
 /*
 table {
 	margin-left: 2.5em;
@@ -104,7 +102,6 @@ thead {
 	background: #c0d0ff;
 }
 */
-
 .literal-block {
 	background-color: #e0e0e0;
 }
@@ -119,6 +116,7 @@ thead {
 	border-radius: 0.6em;
 	-moz-border-radius: 0.6em;
 }
+
 </style>
 </head>
 <body>
@@ -798,7 +796,8 @@ file loading failed, or <tt class="docutils literal"><span class="pre">-XMP_ERRO
 <p>Scan the loaded module for sequences and timing. Scanning is automatically
 performed by <a class="reference internal" href="#xmp-load-module">xmp_load_module()</a> and this function should be called only
 if <a class="reference internal" href="#xmp-set-player">xmp_set_player()</a> is used to change player timing (with parameter
-<tt class="docutils literal">XMP_PLAYER_VBLANK</tt>) in libxmp 4.0.2 or older.</p>
+<tt class="docutils literal">XMP_PLAYER_VBLANK</tt>) in libxmp 4.0.2 or older, or if
+<a class="reference internal" href="#xmp-set-tempo-factor">xmp_set_tempo_factor()</a> is used to change the base tempo factor.</p>
 <dl class="docutils">
 <dt><strong>Parameters:</strong></dt>
 <dd><table class="first last docutils field-list" frame="void" rules="none">
@@ -1024,7 +1023,10 @@ struct xmp_frame_info {           /* Current frame information */
 <p class="last">This function should be used to retrieve sound buffer data after
 <a class="reference internal" href="#xmp-play-frame">xmp_play_frame()</a> is called. Fields <tt class="docutils literal">buffer</tt> and <tt class="docutils literal">buffer_size</tt>
 contain the pointer to the sound buffer PCM data and its size. The
-buffer size will be no larger than <tt class="docutils literal">XMP_MAX_FRAMESIZE</tt>.</p>
+buffer size will be no larger than <tt class="docutils literal">XMP_MAX_FRAMESIZE</tt>.
+Fields <tt class="docutils literal">time</tt>, <tt class="docutils literal">total_time</tt>, and <tt class="docutils literal">frame_time</tt> are based on the
+base tempo factor set when the module was last scanned (see
+<a class="reference internal" href="#xmp-set-tempo-factor">xmp_set_tempo_factor()</a> and <a class="reference internal" href="#xmp-scan-module">xmp_scan_module()</a>).</p>
 </td>
 </tr>
 </tbody>
@@ -1057,7 +1059,10 @@ buffer size will be no larger than <tt class="docutils literal">XMP_MAX_FRAMESIZ
 <div class="section" id="int-xmp-next-position-xmp-context-c">
 <span id="xmp-next-position"></span><h3><a class="toc-backref" href="#id33">int xmp_next_position(xmp_context c)</a></h3>
 <blockquote>
-<p>Skip replay to the start of the next position.</p>
+<p>Skip replay to the start of the next position.
+If the module was stopped with <tt class="docutils literal">xmp_stop_module</tt>, this operation
+restarts the module at position 0. If the module is restarting
+at position 0, this operation does nothing.</p>
 <dl class="docutils">
 <dt><strong>Parameters:</strong></dt>
 <dd><table class="first last docutils field-list" frame="void" rules="none">
@@ -1070,15 +1075,18 @@ buffer size will be no larger than <tt class="docutils literal">XMP_MAX_FRAMESIZ
 </table>
 </dd>
 <dt><strong>Returns:</strong></dt>
-<dd>The new position index, or <tt class="docutils literal"><span class="pre">-XMP_ERROR_STATE</span></tt> if the player is not
-in playing state.</dd>
+<dd>The new position index, -1 if the module is restarting at position
+0, or <tt class="docutils literal"><span class="pre">-XMP_ERROR_STATE</span></tt> if the player is not in playing state.</dd>
 </dl>
 </blockquote>
 </div>
 <div class="section" id="int-xmp-prev-position-xmp-context-c">
 <span id="xmp-prev-position"></span><h3><a class="toc-backref" href="#id34">int xmp_prev_position(xmp_context c)</a></h3>
 <blockquote>
-<p>Skip replay to the start of the previous position.</p>
+<p>Skip replay to the start of the previous position.
+If the module was stopped with <tt class="docutils literal">xmp_stop_module</tt>, is restarting at
+position 0, or if the previous position is part of a different sequence,
+this operation does nothing.</p>
 <dl class="docutils">
 <dt><strong>Parameters:</strong></dt>
 <dd><table class="first last docutils field-list" frame="void" rules="none">
@@ -1099,7 +1107,9 @@ in playing state.</dd>
 <div class="section" id="int-xmp-set-position-xmp-context-c-int-pos">
 <span id="xmp-set-position"></span><h3><a class="toc-backref" href="#id35">int xmp_set_position(xmp_context c, int pos)</a></h3>
 <blockquote>
-<p>Skip replay to the start of the given position.</p>
+<p>Skip replay to the start of the given position.
+If the module was stopped with <tt class="docutils literal">xmp_stop_module</tt>, this operation
+will restart the module at the destination position.</p>
 <dl class="docutils">
 <dt><strong>Parameters:</strong></dt>
 <dd><table class="first last docutils field-list" frame="void" rules="none">
@@ -1114,8 +1124,9 @@ in playing state.</dd>
 </table>
 </dd>
 <dt><strong>Returns:</strong></dt>
-<dd>The new position index, <tt class="docutils literal"><span class="pre">-XMP_ERROR_INVALID</span></tt> of the new position is
-invalid or <tt class="docutils literal"><span class="pre">-XMP_ERROR_STATE</span></tt> if the player is not in playing state.</dd>
+<dd>The new position index, -1 if the module is restarting at
+position 0, <tt class="docutils literal"><span class="pre">-XMP_ERROR_INVALID</span></tt> of the new position is invalid,
+or <tt class="docutils literal"><span class="pre">-XMP_ERROR_STATE</span></tt> if the player is not in playing state.</dd>
 </dl>
 </blockquote>
 </div>
@@ -1145,7 +1156,15 @@ invalid or <tt class="docutils literal"><span class="pre">-XMP_ERROR_STATE</span
 <div class="section" id="int-xmp-set-tempo-factor-xmp-context-c-double-val">
 <span id="xmp-set-tempo-factor"></span><h3><a class="toc-backref" href="#id37">int xmp_set_tempo_factor(xmp_context c, double val)</a></h3>
 <blockquote>
-<p><em>[Added in libxmp 4.5]</em> Modify the replay tempo multiplier.</p>
+<p><em>[Added in libxmp 4.5]</em> Modify the current base tempo multiplier.
+This value is a property of the currently loaded module, not of
+the player: the default value of the tempo factor is <tt class="docutils literal">1.0</tt>
+for most modules, <tt class="docutils literal">0.264</tt> for MED/OctaMED tempo mode modules,
+<tt class="docutils literal">4.0 / rows_per_beat</tt> for MED/OctaMED BPM mode modules, and
+roughly <tt class="docutils literal">0.401373</tt> for Farandole Composer modules.</p>
+<p>This function does not recalculate the playback times returned by
+<a class="reference internal" href="#xmp-get-frame-info">xmp_get_frame_info()</a>. To recalculate these times, call
+<a class="reference internal" href="#xmp-scan-module">xmp_scan_module()</a> after setting the tempo factor.</p>
 <dl class="docutils">
 <dt><strong>Parameters:</strong></dt>
 <dd><table class="first last docutils field-list" frame="void" rules="none">
@@ -1797,7 +1816,7 @@ sample slot number is invalid.</dd>
 <div class="section" id="void-xmp-end-smix-xmp-context-c">
 <span id="xmp-end-smix"></span><h3><a class="toc-backref" href="#id57">void xmp_end_smix(xmp_context c)</a></h3>
 <blockquote>
-<p>Deinitialize and resease memory used by the external sample mixer subsystem.</p>
+<p>Deinitialize and release memory used by the external sample mixer subsystem.</p>
 <dl class="docutils">
 <dt><strong>Parameters:</strong></dt>
 <dd><table class="first last docutils field-list" frame="void" rules="none">

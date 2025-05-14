@@ -693,7 +693,8 @@ the player context handle.
 Scan the loaded module for sequences and timing. Scanning is automatically
 performed by \fI\%xmp_load_module()\fP and this function should be called only
 if \fI\%xmp_set_player()\fP is used to change player timing (with parameter
-\fCXMP_PLAYER_VBLANK\fP) in libxmp 4.0.2 or older.
+\fCXMP_PLAYER_VBLANK\fP) in libxmp 4.0.2 or older, or if
+\fI\%xmp_set_tempo_factor()\fP is used to change the base tempo factor.
 .INDENT 0.0
 .TP
 .B \fBParameters:\fP
@@ -943,6 +944,9 @@ This function should be used to retrieve sound buffer data after
 \fI\%xmp_play_frame()\fP is called. Fields \fCbuffer\fP and \fCbuffer_size\fP
 contain the pointer to the sound buffer PCM data and its size. The
 buffer size will be no larger than \fCXMP_MAX_FRAMESIZE\fP.
+Fields \fCtime\fP, \fCtotal_time\fP, and \fCframe_time\fP are based on the
+base tempo factor set when the module was last scanned (see
+\fI\%xmp_set_tempo_factor()\fP and \fI\%xmp_scan_module()\fP).
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -970,6 +974,9 @@ the player context handle.
 .INDENT 3.5
 .sp
 Skip replay to the start of the next position.
+If the module was stopped with \fCxmp_stop_module\fP, this operation
+restarts the module at position 0. If the module is restarting
+at position 0, this operation does nothing.
 .INDENT 0.0
 .TP
 .B \fBParameters:\fP
@@ -982,8 +989,8 @@ the player context handle.
 .TP
 .B \fBReturns:\fP
 .sp
-The new position index, or \fC\-XMP_ERROR_STATE\fP if the player is not
-in playing state.
+The new position index, \-1 if the module is restarting at position
+0, or \fC\-XMP_ERROR_STATE\fP if the player is not in playing state.
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -992,6 +999,9 @@ in playing state.
 .INDENT 3.5
 .sp
 Skip replay to the start of the previous position.
+If the module was stopped with \fCxmp_stop_module\fP, is restarting at
+position 0, or if the previous position is part of a different sequence,
+this operation does nothing.
 .INDENT 0.0
 .TP
 .B \fBParameters:\fP
@@ -1014,6 +1024,8 @@ in playing state.
 .INDENT 3.5
 .sp
 Skip replay to the start of the given position.
+If the module was stopped with \fCxmp_stop_module\fP, this operation
+will restart the module at the destination position.
 .INDENT 0.0
 .TP
 .B \fBParameters:\fP
@@ -1030,8 +1042,9 @@ the position index to set.
 .TP
 .B \fBReturns:\fP
 .sp
-The new position index, \fC\-XMP_ERROR_INVALID\fP of the new position is
-invalid or \fC\-XMP_ERROR_STATE\fP if the player is not in playing state.
+The new position index, \-1 if the module is restarting at
+position 0, \fC\-XMP_ERROR_INVALID\fP of the new position is invalid,
+or \fC\-XMP_ERROR_STATE\fP if the player is not in playing state.
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -1065,7 +1078,16 @@ The new row, \fC\-XMP_ERROR_INVALID\fP if the new row is invalid or
 .INDENT 0.0
 .INDENT 3.5
 .sp
-\fI[Added in libxmp 4.5]\fP Modify the replay tempo multiplier.
+\fI[Added in libxmp 4.5]\fP Modify the current base tempo multiplier.
+This value is a property of the currently loaded module, not of
+the player: the default value of the tempo factor is \fC1.0\fP
+for most modules, \fC0.264\fP for MED/OctaMED tempo mode modules,
+\fC4.0 / rows_per_beat\fP for MED/OctaMED BPM mode modules, and
+roughly \fC0.401373\fP for Farandole Composer modules.
+.sp
+This function does not recalculate the playback times returned by
+\fI\%xmp_get_frame_info()\fP. To recalculate these times, call
+\fI\%xmp_scan_module()\fP after setting the tempo factor.
 .INDENT 0.0
 .TP
 .B \fBParameters:\fP
@@ -1821,7 +1843,7 @@ sample slot number is invalid.
 .INDENT 0.0
 .INDENT 3.5
 .sp
-Deinitialize and resease memory used by the external sample mixer subsystem.
+Deinitialize and release memory used by the external sample mixer subsystem.
 .INDENT 0.0
 .TP
 .B \fBParameters:\fP
