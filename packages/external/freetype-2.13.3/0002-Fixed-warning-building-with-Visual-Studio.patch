@@ -1,0 +1,22 @@
+From da51875842f5281475e66383e211db2e4193a2b4 Mon Sep 17 00:00:00 2001
+From: Sam Lantinga <slouken@libsdl.org>
+Date: Mon, 23 May 2022 16:11:42 -0700
+Subject: [PATCH] Fixed warning building with Visual Studio
+
+---
+ src/type42/t42objs.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/type42/t42objs.c b/src/type42/t42objs.c
+index 7010ba8..27461ce 100644
+--- a/src/type42/t42objs.c
++++ b/src/type42/t42objs.c
+@@ -504,7 +504,7 @@
+     T42_Size  t42size = (T42_Size)size;
+     FT_Face   face    = size->face;
+     T42_Face  t42face = (T42_Face)face;
+-    FT_Size   ttsize;
++    FT_Size   ttsize = 0;
+     FT_Error  error;
+ 
+ 

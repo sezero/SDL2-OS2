@@ -1,0 +1,25 @@
+From d3a395b5fe515fd5c31d263bfc03fd85dd381a8f Mon Sep 17 00:00:00 2001
+From: Ozkan Sezer <sezeroz@gmail.com>
+Date: Thu, 20 Mar 2025 11:55:10 +0300
+Subject: [PATCH] cmake: do not export freetype symbols in static builds.
+
+---
+ CMakeLists.txt |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6c60504..1a440b7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -481,7 +481,10 @@ set_target_properties(
+ 
+ target_compile_definitions(
+   freetype PRIVATE FT2_BUILD_LIBRARY)
+-
++if(NOT BUILD_SHARED_LIBS)
++  # Don't export symbols
++  target_compile_definitions(freetype PRIVATE FT_PUBLIC_FUNCTION_ATTRIBUTE=)
++endif()
+ if (WIN32)
+   target_compile_definitions(
+     freetype PRIVATE _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS)

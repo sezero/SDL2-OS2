@@ -1,0 +1,345 @@
+From 1cf5e2387c5ecbfd198a06d4201d52ce8407b17e Mon Sep 17 00:00:00 2001
+From: Werner Lemberg <wl@gnu.org>
+Date: Wed, 28 May 2025 07:09:40 +0200
+Subject: [PATCH] [gzip] Update sources to zlib 1.13.1.
+
+Fixes issue #1294.
+
+(cherry picked from commit 3aeabbf87d858398aeee6397cea568e624f38366)
+---
+ src/gzip/ftzconf.h                  |   10 +---------
+ src/gzip/gzguts.h                   |    8 ++------
+ src/gzip/inflate.c                  |    2 +-
+ src/gzip/inftrees.c                 |    6 +++---
+ src/gzip/inftrees.h                 |    4 ++--
+ src/gzip/patches/freetype-zlib.diff |   24 ++++++++++++------------
+ src/gzip/zlib.h                     |   22 +++++++++++-----------
+ src/gzip/zutil.h                    |   27 +++------------------------
+ 8 files changed, 35 insertions(+), 68 deletions(-)
+
+diff --git a/src/gzip/ftzconf.h b/src/gzip/ftzconf.h
+index fb76ffe..62adc8d 100644
+--- a/src/gzip/ftzconf.h
++++ b/src/gzip/ftzconf.h
+@@ -1,5 +1,5 @@
+ /* zconf.h -- configuration of the zlib compression library
+- * Copyright (C) 1995-2016 Jean-loup Gailly, Mark Adler
++ * Copyright (C) 1995-2024 Jean-loup Gailly, Mark Adler
+  * For conditions of distribution and use, see copyright notice in zlib.h
+  */
+ 
+@@ -300,14 +300,6 @@
+ #  endif
+ #endif
+ 
+-#ifndef Z_ARG /* function prototypes for stdarg */
+-#  if defined(STDC) || defined(Z_HAVE_STDARG_H)
+-#    define Z_ARG(args)  args
+-#  else
+-#    define Z_ARG(args)  ()
+-#  endif
+-#endif
+-
+ /* The following definitions for FAR are needed only for MSDOS mixed
+  * model programming (small or medium model with some far allocations).
+  * This was tested only with MSC; for other MSDOS compilers you may have
+diff --git a/src/gzip/gzguts.h b/src/gzip/gzguts.h
+index f9a250b..d7d733b 100644
+--- a/src/gzip/gzguts.h
++++ b/src/gzip/gzguts.h
+@@ -1,5 +1,5 @@
+ /* gzguts.h -- zlib internal header definitions for gz* operations
+- * Copyright (C) 2004-2019 Mark Adler
++ * Copyright (C) 2004-2024 Mark Adler
+  * For conditions of distribution and use, see copyright notice in zlib.h
+  */
+ 
+@@ -210,9 +210,5 @@ char ZLIB_INTERNAL *gz_strwinerror(DWORD error);
+ /* GT_OFF(x), where x is an unsigned value, is true if x > maximum z_off64_t
+    value -- needed when comparing unsigned to z_off64_t, which is signed
+    (possible z_off64_t types off_t, off64_t, and long are all signed) */
+-#ifdef INT_MAX
+-#  define GT_OFF(x) (sizeof(int) == sizeof(z_off64_t) && (x) > INT_MAX)
+-#else
+ unsigned ZLIB_INTERNAL gz_intmax(void);
+-#  define GT_OFF(x) (sizeof(int) == sizeof(z_off64_t) && (x) > gz_intmax())
+-#endif
++#define GT_OFF(x) (sizeof(int) == sizeof(z_off64_t) && (x) > gz_intmax())
+diff --git a/src/gzip/inflate.c b/src/gzip/inflate.c
+index f7ed5d1..c812568 100644
+--- a/src/gzip/inflate.c
++++ b/src/gzip/inflate.c
+@@ -1393,7 +1393,7 @@ int ZEXPORT inflateSync(z_streamp strm) {
+     /* if first time, start search in bit buffer */
+     if (state->mode != SYNC) {
+         state->mode = SYNC;
+-        state->hold <<= state->bits & 7;
++        state->hold >>= state->bits & 7;
+         state->bits -= state->bits & 7;
+         len = 0;
+         while (state->bits >= 8) {
+diff --git a/src/gzip/inftrees.c b/src/gzip/inftrees.c
+index 1fd6555..468eea8 100644
+--- a/src/gzip/inftrees.c
++++ b/src/gzip/inftrees.c
+@@ -1,5 +1,5 @@
+ /* inftrees.c -- generate Huffman trees for efficient decoding
+- * Copyright (C) 1995-2023 Mark Adler
++ * Copyright (C) 1995-2024 Mark Adler
+  * For conditions of distribution and use, see copyright notice in zlib.h
+  */
+ 
+@@ -9,7 +9,7 @@
+ #define MAXBITS 15
+ 
+ static const char inflate_copyright[] =
+-   " inflate 1.3 Copyright 1995-2023 Mark Adler ";
++   " inflate 1.3.1 Copyright 1995-2024 Mark Adler ";
+ /*
+   If you use the zlib library in a product, an acknowledgment is welcome
+   in the documentation of your product. If for some reason you cannot
+@@ -57,7 +57,7 @@ int ZLIB_INTERNAL inflate_table(codetype type, unsigned short FAR *lens,
+         35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0};
+     static const unsigned short lext[31] = { /* Length codes 257..285 extra */
+         16, 16, 16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 18, 18, 18, 18,
+-        19, 19, 19, 19, 20, 20, 20, 20, 21, 21, 21, 21, 16, 198, 203};
++        19, 19, 19, 19, 20, 20, 20, 20, 21, 21, 21, 21, 16, 203, 77};
+     static const unsigned short dbase[32] = { /* Distance codes 0..29 base */
+         1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193,
+         257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145,
+diff --git a/src/gzip/inftrees.h b/src/gzip/inftrees.h
+index 47f726c..d735b0a 100644
+--- a/src/gzip/inftrees.h
++++ b/src/gzip/inftrees.h
+@@ -44,8 +44,8 @@ typedef struct {
+    examples/enough.c found in the zlib distribution.  The arguments to that
+    program are the number of symbols, the initial root table size, and the
+    maximum bit length of a code.  "enough 286 9 15" for literal/length codes
+-   returns returns 852, and "enough 30 6 15" for distance codes returns 592.
+-   The initial root table size (9 or 6) is found in the fifth argument of the
++   returns 852, and "enough 30 6 15" for distance codes returns 592. The
++   initial root table size (9 or 6) is found in the fifth argument of the
+    inflate_table() calls in inflate.c and infback.c.  If the root table size is
+    changed, then these maximum sizes would be need to be recalculated and
+    updated. */
+diff --git a/src/gzip/patches/freetype-zlib.diff b/src/gzip/patches/freetype-zlib.diff
+index 9486bd0..9c7e549 100644
+--- a/src/gzip/patches/freetype-zlib.diff
++++ b/src/gzip/patches/freetype-zlib.diff
+@@ -104,7 +104,7 @@ index 6c38f5c04..27487dcc2 100644
+ +
+ +#endif  /* !Z_FREETYPE */
+ diff --git b/src/gzip/gzguts.h a/src/gzip/gzguts.h
+-index f9375047e..f9a250b85 100644
++index eba72085b..d7d733bda 100644
+ --- b/src/gzip/gzguts.h
+ +++ a/src/gzip/gzguts.h
+ @@ -162,7 +162,7 @@
+@@ -127,7 +127,7 @@ index 49c6d156c..a38c5be45 100644
+ -void ZLIB_INTERNAL inflate_fast(z_streamp strm, unsigned start);
+ +static void ZLIB_INTERNAL inflate_fast(z_streamp strm, unsigned start);
+ diff --git b/src/gzip/inflate.c a/src/gzip/inflate.c
+-index b0757a9b2..f7ed5d181 100644
++index 94ecff015..c8125680b 100644
+ --- b/src/gzip/inflate.c
+ +++ a/src/gzip/inflate.c
+ @@ -215,6 +215,8 @@ int ZEXPORT inflateInit2_(z_streamp strm, int windowBits,
+@@ -184,7 +184,7 @@ index f127b6b1f..8a0e437ae 100644
+ +
+ +#endif  /* !INFLATE_H */
+ diff --git b/src/gzip/inftrees.c a/src/gzip/inftrees.c
+-index 8a208c2da..1fd655593 100644
++index 468eea879..98cfe1644 100644
+ --- b/src/gzip/inftrees.c
+ +++ a/src/gzip/inftrees.c
+ @@ -8,7 +8,7 @@
+@@ -193,11 +193,11 @@ index 8a208c2da..1fd655593 100644
+  
+ -const char inflate_copyright[] =
+ +static const char inflate_copyright[] =
+-    " inflate 1.3 Copyright 1995-2023 Mark Adler ";
++    " inflate 1.3.1 Copyright 1995-2024 Mark Adler ";
+  /*
+    If you use the zlib library in a product, an acknowledgment is welcome
+ diff --git b/src/gzip/inftrees.h a/src/gzip/inftrees.h
+-index a10712d8c..47f726c36 100644
++index 396f74b5d..d735b0a51 100644
+ --- b/src/gzip/inftrees.h
+ +++ a/src/gzip/inftrees.h
+ @@ -3,6 +3,9 @@
+@@ -221,7 +221,7 @@ index a10712d8c..47f726c36 100644
+ +
+ +#endif  /* !INFTREES_H */
+ diff --git b/src/gzip/zlib.h a/src/gzip/zlib.h
+-index 6b7244f99..5c7a884c9 100644
++index 8d4b932ea..8c3c42a32 100644
+ --- b/src/gzip/zlib.h
+ +++ a/src/gzip/zlib.h
+ @@ -31,7 +31,7 @@
+@@ -305,7 +305,7 @@ index 6b7244f99..5c7a884c9 100644
+  
+                          /* utility functions */
+ @@ -1768,6 +1783,8 @@ ZEXTERN uLong ZEXPORT crc32_combine_gen(z_off_t len2);
+-    crc32_combine_op().
++    crc32_combine_op(). len2 must be non-negative.
+  */
+  
+ +#ifndef Z_FREETYPE
+@@ -404,7 +404,7 @@ index b1c5d2d3c..f76def425 100644
+  
+  #ifndef Z_SOLO
+ diff --git b/src/gzip/zutil.h a/src/gzip/zutil.h
+-index 902a304cc..a2c046a1f 100644
++index 48dd7feba..2c96797e3 100644
+ --- b/src/gzip/zutil.h
+ +++ a/src/gzip/zutil.h
+ @@ -53,8 +53,10 @@ typedef unsigned long  ulg;
+@@ -416,9 +416,9 @@ index 902a304cc..a2c046a1f 100644
+  /* (size given to avoid silly warnings with Visual C++) */
+ +#endif
+  
+- #define ERR_MSG(err) z_errmsg[Z_NEED_DICT-(err)]
++ #define ERR_MSG(err) z_errmsg[(err) < -6 || (err) > 2 ? 9 : 2 - (err)]
+  
+-@@ -188,6 +190,8 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
++@@ -167,6 +169,8 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
+    #pragma warn -8066
+  #endif
+  
+@@ -427,7 +427,7 @@ index 902a304cc..a2c046a1f 100644
+  /* provide prototypes for these when building zlib without LFS */
+  #if !defined(_WIN32) && \
+      (!defined(_LARGEFILE64_SOURCE) || _LFS64_LARGEFILE-0 == 0)
+-@@ -196,6 +200,8 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
++@@ -175,6 +179,8 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
+      ZEXTERN uLong ZEXPORT crc32_combine_gen64(z_off_t);
+  #endif
+  
+@@ -436,7 +436,7 @@ index 902a304cc..a2c046a1f 100644
+          /* common defaults */
+  
+  #ifndef OS_CODE
+-@@ -227,9 +233,9 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
++@@ -206,9 +212,9 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
+  #    define zmemcmp _fmemcmp
+  #    define zmemzero(dest, len) _fmemset(dest, 0, len)
+  #  else
+diff --git a/src/gzip/zlib.h b/src/gzip/zlib.h
+index 5c7a884..8c3c42a 100644
+--- a/src/gzip/zlib.h
++++ b/src/gzip/zlib.h
+@@ -1,7 +1,7 @@
+ /* zlib.h -- interface of the 'zlib' general purpose compression library
+-  version 1.3, August 18th, 2023
++  version 1.3.1, January 22nd, 2024
+ 
+-  Copyright (C) 1995-2023 Jean-loup Gailly and Mark Adler
++  Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler
+ 
+   This software is provided 'as-is', without any express or implied
+   warranty.  In no event will the authors be held liable for any damages
+@@ -37,11 +37,11 @@
+ extern "C" {
+ #endif
+ 
+-#define ZLIB_VERSION "1.3"
+-#define ZLIB_VERNUM 0x1300
++#define ZLIB_VERSION "1.3.1"
++#define ZLIB_VERNUM 0x1310
+ #define ZLIB_VER_MAJOR 1
+ #define ZLIB_VER_MINOR 3
+-#define ZLIB_VER_REVISION 0
++#define ZLIB_VER_REVISION 1
+ #define ZLIB_VER_SUBREVISION 0
+ 
+ /*
+@@ -941,10 +941,10 @@ ZEXTERN int ZEXPORT inflateSync(z_streamp strm);
+      inflateSync returns Z_OK if a possible full flush point has been found,
+    Z_BUF_ERROR if no more input was provided, Z_DATA_ERROR if no flush point
+    has been found, or Z_STREAM_ERROR if the stream structure was inconsistent.
+-   In the success case, the application may save the current current value of
+-   total_in which indicates where valid compressed data was found.  In the
+-   error case, the application may repeatedly call inflateSync, providing more
+-   input each time, until success or end of the input data.
++   In the success case, the application may save the current value of total_in
++   which indicates where valid compressed data was found.  In the error case,
++   the application may repeatedly call inflateSync, providing more input each
++   time, until success or end of the input data.
+ */
+ 
+ ZEXTERN int ZEXPORT inflateCopy(z_streamp dest,
+@@ -1773,14 +1773,14 @@ ZEXTERN uLong ZEXPORT crc32_combine(uLong crc1, uLong crc2, z_off_t len2);
+    seq1 and seq2 with lengths len1 and len2, CRC-32 check values were
+    calculated for each, crc1 and crc2.  crc32_combine() returns the CRC-32
+    check value of seq1 and seq2 concatenated, requiring only crc1, crc2, and
+-   len2.
++   len2. len2 must be non-negative.
+ */
+ 
+ /*
+ ZEXTERN uLong ZEXPORT crc32_combine_gen(z_off_t len2);
+ 
+      Return the operator corresponding to length len2, to be used with
+-   crc32_combine_op().
++   crc32_combine_op(). len2 must be non-negative.
+ */
+ 
+ #ifndef Z_FREETYPE
+diff --git a/src/gzip/zutil.h b/src/gzip/zutil.h
+index a2c046a..2c96797 100644
+--- a/src/gzip/zutil.h
++++ b/src/gzip/zutil.h
+@@ -1,5 +1,5 @@
+ /* zutil.h -- internal interface and configuration of the compression library
+- * Copyright (C) 1995-2022 Jean-loup Gailly, Mark Adler
++ * Copyright (C) 1995-2024 Jean-loup Gailly, Mark Adler
+  * For conditions of distribution and use, see copyright notice in zlib.h
+  */
+ 
+@@ -58,7 +58,7 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
+ /* (size given to avoid silly warnings with Visual C++) */
+ #endif
+ 
+-#define ERR_MSG(err) z_errmsg[Z_NEED_DICT-(err)]
++#define ERR_MSG(err) z_errmsg[(err) < -6 || (err) > 2 ? 9 : 2 - (err)]
+ 
+ #define ERR_RETURN(strm,err) \
+   return (strm->msg = ERR_MSG(err), (err))
+@@ -139,17 +139,8 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
+ #  endif
+ #endif
+ 
+-#if defined(MACOS) || defined(TARGET_OS_MAC)
++#if defined(MACOS)
+ #  define OS_CODE  7
+-#  ifndef Z_SOLO
+-#    if defined(__MWERKS__) && __dest_os != __be_os && __dest_os != __win32_os
+-#      include <unix.h> /* for fdopen */
+-#    else
+-#      ifndef fdopen
+-#        define fdopen(fd,mode) NULL /* No fdopen() */
+-#      endif
+-#    endif
+-#  endif
+ #endif
+ 
+ #ifdef __acorn
+@@ -172,18 +163,6 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
+ #  define OS_CODE 19
+ #endif
+ 
+-#if defined(_BEOS_) || defined(RISCOS)
+-#  define fdopen(fd,mode) NULL /* No fdopen() */
+-#endif
+-
+-#if (defined(_MSC_VER) && (_MSC_VER > 600)) && !defined __INTERIX
+-#  if defined(_WIN32_WCE)
+-#    define fdopen(fd,mode) NULL /* No fdopen() */
+-#  else
+-#    define fdopen(fd,type)  _fdopen(fd,type)
+-#  endif
+-#endif
+-
+ #if defined(__BORLANDC__) && !defined(MSDOS)
+   #pragma warn -8004
+   #pragma warn -8008

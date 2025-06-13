@@ -1,0 +1,30 @@
+From 4b82bbe00d7662b79cda68dae562dcf2fece05e4 Mon Sep 17 00:00:00 2001
+From: Ozkan Sezer <sezeroz@gmail.com>
+Date: Thu, 20 Mar 2025 11:55:10 +0300
+Subject: [PATCH] avoid FT_PUBLIC_FUNCTION_ATTRIBUTE redefinition warnings
+
+---
+ include/freetype/config/public-macros.h |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/include/freetype/config/public-macros.h b/include/freetype/config/public-macros.h
+index f56581a..1ffc9d9 100644
+--- a/include/freetype/config/public-macros.h
++++ b/include/freetype/config/public-macros.h
+@@ -62,6 +62,7 @@ FT_BEGIN_HEADER
+    * because it is needed by `FT_EXPORT`.
+    */
+ 
++#ifndef FT_PUBLIC_FUNCTION_ATTRIBUTE
+   /* Visual C, mingw */
+ #if defined( _WIN32 )
+ 
+@@ -80,7 +81,7 @@ FT_BEGIN_HEADER
+ #elif defined( __SUNPRO_C ) && __SUNPRO_C >= 0x550
+ #define FT_PUBLIC_FUNCTION_ATTRIBUTE  __global
+ #endif
+-
++#endif /* FT_PUBLIC_FUNCTION_ATTRIBUTE */
+ 
+ #ifndef FT_PUBLIC_FUNCTION_ATTRIBUTE
+ #define FT_PUBLIC_FUNCTION_ATTRIBUTE  /* empty */
