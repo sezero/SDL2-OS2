@@ -1,0 +1,41 @@
+From d9017f88f9e1fa7f7283756677892a4cad9003eb Mon Sep 17 00:00:00 2001
+From: Cosmin Truta <ctruta@gmail.com>
+Date: Thu, 3 Jul 2025 22:42:11 +0300
+Subject: [PATCH 1/2] Harden a vestigial check against overflow inside `png_zalloc`
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Reported-by: Sergio Atienza Pastor, MTP Métodos y Tecnología
+
+(cherry picked from commit 7cecdcae0715bbf7a4b643071e0d39f05d5e7f52)
+---
+ png.c |   12 +++++++++---
+ 1 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/png.c b/png.c
+index 6e21915..2116cb5 100644
+--- a/png.c
++++ b/png.c
+@@ -108,10 +108,16 @@ png_zalloc,(voidpf png_ptr, uInt items, uInt size),PNG_ALLOCATED)
+    if (png_ptr == NULL)
+       return NULL;
+ 
+-   if (items >= (~(png_alloc_size_t)0)/size)
++   /* This check against overflow is vestigial, dating back from
++    * the old times when png_zalloc used to be an exported function.
++    * We're still keeping it here for now, as an extra-cautious
++    * prevention against programming errors inside zlib, although it
++    * should rather be a debug-time assertion instead.
++    */
++   if (size != 0 && items >= (~(png_alloc_size_t)0) / size)
+    {
+-      png_warning (png_voidcast(png_structrp, png_ptr),
+-          "Potential overflow in png_zalloc()");
++      png_warning(png_voidcast(png_structrp, png_ptr),
++                  "Potential overflow in png_zalloc()");
+       return NULL;
+    }
+ 
+
+

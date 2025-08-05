@@ -665,9 +665,11 @@ extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUS(const char *file);
  * fly. Also, crucially, there are as many channels for chunks as the app can
  * allocate, but SDL_mixer only offers a single "music" channel.
  *
- * If `freesrc` is non-zero, the RWops will be closed before returning,
- * whether this function succeeds or not. SDL_mixer reads everything it needs
- * from the RWops during this call in any case.
+ * If `freesrc` is non-zero, the RWops will be closed when SDL_mixer is done
+ * with it, which will be before this function call returns if there is an
+ * error, or perhaps much later if the music is streaming for some time. The
+ * app should not attempt to use the RWops again, as it may become invalid
+ * without warning.
  *
  * As a convenience, there is a function to read files from disk without
  * having to deal with SDL_RWops: `Mix_LoadMUS("filename.mp3")` will manage
@@ -725,9 +727,11 @@ extern DECLSPEC Mix_Music * SDLCALL Mix_LoadMUS_RW(SDL_RWops *src, int freesrc);
  * - `MUS_OPUS` (Opus files)
  * - `MUS_WAVPACK` (WavPack files)
  *
- * If `freesrc` is non-zero, the RWops will be closed before returning,
- * whether this function succeeds or not. SDL_mixer reads everything it needs
- * from the RWops during this call in any case.
+ * If `freesrc` is non-zero, the RWops will be closed when SDL_mixer is done
+ * with it, which will be before this function call returns if there is an
+ * error, or perhaps much later if the music is streaming for some time. The
+ * app should not attempt to use the RWops again, as it may become invalid
+ * without warning.
  *
  * As a convenience, there is a function to read files from disk without
  * having to deal with SDL_RWops: `Mix_LoadMUS("filename.mp3")` will manage
@@ -1266,7 +1270,7 @@ typedef void (SDLCALL *Mix_ChannelFinishedCallback)(int channel);
 extern DECLSPEC void SDLCALL Mix_ChannelFinished(Mix_ChannelFinishedCallback channel_finished);
 
 
-#define MIX_CHANNEL_POST  (-2)
+#define MIX_CHANNEL_POST    (-2)
 
 /**
  * This is the format of a special effect callback:
@@ -2633,7 +2637,8 @@ extern DECLSPEC int SDLCALL Mix_GetSynchroValue(void);
  * Set SoundFonts paths to use by supported MIDI backends.
  *
  * You may specify multiple paths in a single string by separating them with
- * semicolons; they will be searched in the order listed.
+ * semicolons; they will be searched in the _reverse_ order listed (last one
+ * listed will be the first one searched).
  *
  * This function replaces any previously-specified paths.
  *
