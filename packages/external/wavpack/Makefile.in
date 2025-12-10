@@ -111,7 +111,10 @@ host_triplet = @host@
 @WINDOWS_HOST_FALSE@	$(am__DEPENDENCIES_1)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
@@ -435,8 +438,8 @@ am__tty_colors = { \
 am__DIST_COMMON = $(dist_man_MANS) $(srcdir)/Makefile.in \
 	$(srcdir)/wavpack.pc.in $(top_srcdir)/cli/all-tests \
 	$(top_srcdir)/cli/fast-tests AUTHORS COPYING ChangeLog NEWS \
-	README.md ar-lib compile config.guess config.rpath config.sub \
-	depcomp install-sh ltmain.sh missing
+	README.md ar-lib compile config.guess config.sub depcomp \
+	install-sh ltmain.sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -471,7 +474,6 @@ CCASDEPMODE = @CCASDEPMODE@
 CCASFLAGS = @CCASFLAGS@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CSCOPE = @CSCOPE@
 CTAGS = @CTAGS@
@@ -504,7 +506,6 @@ LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
-LTLIBICONV = @LTLIBICONV@
 LTLIBOBJS = @LTLIBOBJS@
 LT_AGE = @LT_AGE@
 LT_CURRENT = @LT_CURRENT@
@@ -588,6 +589,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+ACLOCAL_AMFLAGS = -I m4
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = wavpack.pc
 dist_doc_DATA = README.md
@@ -603,8 +605,8 @@ dist_html_DATA = \
 EXTRA_DIST = \
 	CMakeLists.txt \
 	cmake/CheckCLinkerFlag.cmake \
-	cmake/modules/FindIconv.cmake \
 	cmake/TestLargeFiles.cmake \
+	cmake/wavpackcpu.cmake \
 	\
 	cli/Makefile.w32 \
 	src/Makefile.os2 \
@@ -628,7 +630,6 @@ MAINTAINERCLEANFILES = \
 	ar-lib \
 	compile \
 	config.guess \
-	config.rpath \
 	config.sub \
 	configure \
 	depcomp \

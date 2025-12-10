@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2...3.5)
+cmake_minimum_required(VERSION 3.2...3.10)
 
 project(WavPack VERSION 5.6.0)
 
@@ -39,7 +39,11 @@ if(CMAKE_ASM_COMPILER)
 endif()
 
 if(MSVC)
-  enable_language(ASM_MASM)
+  if(WavPack_CPU_X86 OR WavPack_CPU_X64)
+    enable_language(ASM_MASM)
+  elseif(WavPack_CPU_ARM32 OR WavPack_CPU_ARM64)
+    enable_language(ASM_MARMASM)
+  endif()
 else()
   check_language(ASM-ATT)
   if(CMAKE_ASM-ATT_COMPILER)
@@ -56,9 +60,6 @@ if(POLICY CMP0075)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-if(CMAKE_VERSION VERSION_LESS 3.11)
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
-endif()
 
 if(CMAKE_VERSION VERSION_LESS 3.12)
 	set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
@@ -67,6 +68,7 @@ if(CMAKE_VERSION VERSION_LESS 3.12)
 	set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 endif()
 
+include(CMakePushCheckState)
 include(CheckCCompilerFlag)
 include(CheckCLinkerFlag)
 include(TestLargeFiles)
@@ -81,6 +83,8 @@ include(CPack)
 
 # Options. See also dependent options below
 
+option(WAVPACK_BUILD_PROGRAMS "Build programs" ${WAVPACK_ROOTPROJECT})
+option(WAVPACK_ENABLE_LIBICONV "Prefer iconv() from libiconv, if available, over libc version" OFF)
 option(WAVPACK_ENABLE_LEGACY "Decode legacy (< 4.0) WavPack files" OFF)
 option(WAVPACK_ENABLE_DSD "Enable support for WavPack DSD files" ON)
 option(WAVPACK_INSTALL_CMAKE_MODULE "Generate and install CMake package configuration module" ${WAVPACK_ROOTPROJECT})
@@ -97,7 +101,6 @@ endif()
 if(NOT WIN32)
   find_package(Threads)
 endif()
-find_package(Iconv)
 
 check_c_source_compiles(
         "int main()
@@ -117,27 +120,16 @@ if(NOT MSVC AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall)
 endif()
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "amd64.*|x86_64.*|AMD64.*")
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        set(CPU_ASM_X64 1)
-    elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        set(CPU_ASM_X86 1)
-    endif()
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "i386.*|i486.*|i586.*|i686.*|i786.*")
-    set(CPU_ASM_X86 1)
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm*")
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        set(CPU_ASM_ARM32 1)
-    endif()
-endif()
+include(cmake/wavpackcpu.cmake)
+WavPack_DetectTargetCPUArchitectures(WAVPACK_CPUS)
 
-if(WIN32 AND (NOT MINGW))
-    if(CMAKE_ASM_MASM_COMPILER AND (CPU_ASM_X86 OR CPU_ASM_X64))
+if(WIN32 AND NOT MINGW)
+    if(CMAKE_ASM_MASM_COMPILER)
         set(HAVE_MASM 1)
     endif()
 else()
     if(CMAKE_ASM-ATT_COMPILER)
-        if(CPU_ASM_X86 OR CPU_ASM_X64 OR CPU_ASM_ARM32)
+        if(WavPack_CPU_X86 OR WavPack_CPU_X64 OR WavPack_CPU_ARM32)
             set(HAVE_ASM 1)
         endif()
     endif()
@@ -146,7 +138,6 @@ endif()
 # Dependent options
 
 cmake_dependent_option(WAVPACK_ENABLE_ASM "Enable assembly optimizations" ON "HAVE_ASM OR HAVE_MASM" OFF)
-cmake_dependent_option(WAVPACK_BUILD_PROGRAMS "Build programs" ${WAVPACK_ROOTPROJECT} "WIN32 OR Iconv_FOUND" OFF)
 cmake_dependent_option(WAVPACK_BUILD_COOLEDIT_PLUGIN "Build CoolEdit plugin" OFF "WIN32" OFF)
 cmake_dependent_option(WAVPACK_BUILD_WINAMP_PLUGIN "Build WinAmp plugin" OFF "WIN32" OFF)
 cmake_dependent_option(BUILD_TESTING "Build tests" ${WAVPACK_ROOTPROJECT} "NOT WIN32" OFF)
@@ -184,15 +175,15 @@ add_library(wavpack
     $<$<BOOL:${WAVPACK_ENABLE_LEGACY}>:src/unpack3_seek.c>
     $<$<BOOL:${WAVPACK_ENABLE_DSD}>:src/pack_dsd.c>
     $<$<BOOL:${WAVPACK_ENABLE_DSD}>:src/unpack_dsd.c>
-    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_MASM}>,$<BOOL:${CPU_ASM_X86}>>:src/pack_x86.asm>
-    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_MASM}>,$<BOOL:${CPU_ASM_X86}>>:src/unpack_x86.asm>
-    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_MASM}>,$<BOOL:${CPU_ASM_X64}>>:src/pack_x64.asm>
-    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_MASM}>,$<BOOL:${CPU_ASM_X64}>>:src/unpack_x64.asm>
-    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_ASM}>,$<BOOL:${CPU_ASM_X86}>>:src/pack_x86.S>
-    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_ASM}>,$<BOOL:${CPU_ASM_X86}>>:src/unpack_x86.S>
-    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_ASM}>,$<BOOL:${CPU_ASM_X64}>>:src/pack_x64.S>
-    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_ASM}>,$<BOOL:${CPU_ASM_X64}>>:src/unpack_x64.S>
-    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_ASM}>,$<BOOL:${CPU_ASM_ARM32}>>:src/unpack_armv7.S>
+    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_MASM}>,$<BOOL:${WavPack_CPU_X86}>>:src/pack_x86.asm>
+    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_MASM}>,$<BOOL:${WavPack_CPU_X86}>>:src/unpack_x86.asm>
+    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_MASM}>,$<BOOL:${WavPack_CPU_X64}>>:src/pack_x64.asm>
+    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_MASM}>,$<BOOL:${WavPack_CPU_X64}>>:src/unpack_x64.asm>
+    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_ASM}>,$<BOOL:${WavPack_CPU_X86}>>:src/pack_x86.S>
+    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_ASM}>,$<BOOL:${WavPack_CPU_X86}>>:src/unpack_x86.S>
+    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_ASM}>,$<BOOL:${WavPack_CPU_X64}>>:src/pack_x64.S>
+    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_ASM}>,$<BOOL:${WavPack_CPU_X64}>>:src/unpack_x64.S>
+    $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${HAVE_ASM}>,$<BOOL:${WavPack_CPU_ARM32}>>:src/unpack_armv7.S>
     $<$<AND:$<BOOL:${WIN32}>,$<BOOL:${BUILD_SHARED_LIBS}>>:wavpackdll/wavpackdll.rc>
 )
 target_include_directories(wavpack
@@ -213,12 +204,12 @@ target_compile_definitions(wavpack
         $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
         $<$<BOOL:${HAVE___BUILTIN_CLZ}>:HAVE___BUILTIN_CLZ>
         $<$<BOOL:${HAVE_FSEEKO}>:HAVE_FSEEKO>
-        $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${CPU_ASM_X86}>>:OPT_ASM_X86>
-        $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${CPU_ASM_X64}>>:OPT_ASM_X64>
-        $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${CPU_ASM_ARM32}>>:OPT_ASM_ARM32>
+        $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${WavPack_CPU_X86}>>:OPT_ASM_X86>
+        $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${WavPack_CPU_X64}>>:OPT_ASM_X64>
+        $<$<AND:$<BOOL:${WAVPACK_ENABLE_ASM}>,$<BOOL:${WavPack_CPU_ARM32}>>:OPT_ASM_ARM32>
 )
 
-if(WAVPACK_ENABLE_ASM AND HAVE_MASM AND CPU_ASM_X86)
+if(WAVPACK_ENABLE_ASM AND HAVE_MASM AND WavPack_CPU_X86)
 	set_source_files_properties(src/pack_x86.asm src/unpack_x86.asm PROPERTIES COMPILE_FLAGS "/safeseh")
 endif()
 
@@ -324,6 +315,9 @@ if(BUILD_SHARED_LIBS)
 
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/libwavpack.def ${FILE_CONTENTS})
     target_sources(wavpack PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/libwavpack.def)
+    if(MINGW AND NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
+        target_link_libraries(wavpack PRIVATE -static-libgcc)
+    endif()
   elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
     set(FILE_CONTENTS "")
     foreach(EXPORT_SYMBOL ${WAVPACK_EXPORT_SYMBOLS})
@@ -331,7 +325,7 @@ if(BUILD_SHARED_LIBS)
     endforeach()
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/libwavpack.sym ${FILE_CONTENTS})
     if(CMAKE_VERSION VERSION_LESS 3.13)
-        set_target_properties(wavpack PROPERTIES LINK_FLAGS "-Wl,-exported_symbols_list,'${CMAKE_CURRENT_BINARY_DIR}/libwavpack.sym'") 
+        set_target_properties(wavpack PROPERTIES LINK_FLAGS "-Wl,-exported_symbols_list,'${CMAKE_CURRENT_BINARY_DIR}/libwavpack.sym'")
     else()
         target_link_directories(wavpack PRIVATE "-Wl,-exported_symbols_list,${CMAKE_CURRENT_BINARY_DIR}/libwavpack.sym")
     endif()
@@ -367,6 +361,33 @@ set_target_properties(wavpack PROPERTIES EXPORT_NAME WavPack)
 set_target_properties(wavpack PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/wavpack.h")
 
 if(WAVPACK_BUILD_PROGRAMS)
+	if(NOT WIN32)
+	  check_c_source_compiles("
+	    #define LIBICONV_PLUG 1 /* in case libiconv header is in include path */
+	    #include <stddef.h>
+	    #include <iconv.h>
+	    int main(int argc, char **argv) {
+	        return !iconv_open(NULL,NULL);
+	    }" ICONV_IN_LIBC)
+
+	  cmake_push_check_state()
+	  list(APPEND CMAKE_REQUIRED_LIBRARIES iconv)
+	  check_c_source_compiles("
+	    #include <stddef.h>
+	    #include <iconv.h>
+	    int main(int argc, char **argv) {
+	        return !iconv_open(NULL,NULL);
+	    }" ICONV_IN_LIBICONV)
+	  cmake_pop_check_state()
+
+	  if(ICONV_IN_LIBC OR ICONV_IN_LIBICONV)
+	    if(ICONV_IN_LIBICONV AND (WAVPACK_ENABLE_LIBICONV OR (NOT ICONV_IN_LIBC)))
+	      set(USE_LIBICONV TRUE)
+	    endif()
+	  else()
+	    message(FATAL_ERROR "iconv is required for apps, use -DWAVPACK_BUILD_PROGRAMS=OFF to build only libwavpack")
+	  endif()
+	endif()
 
 	add_executable(wavpackapp
 		cli/wavpack.c
@@ -384,6 +405,7 @@ if(WAVPACK_BUILD_PROGRAMS)
 	)
 	target_compile_definitions(wavpackapp
 		PRIVATE
+			$<$<BOOL:${USE_LIBICONV}>:ENABLE_LIBICONV>
 			$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
 			"PACKAGE_VERSION=\"${PROJECT_VERSION}\""
 			"VERSION_OS=\"${CMAKE_SYSTEM_NAME}\""
@@ -392,7 +414,7 @@ if(WAVPACK_BUILD_PROGRAMS)
 	target_link_libraries(wavpackapp
 		PRIVATE
 			wavpack
-			$<$<NOT:$<BOOL:${WIN32}>>:Iconv::Iconv>
+			$<$<BOOL:${USE_LIBICONV}>:iconv>
 			$<$<BOOL:${HAVE_LIBM}>:m>
 	)
 
@@ -411,6 +433,7 @@ if(WAVPACK_BUILD_PROGRAMS)
 	)
 	target_compile_definitions(wvunpack
 		PRIVATE
+			$<$<BOOL:${USE_LIBICONV}>:ENABLE_LIBICONV>
 			$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
 			"PACKAGE_VERSION=\"${PROJECT_VERSION}\""
 			"VERSION_OS=\"${CMAKE_SYSTEM_NAME}\""
@@ -419,7 +442,7 @@ if(WAVPACK_BUILD_PROGRAMS)
 	target_link_libraries(wvunpack
 		PRIVATE
 			wavpack
-			$<$<NOT:$<BOOL:${WIN32}>>:Iconv::Iconv>
+			$<$<BOOL:${USE_LIBICONV}>:iconv>
 			$<$<BOOL:${HAVE_LIBM}>:m>
 	)
 
@@ -452,6 +475,7 @@ if(WAVPACK_BUILD_PROGRAMS)
 	)
 	target_compile_definitions(wvtag
 		PRIVATE
+			$<$<BOOL:${USE_LIBICONV}>:ENABLE_LIBICONV>
 			$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
 			"PACKAGE_VERSION=\"${PROJECT_VERSION}\""
 			"VERSION_OS=\"${CMAKE_SYSTEM_NAME}\""
@@ -459,7 +483,7 @@ if(WAVPACK_BUILD_PROGRAMS)
 	target_link_libraries(wvtag
 		PRIVATE
 			wavpack
-			$<$<NOT:$<BOOL:${WIN32}>>:Iconv::Iconv>
+			$<$<BOOL:${USE_LIBICONV}>:iconv>
 			$<$<BOOL:${HAVE_LIBM}>:m>
 	)
 endif()
@@ -560,11 +584,6 @@ set(WAVPACK_DOC_NAMES
 
 # Features
 
-set_package_properties(Iconv PROPERTIES
-	TYPE RECOMMENDED
-	DESCRIPTION "converts from one character encoding to another through Unicode conversion "
-    PURPOSE "Required to build programs."
-)
 set_package_properties(Threads PROPERTIES
 	TYPE OPTIONAL
 	DESCRIPTION "Threads library"
