@@ -13,11 +13,11 @@
 [submodule "external/opus"]
 	path = external/opus
 	url = https://github.com/libsdl-org/opus.git
-	branch = v1.4-SDL
+	branch = v1.4.x-SDL
 [submodule "external/opusfile"]
 	path = external/opusfile
 	url = https://github.com/libsdl-org/opusfile.git
-	branch = v0.12-SDL
+	branch = v0.13-git-SDL
 [submodule "external/tremor"]
 	path = external/tremor
 	url = https://github.com/libsdl-org/tremor.git
