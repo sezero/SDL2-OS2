@@ -1,0 +1,53 @@
+# Makefile for Win32 using Open Watcom
+#
+# wmake -f Makefile.w32
+# - builds opusfile.dll and its import lib (opusfile.lib)
+#
+# wmake -f Makefile.w32 target=static
+# - builds the static library opusfile_static.lib
+
+CPPFLAGS=-DOP_BUILD -DUSE_ALLOCA -DHAVE_ALLOCA_H -DHAVE_STDINT_H
+#CPPFLAGS+= -DOP_DISABLE_FLOAT_API
+#CPPFLAGS+= -DOP_ENABLE_ASSERTIONS
+INCLUDES=-I"../include" -I"../include/opus"
+
+CFLAGS=-bt=nt -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8 -zq
+# -5s  :  Pentium stack calling conventions.
+# -5r  :  Pentium register calling conventions.
+CFLAGS+= -5s
+DLLFLAGS=-bd
+
+DLLNAME=opusfile.dll
+EXPNAME=opusfile.exp
+LIBNAME=opusfile.lib
+LIBSTATIC=opusfile_static.lib
+
+OBJS=info.obj internal.obj opusfile.obj stream.obj
+# http.obj
+LIBS=opus.lib ogg.lib
+
+!ifeq target static
+BLD_TARGET=$(LIBSTATIC)
+!else
+CPPFLAGS+= -DDLL_EXPORT
+CFLAGS+= $(DLLFLAGS)
+BLD_TARGET=$(DLLNAME)
+!endif
+
+# Rules
+all: $(BLD_TARGET)
+
+$(DLLNAME): $(OBJS)
+	wlink NAM $@ SYSTEM nt_dll INITINSTANCE TERMINSTANCE LIBR {$(LIBS)} FIL {$(OBJS)} OPTION IMPF=$(EXPNAME)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
+
+$(LIBSTATIC): $(OBJS)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJS)
+
+.c.obj:
+	wcc386 $(CFLAGS) $(CPPFLAGS) $(INCLUDES) -fo=$^@ $<
+
+distclean: clean .symbolic
+	rm -f $(DLLNAME) $(EXPNAME) $(LIBNAME) $(LIBSTATIC)
+clean: .symbolic
+	rm -f *.obj

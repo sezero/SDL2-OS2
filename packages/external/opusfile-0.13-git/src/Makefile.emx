@@ -1,0 +1,30 @@
+CC      = gcc
+AR      = ar
+RANLIB  = ranlib
+
+CPPFLAGS = -DOP_BUILD -DUSE_ALLOCA -DHAVE_ALLOCA_H
+# -DHAVE_STDINT_H
+#CPPFLAGS+= -DOP_DISABLE_FLOAT_API
+#CPPFLAGS+= -DOP_ENABLE_ASSERTIONS
+INCLUDES= -I../include -I../include/opus
+
+CFLAGS  = -Zmt -O2 -fsigned-char -Wall -Wno-parentheses
+
+LIBNAME =  opusfile.a
+
+LIBOBJ = info.o internal.o opusfile.o stream.o
+# http.o
+
+all: $(LIBNAME)
+
+$(LIBNAME): $(LIBOBJ)
+	$(AR) cru $(LIBNAME) $(LIBOBJ)
+	$(RANLIB) $(LIBNAME)
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCLUDES) -c -o $@ $<
+
+clean:
+	$(RM) *.o
+distclean: clean
+	$(RM) $(LIBNAME)
