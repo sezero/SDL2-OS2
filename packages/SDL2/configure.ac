@@ -3565,7 +3565,7 @@ CheckHIDAPI()
 
         if test x$hidapi_support = xyes; then
             if test x$have_libusb_h = xyes; then
-                AC_DEFINE(HAVE_LIBUSB)
+                AC_DEFINE(HAVE_LIBUSB, 1, [ ])
                 EXTRA_CFLAGS="$EXTRA_CFLAGS $LIBUSB_CFLAGS"
                 if test x$require_hidapi_libusb = xyes; then
                     EXTRA_LDFLAGS="$EXTRA_LDFLAGS $LIBUSB_LIBS"
@@ -3796,10 +3796,14 @@ case "$host" in
         if test x$enable_audio = xyes; then
           case $ARCH in
             sysv5|solaris|hpux)
-                AC_DEFINE(SDL_AUDIO_DRIVER_SUNAUDIO, 1, [ ])
-                SOURCES="$SOURCES $srcdir/src/audio/sun/*.c"
-                SUMMARY_audio="${SUMMARY_audio} sun"
-                have_audio=yes
+                # Newer Solaris-based systems, like OpenIndiana, don't have this interface anymore. Check for the header first.
+                AC_CHECK_HEADER(sys/audioio.h, have_sys_audioio_h=yes, have_sys_audioio_h=no)
+                if test x$have_sys_audioio_h = xyes; then
+                    AC_DEFINE(SDL_AUDIO_DRIVER_SUNAUDIO,1,[ ])
+                    SOURCES="$SOURCES $srcdir/src/audio/sun/*.c"
+                    SUMMARY_audio="${SUMMARY_audio} sun"
+                    have_audio=yes
+                fi
             ;;
             netbsd)  # Don't use this on OpenBSD, it's busted.
                 AC_DEFINE(SDL_AUDIO_DRIVER_NETBSD, 1, [ ])

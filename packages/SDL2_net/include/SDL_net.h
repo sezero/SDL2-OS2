@@ -606,7 +606,7 @@ extern DECLSPEC IPaddress * SDLCALL SDLNet_UDP_GetPeerAddress(UDPsocket sock, in
  * Send a vector of packets to the the channels specified within the packet.
  *
  * If the channel specified in the packet is -1, the packet will be sent to
- * the address in the `src` member of the packet.
+ * the address in the `address` member of the packet.
  *
  * Each packet will be updated with the status of the packet after it has been
  * sent, -1 if the packet send failed.
@@ -646,7 +646,7 @@ extern DECLSPEC int SDLCALL SDLNet_UDP_SendV(UDPsocket sock, UDPpacket **packets
  * Send a single UDP packet to the specified channel.
  *
  * If the channel specified is -1, the packet will be sent to the address in
- * the `src` member of the packet.
+ * the `address` member of the packet.
  *
  * The packet will be updated with the status of the packet after it has been
  * sent.
@@ -679,8 +679,8 @@ extern DECLSPEC int SDLCALL SDLNet_UDP_Send(UDPsocket sock, int channel, UDPpack
  * Receive a vector of pending packets from a UDP socket.
  *
  * The returned packets contain the source address and the channel they
- * arrived on. If they did not arrive on a bound channel, the the channel will
- * be set to -1.
+ * arrived on. If they did not arrive on a bound channel, then the channel
+ * will be set to -1.
  *
  * The channels are checked in highest to lowest order, so if an address is
  * bound to multiple channels, the highest channel with the source address
