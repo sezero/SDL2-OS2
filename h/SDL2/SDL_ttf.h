@@ -649,7 +649,7 @@ extern DECLSPEC int SDLCALL TTF_FontLineSkip(const TTF_Font *font);
  * \param font the font to modify.
  * \param lineskip the new line spacing for the font.
  *
- * \since This function is available since SDL_ttf 2.22.0.
+ * \since This function is available since SDL_ttf 2.24.0.
  */
 extern DECLSPEC void SDLCALL TTF_SetFontLineSkip(TTF_Font *font, int lineskip);
 

@@ -233,7 +233,15 @@ static char * read_string (SDL_RWops * src) {
 
   tmp = SDL_ReadBE32(src);
   remaining = SDL_RWsize(src) - SDL_RWtell(src);
-  if (tmp > 0 && (Sint32)tmp <= remaining) {
+  if (tmp == 0) {
+    data = (char *) SDL_malloc(1);
+    if (data) {
+      data[0] = 0;
+    }
+    return data;
+  }
+
+  if ((Sint32)tmp > 0 && (Sint32)tmp <= remaining) {
     data = (char *) SDL_malloc (sizeof (char) * tmp);
     if (data) {
       SDL_RWread(src, data, tmp, 1);
@@ -529,7 +537,7 @@ static unsigned char * load_xcf_tile_none (SDL_RWops * src, Uint64 len, int bpp,
 }
 
 static unsigned char * load_xcf_tile_rle (SDL_RWops * src, Uint64 len, int bpp, int x, int y) {
-  unsigned char * load, * t, * data, * d;
+  unsigned char * load, * t, * data, * data_end, * d;
   int i, size, count, j, length;
   unsigned char val;
 
@@ -544,6 +552,11 @@ static unsigned char * load_xcf_tile_rle (SDL_RWops * src, Uint64 len, int bpp, 
   SDL_RWread (src, t, 1, (size_t)len); /* reallen */
 
   data = (unsigned char *) SDL_calloc (1, x*y*bpp);
+  if (!data) {
+    SDL_free(load);
+    return NULL;
+  }
+  data_end = data + x*y*bpp;
   for (i = 0; i < bpp; i++) {
     d    = data + i;
     size = x*y;
@@ -570,6 +583,9 @@ static unsigned char * load_xcf_tile_rle (SDL_RWops * src, Uint64 len, int bpp, 
         size -= length;
 
         while (length-- > 0) {
+          if (d >= data_end) {
+            break;
+          }
           *d = *t++;
           d += bpp;
         }
@@ -592,6 +608,9 @@ static unsigned char * load_xcf_tile_rle (SDL_RWops * src, Uint64 len, int bpp, 
         val = *t++;
 
         for (j = 0; j < length; j++) {
+          if (d >= data_end) {
+            break;
+          }
           *d = val;
           d += bpp;
         }
@@ -647,6 +666,10 @@ do_layer_surface(SDL_Surface * surface, SDL_RWops * src, xcf_header * head, xcf_
 
     SDL_RWseek(src, layer->hierarchy_file_offset, RW_SEEK_SET);
     hierarchy = read_xcf_hierarchy(src, head);
+    if (!hierarchy) {
+        SDL_SetError("Failed to read XCF image hierarchy");
+        return 1;
+    }
 
     if (hierarchy->bpp > 4) {  /* unsupported. */
         SDL_Log("Unknown Gimp image bpp (%u)\n", (unsigned int) hierarchy->bpp);
@@ -692,6 +715,16 @@ do_layer_surface(SDL_Surface * surface, SDL_RWops * src, xcf_header * head, xcf_
 
             p8 = tile;
             p = (Uint32 *) p8;
+
+            /* Bounds check: reject layer if tile data exceeds buffer */
+            if ((Uint64)ox * oy * hierarchy->bpp > (Uint64)(hierarchy->width * hierarchy->height * hierarchy->bpp)) {
+                SDL_SetError("Gimp image invalid tile");
+                free_xcf_tile(tile);
+                free_xcf_level(level);
+                free_xcf_hierarchy(hierarchy);
+                return 1;
+            }
+
             for (y = ty; y < ty + oy; y++) {
                 if ((y >= (Uint32)surface->h) || ((tx+ox) > (Uint32)surface->w)) {
                     break;
@@ -716,20 +749,26 @@ do_layer_surface(SDL_Surface * surface, SDL_RWops * src, xcf_header * head, xcf_
                     switch (head->image_type) {
                     case IMAGE_INDEXED:
                         for (x = tx; x < tx + ox; x++) {
-                            *row = ((Uint32)(head->cm_map[*p8 * 3]) << 16);
-                            *row |= ((Uint32)(head->cm_map[*p8 * 3 + 1]) << 8);
-                            *row |= ((Uint32)(head->cm_map[*p8++ * 3 + 2]) << 0);
-                            *row |= ((Uint32)*p8++ << 24);
-                            row++;
+                            Uint8 c = *p8++;
+                            Uint8 a = *p8++;
+                            if (c < head->cm_num) {
+                                *row++ = ((Uint32)(head->cm_map[c * 3]) << 16) |
+                                         ((Uint32)(head->cm_map[c * 3 + 1]) << 8) |
+                                         ((Uint32)(head->cm_map[c * 3 + 2]) << 0) |
+                                         ((Uint32)a << 24);
+                            } else {
+                                *row++ = 0;
+                            }
                         }
                         break;
                     case IMAGE_GREYSCALE:
                         for (x = tx; x < tx + ox; x++) {
-                            *row = ((Uint32)*p8 << 16);
-                            *row |= ((Uint32)*p8 << 8);
-                            *row |= ((Uint32)*p8++ << 0);
-                            *row |= ((Uint32)*p8++ << 24);
-                            row++;
+                            Uint8 c = *p8++;
+                            Uint8 a = *p8++;
+                            *row++ = ((Uint32)c << 16) |
+                                     ((Uint32)c << 8) |
+                                     ((Uint32)c << 0) |
+                                     ((Uint32)a << 24);
                         }
                         break;
                     default:
@@ -747,20 +786,24 @@ do_layer_surface(SDL_Surface * surface, SDL_RWops * src, xcf_header * head, xcf_
                     switch (head->image_type) {
                     case IMAGE_INDEXED:
                         for (x = tx; x < tx + ox; x++) {
-                            *row++ = 0xFF000000
-                                | ((Uint32)(head->cm_map[*p8 * 3]) << 16)
-                                | ((Uint32)(head->cm_map[*p8 * 3 + 1]) << 8)
-                                | ((Uint32)(head->cm_map[*p8 * 3 + 2]) << 0);
-                            p8++;
+                            Uint8 c = *p8++;
+                            if (c < head->cm_num) {
+                                *row++ = 0xFF000000 |
+                                         ((Uint32)(head->cm_map[c * 3]) << 16) |
+                                         ((Uint32)(head->cm_map[c * 3 + 1]) << 8) |
+                                         ((Uint32)(head->cm_map[c * 3 + 2]) << 0);
+                            } else {
+                                *row++ = 0;
+                            }
                         }
                         break;
                     case IMAGE_GREYSCALE:
                         for (x = tx; x < tx + ox; x++) {
-                            *row++ = 0xFF000000
-                                | (((Uint32)(*p8)) << 16)
-                                | (((Uint32)(*p8)) << 8)
-                                | (((Uint32)(*p8)) << 0);
-                            ++p8;
+                            Uint8 c = *p8++;
+                            *row++ = 0xFF000000 |
+                                     (((Uint32)c) << 16) |
+                                     (((Uint32)c) << 8) |
+                                     (((Uint32)c) << 0);
                         }
                         break;
                     default:

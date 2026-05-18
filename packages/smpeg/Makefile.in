@@ -57,11 +57,11 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = plaympeg$(EXEEXT)
 subdir = .
-DIST_COMMON = README $(am__configure_deps) $(libsmpeg2include_HEADERS) \
+DIST_COMMON = $(am__configure_deps) $(libsmpeg2include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/smpeg2-config.in $(srcdir)/smpeg2.spec.in \
-	$(top_srcdir)/configure TODO config.guess config.sub depcomp \
-	install-sh ltmain.sh missing mkinstalldirs
+	$(top_srcdir)/configure TODO compile config.guess config.sub \
+	depcomp install-sh ltmain.sh missing mkinstalldirs
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude/libtool.m4 \
 	$(top_srcdir)/acinclude/ltoptions.m4 \
@@ -110,13 +110,16 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(m4datadir)" "$(DESTDIR)$(libsmpeg2includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libsmpeg2_la_LIBADD =
+am__dirstamp = $(am__leading_dot)dirstamp
 am_libsmpeg2_la_OBJECTS = MPEG.lo MPEGring.lo MPEGlist.lo \
-	MPEGstream.lo MPEGsystem.lo smpeg.lo MPEGaudio.lo bitwindow.lo \
-	filter.lo filter_2.lo hufftable.lo mpeglayer1.lo mpeglayer2.lo \
-	mpeglayer3.lo mpegtable.lo mpegtoraw.lo MPEGvideo.lo \
-	decoders.lo floatdct.lo gdith.lo jrevdct.lo motionvec.lo \
-	parseblock.lo readfile.lo util.lo video.lo mmxflags_asm.lo \
-	mmxidct_asm.lo
+	MPEGstream.lo MPEGsystem.lo smpeg.lo audio/MPEGaudio.lo \
+	audio/bitwindow.lo audio/filter.lo audio/filter_2.lo \
+	audio/hufftable.lo audio/mpeglayer1.lo audio/mpeglayer2.lo \
+	audio/mpeglayer3.lo audio/mpegtable.lo audio/mpegtoraw.lo \
+	video/MPEGvideo.lo video/decoders.lo video/floatdct.lo \
+	video/gdith.lo video/jrevdct.lo video/motionvec.lo \
+	video/parseblock.lo video/readfile.lo video/util.lo \
+	video/video.lo video/mmxflags_asm.lo video/mmxidct_asm.lo
 libsmpeg2_la_OBJECTS = $(am_libsmpeg2_la_OBJECTS)
 libsmpeg2_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -319,6 +322,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+ACLOCAL_AMFLAGS = -I acinclude
 bin_SCRIPTS = smpeg2-config
 CCLD = $(CXXLD)
 
@@ -378,9 +382,9 @@ libsmpeg2_la_LDFLAGS = -no-undefined -release $(LT_RELEASE) \
 
 EXTRA_DIST = \
 	CHANGES			\
-	COPYING			\
+	LICENSE.txt		\
 	TODO			\
-	README			\
+	README.md		\
 	README.SDL_mixer 	\
 	plaympeg.1		\
 	Android.mk		\
@@ -390,7 +394,6 @@ EXTRA_DIST = \
 	smpeg2.spec.in		\
 	gcc-fat.sh		\
 	g++-fat.sh		\
-	acinclude		\
 	autogen.sh		\
 	audio/AUTHORS		\
 	audio/COPYING.LIB	\
@@ -482,6 +485,58 @@ clean-libLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
+audio/$(am__dirstamp):
+	@$(MKDIR_P) audio
+	@: > audio/$(am__dirstamp)
+audio/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) audio/$(DEPDIR)
+	@: > audio/$(DEPDIR)/$(am__dirstamp)
+audio/MPEGaudio.lo: audio/$(am__dirstamp) \
+	audio/$(DEPDIR)/$(am__dirstamp)
+audio/bitwindow.lo: audio/$(am__dirstamp) \
+	audio/$(DEPDIR)/$(am__dirstamp)
+audio/filter.lo: audio/$(am__dirstamp) audio/$(DEPDIR)/$(am__dirstamp)
+audio/filter_2.lo: audio/$(am__dirstamp) \
+	audio/$(DEPDIR)/$(am__dirstamp)
+audio/hufftable.lo: audio/$(am__dirstamp) \
+	audio/$(DEPDIR)/$(am__dirstamp)
+audio/mpeglayer1.lo: audio/$(am__dirstamp) \
+	audio/$(DEPDIR)/$(am__dirstamp)
+audio/mpeglayer2.lo: audio/$(am__dirstamp) \
+	audio/$(DEPDIR)/$(am__dirstamp)
+audio/mpeglayer3.lo: audio/$(am__dirstamp) \
+	audio/$(DEPDIR)/$(am__dirstamp)
+audio/mpegtable.lo: audio/$(am__dirstamp) \
+	audio/$(DEPDIR)/$(am__dirstamp)
+audio/mpegtoraw.lo: audio/$(am__dirstamp) \
+	audio/$(DEPDIR)/$(am__dirstamp)
+video/$(am__dirstamp):
+	@$(MKDIR_P) video
+	@: > video/$(am__dirstamp)
+video/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) video/$(DEPDIR)
+	@: > video/$(DEPDIR)/$(am__dirstamp)
+video/MPEGvideo.lo: video/$(am__dirstamp) \
+	video/$(DEPDIR)/$(am__dirstamp)
+video/decoders.lo: video/$(am__dirstamp) \
+	video/$(DEPDIR)/$(am__dirstamp)
+video/floatdct.lo: video/$(am__dirstamp) \
+	video/$(DEPDIR)/$(am__dirstamp)
+video/gdith.lo: video/$(am__dirstamp) video/$(DEPDIR)/$(am__dirstamp)
+video/jrevdct.lo: video/$(am__dirstamp) \
+	video/$(DEPDIR)/$(am__dirstamp)
+video/motionvec.lo: video/$(am__dirstamp) \
+	video/$(DEPDIR)/$(am__dirstamp)
+video/parseblock.lo: video/$(am__dirstamp) \
+	video/$(DEPDIR)/$(am__dirstamp)
+video/readfile.lo: video/$(am__dirstamp) \
+	video/$(DEPDIR)/$(am__dirstamp)
+video/util.lo: video/$(am__dirstamp) video/$(DEPDIR)/$(am__dirstamp)
+video/video.lo: video/$(am__dirstamp) video/$(DEPDIR)/$(am__dirstamp)
+video/mmxflags_asm.lo: video/$(am__dirstamp) \
+	video/$(DEPDIR)/$(am__dirstamp)
+video/mmxidct_asm.lo: video/$(am__dirstamp) \
+	video/$(DEPDIR)/$(am__dirstamp)
 libsmpeg2.la: $(libsmpeg2_la_OBJECTS) $(libsmpeg2_la_DEPENDENCIES) $(EXTRA_libsmpeg2_la_DEPENDENCIES) 
 	$(libsmpeg2_la_LINK) -rpath $(libdir) $(libsmpeg2_la_OBJECTS) $(libsmpeg2_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
@@ -571,262 +626,163 @@ uninstall-binSCRIPTS:
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f audio/MPEGaudio.$(OBJEXT)
+	-rm -f audio/MPEGaudio.lo
+	-rm -f audio/bitwindow.$(OBJEXT)
+	-rm -f audio/bitwindow.lo
+	-rm -f audio/filter.$(OBJEXT)
+	-rm -f audio/filter.lo
+	-rm -f audio/filter_2.$(OBJEXT)
+	-rm -f audio/filter_2.lo
+	-rm -f audio/hufftable.$(OBJEXT)
+	-rm -f audio/hufftable.lo
+	-rm -f audio/mpeglayer1.$(OBJEXT)
+	-rm -f audio/mpeglayer1.lo
+	-rm -f audio/mpeglayer2.$(OBJEXT)
+	-rm -f audio/mpeglayer2.lo
+	-rm -f audio/mpeglayer3.$(OBJEXT)
+	-rm -f audio/mpeglayer3.lo
+	-rm -f audio/mpegtable.$(OBJEXT)
+	-rm -f audio/mpegtable.lo
+	-rm -f audio/mpegtoraw.$(OBJEXT)
+	-rm -f audio/mpegtoraw.lo
+	-rm -f video/MPEGvideo.$(OBJEXT)
+	-rm -f video/MPEGvideo.lo
+	-rm -f video/decoders.$(OBJEXT)
+	-rm -f video/decoders.lo
+	-rm -f video/floatdct.$(OBJEXT)
+	-rm -f video/floatdct.lo
+	-rm -f video/gdith.$(OBJEXT)
+	-rm -f video/gdith.lo
+	-rm -f video/jrevdct.$(OBJEXT)
+	-rm -f video/jrevdct.lo
+	-rm -f video/mmxflags_asm.$(OBJEXT)
+	-rm -f video/mmxflags_asm.lo
+	-rm -f video/mmxidct_asm.$(OBJEXT)
+	-rm -f video/mmxidct_asm.lo
+	-rm -f video/motionvec.$(OBJEXT)
+	-rm -f video/motionvec.lo
+	-rm -f video/parseblock.$(OBJEXT)
+	-rm -f video/parseblock.lo
+	-rm -f video/readfile.$(OBJEXT)
+	-rm -f video/readfile.lo
+	-rm -f video/util.$(OBJEXT)
+	-rm -f video/util.lo
+	-rm -f video/video.$(OBJEXT)
+	-rm -f video/video.lo
 
 distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MPEG.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MPEGaudio.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MPEGlist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MPEGring.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MPEGstream.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MPEGsystem.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MPEGvideo.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bitwindow.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decoders.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter_2.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/floatdct.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gdith.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hufftable.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jrevdct.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mmxflags_asm.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mmxidct_asm.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/motionvec.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpeglayer1.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpeglayer2.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpeglayer3.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpegtable.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpegtoraw.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parseblock.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plaympeg.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/readfile.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/smpeg.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@audio/$(DEPDIR)/MPEGaudio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@audio/$(DEPDIR)/bitwindow.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@audio/$(DEPDIR)/filter.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@audio/$(DEPDIR)/filter_2.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@audio/$(DEPDIR)/hufftable.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@audio/$(DEPDIR)/mpeglayer1.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@audio/$(DEPDIR)/mpeglayer2.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@audio/$(DEPDIR)/mpeglayer3.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@audio/$(DEPDIR)/mpegtable.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@audio/$(DEPDIR)/mpegtoraw.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@video/$(DEPDIR)/MPEGvideo.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@video/$(DEPDIR)/decoders.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@video/$(DEPDIR)/floatdct.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@video/$(DEPDIR)/gdith.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@video/$(DEPDIR)/jrevdct.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@video/$(DEPDIR)/mmxflags_asm.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@video/$(DEPDIR)/mmxidct_asm.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@video/$(DEPDIR)/motionvec.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@video/$(DEPDIR)/parseblock.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@video/$(DEPDIR)/readfile.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@video/$(DEPDIR)/util.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@video/$(DEPDIR)/video.Plo@am__quote@
 
 .S.o:
-@am__fastdepCCAS_TRUE@	$(CPPASCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCCAS_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCCAS_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCCAS_TRUE@	$(CPPASCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCCAS_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	DEPDIR=$(DEPDIR) $(CCASDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCCAS_FALSE@	$(CPPASCOMPILE) -c -o $@ $<
 
 .S.obj:
-@am__fastdepCCAS_TRUE@	$(CPPASCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCCAS_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCCAS_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCCAS_TRUE@	$(CPPASCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCCAS_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	DEPDIR=$(DEPDIR) $(CCASDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCCAS_FALSE@	$(CPPASCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .S.lo:
-@am__fastdepCCAS_TRUE@	$(LTCPPASCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCCAS_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCCAS_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCCAS_TRUE@	$(LTCPPASCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCCAS_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	DEPDIR=$(DEPDIR) $(CCASDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCCAS_FALSE@	$(LTCPPASCOMPILE) -c -o $@ $<
 
-mmxflags_asm.lo: video/mmxflags_asm.S
-@am__fastdepCCAS_TRUE@	$(LIBTOOL)  $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS) -MT mmxflags_asm.lo -MD -MP -MF $(DEPDIR)/mmxflags_asm.Tpo -c -o mmxflags_asm.lo `test -f 'video/mmxflags_asm.S' || echo '$(srcdir)/'`video/mmxflags_asm.S
-@am__fastdepCCAS_TRUE@	$(am__mv) $(DEPDIR)/mmxflags_asm.Tpo $(DEPDIR)/mmxflags_asm.Plo
-@AMDEP_TRUE@@am__fastdepCCAS_FALSE@	source='video/mmxflags_asm.S' object='mmxflags_asm.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCCAS_FALSE@	DEPDIR=$(DEPDIR) $(CCASDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCCAS_FALSE@	$(LIBTOOL)  $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS) -c -o mmxflags_asm.lo `test -f 'video/mmxflags_asm.S' || echo '$(srcdir)/'`video/mmxflags_asm.S
-
-mmxidct_asm.lo: video/mmxidct_asm.S
-@am__fastdepCCAS_TRUE@	$(LIBTOOL)  $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS) -MT mmxidct_asm.lo -MD -MP -MF $(DEPDIR)/mmxidct_asm.Tpo -c -o mmxidct_asm.lo `test -f 'video/mmxidct_asm.S' || echo '$(srcdir)/'`video/mmxidct_asm.S
-@am__fastdepCCAS_TRUE@	$(am__mv) $(DEPDIR)/mmxidct_asm.Tpo $(DEPDIR)/mmxidct_asm.Plo
-@AMDEP_TRUE@@am__fastdepCCAS_FALSE@	source='video/mmxidct_asm.S' object='mmxidct_asm.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCCAS_FALSE@	DEPDIR=$(DEPDIR) $(CCASDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCCAS_FALSE@	$(LIBTOOL)  $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS) -c -o mmxidct_asm.lo `test -f 'video/mmxidct_asm.S' || echo '$(srcdir)/'`video/mmxidct_asm.S
-
 .c.o:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c $<
+@am__fastdepCC_FALSE@	$(COMPILE) -c -o $@ $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+@am__fastdepCC_FALSE@	$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCC_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
 .cpp.o:
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ $<
 
 .cpp.obj:
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .cpp.lo:
-@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
-
-MPEGaudio.lo: audio/MPEGaudio.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MPEGaudio.lo -MD -MP -MF $(DEPDIR)/MPEGaudio.Tpo -c -o MPEGaudio.lo `test -f 'audio/MPEGaudio.cpp' || echo '$(srcdir)/'`audio/MPEGaudio.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/MPEGaudio.Tpo $(DEPDIR)/MPEGaudio.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='audio/MPEGaudio.cpp' object='MPEGaudio.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o MPEGaudio.lo `test -f 'audio/MPEGaudio.cpp' || echo '$(srcdir)/'`audio/MPEGaudio.cpp
-
-bitwindow.lo: audio/bitwindow.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT bitwindow.lo -MD -MP -MF $(DEPDIR)/bitwindow.Tpo -c -o bitwindow.lo `test -f 'audio/bitwindow.cpp' || echo '$(srcdir)/'`audio/bitwindow.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/bitwindow.Tpo $(DEPDIR)/bitwindow.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='audio/bitwindow.cpp' object='bitwindow.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o bitwindow.lo `test -f 'audio/bitwindow.cpp' || echo '$(srcdir)/'`audio/bitwindow.cpp
-
-filter.lo: audio/filter.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT filter.lo -MD -MP -MF $(DEPDIR)/filter.Tpo -c -o filter.lo `test -f 'audio/filter.cpp' || echo '$(srcdir)/'`audio/filter.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/filter.Tpo $(DEPDIR)/filter.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='audio/filter.cpp' object='filter.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o filter.lo `test -f 'audio/filter.cpp' || echo '$(srcdir)/'`audio/filter.cpp
-
-filter_2.lo: audio/filter_2.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT filter_2.lo -MD -MP -MF $(DEPDIR)/filter_2.Tpo -c -o filter_2.lo `test -f 'audio/filter_2.cpp' || echo '$(srcdir)/'`audio/filter_2.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/filter_2.Tpo $(DEPDIR)/filter_2.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='audio/filter_2.cpp' object='filter_2.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o filter_2.lo `test -f 'audio/filter_2.cpp' || echo '$(srcdir)/'`audio/filter_2.cpp
-
-hufftable.lo: audio/hufftable.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT hufftable.lo -MD -MP -MF $(DEPDIR)/hufftable.Tpo -c -o hufftable.lo `test -f 'audio/hufftable.cpp' || echo '$(srcdir)/'`audio/hufftable.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/hufftable.Tpo $(DEPDIR)/hufftable.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='audio/hufftable.cpp' object='hufftable.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o hufftable.lo `test -f 'audio/hufftable.cpp' || echo '$(srcdir)/'`audio/hufftable.cpp
-
-mpeglayer1.lo: audio/mpeglayer1.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT mpeglayer1.lo -MD -MP -MF $(DEPDIR)/mpeglayer1.Tpo -c -o mpeglayer1.lo `test -f 'audio/mpeglayer1.cpp' || echo '$(srcdir)/'`audio/mpeglayer1.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/mpeglayer1.Tpo $(DEPDIR)/mpeglayer1.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='audio/mpeglayer1.cpp' object='mpeglayer1.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o mpeglayer1.lo `test -f 'audio/mpeglayer1.cpp' || echo '$(srcdir)/'`audio/mpeglayer1.cpp
-
-mpeglayer2.lo: audio/mpeglayer2.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT mpeglayer2.lo -MD -MP -MF $(DEPDIR)/mpeglayer2.Tpo -c -o mpeglayer2.lo `test -f 'audio/mpeglayer2.cpp' || echo '$(srcdir)/'`audio/mpeglayer2.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/mpeglayer2.Tpo $(DEPDIR)/mpeglayer2.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='audio/mpeglayer2.cpp' object='mpeglayer2.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o mpeglayer2.lo `test -f 'audio/mpeglayer2.cpp' || echo '$(srcdir)/'`audio/mpeglayer2.cpp
-
-mpeglayer3.lo: audio/mpeglayer3.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT mpeglayer3.lo -MD -MP -MF $(DEPDIR)/mpeglayer3.Tpo -c -o mpeglayer3.lo `test -f 'audio/mpeglayer3.cpp' || echo '$(srcdir)/'`audio/mpeglayer3.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/mpeglayer3.Tpo $(DEPDIR)/mpeglayer3.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='audio/mpeglayer3.cpp' object='mpeglayer3.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o mpeglayer3.lo `test -f 'audio/mpeglayer3.cpp' || echo '$(srcdir)/'`audio/mpeglayer3.cpp
-
-mpegtable.lo: audio/mpegtable.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT mpegtable.lo -MD -MP -MF $(DEPDIR)/mpegtable.Tpo -c -o mpegtable.lo `test -f 'audio/mpegtable.cpp' || echo '$(srcdir)/'`audio/mpegtable.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/mpegtable.Tpo $(DEPDIR)/mpegtable.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='audio/mpegtable.cpp' object='mpegtable.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o mpegtable.lo `test -f 'audio/mpegtable.cpp' || echo '$(srcdir)/'`audio/mpegtable.cpp
-
-mpegtoraw.lo: audio/mpegtoraw.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT mpegtoraw.lo -MD -MP -MF $(DEPDIR)/mpegtoraw.Tpo -c -o mpegtoraw.lo `test -f 'audio/mpegtoraw.cpp' || echo '$(srcdir)/'`audio/mpegtoraw.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/mpegtoraw.Tpo $(DEPDIR)/mpegtoraw.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='audio/mpegtoraw.cpp' object='mpegtoraw.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o mpegtoraw.lo `test -f 'audio/mpegtoraw.cpp' || echo '$(srcdir)/'`audio/mpegtoraw.cpp
-
-MPEGvideo.lo: video/MPEGvideo.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT MPEGvideo.lo -MD -MP -MF $(DEPDIR)/MPEGvideo.Tpo -c -o MPEGvideo.lo `test -f 'video/MPEGvideo.cpp' || echo '$(srcdir)/'`video/MPEGvideo.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/MPEGvideo.Tpo $(DEPDIR)/MPEGvideo.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='video/MPEGvideo.cpp' object='MPEGvideo.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o MPEGvideo.lo `test -f 'video/MPEGvideo.cpp' || echo '$(srcdir)/'`video/MPEGvideo.cpp
-
-decoders.lo: video/decoders.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decoders.lo -MD -MP -MF $(DEPDIR)/decoders.Tpo -c -o decoders.lo `test -f 'video/decoders.cpp' || echo '$(srcdir)/'`video/decoders.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decoders.Tpo $(DEPDIR)/decoders.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='video/decoders.cpp' object='decoders.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decoders.lo `test -f 'video/decoders.cpp' || echo '$(srcdir)/'`video/decoders.cpp
-
-floatdct.lo: video/floatdct.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT floatdct.lo -MD -MP -MF $(DEPDIR)/floatdct.Tpo -c -o floatdct.lo `test -f 'video/floatdct.cpp' || echo '$(srcdir)/'`video/floatdct.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/floatdct.Tpo $(DEPDIR)/floatdct.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='video/floatdct.cpp' object='floatdct.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o floatdct.lo `test -f 'video/floatdct.cpp' || echo '$(srcdir)/'`video/floatdct.cpp
-
-gdith.lo: video/gdith.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT gdith.lo -MD -MP -MF $(DEPDIR)/gdith.Tpo -c -o gdith.lo `test -f 'video/gdith.cpp' || echo '$(srcdir)/'`video/gdith.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/gdith.Tpo $(DEPDIR)/gdith.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='video/gdith.cpp' object='gdith.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o gdith.lo `test -f 'video/gdith.cpp' || echo '$(srcdir)/'`video/gdith.cpp
-
-jrevdct.lo: video/jrevdct.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT jrevdct.lo -MD -MP -MF $(DEPDIR)/jrevdct.Tpo -c -o jrevdct.lo `test -f 'video/jrevdct.cpp' || echo '$(srcdir)/'`video/jrevdct.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/jrevdct.Tpo $(DEPDIR)/jrevdct.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='video/jrevdct.cpp' object='jrevdct.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o jrevdct.lo `test -f 'video/jrevdct.cpp' || echo '$(srcdir)/'`video/jrevdct.cpp
-
-motionvec.lo: video/motionvec.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT motionvec.lo -MD -MP -MF $(DEPDIR)/motionvec.Tpo -c -o motionvec.lo `test -f 'video/motionvec.cpp' || echo '$(srcdir)/'`video/motionvec.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/motionvec.Tpo $(DEPDIR)/motionvec.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='video/motionvec.cpp' object='motionvec.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o motionvec.lo `test -f 'video/motionvec.cpp' || echo '$(srcdir)/'`video/motionvec.cpp
-
-parseblock.lo: video/parseblock.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT parseblock.lo -MD -MP -MF $(DEPDIR)/parseblock.Tpo -c -o parseblock.lo `test -f 'video/parseblock.cpp' || echo '$(srcdir)/'`video/parseblock.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/parseblock.Tpo $(DEPDIR)/parseblock.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='video/parseblock.cpp' object='parseblock.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o parseblock.lo `test -f 'video/parseblock.cpp' || echo '$(srcdir)/'`video/parseblock.cpp
-
-readfile.lo: video/readfile.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT readfile.lo -MD -MP -MF $(DEPDIR)/readfile.Tpo -c -o readfile.lo `test -f 'video/readfile.cpp' || echo '$(srcdir)/'`video/readfile.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/readfile.Tpo $(DEPDIR)/readfile.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='video/readfile.cpp' object='readfile.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o readfile.lo `test -f 'video/readfile.cpp' || echo '$(srcdir)/'`video/readfile.cpp
-
-util.lo: video/util.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT util.lo -MD -MP -MF $(DEPDIR)/util.Tpo -c -o util.lo `test -f 'video/util.cpp' || echo '$(srcdir)/'`video/util.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/util.Tpo $(DEPDIR)/util.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='video/util.cpp' object='util.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o util.lo `test -f 'video/util.cpp' || echo '$(srcdir)/'`video/util.cpp
-
-video.lo: video/video.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT video.lo -MD -MP -MF $(DEPDIR)/video.Tpo -c -o video.lo `test -f 'video/video.cpp' || echo '$(srcdir)/'`video/video.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/video.Tpo $(DEPDIR)/video.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='video/video.cpp' object='video.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o video.lo `test -f 'video/video.cpp' || echo '$(srcdir)/'`video/video.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf audio/.libs audio/_libs
+	-rm -rf video/.libs video/_libs
 
 distclean-libtool:
 	-rm -f libtool config.lt
@@ -1179,6 +1135,10 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f audio/$(DEPDIR)/$(am__dirstamp)
+	-rm -f audio/$(am__dirstamp)
+	-rm -f video/$(DEPDIR)/$(am__dirstamp)
+	-rm -f video/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1190,7 +1150,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) audio/$(DEPDIR) video/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-libtool distclean-tags
@@ -1240,7 +1200,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) audio/$(DEPDIR) video/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

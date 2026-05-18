@@ -372,7 +372,7 @@ static SDL_bool LIBJPEG_LoadJPG_RW(SDL_RWops *src, struct loadjpeg_vars *vars)
         lib.jpeg_calc_output_dimensions(&vars->cinfo);
 
         /* Allocate an output surface to hold the image */
-        vars->surface = SDL_CreateRGBSurfaceWithFormat(0, vars->cinfo.output_width, vars->cinfo.output_height, 0, SDL_PIXELFORMAT_BGRA32);
+        vars->surface = SDL_CreateRGBSurfaceWithFormat(0, vars->cinfo.output_width, vars->cinfo.output_height, 0, SDL_PIXELFORMAT_RGBA32);
     } else {
         /* Set 24-bit RGB output */
         vars->cinfo.out_color_space = JCS_RGB;
@@ -404,6 +404,17 @@ static SDL_bool LIBJPEG_LoadJPG_RW(SDL_RWops *src, struct loadjpeg_vars *vars)
     lib.jpeg_finish_decompress(&vars->cinfo);
     lib.jpeg_destroy_decompress(&vars->cinfo);
 
+    if (vars->cinfo.num_components == 4) {
+        // The CMYK image is essentially RGBA composed over black
+        SDL_Surface *output = SDL_CreateRGBSurfaceWithFormat(0, vars->cinfo.output_width, vars->cinfo.output_height, 0, SDL_PIXELFORMAT_RGB24);
+        if (!output) {
+            return SDL_FALSE;
+        }
+
+        SDL_BlitSurface(vars->surface, NULL, output, NULL);
+        SDL_FreeSurface(vars->surface);
+        vars->surface = output;
+    }
     return SDL_TRUE;
 }
 
