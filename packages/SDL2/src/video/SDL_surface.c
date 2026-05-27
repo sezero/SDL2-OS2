@@ -20,6 +20,7 @@
 */
 #include "../SDL_internal.h"
 
+#include "SDL_hints.h"
 #include "SDL_video.h"
 #include "SDL_sysvideo.h"
 #include "SDL_blit.h"
@@ -121,13 +122,17 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
             return NULL;
         }
 
-        surface->pixels = SDL_SIMDAlloc((size_t)size);
+        if (SDL_GetHintBoolean("SDL_SURFACE_MALLOC", SDL_FALSE)) {
+            surface->pixels = SDL_malloc((size_t)size);
+        } else {
+            surface->flags |= SDL_SIMD_ALIGNED;
+            surface->pixels = SDL_SIMDAlloc((size_t)size);
+        }
         if (!surface->pixels) {
             SDL_FreeSurface(surface);
             SDL_OutOfMemory();
             return NULL;
         }
-        surface->flags |= SDL_SIMD_ALIGNED;
         /* This is important for bitmaps */
         SDL_memset(surface->pixels, 0, surface->h * surface->pitch);
     }

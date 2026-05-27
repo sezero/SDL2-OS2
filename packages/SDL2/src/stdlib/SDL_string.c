@@ -853,6 +853,12 @@ static const char ntoa_table[] = {
 #endif /* ntoa() conversion table */
 
 char *
+SDL_uitoa(unsigned int value, char *string, int radix)
+{
+    return SDL_ultoa((unsigned long)value, string, radix);
+}
+
+char *
 SDL_itoa(int value, char *string, int radix)
 {
 #ifdef HAVE_ITOA
@@ -860,16 +866,6 @@ SDL_itoa(int value, char *string, int radix)
 #else
     return SDL_ltoa((long)value, string, radix);
 #endif /* HAVE_ITOA */
-}
-
-char *
-SDL_uitoa(unsigned int value, char *string, int radix)
-{
-#ifdef HAVE__UITOA
-    return _uitoa(value, string, radix);
-#else
-    return SDL_ultoa((unsigned long)value, string, radix);
-#endif /* HAVE__UITOA */
 }
 
 char *

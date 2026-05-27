@@ -3168,7 +3168,7 @@ SDL_DestroyWindow(SDL_Window * window)
     }
 
     display = SDL_GetDisplayForWindow(window);
-    if (display->fullscreen_window == window) {
+    if (display && display->fullscreen_window == window) {
         display->fullscreen_window = NULL;
     }
 
