@@ -474,6 +474,7 @@ GL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
     GL_ActivateRenderer(renderer);
 
     renderdata->drawstate.texture = NULL;  /* we trash this state. */
+    renderdata->drawstate.texturing = SDL_FALSE; /* we trash this state. */
 
     if (texture->access == SDL_TEXTUREACCESS_TARGET &&
         !renderdata->GL_EXT_framebuffer_object_supported) {
@@ -1701,7 +1702,7 @@ GL_SetVSync(SDL_Renderer * renderer, const int vsync)
     if (retval != 0) {
         return retval;
     }
-    if (SDL_GL_GetSwapInterval() > 0) {
+    if (SDL_GL_GetSwapInterval() != 0) {
         renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
     } else {
         renderer->info.flags &= ~SDL_RENDERER_PRESENTVSYNC;
@@ -1848,7 +1849,7 @@ GL_CreateRenderer(SDL_Window * window, Uint32 flags)
     } else {
         SDL_GL_SetSwapInterval(0);
     }
-    if (SDL_GL_GetSwapInterval() > 0) {
+    if (SDL_GL_GetSwapInterval() != 0) {
         renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
     }
 

@@ -2,7 +2,7 @@
 # fails, define SDL2_DIR environment variable to point to your SDL2
 # installation.
 
-set(SDLSOUND_VERSION 2.0.5)
+set(SDLSOUND_VERSION 2.0.6)
 
 # Increment this if/when we break backwards compatibility.
 set(SDLSOUND_SOVERSION 2)
@@ -19,7 +19,7 @@ include(GNUInstallDirs)
 
 include_directories(src)
 
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+if(CMAKE_C_COMPILER_ID MATCHES "(Clang|^GNU$)")
     add_compile_options(-Wall)
 endif()
 
