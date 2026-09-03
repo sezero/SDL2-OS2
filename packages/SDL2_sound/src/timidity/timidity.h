@@ -25,6 +25,8 @@ typedef struct {
   Sint32
     loop_start, loop_end, data_length,
     sample_rate, low_freq, high_freq, root_freq;
+  Sint8
+    root_tune, fine_tune; /* for soundfont support */
   Sint32
     envelope_rate[6], envelope_offset[6];
   float
@@ -38,6 +40,8 @@ typedef struct {
     modes;
   Sint8
     panning, note_to_use;
+  Sint16
+    scale_tuning; /* for soundfont support */
 } Sample;
 
 typedef struct {
@@ -75,7 +79,11 @@ typedef struct {
 
 } Voice;
 
+#define INST_GUS        0
+#define INST_SF2        1
+
 typedef struct {
+  int type;
   int samples;
   Sample *sample;
 } Instrument;
@@ -145,6 +153,11 @@ typedef struct {
 
 extern int Timidity_Init(const char *config_file);
 extern int Timidity_Init_NoConfig(void);
+/* Set the full path of a soundfont (sf2) to use, and do a preliminary load of
+ * the specified file:  MUST BE called before Timidity_Init(). If loading fails
+ * the soundfont will NOT be set.
+ * If a soundfont is set, config file will not be parsed by Timidity_Init(). */
+extern int Timidity_SetSoundfont(const char *sf2_file);
 extern void Timidity_SetVolume(MidiSong *song, int volume);
 extern int Timidity_PlaySome(MidiSong *song, void *stream, Sint32 len);
 extern MidiSong *Timidity_LoadSong(SDL_RWops *rw, SDL_AudioSpec *audio);

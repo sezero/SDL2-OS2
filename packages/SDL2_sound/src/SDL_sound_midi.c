@@ -32,7 +32,15 @@
 static SDL_bool MIDI_init(void)
 {
     const char *cfg;
+    const char *sf2;
     int rc = -1;
+
+    sf2 = SDL_getenv("TIMIDITY_SOUNDFONT");
+    if (sf2) {
+        if (Timidity_SetSoundfont(sf2) < 0) { /* user override, no cfg */
+            goto done;
+        }
+    }
 
     cfg = SDL_getenv("TIMIDITY_CFG");
     if (cfg) {
@@ -51,6 +59,7 @@ static SDL_bool MIDI_init(void)
         if (rc < 0) rc = Timidity_Init(NULL); /* library's default cfg. */
     }
 
+done:
     BAIL_IF_MACRO(rc < 0, "MIDI: Could not initialise", SDL_FALSE);
     return SDL_TRUE;
 } /* MIDI_init */

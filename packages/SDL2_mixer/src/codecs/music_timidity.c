@@ -58,9 +58,17 @@ static void TIMIDITY_Delete(void *context);
 static int TIMIDITY_Open(const SDL_AudioSpec *spec)
 {
     const char *cfg;
+    const char *sf2;
     int rc = -1;
 
     (void) spec;
+
+    sf2 = SDL_getenv("TIMIDITY_SOUNDFONT");
+    if (sf2) {
+        if (Timidity_SetSoundfont(sf2) < 0) { /* user override, no cfg */
+            return -1;
+        }
+    }
 
     cfg = SDL_getenv("TIMIDITY_CFG");
     if(!cfg) cfg = Mix_GetTimidityCfg();

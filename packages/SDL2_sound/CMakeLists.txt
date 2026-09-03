@@ -2,7 +2,7 @@
 # fails, define SDL2_DIR environment variable to point to your SDL2
 # installation.
 
-set(SDLSOUND_VERSION 2.0.6)
+set(SDLSOUND_VERSION 2.0.7)
 
 # Increment this if/when we break backwards compatibility.
 set(SDLSOUND_SOVERSION 2)
@@ -97,6 +97,8 @@ if(SDLSOUND_DECODER_MIDI)
         src/timidity/playmidi.c
         src/timidity/readmidi.c
         src/timidity/resample.c
+        src/timidity/readsbk.c
+        src/timidity/sndfont.c
         src/timidity/tables.c
         src/timidity/timidity.c
     )
@@ -109,6 +111,8 @@ if(SDLSOUND_DECODER_MIDI)
         src/timidity/playmidi.h
         src/timidity/readmidi.h
         src/timidity/resample.h
+        src/timidity/sbk.h
+        src/timidity/sflayer.h
         src/timidity/tables.h
         src/timidity/timidity.h
     )
