@@ -56,13 +56,13 @@ SDL_TicksInit(void)
 
     ulRC = DosTmrQueryFreq(&ulTmrFreq);
     if (ulRC != NO_ERROR) {
-        debug_os2("DosTmrQueryFreq() failed, rc = %u", ulRC);
+        debug_os2("DosTmrQueryFreq() failed, rc = %lu", ulRC);
     } else {
         ulRC = DosTmrQueryTime((PQWORD)&ullTmrStart);
         if (ulRC == NO_ERROR) {
             return;
         }
-        debug_os2("DosTmrQueryTime() failed, rc = %u", ulRC);
+        debug_os2("DosTmrQueryTime() failed, rc = %lu", ulRC);
     }
 
     ulTmrFreq = 0; /* Error - use DosQuerySysInfo() for timer. */
@@ -137,7 +137,7 @@ SDL_Delay(Uint32 ms)
 
     ulRC = DosCreateEventSem(NULL, &hevTimer, DC_SEM_SHARED, FALSE);
     if (ulRC != NO_ERROR) {
-        debug_os2("DosAsyncTimer() failed, rc = %u", ulRC);
+        debug_os2("DosAsyncTimer() failed, rc = %lu", ulRC);
         DosSleep(ms);
         return;
     }
@@ -170,7 +170,7 @@ SDL_Delay(Uint32 ms)
 #endif
 
     if (ulRC != NO_ERROR) {
-        debug_os2("DosAsyncTimer() failed, rc = %u", ulRC);
+        debug_os2("DosAsyncTimer() failed, rc = %lu", ulRC);
     } else {
         DosWaitEventSem(hevTimer, SEM_INDEFINITE_WAIT);
     }

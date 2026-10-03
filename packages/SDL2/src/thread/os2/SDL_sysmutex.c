@@ -45,7 +45,7 @@ SDL_CreateMutex(void)
 
     ulRC = DosCreateMutexSem(NULL, &hMtx, 0, FALSE);
     if (ulRC != NO_ERROR) {
-        debug_os2("DosCreateMutexSem(), rc = %u", ulRC);
+        debug_os2("DosCreateMutexSem(), rc = %lu", ulRC);
         return NULL;
     }
 
@@ -60,7 +60,7 @@ SDL_DestroyMutex(SDL_mutex * mutex)
     if (hMtx != NULLHANDLE) {
         const ULONG ulRC = DosCloseMutexSem(hMtx);
         if (ulRC != NO_ERROR) {
-            debug_os2("DosCloseMutexSem(), rc = %u", ulRC);
+            debug_os2("DosCloseMutexSem(), rc = %lu", ulRC);
         }
     }
 }
@@ -77,7 +77,7 @@ SDL_LockMutex(SDL_mutex * mutex)
 
     ulRC = DosRequestMutexSem(hMtx, SEM_INDEFINITE_WAIT);
     if (ulRC != NO_ERROR) {
-      debug_os2("DosRequestMutexSem(), rc = %u", ulRC);
+      debug_os2("DosRequestMutexSem(), rc = %lu", ulRC);
       return -1;
     }
 
@@ -100,7 +100,7 @@ SDL_TryLockMutex(SDL_mutex * mutex)
         return SDL_MUTEX_TIMEDOUT;
 
     if (ulRC != NO_ERROR) {
-        debug_os2("DosRequestMutexSem(), rc = %u", ulRC);
+        debug_os2("DosRequestMutexSem(), rc = %lu", ulRC);
         return -1;
     }
 
@@ -119,7 +119,7 @@ SDL_UnlockMutex(SDL_mutex * mutex)
 
     ulRC = DosReleaseMutexSem(hMtx);
     if (ulRC != NO_ERROR)
-        return SDL_SetError("DosReleaseMutexSem(), rc = %u", ulRC);
+        return SDL_SetError("DosReleaseMutexSem(), rc = %lu", ulRC);
 
     return 0;
 }

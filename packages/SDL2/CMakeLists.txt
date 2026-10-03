@@ -286,7 +286,7 @@ set(SDL_CFLAGS "")
 
 # When building shared lib for Windows with MinGW,
 # avoid the DLL having a "lib" prefix
-if(WINDOWS)
+if(WINDOWS OR OS2)
   set(CMAKE_SHARED_LIBRARY_PREFIX "")
 endif()
 
@@ -2535,6 +2535,7 @@ elseif(PSP)
 
 elseif(OS2)
   list(APPEND EXTRA_CFLAGS "-DOS2EMX_PLAIN_CHAR")
+  #list(APPEND EXTRA_CFLAGS "-DOS2DEBUG=2")
 
   file(GLOB CORE_SOURCES ${SDL2_SOURCE_DIR}/src/core/os2/*.c)
   set(SOURCE_FILES ${SOURCE_FILES} ${CORE_SOURCES})
@@ -2546,12 +2547,14 @@ elseif(OS2)
   if(SDL_THREADS)
     set(SDL_THREAD_OS2 1)
     file(GLOB OS2_THREAD_SOURCES ${SDL2_SOURCE_DIR}/src/thread/os2/*.c)
-    set(SOURCE_FILES ${SOURCE_FILES} ${OS2_THREAD_SOURCES})
+    set(SOURCE_FILES ${SOURCE_FILES} 
+      ${OS2_THREAD_SOURCES} 
+      ${SDL2_SOURCE_DIR}/src/thread/generic/SDL_syscond.c)
     set(HAVE_SDL_THREADS TRUE)
   endif()
 
   if(SDL_TIMERS)
-    set(SDL_TIMER_UNIX 1)
+    set(SDL_TIMER_OS2 1)
     file(GLOB OS2_TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/os2/*.c)
     set(SOURCE_FILES ${SOURCE_FILES} ${OS2_TIMER_SOURCES})
     set(HAVE_SDL_TIMERS TRUE)
@@ -2968,10 +2971,15 @@ if(SDL_SHARED)
       set_target_properties(SDL2 PROPERTIES
         DEFINE_SYMBOL BUILD_SDL)
     endif()
-    set_target_properties(SDL2 PROPERTIES
-      VERSION ${SDL_VERSION}
-      SOVERSION ${LT_REVISION}
-      OUTPUT_NAME "SDL2")
+    if(OS2)
+      set_target_properties(SDL2 PROPERTIES
+        OUTPUT_NAME "SDL2")
+    else()
+      set_target_properties(SDL2 PROPERTIES
+        VERSION ${SDL_VERSION}
+        SOVERSION ${LT_REVISION}
+        OUTPUT_NAME "SDL2")
+    endif()
   endif()
   # Note: The clang toolset for Visual Studio does not support /NODEFAULTLIB.
   if(MSVC AND NOT SDL_LIBC AND NOT MSVC_CLANG AND NOT CMAKE_GENERATOR_PLATFORM STREQUAL "ARM")

@@ -1100,7 +1100,7 @@ static void OS2_SetWindowFullscreen(_THIS, SDL_Window *window,
     WINDATA         *pWinData = (WINDATA *)window->driverdata;
     SDL_DisplayMode *pSDLDisplayMode = &display->current_mode;
 
-    debug_os2("Enter, fullscreen: %u", fullscreen);
+    debug_os2("Enter, fullscreen: %d", fullscreen);
 
     if (pSDLDisplayMode == NULL)
         return;
@@ -1149,7 +1149,7 @@ static SDL_bool OS2_GetWindowWMInfo(_THIS, SDL_Window * window,
         return SDL_TRUE;
     }
 
-    SDL_SetError("Application not compiled with SDL %u.%u",
+    SDL_SetError("Application not compiled with SDL %d.%d",
                  SDL_MAJOR_VERSION, SDL_MINOR_VERSION);
     return SDL_FALSE;
 }
@@ -1168,7 +1168,7 @@ static void OS2_SetWindowMouseGrab(_THIS, SDL_Window *window, SDL_bool grabbed)
 {
     WINDATA *pWinData = (WINDATA *)window->driverdata;
 
-    debug_os2("Enter, %u", grabbed);
+    debug_os2("Enter, %d", grabbed);
     _mouseCheck(pWinData);
 }
 
@@ -1321,7 +1321,7 @@ static int OS2_CreateWindowFramebuffer(_THIS, SDL_Window *window,
         return SDL_SetError("No mode data for the display");
 
     SDL_GetWindowSize(window, (int *)&ulWidth, (int *)&ulHeight);
-    debug_os2("Window size: %u x %u", ulWidth, ulHeight);
+    debug_os2("Window size: %lu x %lu", ulWidth, ulHeight);
 
     *pixels = pWinData->pOutput->VideoBufAlloc(
                         pWinData->pVOData, ulWidth, ulHeight, pModeData->ulDepth,
@@ -1330,7 +1330,7 @@ static int OS2_CreateWindowFramebuffer(_THIS, SDL_Window *window,
         return -1;
 
     *format = pSDLDisplayMode->format;
-    debug_os2("Pitch: %u, frame buffer: 0x%X.", *pitch, *pixels);
+    debug_os2("Pitch: %d, frame buffer: 0x%p.", *pitch, *pixels);
     WinSendMsg(pWinData->hwnd, WM_VRNENABLED, 0, 0);
 
     return 0;
@@ -1367,7 +1367,7 @@ static int OS2_SetClipboardText(_THIS, const char *text)
                               PAG_COMMIT | PAG_READ | PAG_WRITE |
                               OBJ_GIVEABLE | OBJ_GETTABLE | OBJ_TILE);
     if (ulRC != NO_ERROR) {
-        debug_os2("DosAllocSharedMem() failed, rc = %u", ulRC);
+        debug_os2("DosAllocSharedMem() failed, rc = %lu", ulRC);
         SDL_free(pszText);
         return -1;
     }
@@ -1692,5 +1692,3 @@ VideoBootStrap OS2VMAN_bootstrap =
 };
 
 #endif /* SDL_VIDEO_DRIVER_OS2 */
-
-/* vi: set ts=4 sw=4 expandtab: */

@@ -2167,7 +2167,7 @@ Cocoa_SetWindowGammaRamp(_THIS, SDL_Window * window, const Uint16 * ramp)
 {
     SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
     CGDirectDisplayID display_id = ((SDL_DisplayData *)display->driverdata)->display;
-    const uint32_t tableSize = 256;
+    #define tableSize 256
     CGGammaValue redTable[tableSize];
     CGGammaValue greenTable[tableSize];
     CGGammaValue blueTable[tableSize];
@@ -2186,6 +2186,7 @@ Cocoa_SetWindowGammaRamp(_THIS, SDL_Window * window, const Uint16 * ramp)
         return SDL_SetError("CGSetDisplayTransferByTable()");
     }
     return 0;
+    #undef tableSize
 }
 
 void*
@@ -2229,7 +2230,7 @@ Cocoa_GetWindowGammaRamp(_THIS, SDL_Window * window, Uint16 * ramp)
 {
     SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
     CGDirectDisplayID display_id = ((SDL_DisplayData *)display->driverdata)->display;
-    const uint32_t tableSize = 256;
+    #define tableSize 256
     CGGammaValue redTable[tableSize];
     CGGammaValue greenTable[tableSize];
     CGGammaValue blueTable[tableSize];
@@ -2246,6 +2247,7 @@ Cocoa_GetWindowGammaRamp(_THIS, SDL_Window * window, Uint16 * ramp)
         ramp[2*256+i] = (Uint16)(blueTable[i] * 65535.0f);
     }
     return 0;
+    #undef tableSize
 }
 
 void

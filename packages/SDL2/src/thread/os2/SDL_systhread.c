@@ -107,7 +107,7 @@ SDL_SYS_SetThreadPriority(SDL_ThreadPriority priority)
                             PRTYC_REGULAR,
                           0, 0);
     if (ulRC != NO_ERROR)
-        return SDL_SetError("DosSetPriority() failed, rc = %u", ulRC);
+        return SDL_SetError("DosSetPriority() failed, rc = %lu", ulRC);
 
     return 0;
 }
@@ -118,7 +118,7 @@ SDL_SYS_WaitThread(SDL_Thread * thread)
     ULONG ulRC = DosWaitThread((PTID)&thread->handle, DCWW_WAIT);
 
     if (ulRC != NO_ERROR) {
-        debug_os2("DosWaitThread() failed, rc = %u", ulRC);
+        debug_os2("DosWaitThread() failed, rc = %lu", ulRC);
     }
 }
 

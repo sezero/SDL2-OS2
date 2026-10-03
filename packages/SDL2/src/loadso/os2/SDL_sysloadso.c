@@ -57,7 +57,7 @@ SDL_LoadObject(const char *sofile)
         }
     }
     if (ulRC != NO_ERROR) {
-        SDL_SetError("Failed loading %s: %s (E%u)", sofile, acError, ulRC);
+        SDL_SetError("Failed loading %s: %s (E%lu)", sofile, acError, ulRC);
         hModule = NULLHANDLE;
     }
     SDL_free(pszModName);
@@ -83,7 +83,7 @@ SDL_LoadFunction(void *handle, const char *name)
         SDL_small_free(_name, isstack);
     }
     if (ulRC != NO_ERROR) {
-        SDL_SetError("Failed loading procedure %s (E%u)", name, ulRC);
+        SDL_SetError("Failed loading procedure %s (E%lu)", name, ulRC);
         return NULL;
     }
 
