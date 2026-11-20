@@ -3,7 +3,7 @@ dnl Process this file with autoconf to produce a configure script.
 dnl Set various version strings - taken gratefully from the GTk sources
 # See docs/release_checklist.md
 m4_define([MAJOR_VERSION_MACRO], [2])
-m4_define([MINOR_VERSION_MACRO], [24])
+m4_define([MINOR_VERSION_MACRO], [25])
 m4_define([MICRO_VERSION_MACRO], [0])
 
 AC_INIT([SDL2_ttf],
@@ -248,14 +248,8 @@ if test x$enable_harfbuzz = xyes; then
 			TTF_LIBS="$TTF_LIBS -lusp10 -lgdi32 -lrpcrt4"
 			PC_LIBS="$PC_LIBS -lusp10 -lgdi32 -lrpcrt4"
 		  ;;
-		  *-*-darwin*)
+		  *-*-darwin*|*-ios-*)
 			# for coretext support:
-			TTF_LIBS="$TTF_LIBS -framework ApplicationServices"
-			PC_LIBS="$PC_LIBS -framework ApplicationServices"
-		  ;;
-		  *-ios-*)
-			# for coretext support:
-			# On iOS CoreText and CoreGraphics are stand-alone frameworks
 			TTF_LIBS="$TTF_LIBS -framework CoreText -framework CoreGraphics -framework CoreFoundation"
 			PC_LIBS="$PC_LIBS -framework CoreText -framework CoreGraphics -framework CoreFoundation"
 		  ;;

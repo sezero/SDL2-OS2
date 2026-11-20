@@ -1,7 +1,7 @@
 # change DEPS_INC in order to point to the dependency headers.
-DEPS_INC=-I"../../../h/SDL2"
+DEPS_INC=-IC:\SDL2DEV\h\SDL2
 # change DEPS_LIB in order to point to the dependency libraries.
-DEPS_LIB=../../../lib
+DEPS_LIB=C:\SDL2DEV\lib
 
 TARGETS = testimage.exe
 

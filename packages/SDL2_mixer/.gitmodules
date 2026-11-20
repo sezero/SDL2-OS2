@@ -25,11 +25,11 @@
 [submodule "external/mpg123"]
 	path = external/mpg123
 	url = https://github.com/libsdl-org/mpg123.git
-	branch = v1.33.4-SDL
+	branch = v1.33.7-SDL
 [submodule "external/libxmp"]
 	path = external/libxmp
 	url = https://github.com/libsdl-org/libxmp.git
-	branch = 4.6.3-SDL
+	branch = 4.7.4-SDL
 [submodule "external/wavpack"]
 	path = external/wavpack
 	url = https://github.com/libsdl-org/wavpack.git
@@ -37,4 +37,4 @@
 [submodule "external/libgme"]
 	path = external/libgme
 	url = https://github.com/libsdl-org/game-music-emu.git
-	branch = v0.6.4-SDL
+	branch = v0.6.5-SDL

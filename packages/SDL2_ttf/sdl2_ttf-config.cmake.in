@@ -23,6 +23,7 @@ set(includedir "@includedir@")
 set(libdir "@libdir@")
 set(_sdl2ttf_extra_static_libraries "@TTF_LIBS@ @PC_LIBS@")
 string(STRIP "${_sdl2ttf_extra_static_libraries}" _sdl2ttf_extra_static_libraries)
+string(REPLACE " -framework " " -Wl,-framework," _sdl2ttf_extra_static_libraries "${_sdl2ttf_extra_static_libraries}")
 
 set(_sdl2ttf_bindir   "${bindir}")
 set(_sdl2ttf_libdir   "${libdir}")

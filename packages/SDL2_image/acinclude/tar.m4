@@ -1,6 +1,6 @@
 # Check how to create a tarball.                            -*- Autoconf -*-
 
-# Copyright (C) 2004-2020 Free Software Foundation, Inc.
+# Copyright (C) 2004-2025 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -80,7 +80,7 @@ m4_if([$1], [v7],
     case $_am_tool in
     gnutar)
       for _am_tar in tar gnutar gtar; do
-        AM_RUN_LOG([$_am_tar --version]) && break
+        AM_RUN_LOG([$_am_tar --version | grep GNU >/dev/null]) && break
       done
       am__tar="$_am_tar --format=m4_if([$1], [pax], [posix], [$1]) -cf - "'"$$tardir"'
       am__tar_="$_am_tar --format=m4_if([$1], [pax], [posix], [$1]) -cf - "'"$tardir"'
@@ -89,7 +89,7 @@ m4_if([$1], [v7],
     plaintar)
       # Must skip GNU tar: if it does not support --format= it doesn't create
       # ustar tarball either.
-      (tar --version) >/dev/null 2>&1 && continue
+      (tar --version | grep GNU) >/dev/null 2>&1 && continue
       am__tar='tar cf - "$$tardir"'
       am__tar_='tar cf - "$tardir"'
       am__untar='tar xf -'
